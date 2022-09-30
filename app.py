@@ -106,5 +106,38 @@ def vehicles():
 def recipes():
     return(render_template("recipes.html"))
 
-if(__name__ == "__main__"):
+## TOOLS
+@app.route("/Tools")
+def tools():
+    return(render_template("tools.html"))
+
+@app.route("/Tools/VTT")
+def vtt():
+    return(render_template("vtt.html"))
+
+@app.route("/Tools/NPC-Gen")
+def npcGen():
+    return(render_template("npc-gen.html"))
+
+@app.route("/Tools/Backstory-Gen")
+def backstoryGen():
+    return(render_template("backstory-gen.html"))
+
+@app.route("/Tools/CR-Calc")
+def crCalc():
+    return(render_template("cr-calc.html"))
+
+@app.route("/Tools/Encounter-Gen")
+def encounterGen():
+    return(render_template("encounter-gen.html"))
+
+@app.route("/Tools/Loot-Gen")
+def lootGen():
+    return(render_template("loot-gen.html"))
+
+@app.route("/Tools/Stat-Gen")
+def statGen():
+    return(render_template("stat-gen.html"))
+
+if(__name__ == "__name__"):
 	app.run(host="0.0.0.0")
