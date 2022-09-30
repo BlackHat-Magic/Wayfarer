@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie-edge">
+    <link rel="icon" type="image/x-ixon" href="https://discord.id/img/flags/7.png">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+	{% block head %}{% endblock %}
+</head>
+
+<body>
+<ul class="nav">
+	<li id="nav-home" class="nav-item"><a href="/">Home</a></li>
+	<li id="nav-rules" class="dropdown nav-item">
+		<a href="/Rules" class="dropbtn">Rules</a>
+		<div class="dropdown-content">
+			<a href="/Rules/House-Rules">House Rules</a>
+			<a href="/Rules/Higher-Levels">Beyond 1st Level</a>
+			<a href="/Rules/Languages">Languages</a>
+			<a href="/Rules/Multiclassing">Multiclassing</a>
+			<a href="/Rules/Step-by-Step">Step-by-Step Characters</a>
+		</div>
+	</li>
+	<li id="nav-char" class="dropdown nav-item">
+		<a href="/Characters" class="dropbtn">Characters</a>
+		<div class="dropdown-content">
+			<a href="/Characters/Races">Races</a>
+			<a href="/Characters/Backgrounds">Backgrounds</a>
+			<a href="/Characters/Feats">Feats</a>
+			<a href="/Characters/Other">Other Options</a>
+			<a href="/Characters/Stats">Character Stats</a>
+			<a href="/Characters/Backstory">Backstory Generator</a>
+			<a href="/Characters/Name">Name</a>
+		</div>
+	</li>
+	<li id="nav-qref" class="dropdown nav-item">
+		<a href="/Quick-Reference">Quick Reference</a>
+		<div class="dropdown-content">
+			<a href="/Quick-Reference/Actions">Actions</a>
+			<a href="/Quick-Reference/Conditions">Conditions</a>
+			<a href="/Quick-Reference/Items">Items & Adventuring Gear</a>
+			<a href="/Quick-Reference/Magic-Items">Magic Items</a>
+			<a href="/Quick-Reference/Languages">Languages</a>
+			<a href="/Quick-Reference/Spells">Spells</a>
+			<a href="/Quick-Reference/Vehicles">Vehicles</a>
+			<a href="/Quick-Reference/Recipes">Recipes</a>
+		</div>
+	</li>
+	<li id="nav-tools" class="dropdown nav-item">
+		<a href="/Tools">Tools</a>
+		<div class="dropdown-content">
+			<a href="/Tools/VTT">Virtual Tabletop</a>
+			<a href="/Tools/NPC-Gen">NPC Generator</a>
+			<a href="/Tools/Backstory">Backstory Generator</a>
+			<a href="/Tools/CR-Calc">CR Calculator</a>
+			<a href="/Tools/Encounter-Gen">Encounter Generator</a>
+			<a href="/Tools/Loot-Gen">Loot Generator</a>
+			<a href="/Tools/Stat-Gen">Stat Generator</a>
+		</div>
+	</li>
+</ul>
+        {% block body %}{% endblock %}
+</body>
+</html>
