@@ -1,11 +1,13 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import json
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.secret_key = open("session.key")
 #db = SQLAlchemy(app)
+
 
 ## RULES
 @app.route("/")
