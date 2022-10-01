@@ -1,0 +1,31 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Sign Up | Wayfinder</title>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<div class="flex vertical start">
+		<h1>Sign Up</h1>
+		<form class="interior flex vertical start">
+			<div class="interior flex horizontal center">
+				<input type="text" name="username" id="su-uname" placeholder="Username">
+			</div>
+			<div class="interior flex horizontal center">
+				<input type="text" name="email" id="su-email" placeholder="Email (Optional)">
+			</div>
+			<div class="interior flex horizontal center">
+				<input type="password" name="password" id="su-password" placeholder="Password">
+			</div>
+			<div class="interior flex horizontal center">
+				<input type="password" name="cpassword" id="su-cpassword" placeholder="Confirm Password">
+			</div>
+			<div class="interior flex horizontal center">
+				<input type="submit">
+			</div>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
