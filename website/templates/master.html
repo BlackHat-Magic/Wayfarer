@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie-edge">
     <link rel="icon" type="image/x-ixon" href="https://discord.id/img/flags/7.png">
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 	{% block head %}{% endblock %}
 </head>
 
@@ -60,7 +60,31 @@
 			<a href="/Tools/Stat-Gen">Stat Generator</a>
 		</div>
 	</li>
+	{% if user.is_authenticated %}
+		<li id="nav-account" class="dropdown nav-item nav-right">
+			<a href="/My-Account">My Account</a>
+			<div class="dropdown-content" style="right: 0px">
+				<a href="/My-Rulesets">My Rulesets</a>
+				<a href="/My-PCs">My Characters</a>
+				<a href="/My-NPCs">My NPCs</a>
+				<a href="/Logout">Log Out</a>
+			</div>
+		</li>
+	{% else %}
+		<li id="nav-login" class="nav-right">
+			<a id="login-link" href="/Login">Log In</a>
+		</li>
+	{% endif %}
 </ul>
+{% with messages = get_flashed_messages(with_categories=false) %}
+	{% if messages %}
+		{% for message in messages %}
+			<div class="interior flex horizontal center red bar">
+				<span>{{ message }}</span>
+			</div>
+		{% endfor %}
+	{% endif %}
+{% endwith %}
         {% block body %}{% endblock %}
 </body>
 </html>

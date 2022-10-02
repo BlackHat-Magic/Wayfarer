@@ -272,6 +272,7 @@ template, template.vertical, template.horizontal {
     padding: 0;
     overflow: hidden;
     background-color: var(--nord-inactive);
+    z-index: 2;
 }
 
 .nav-item {
@@ -299,8 +300,13 @@ template, template.vertical, template.horizontal {
     background-color: var(--nord3);
 }
 
-.nav-right a:hover {
+.nav-right a:hover, .nav-item.nav-right a:hover {
     background-color: var(--nord-secondary);
+    color: var(--nord-text);
+}
+
+.nav-right .dropdown-content a:hover {
+    background-color: var(--nord-active);
 }
 
 .nav-item.dropdown {
@@ -340,6 +346,33 @@ template, template.vertical, template.horizontal {
     background-color: var(--nord3);
 }
 
+/* MESSAGES */
+
+.red {
+    background-color: var(--nord-red);
+}
+.orange {
+    background-color: var(--nord-orange);
+}
+.green {
+    background-color: var(--nord-green);
+}
+.red.text, .orange.text, .green.text {
+    border-radius: 5px;
+    padding: 5px;
+    text-align: center;
+}
+.red.bar, .orange.bar, .green.bar {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 0;
+}
+.red.bar *, .orange.bar *, .green.bar * {
+    text-align: center;
+    margin: 14px 16px;
+}
+
 /* OTHER SHIT*/
 
 button.circle {
@@ -365,6 +398,23 @@ button.circle * {
 div.interior {
     width: auto;
     margin: 0;
+}
+
+.small, .small * {
+    font-size: 12px;
+    color: var(--nord-subtle)
+}
+
+.nav-item a:hover, .small a:hover {
+    color: var(--nord-primary1)
+}
+
+.passwdmismatch {
+    border-color: var(--nord-red);
+}
+
+.hidden {
+    display: none;
 }
 
 @media only screen and (max-width: 900px) {
