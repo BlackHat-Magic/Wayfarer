@@ -48,6 +48,7 @@
     --nord-tertiary: #5E81AC;
 
     --nord-red: #BF616A;
+    --nord-dark-red: #BF3035;
     --nord-orange: #D08770;
     --nord-yellow: #EBCB8B;
     --nord-green: #A3BE8C;
@@ -111,7 +112,7 @@ button, input, select {
     text-align: center;
     text-decoration: inline-block;
     font-size: 24px;
-    margin: 12px;
+    margin: auto;
     border-radius: 25px;
     background-color: var(--nord-inactive);
     color: var(--nord-important);
@@ -179,7 +180,7 @@ template, template.vertical, template.horizontal {
     margin: 0;
 }
 
-/*CONTAINERS */
+/*FLEX CONTAINERS */
 
 .flex {
     display: flex;
@@ -203,24 +204,37 @@ template, template.vertical, template.horizontal {
     margin: 25px;
 }
 
-.flex.center {
+.flex.center, .grid.center {
     justify-content: center;
 }
 
-.flex.start {
+.flex.start, .grid.start {
     justify-content: flex-start;
 }
 
-.flex.end {
+.flex.end, .grid.end {
     justify-content: flex-end;
 }
 
-.flex.space-around {
+.flex.space-around, .grid-space-around {
     justify-content: space-around;
 }
 
-.flex.space-between {
+.flex.space-between, .grid.space-between {
     justify-content: space-between;
+}
+
+/* GRID CONTAINERS */
+.grid {
+    width: 100%;
+    background-color: var(--nord-inactive);
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto
+}
+
+.grid.space-evenly {
+    justify-content: space-evenly;
 }
 
 /* SPLASH TEXT */
@@ -241,9 +255,9 @@ template, template.vertical, template.horizontal {
 /* MODALS */
 
 .modal {
-    /*display: none; Hidden by default */
+    display: none; /*Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 3; /* Sit on top */
     left: 0;
     top: 0;
     width: 100%;
@@ -255,13 +269,14 @@ template, template.vertical, template.horizontal {
 .modal-alert {
     background-color: var(--nord-canvas);
     padding: 20px;
-    position: absolute;
+    position: fixed;
     top: 15%;
     left: 50%;
     transform: translate(-50%, 0%);
     border: 1px solid #888;
     width: 50%; /* Could be more or less, depending on screen size */
-    border-radius: 50px
+    border-radius: 50px;
+    z-index: 4;
 }
 
 /* NAVBAR */
@@ -391,6 +406,19 @@ button.circle * {
     margin: auto;
 }
 
+button.danger {
+    background-color: var(--nord-dark-red);
+    border-color: var(--nord-red);
+}
+
+/*form *, form a {
+    margin: auto;
+}*/
+
+form input, form button {
+    margin: 12px;
+}
+
 .inline {
     display: inline-block;
 }
@@ -415,6 +443,11 @@ div.interior {
 
 .hidden {
     display: none;
+}
+
+a:hover, a:hover span {
+    color: var(--nord-tertiary);
+    cursor: pointer;
 }
 
 @media only screen and (max-width: 900px) {

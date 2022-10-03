@@ -35,3 +35,7 @@ def lootGen():
 @eptool.route("/Stat-Gen")
 def statGen():
     return(render_template("stat-gen.html", user=current_user))
+
+@eptool.route("/Backstory")
+def backstory():
+    return(render_template("backstory.html", user=current_user))

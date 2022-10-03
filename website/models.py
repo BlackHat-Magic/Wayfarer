@@ -7,12 +7,18 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(255), unique=True)
     email = db.Column(db.String(255))
     password = db.Column(db.String(255))
+    foreignruleset = db.Column(db.String(1023))
     rulesets = db.relationship("Ruleset")
+    characters = db.relationship("Character")
 
 class Ruleset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     userid = db.Column(db.Integer, db.ForeignKey("user.id"))
-    rules = db.relationship("HouseRule")
+    is_shareable = db.Column(db.Boolean)
+    name = db.Column(db.String(127))
+    rules = db.relationship("Rule")
+    higher_level = db.relationship("HigherLevel")
+    multiclass = db.relationship("Multiclass")
     languages = db.relationship("Language")
     items = db.relationship("Item")
     conditions = db.relationship("Condition")
@@ -20,17 +26,33 @@ class Ruleset(db.Model):
     actions = db.relationship("Action")
     races = db.relationship("Race")
     feats = db.relationship("Feat")
+    spells = db.relationship("Spell")
+    vehicles = db.relationship("Vehicle")
     backgrounds = db.relationship("Background")
     classes = db.relationship("Playerclass")
-    multiclassspelltable = db.relationship("MulticlassSpellTable")
-    leveltable = db.relationship("LevelTable")
     monsters = db.relationship("Monster")
     
-
-class HouseRule(db.Model):
+class Rule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(511))
+    text = db.Column(db.String(16383))
+    subrule = db.relationship("Subrule")
+
+class Subrule(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ruleid = db.Column(db.Integer, db.ForeignKey("rule.id"))
+    name = db.Column(db.String(511))
+    text = db.Column(db.String(16383))
+
+class HigherLevel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    text = db.Column(db.String(16383))
+
+class Multiclass(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     text = db.Column(db.String(16383))
 
 class Language(db.Model):
@@ -143,6 +165,7 @@ class SubraceFeature(db.Model):
 class Feat(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    type = db.Column(db.String(31))
     name = db.Column(db.String(127))
     prerequisite = db.Column(db.String(255))
     strasi = db.Column(db.Integer)
@@ -151,6 +174,28 @@ class Feat(db.Model):
     intasi = db.Column(db.Integer)
     wisasi = db.Column(db.Integer)
     chaasi = db.Column(db.Integer)
+    text = db.Column(db.String(16383))
+
+class Spell(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    school = db.Column(db.String(31))
+    level = db.Column(db.Integer)
+    casting_time = db.Column(db.Integer)
+    spell_range = db.Column(db.Integer)
+    verbal = db.Column(db.Boolean)
+    somatic = db.Column(db.Boolean)
+    material = db.Column(db.Boolean)
+    consumes_material = db.Column(db.Boolean)
+    duration = db.Column(db.String)
+    text = db.Column(db.String(16383))
+
+class Vehicle(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    type=db.Column(db.String(127))
+    name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
 class Background(db.Model):
@@ -169,7 +214,7 @@ class BackgroundFeature(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
-# classes are called professions in the code because SQLAlchemy gets mad whenever I name it "playerclass" or any variant of such and I can't for the life of me figure out why.
+# not UpperCamelCase because SQLAlchemy getsmad when it is. idk why
 class Playerclass(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
@@ -201,16 +246,6 @@ class SubclassFeature(db.Model):
     subclassid = db.Column(db.Integer, db.ForeignKey("subclass.id"))
     level_obtained = db.Column(db.Integer)
     name = db.Column(db.String(127))
-    text = db.Column(db.String(16383))
-
-class MulticlassSpellTable(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
-    text = db.Column(db.String(16383))
-
-class LevelTable(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     text = db.Column(db.String(16383))
 
 class Monster(db.Model):
@@ -246,7 +281,84 @@ class Monster(db.Model):
 class MonsterAbility(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     monsterid = db.Column(db.Integer, db.ForeignKey("monster.id"))
-    # ability, action, bonusaction, reaction, villainaction, legendaryaction, mythicaction, lairaction
+    # ability,action,bonusaction,reaction,villainaction,legendaryaction,mythicaction,lairaction
     type = db.Column(db.Integer)
     name = db.Column(db.String(127))
     text = db.Column(db.String(2047))
+
+class Character(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    is_npc = db.Column(db.Boolean)
+    userid = db.Column(db.Integer, db.ForeignKey("user.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
+    size = db.Column(db.Integer)
+    type = db.Column(db.String(127))
+    alignment = db.Column(db.String(31))
+    armor_class = db.Column(db.Integer)
+    ac_note = db.Column(db.String(31))
+    die_num = db.Column(db.Integer)
+    walkspeed = db.Column(db.Integer)
+    flyspeed = db.Column(db.Integer)
+    swimspeed = db.Column(db.Integer)
+    burrowspeed = db.Column(db.Integer)
+    strstat = db.Column(db.Integer)
+    dexstat = db.Column(db.Integer)
+    constat = db.Column(db.Integer)
+    intstat = db.Column(db.Integer)
+    wisstat = db.Column(db.Integer)
+    chastat = db.Column(db.Integer)
+    skills = db.Column(db.String(127))
+    senses = db.Column(db.String(255))
+    languages = db.Column(db.String(255))
+    level = db.Column(db.Integer)
+    abilities = db.relationship("CharacterAbility")
+    inventory = db.relationship("CharacterItem")
+    spells = db.relationship("CharacterSpell")
+
+class CharacterAbility(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    characterid = db.Column(db.Integer, db.ForeignKey("character.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(2047))
+
+class CharacterItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("character.id"))
+    is_custom = db.Column(db.Boolean)
+    refitemid = db.Column(db.Integer)
+    name = db.Column(db.String(127))
+    type = db.Column(db.String(127))
+    rarity = db.Column(db.Integer)
+    tier = db.Column(db.Integer)
+    attunement = db.Column(db.Boolean)
+    cost = db.Column(db.Integer)
+    weight = db.Column(db.Integer)
+    text = db.Column(db.String(16383))
+    armor_type = db.Column(db.String(7))
+    armor_class = db.Column(db.Integer)
+    add_dex = db.Column(db.Boolean)
+    is_shield = db.Column(db.Boolean)
+    min_strength = db.Column(db.Integer)
+    stealth_disadvantage = db.Column(db.Boolean)
+    die_num = db.Column(db.Integer)
+    damage_die = db.Column(db.Integer)
+    weapon_properties = db.Column(db.String(255))
+    weapon_special = db.Column(db.String(16383))
+
+class CharacterSpell(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("character.id"))
+    is_custom = db.Column(db.Boolean)
+    refspellid = db.Column(db.Integer)
+    name = db.Column(db.String(127))
+    school = db.Column(db.String(31))
+    level = db.Column(db.Integer)
+    casting_time = db.Column(db.Integer)
+    spell_range = db.Column(db.Integer)
+    verbal = db.Column(db.Boolean)
+    somatic = db.Column(db.Boolean)
+    material = db.Column(db.Boolean)
+    consumes_material = db.Column(db.Boolean)
+    duration = db.Column(db.String)
+    text = db.Column(db.String(16383))

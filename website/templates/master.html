@@ -7,6 +7,7 @@
     <link rel="icon" type="image/x-ixon" href="https://discord.id/img/flags/7.png">
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+	<script defer src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
 	{% block head %}{% endblock %}
 </head>
 
@@ -20,7 +21,6 @@
 			<a href="/Rules/Higher-Levels">Beyond 1st Level</a>
 			<a href="/Rules/Languages">Languages</a>
 			<a href="/Rules/Multiclassing">Multiclassing</a>
-			<a href="/Rules/Step-by-Step">Step-by-Step Characters</a>
 		</div>
 	</li>
 	<li id="nav-char" class="dropdown nav-item">
@@ -29,10 +29,9 @@
 			<a href="/Character/Races">Races</a>
 			<a href="/Character/Backgrounds">Backgrounds</a>
 			<a href="/Character/Feats">Feats</a>
-			<a href="/Character/Other">Other Options</a>
 			<a href="/Character/Stats">Character Stats</a>
-			<a href="/Character/Backstory">Backstory Generator</a>
 			<a href="/Character/Name">Name</a>
+			<a href="/Character/Step-by-Step">Step-by-Step Characters</a>
 		</div>
 	</li>
 	<li id="nav-qref" class="dropdown nav-item">
@@ -58,6 +57,7 @@
 			<a href="/Tools/Encounter-Gen">Encounter Generator</a>
 			<a href="/Tools/Loot-Gen">Loot Generator</a>
 			<a href="/Tools/Stat-Gen">Stat Generator</a>
+			<a href="/Tools/Backstory">Backstory Generator</a>
 		</div>
 	</li>
 	{% if user.is_authenticated %}
@@ -76,6 +76,8 @@
 		</li>
 	{% endif %}
 </ul>
+
+
 {% with messages = get_flashed_messages(with_categories=false) %}
 	{% if messages %}
 		{% for message in messages %}
@@ -85,6 +87,13 @@
 		{% endfor %}
 	{% endif %}
 {% endwith %}
-        {% block body %}{% endblock %}
+
+<!--<form method="post">
+	<input type="select" name="current_ruleset">
+		<option value="default"></option>
+	</input>
+</form>-->
+
+{% block body %}{% endblock %}
 </body>
 </html>
