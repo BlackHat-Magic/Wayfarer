@@ -35,6 +35,10 @@ def createRule():
             flash("You must specify rule text.")
         elif(len(text) > 16383):
             flash("Rule text must be fewer than 16384 characters")
+        elif("<" in text or ">" in text or "<" in name or ">" in name):
+            flash("Angle brackets (\"<\" and \">\") are not allowed.")
+        elif("javascript" in name or "javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.")
         else:
             new_rule = Rule(name=name, rule_categoryid=cruleset.id, text=text)
             db.session.add(new_rule)
@@ -60,10 +64,15 @@ def createCategory():
     elif(cruleset.id == 1 and current_user.id != 1):
         flash("You cannot edit the default ruleset.")
     elif(request.method == "POST"):
-        if(len(request.form.get("name")) < 1):
+        name = request.form.get("name")
+        if(len(name) < 1):
             flash("You must specify a name for the rule category.")
-        elif(len(request.form.get("name")) > 127):
+        elif(len(name) > 127):
             flash("Category name must be fewer than 128 chatacters.")
+        elif("<" in name or ">" in name):
+            flash("Angle brackets (\"<\" and \">\") are not allowed.")
+        elif("javascript" in name):
+            flash("Cross-site scripting attacks are not allowed.")
         else:
             new_category = Category(name=request.form.get("name"), rulesetid=cruleset.id, pinned=False)
             db.session.add(new_category)
@@ -73,9 +82,9 @@ def createCategory():
     return(render_template("create-category.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
 @eprule.route("/Category/<string:categoryname>")
-def lilRule(categoryname):
+def CategoryRoute(categoryname):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    categoryname = categoryname.replace("_", " ")
+    categoryname = categoryname.replace("-", " ")
     rules = Category.query.filter_by(name=categoryname, rulesetid=cruleset.id).first().rules
     return(render_template("category.html", user=current_user, frulesets=frulesets, cruleset=cruleset, rules=rules))

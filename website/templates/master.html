@@ -22,7 +22,7 @@
 		{% endif %}
 		<div class="dropdown-content">
 			{% for category in cruleset.categories %}
-			<a href="/Rules/Category/{{ category.name }}">{{ category.name }}</a>
+			<a href="/Rules/Category/{{ category.name.replace(' ', '-') }}">{{ category.name }}</a>
 			{% endfor %}
 		</div>
 	</li>

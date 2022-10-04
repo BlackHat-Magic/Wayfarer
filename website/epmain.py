@@ -35,6 +35,10 @@ def createRuleset():
             flash("You must specify a ruleset name.")
         elif(len(name) > 127):
             flash("Ruleset name must be fewer than 128 characters.")
+        elif("<" in name or ">" in name):
+            flash("Angle brackets (\"<\" and \">\") are not allowerd.")
+        elif("javascript" in name):
+            flash("Cross-site scripting attacks are not allowed.")
         else:
             new_ruleset = Ruleset(userid=current_user.id, is_shareable=shareable, name=name)
             db.session.add(new_ruleset)
@@ -57,12 +61,20 @@ def manageRuleset(rulesetid):
             shareable = True
         else:
             shareable = False
-
-        ruleset.name = name
-        ruleset.is_shareable = shareable
-        db.session.commit()
-        flash("Success")
-        return(redirect(url_for("epmain.myRulesets")))
+        if(len(name) < 1):
+            flash("You must specify a ruleset name.")
+        elif(len(name) > 127):
+            flash("Ruleset name must be fewer than 128 characters.")
+        elif("<" in name or ">" in name):
+            flash("Angle brackets (\"<\" and \">\") are not allowerd.")
+        elif("javascript" in name):
+            flash("Cross-site scripting attacks are not allowed.")
+        else:
+            ruleset.name = name
+            ruleset.is_shareable = shareable
+            db.session.commit()
+            flash("Success")
+            return(redirect(url_for("epmain.myRulesets")))
     else:
         ruleset = Ruleset.query.filter_by(id=rulesetid).first()
     return(render_template("manage-ruleset.html", user=current_user, ruleset=ruleset, frulesets=frulesets, cruleset=cruleset))
