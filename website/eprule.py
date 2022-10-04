@@ -87,4 +87,4 @@ def CategoryRoute(categoryname):
     frulesets = getForeignRulesets(current_user)
     categoryname = categoryname.replace("-", " ")
     rules = Category.query.filter_by(name=categoryname, rulesetid=cruleset.id).first().rules
-    return(render_template("category.html", user=current_user, frulesets=frulesets, cruleset=cruleset, rules=rules))
+    return(render_template("category.html", user=current_user, frulesets=frulesets, cruleset=cruleset, rules=rules, heading=categoryname))

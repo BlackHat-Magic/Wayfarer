@@ -6,8 +6,18 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex" x-data="main">
+<div class="flex">
     <div class="flex vertical start">
+        <h1>{{ heading }}</h1>
+    </div>
+</div>
+<div class="wide flex" x-data="main">
+    <div class="flex vertical start tabs">
+        {% for rule in rules %}
+        <a class="tab" @click="activate({{ rule.id }}, `{{ rule.text }}`)" id="tab-{{ rule.id }}">{{ rule.name }}</a>
+        {% endfor %}
+    </div>
+    <div class="flex vertical start wide-content" id="rule">
         {% for rule in rules %}
             <div x-html="rule(`{{rule.text}}`)"></div>
         {% endfor %}

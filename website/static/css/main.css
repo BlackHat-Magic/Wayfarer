@@ -67,28 +67,28 @@ h1 {
 }
 
 h2 {
-    font-size: 64px;
-    margin:32px;
+    font-size: 54px;
+    margin:27px;
 }
 
 h3 {
-    font-size: 56px;
-    margin:28px;
+    font-size: 40px;
+    margin:20px;
 }
 
 h4 {
-    font-size: 48px;
-    margin: 24px;
+    font-size: 30px;
+    margin: 15px;
 }
 
 h5 {
-    font-size: 40px;
-    margin: 20px;
+    font-size: 24px;
+    margin: 12px;
 }
 
 h6 {
-    font-size: 32px;
-    margin: 16px;
+    font-size: 18px;
+    margin: 9px;
 }
 
 form {
@@ -189,19 +189,21 @@ template, template.vertical, template.horizontal {
     border-radius: 12px;
     margin: 50px auto;
     width: 75%;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .horizontal {
     flex-flow: row wrap;
     width: 100%;
     margin: 25px;
+    align-items: center;
 }
 
 .vertical {
     flex-flow: column nowrap;
     width: 100%;
     margin: 25px;
+    align-items: center;
 }
 
 .flex.center, .grid.center {
@@ -225,7 +227,7 @@ template, template.vertical, template.horizontal {
 }
 
 .flex.wide {
-    width: calc(100% - 100px)!important
+    width: calc(100% - 100px)
 }
 
 /* GRID CONTAINERS */
@@ -255,6 +257,33 @@ template, template.vertical, template.horizontal {
 .splashText:hover {
     color: var(--nord-primary1);
     cursor: pointer;
+}
+
+/* TABS */
+
+.tabs {
+    width: 15%;
+    border-radius: 12px;
+}
+
+.tab {
+    display: block;
+    background-color: var(--nord-inactive);
+    width: 100%;
+    padding: 14px;
+}
+.tab:hover {
+    background-color: var(--nord-active);
+    color: var(--nord-primary1);
+}
+
+.tab.active {
+    background-color: var(--nord-active);
+}
+
+.tab.active:hover {
+    background-color: var(--nord3);
+    color: var(--nord-text);
 }
 
 /* MODALS */
@@ -395,6 +424,10 @@ template, template.vertical, template.horizontal {
 
 /* OTHER SHIT*/
 
+div.wide-content * *, div.wide-content * {
+    width: 100%
+}
+
 button.circle {
     height: var(--size);
     width: var(--size);
@@ -490,8 +523,10 @@ a:hover, a:hover span {
         font-size: 16px;
         margin: 8px;
     }
-    .flex {
+    .flex, .flex.wide {
         margin: 0;
-        width: 100%;
+        width: calc(100% - 24px);
+        border-radius: 0px!important;
+        padding: 12px;
     }
 }
