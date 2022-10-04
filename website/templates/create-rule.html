@@ -1,0 +1,41 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Create Rule | Wayfinder</title>
+<script src="{{ url_for('static', filename='js/create-rule.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex" x-data="main">
+    <div class="flex vertical start">
+        <h1>Create Rule</h1>
+        <form class="interior flex vertical start" method="post">
+            <input 
+                type="text" 
+                placeholder="Rule Name"
+                style="width: 90%"
+                name="name"
+                id="name">
+            </input>
+            <select
+                style="width: 95%"
+                name="category"
+                id="category">
+                {% for category in cruleset.categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            <textarea 
+                style="width: 90%; height: 500px; resize: vertical" 
+                placeholder="Rule Text (You can use markdown syntax! A preview of what it will look like is shown below." 
+                x-model="text"
+                name="text"
+                id="text"
+                ></textarea>
+            <a><button type="submit">Create Rule</button></a>
+        </form>
+        <div class="interior flex vertical start" x-html="convert">
+        </div>
+    </div>
+</div>
+{% endblock %}

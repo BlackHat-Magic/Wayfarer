@@ -6,12 +6,17 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-	<div class="flex vertical start">
-		<h1>Page Under Construction</h1>
-		<img src="https://cdn.betterttv.net/emote/609375b139b5010444d0c761/3x" style="max-width: 512px; width: 100%; border-radius: 10px; margin: 50px 150px 50px 150px;">
-		<p>This page isn't finished yet. Come back soon when it's done!</p>
-		<button onclick="window.location.href='/'">Return Home</button>
+<div class="wide flex">
+	<div class="wide flex vertical start">
+		<h1>Pinned Rules</h1>
+		{% if cruleset.id == 1 %}
+			<p>This is where pinned rules go when you are using custom rulesets. For the 5th Edition SRD, this page is empty. To view the rules, navigate to one of the subsections using the navbar.</p>
+		{% endif %}
+		{% for rule in prules %}
+			<h1>{{ rule.name }}</h1>
+			<p>{{ rule.text }}</p>
+		{% endfor %}
+		<a href="/Rules/Create"><button>Create a Rule</button></a>
 	</div>
 </div>
 

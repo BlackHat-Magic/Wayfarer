@@ -1,0 +1,22 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Create Rule Category | Wayfinder</title>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+    <div class="flex vertical start">
+        <h1>Create Rule Category for {{ cruleset.name }}</h1>
+        <form class="flex vertical start" method="post">
+            <input 
+                type="text"
+                name="name"
+                id="id"
+                placeholder="Rule Category Name">
+            </input>
+            <a><button type=submit>Create Category</button></a>
+        </form>
+    </div>
+</div>
+{% endblock %}

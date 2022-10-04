@@ -1,13 +1,15 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash
-from .models import User
+from .models import User, Ruleset
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
+from .check_ruleset import *
 
 epauth = Blueprint('epauth', __name__)
 
 @epauth.route("/Login", methods=["GET", "POST"])
 def login():
+    cruleset = getCurrentRuleset(current_user)
     if(request.method == "POST"):
         username = request.form.get("username")
         password = request.form.get("password")
@@ -21,7 +23,7 @@ def login():
                 flash("Incorrect password.")
         else:
             flash("User does not exist.")
-    return(render_template("login.html", user=current_user))
+    return(render_template("login.html", user=current_user, cruleset=cruleset))
     
 
 @epauth.route("/Logout")
@@ -32,6 +34,7 @@ def logout():
 
 @epauth.route("/Signup", methods=["GET", "POST"])
 def signUp():
+    cruleset = getCurrentRuleset(current_user)
     if(request.method == "POST"):
         username = request.form.get("username")
         email = request.form.get("email")
@@ -49,10 +52,10 @@ def signUp():
         elif(len(password1) < 8):
             flash("Password must be at least 8 characters")
         else:
-            new_user = User(username = username, email = email, password=generate_password_hash(password1, method="sha256"))
+            new_user = User(username = username, email = email, password=generate_password_hash(password1, method="sha256"), current_ruleset=1)
             db.session.add(new_user)
             db.session.commit()
             login_user(User.query.filter_by(username = username).first(), remember = True)
             return(redirect(url_for("epmain.home")))
         
-    return(render_template("signup.html", user=current_user))
+    return(render_template("signup.html", user=current_user, cruleset=cruleset))

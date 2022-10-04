@@ -1,0 +1,16 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Create Rule Category | Wayfinder</title>
+<script src="{{ url_for('static', filename='js/category.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex" x-data="main">
+    <div class="flex vertical start">
+        {% for rule in rules %}
+            <div x-html="rule(`{{rule.text}}`)"></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -7,7 +7,7 @@
     <link rel="icon" type="image/x-ixon" href="https://discord.id/img/flags/7.png">
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-	<script defer src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
+	<script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
 	{% block head %}{% endblock %}
 </head>
 
@@ -15,12 +15,15 @@
 <ul class="nav">
 	<li id="nav-home" class="nav-item"><a href="/">Home</a></li>
 	<li id="nav-rules" class="dropdown nav-item">
-		<a href="/Rules" class="dropbtn">Rules</a>
+		{% if cruleset.id == 1 %}
+			<a href="#" class="dropbtn">Rules</a>
+		{% else %}
+			<a href="/Rules" class="dropbtn">Rules</a>
+		{% endif %}
 		<div class="dropdown-content">
-			<a href="/Rules/House-Rules">House Rules</a>
-			<a href="/Rules/Higher-Levels">Beyond 1st Level</a>
-			<a href="/Rules/Languages">Languages</a>
-			<a href="/Rules/Multiclassing">Multiclassing</a>
+			{% for category in cruleset.categories %}
+			<a href="/Rules/Category/{{ category.name }}">{{ category.name }}</a>
+			{% endfor %}
 		</div>
 	</li>
 	<li id="nav-char" class="dropdown nav-item">

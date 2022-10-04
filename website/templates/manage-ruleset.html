@@ -19,11 +19,11 @@
 			<h5 style="grid-column: 1 / span 4">Ruleset Name: </h5>
 			<input 
 				type="text" 
-				style="grid-column: 5 / span 5" 
 				value="{{ ruleset.name }}" 
-				name="name" 
+				name="name"
+				style="grid-column: 5 / span 5"
 				id="name">
-			</input>
+			</input></span>
 			<h5 style="grid-column: 1 / span 4">Is Shareable? </h5>
 			{% if ruleset.is_shareable %}
 				<select
