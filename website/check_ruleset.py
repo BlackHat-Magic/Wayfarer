@@ -8,8 +8,14 @@ def getForeignRulesets(user):
         return([])
     else:
         frulesets = []
+        if(len(user.foreign_ruleset.split(",")) > 1):
+            frulesetids = user.foreign_ruleset.split(",")
+        else:
+            frulesetids = [user.foreign_ruleset]
+        index = 0
         for i in frulesetids:
-            frulesets.append(Ruleset.query.filter_by(id=frulesetids[i]))
+            frulesets.append(Ruleset.query.filter_by(id=int(frulesetids[index])))
+            index += 1
         return(frulesets)
 
 def  getCurrentRuleset(user):

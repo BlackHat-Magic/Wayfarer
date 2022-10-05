@@ -11,14 +11,32 @@ epmain = Blueprint("epmain", __name__)
 def home():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("index.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(
+        render_template(
+            "index.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset
+        )
+    )
+
+@epmain.route("/Get-Current-Ruleset")
+def get():
+    return(getCurrentRuleset(current_user).name)
 
 @epmain.route("/My-Rulesets")
 @login_required
 def myRulesets():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("my-rulesets.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(
+        render_template(
+            "my-rulesets.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset
+        )
+    )
 
 @epmain.route("/Create-Ruleset", methods=["GET", "POST"])
 @login_required
@@ -45,7 +63,14 @@ def createRuleset():
             db.session.commit()
             flash("Ruleset created!")
             return(redirect(url_for("epmain.myRulesets")))
-    return(render_template("create-ruleset.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(
+        render_template(
+            "create-ruleset.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset
+        )
+    )
 
 @epmain.route("/Manage-Ruleset/<int:rulesetid>", methods=["GET", "POST"])
 @login_required
@@ -77,7 +102,15 @@ def manageRuleset(rulesetid):
             return(redirect(url_for("epmain.myRulesets")))
     else:
         ruleset = Ruleset.query.filter_by(id=rulesetid).first()
-    return(render_template("manage-ruleset.html", user=current_user, ruleset=ruleset, frulesets=frulesets, cruleset=cruleset))
+    return(
+        render_template(
+            "manage-ruleset.html", 
+            user=current_user, 
+            ruleset=ruleset, 
+            frulesets=frulesets, 
+            cruleset=cruleset
+        )
+    )
 
 @epmain.route("/Delete-Ruleset/", methods=["POST"])
 @login_required
@@ -92,3 +125,32 @@ def deleteRuleset():
     else:
         flash("This is not your ruleset.")
     return(redirect("epmain.myRulesets"))
+
+@epmain.route("/Add-Ruleset/", methods=["GET", "POST"])
+@login_required
+def addRuleset():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    if(request.method == "POST"):
+        ruleset = request.form.get("rulesetid")
+        if(not Ruleset.query.filter_by(id=int(ruleset)).first()):
+            flash("Ruleset does not exist.")
+        elif(not Ruleset.query.filter_by(id=int(ruleset)).first().is_shareable):
+            flash("Ruleset is not shareable.")
+        else:
+            try:
+                current_user.foreign_ruleset.append("," + str(ruleset))
+            except:
+                current_user.foreign_ruleset = ruleset
+            db.session.commit()
+            flash("Added ruleset.")
+            return(redirect(url_for("epmain.myRulesets")))
+    return(
+        render_template(
+            "add-ruleset.html",
+            user=current_user,
+            frulesets=frulesets,
+            cruleset=cruleset
+        )
+    )
+

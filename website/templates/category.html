@@ -14,10 +14,17 @@
 <div class="wide flex" x-data="main">
     <div class="flex vertical start tabs">
         {% for rule in rules %}
-        <a class="tab" @click="activate({{ rule.id }}, `{{ rule.text }}`)" id="tab-{{ rule.id }}">{{ rule.name }}</a>
+        <div class="tab-container">
+            <a 
+                class="tab" 
+                @click="activate({{ rule.id }}, `{{ rule.text }}`)" 
+                id="tab-{{ rule.id }}">
+                {{ rule.name }}
+            </a>
+        </div>
         {% endfor %}
     </div>
-    <div class="flex vertical start wide-content" id="rule">
+    <div class="flex vertical start wide-content usercontent" id="rule">
         {% for rule in rules %}
             <div x-html="rule(`{{rule.text}}`)"></div>
         {% endfor %}

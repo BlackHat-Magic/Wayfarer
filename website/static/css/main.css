@@ -286,6 +286,11 @@ template, template.vertical, template.horizontal {
     color: var(--nord-text);
 }
 
+.tab-container {
+    width: 100%;
+    background-color: var(--nord-canvas)!important;
+}
+
 /* MODALS */
 
 .modal {
@@ -424,6 +429,10 @@ template, template.vertical, template.horizontal {
 
 /* OTHER SHIT*/
 
+.usercontent * {
+    width: 100%;
+}
+
 div.wide-content * *, div.wide-content * {
     width: 100%
 }
@@ -528,5 +537,9 @@ a:hover, a:hover span {
         width: calc(100% - 24px);
         border-radius: 0px!important;
         padding: 12px;
+        flex-flow: column nowrap;
+    }
+    .tabs {
+        padding: 0;
     }
 }

@@ -91,12 +91,12 @@
 	{% endif %}
 {% endwith %}
 
-<!--<form method="post">
-	<input type="select" name="current_ruleset">
-		<option value="default"></option>
-	</input>
+<!--<form class="flex horizontal center" style="margin: 25px auto" x-data="main">
+	<select name="current_ruleset" id="current_ruleset" x-model="selected">
+		<option value="ruleset.id"></option>
+		<option value="ruleset.id"></option>
+	</select>
 </form>-->
-
 {% block body %}{% endblock %}
 </body>
 </html>
