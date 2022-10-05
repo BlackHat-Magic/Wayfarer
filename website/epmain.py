@@ -137,11 +137,18 @@ def addRuleset():
             flash("Ruleset does not exist.")
         elif(not Ruleset.query.filter_by(id=int(ruleset)).first().is_shareable):
             flash("Ruleset is not shareable.")
+        elif(Ruleset.query.filter_by(id=int(ruleset)).first().userid == current_user.id):
+            flash("You cannot add your own ruleset as a foreign ruleset.")
+        elif(current_user.foreign_ruleset):
+            if(ruleset in current_user.foreign_ruleset.split(",")):
+                flash("You've already added that ruleset.")
+            else:
+                current_user.foreign_ruleset.append("," + ruleset)
+                db.session.commit()
+                flash("Added ruleset.")
+                return(redirect(url_for("epmain.myRulesets")))
         else:
-            try:
-                current_user.foreign_ruleset.append("," + str(ruleset))
-            except:
-                current_user.foreign_ruleset = ruleset
+            current_user.foreign_ruleset = ruleset
             db.session.commit()
             flash("Added ruleset.")
             return(redirect(url_for("epmain.myRulesets")))
