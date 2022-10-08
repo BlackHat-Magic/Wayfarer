@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash
+from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from .models import Ruleset
 from . import db
 from flask_login import current_user, login_required
@@ -22,7 +22,10 @@ def home():
 
 @epmain.route("/Get-Current-Ruleset")
 def get():
-    return(getCurrentRuleset(current_user).name)
+    id = jsonify({
+        "id": getCurrentRuleset(current_user).id
+    })
+    return(id)
 
 @epmain.route("/My-Rulesets")
 @login_required
@@ -161,3 +164,36 @@ def addRuleset():
         )
     )
 
+@epmain.route("/Remove-Ruleset", methods=["POST"])
+@login_required
+def removeRuleset():
+    instruction = json.loads(request.data)
+    rulesetid = instruction["rulesetid"]
+    ruleset = Ruleset.query.filter_by(id = rulesetid).first()
+    if(current_user.foreign_ruleset == str(ruleset.id)):
+        current_user.foreign_ruleset = ""
+        db.session.commit()
+    else:
+        oldforeign = current_user.foreign_ruleset.split(",")
+        oldforeign.remove(str(rulesetid))
+        newruleset = []
+        newruleset[0] = oldforeign[0]
+        index = 1
+        for i in range(len(oldforeign) - 1):
+            newruleset.append(i)
+        current_user.foreign_ruleset = newruleset
+        db.session.commit()
+    flash("Removed Ruleset.")
+    return(redirect(url_for("epmain.myRulesets")))
+
+@epmain.route("/Change-Ruleset", methods=["POST"])
+@login_required
+def changeRuleset():
+    instruction = json.loads(request.data)
+    print(instruction)
+    #print(rulesetid)
+    #print(rulesetid)
+    #current_user.current_ruleset = rulesetid
+    #db.session.commit()
+    flash("Ruleset changed.")
+    return("")

@@ -2,9 +2,11 @@
 
 {% block head %}
 <title>My Rulesets | Wayfinder</title>
+<script src="{{ url_for('static', filename='js/my-rulesets.js') }}"></script>
 {% endblock %}
 
 {% block body %}
+<div x-data="main">
 <div class="flex">
 	<div class="flex vertical start">
 		<h1>My Rulesets</h1>
@@ -35,14 +37,40 @@
 		<h1>Shared With Me</h1>
 		<div class="grid space-evenly" style="margin: 25px 0">
 			{% for ruleset in frulesets %}
-			<h3 style="grid-column: 1 / span 8">{{ ruleset.name }}</h3>
-			<button style="grid-column: 9 / span 3">Remove</button>
+			<h3 
+				style="grid-column: 1 / span 8; text-decoration: underline">
+				{{ ruleset.name }}
+			</h3>
+			<a 
+				@click="toggle({{ ruleset.id }})"
+				style="margin: auto; grid-column: 9 / span 3">
+				<button class="danger">Remove</button>
+			</a>
 			<h6 style="grid-column: 1 / span 3">Ruleset ID:</h6>
 			<h6 style="grid-column: 10 / span 3">{{ruleset.id}}</h6>
 			{% endfor %}
 		</div>
 		<a href="/Add-Ruleset"><button>Add a Friend's Ruleset</button></a>
 	</div>
+</div>
+
+<div class="modal" :style="show" @click="toggle(0)"></div>
+<div class="modal-alert flex vertical start" :style="show">
+	<h1>Remove Ruleset?</h1>
+	<p>If you remove this ruleset, you will not be able to access it again unless add it again in the futur</p>
+	<p>Click the button below to confirm</p>
+	<button 
+		class="danger" 
+		@click="confirmDelete(rulesetid)" 
+		style="margin: auto; width: auto">
+		Remove Ruleset
+	</button>
+	<a 
+		style="margin: 50px auto 0px auto">
+		<span class="small" @click="toggle(0)">Nevermind</span>
+	</a>
+</div>
+
 </div>
 
 {% endblock %}

@@ -230,6 +230,11 @@ template, template.vertical, template.horizontal {
     width: calc(100% - 100px)
 }
 
+.flex.narrow {
+    width: calc(35% + 100px);
+    max-width: calc(100% - 100px)
+}
+
 /* GRID CONTAINERS */
 .grid {
     width: 100%;
@@ -312,9 +317,9 @@ template, template.vertical, template.horizontal {
     top: 15%;
     left: 50%;
     transform: translate(-50%, 0%);
-    border: 1px solid #888;
+    border: 3px var(--nord-inactive);
     width: 50%; /* Could be more or less, depending on screen size */
-    border-radius: 50px;
+    border-radius: 12px;
     z-index: 4;
 }
 
@@ -400,6 +405,55 @@ template, template.vertical, template.horizontal {
     background-color: var(--nord3);
 }
 
+.nav-item a:hover, .small a:hover {
+    color: var(--nord-primary1);
+}
+
+.topbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--nord-canvas);
+}
+
+.topbar li, .topbar li * {
+    float: left;
+    font-size: 16px;
+    border: none;
+    border-radius: 0;
+    width: auto;
+    background-color: var(--nord-canvas);
+}
+
+.topbar li * {
+    padding: 14px 16px;
+    margin: 0;
+}
+
+.topbar li *:hover {
+    background-color: var(--nord-inactive);
+}
+
+.topbar li.static *:hover {
+    background-color: var(--nord-canvas);
+}
+
+select.nav-item {
+    font-size: 16px;
+    margin: 0;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 0;
+    display: inline-block;
+    width: auto;
+}
+
+select.nav-item:hover {
+    color: var(--nord-tertiary);
+    background-color: var(--nord-active);
+}
+
 /* MESSAGES */
 
 .red {
@@ -481,11 +535,7 @@ div.interior {
 
 .small, .small * {
     font-size: 12px;
-    color: var(--nord-subtle)
-}
-
-.nav-item a:hover, .small a:hover {
-    color: var(--nord-primary1)
+    color: var(--nord-subtle);
 }
 
 .passwdmismatch {
@@ -532,12 +582,13 @@ a:hover, a:hover span {
         font-size: 16px;
         margin: 8px;
     }
-    .flex, .flex.wide {
+    .flex, .flex.wide, .flex.narrow {
         margin: 0;
         width: calc(100% - 24px);
         border-radius: 0px!important;
         padding: 12px;
         flex-flow: column nowrap;
+        max-width: 100%;
     }
     .tabs {
         padding: 0;

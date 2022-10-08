@@ -14,7 +14,7 @@ def getForeignRulesets(user):
             frulesetids = [user.foreign_ruleset]
         index = 0
         for i in frulesetids:
-            frulesets.append(Ruleset.query.filter_by(id=int(frulesetids[index])))
+            frulesets.append(Ruleset.query.filter_by(id=int(frulesetids[index])).first())
             index += 1
         return(frulesets)
 
