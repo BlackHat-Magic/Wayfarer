@@ -1,25 +1,22 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("master", () => ({
-        selected: "",
-
         init_selected () {
-            this.selected = fetch("/Get-Current-Ruleset");
-            console.log(this.selected);
-        },
-        test(){
-            // alert(this.selected);
-            console.log(this.selected);    
+            fetch("/Get-Current-Ruleset")
+                .then(function (response) {
+                    return(response.json());
+                }).then(function (ruleset) {
+                    document.querySelector("#current_ruleset").value = ruleset.id;
+                });
         },
 
         changeRuleset() {
-            alert("Hello" + this.selected)
             fetch("/Change-Ruleset", {
                 method: "POST",
                 body: JSON.stringify({
-                    rulesetid: 2
+                    rulesetid: document.querySelector("#current_ruleset").value
                 }),
-            }).then((_res) => {
-                window.location.href="";
+            }).then(function(){
+                window.location.reload();
             })
         }
     }))

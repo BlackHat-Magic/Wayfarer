@@ -22,10 +22,12 @@ def home():
 
 @epmain.route("/Get-Current-Ruleset")
 def get():
-    id = jsonify({
-        "id": getCurrentRuleset(current_user).id
+    cruleset = getCurrentRuleset(current_user)
+    ruleset = jsonify({
+        "id": cruleset.id,
+        "name": cruleset.name
     })
-    return(id)
+    return(ruleset)
 
 @epmain.route("/My-Rulesets")
 @login_required
@@ -123,6 +125,8 @@ def deleteRuleset():
     ruleset = Ruleset.query.filter_by(id = rulesetid).first()
     if(current_user.id == ruleset.userid):
         db.session.delete(ruleset)
+        if(current_user.current_ruleset == ruleset.id):
+            current_user.current_ruleset = 1
         db.session.commit()
         flash("Ruleset deleted.")
     else:
@@ -170,6 +174,8 @@ def removeRuleset():
     instruction = json.loads(request.data)
     rulesetid = instruction["rulesetid"]
     ruleset = Ruleset.query.filter_by(id = rulesetid).first()
+    if(current_user.current_ruleset == rulesetid):
+        current_user.current_ruleset = 1 
     if(current_user.foreign_ruleset == str(ruleset.id)):
         current_user.foreign_ruleset = ""
         db.session.commit()
@@ -189,11 +195,7 @@ def removeRuleset():
 @epmain.route("/Change-Ruleset", methods=["POST"])
 @login_required
 def changeRuleset():
-    instruction = json.loads(request.data)
-    print(instruction)
-    #print(rulesetid)
-    #print(rulesetid)
-    #current_user.current_ruleset = rulesetid
-    #db.session.commit()
-    flash("Ruleset changed.")
+    rulesetid = json.loads(request.data)["rulesetid"]
+    current_user.current_ruleset = rulesetid
+    db.session.commit()
     return("")

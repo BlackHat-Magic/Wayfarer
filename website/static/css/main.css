@@ -593,4 +593,8 @@ a:hover, a:hover span {
     .tabs {
         padding: 0;
     }
+    .topbar {
+        width: calc(100% - 4px);
+        border: 2px solid var(--nord-inactive);
+    }
 }
