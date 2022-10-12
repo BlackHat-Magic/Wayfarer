@@ -16,7 +16,10 @@
 			<h1>{{ rule.name }}</h1>
 			<p>{{ rule.text }}</p>
 		{% endfor %}
-		<a href="/Rules/Create"><button>Create a Rule</button></a>
+		{% if cruleset.userid == current_user.id %}
+			<a href="/Rules/Create"><button>Create a Rule</button></a>
+			<a href="/Rules/Create-Category"><button>Create Rule Category</button></a>
+		{% endif %}
 	</div>
 </div>
 

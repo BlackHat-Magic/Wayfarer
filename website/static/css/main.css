@@ -91,11 +91,39 @@ h6 {
     margin: 9px;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+}
+
+p {
+    width: 100%;
+    margin: 0;
+}
+
+hr {
+    width: 100%;
+    color: var(--nord3);
+}
+
+blockquote {
+    margin: 1em 40px 1em 40px;
+    padding: 0px 12px;
+    background-color: var(--nord-inactive);
+    border-width: 0 0 0 8px;
+    border-color: var(--nord-active);
+    border-style: solid;
+    width: calc(100% - 80px)!important;
+}
+
+blockquote * {
+    text-align: left;
+}
+
 form {
     width: 100%;
 }
 
-form, form * {
+form {
     font-size: 18px;
 }
 
@@ -144,6 +172,12 @@ input[type=number] {
 
 input[type=number]::-webkit-inner-spin-buttton, input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
+}
+
+input, select {
+    max-width: calc(100% - 24px);
+    box-sizing: border-box;
+    padding: 16px;
 }
 
 table {
@@ -439,6 +473,10 @@ template, template.vertical, template.horizontal {
     background-color: var(--nord-canvas);
 }
 
+.topbar li select {
+    max-width: 100%
+}
+
 select.nav-item {
     font-size: 16px;
     margin: 0;
@@ -481,10 +519,44 @@ select.nav-item:hover {
     margin: 14px 16px;
 }
 
+/* TABLES */
+
+table, th, td {
+    border: 1px solid var(--nord-active);
+    background-color: var(--nord-inactive);
+    font-size: 14px;
+}
+
+th {
+    font-size: 16px;
+}
+
+table {
+    padding: 0;
+    border-collapse: collapse;
+    width: 100%;
+    border-radius: 12px;
+}
+
 /* OTHER SHIT*/
+
+
+a button {
+    margin: 12px;
+    text-align: center;
+    box-sizing: border-box;
+    width: auto;
+}
 
 .usercontent * {
     width: 100%;
+}
+.usercontent {
+    width: 100%!important;
+}
+.usercontent h2, .usercontent h3, .usercontent h4, .usercontent h5, .usercontent h6 {
+    text-align: left;
+    width: 100%
 }
 
 div.wide-content * *, div.wide-content * {
@@ -516,12 +588,16 @@ button.danger {
     margin: auto;
 }*/
 
-form * {
+form input, form textarea, form select, form button, form a {
     margin: 12px;
 }
 
 textarea {
-    font-size: 16px
+    font-size: 16px;
+    max-width: calc(100% - 24px);
+    box-sizing: border-box;
+    resize: vertical;
+    height: 500px;
 }
 
 .inline {
@@ -531,6 +607,7 @@ textarea {
 div.interior {
     width: auto;
     margin: 0;
+    padding: 0;
 }
 
 .small, .small * {
@@ -596,5 +673,8 @@ a:hover, a:hover span {
     .topbar {
         width: calc(100% - 4px);
         border: 2px solid var(--nord-inactive);
+    }
+    .interior.flex.horizontal {
+        flex-flow: row wrap;
     }
 }

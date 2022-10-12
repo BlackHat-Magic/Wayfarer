@@ -1,5 +1,8 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
+
+
+
         text: "",
 
         converter: new showdown.Converter({tables: true}),

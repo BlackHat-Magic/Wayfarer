@@ -1,18 +1,34 @@
-
 {% extends "master.html" %}
 
 {% block head %}
-<title>Under Construction | Luke Henderson</title>
+<title>Create Rule Category | Wayfinder</title>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start">
-		<h1>Page Under Construction</h1>
-		<img src="https://cdn.betterttv.net/emote/609375b139b5010444d0c761/3x" style="max-width: 512px; width: 100%; border-radius: 10px; margin: 50px 150px 50px 150px;">
-		<p>This page isn't finished yet. Come back soon when it's done!</p>
-		<button onclick="window.location.href='/'">Return Home</button>
+		<h1>Races</h1>
+		<input type="text" name="tableinput" id="tableinput" onkeyup="filter()" placeholder="Search Races...">
+		<table name="filtertable" id="filtertable">
+			<tr class="header">
+				<th style="width: 50%">Race Name</th>
+				<th style="width: 30%">Ability</th>
+				<th style="width: 20%">Size</th>
+			</tr>
+			{% for race in cruleset.races %}
+			<tr>
+				<td>{{ race.name }}</td>
+				<td> Test </td>
+				<td>
+					{{ ["Tiny", "Small", "Medium", "Large", "Huge", "Gargantuan"][race.size] }}
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+		<p>test text for reference. Loerm ipsum dolor sit amet consecteteur</p>
+		{% if cruleset.userid == user.id %}
+		<a href="/Character/Races/Create"><button>Create A Race</button></a>
+		{% endif %}
 	</div>
 </div>
-
 {% endblock %}

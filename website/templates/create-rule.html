@@ -26,15 +26,14 @@
                 {% endfor %}
             </select>
             <textarea 
-                style="width: 90%; height: 500px; resize: vertical" 
-                placeholder="Rule Text (You can use markdown syntax! A preview of what it will look like is shown below." 
+                placeholder="Rule Text (You can use markdown syntax! A preview of what it will look like is shown below.)" 
                 x-model="text"
                 name="text"
                 id="text"
                 ></textarea>
             <a><button type="submit">Create Rule</button></a>
         </form>
-        <div class="interior flex vertical start" x-html="convert">
+        <div class="interior flex vertical start" style="width: 100%" x-html="convert">
         </div>
     </div>
 </div>
