@@ -33,49 +33,70 @@ def createRace():
         else:
             data = json.loads(request.data)
             if(len(data["name"]) < 1):
-                return('1')
+                result = jsonify({"code": 1})
+                flash("Fuck")
+                return(result)
             elif(len(data["name"]) > 127):
-                return('2')
+                result = jsonify({"code": 2})
+                return(result)
             elif(len(data["flavor"]) > 16383):
-                return('3')
+                result = jsonify({"code": 3})
+                return(result)
             elif("<" in data["name"] or ">" in data["name"] or "<" in data["flavor"] or ">" in data["flavor"]):
-                return('4')
+                result = jsonify({"code": 4})
+                return(result)
             elif("javascript" in data["name"] or "javascript" in data["flavor"]):
-                return('5')
+                result = jsonify({"code": 5})
+                return(result)
             for feature in data["features"]:
                 if(len(feature["name"]) < 1):
-                    return('6')
+                    result = jsonify({"code": 6})
+                    return(result)
                 elif(len(feature["name"]) > 127):
-                    return('7')
+                    result = jsonify({"code": 7})
+                    return(result)
                 elif(len(feature["text"]) > 16383):
-                    return('8')
+                    result = jsonify({"code": 8})
+                    return(result)
                 elif("<" in feature["name"] or ">" in feature["name"] or "<" in feature["text"] or ">" in feature["text"]):
-                    return('4')
+                    result = jsonify({"code": 4})
+                    return(result)
                 elif("javascript" in feature["name"] or "javascript" in feature["text"]):
-                    return('5')
+                    result = jsonify({"code": 5})
+                    return(result)
             if(data["has_subraces"]):
                 for subrace in data["subraces"]:
                     if(len(subrace["name"]) < 1):
-                        return('9')
+                        result = jsonify({"code": 9})
+                        return(result)
                     elif(len(subrace["name"]) > 127):
-                        return('10')
+                        result = jsonify({"code": 10})
+                        return(result)
                     elif(len(subrace["text"]) > 16383):
-                        return('11')
+                        result = jsonify({"code": 11})
+                        return(result)
                     elif("<" in subrace["name"] or ">" in subrace["name"] or "<" in subrace["text"] or ">" in subrace["text"]):
-                        return('4')
+                        result = jsonify({"code": 4})
+                        return(result)
                     elif("javascript" in feature["name"] or "javascript" in feature["text"]):
-                        return('5')
+                        result = jsonify({"code": 5})
+                        return(result)
                     for feature in subrace["features"]:
                         if(len(feature["name"]) < 1):
-                            return('12')
+                            result = jsonify({"code": 12})
+                            return(result)
                         elif(len(feature["name"]) > 127):
-                            return('13')
+                            result = jsonify({"code": 13})
+                            return(result)
                         elif(len(feature["text"]) > 16383):
-                            return('14')
+                            result = jsonify({"code": 14})
+                            return(result)
                         elif("<" in feature["name"] or ">" in feature["name"] or "<" in feature["text"] or ">" in feature["text"]):
-                            return('4')
+                            result = jsonify({"code": 4})
+                            return(result)
                         elif("javascript" in feature["name"] or "javascript" in feature["text"]):
-                            return('5')
+                            result = jsonify({"code": 5})
+                            return(result)
             new_race = Race(
                 rulesetid = cruleset.id,
                 name = data["name"],

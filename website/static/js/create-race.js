@@ -201,6 +201,7 @@ document.addEventListener ("alpine:init", () => {
             weight_die = this.weight_die;
             walk = this.walk;
             swim = this.swim;
+            climb = this.climb;
             fly = this.fly;
             burrow = this.burrow;
             flavor = this.text;
@@ -241,6 +242,8 @@ document.addEventListener ("alpine:init", () => {
                     subraces: subraces
                 })
             }).then (function (response) {
+                return(response.json());
+            }).then(function (result) {
                 codes = [
                     "Aloha Snackbar",
                     "You must specify a race name.",
@@ -258,16 +261,17 @@ document.addEventListener ("alpine:init", () => {
                     "Each subrace feature's name must be fewer than 128 characters.",
                     "Each subrace feature's text must be fewer than 16384 characters."
                 ];
-                if(parseInt(response) == 0) {
+                if(parseInt(result.code) == 0) {
                     window.location.href="/Character/Races"
                 } else {
-                    document.querySelector("#jsflash").insertAdjacentHTML(0, "<div class='interior flex horizontal red bar center'><span>" + codes[parseInt(response)] + "</span></div>")
+                    document.querySelector("#jsflash").classList.add("interior", "flex", "horizontal", "red", "bar", "center");
+                    document.querySelector("#jsflash").innerHTML = "<span>" + codes[result.code] + "</span>";
+                    window.scrollTo(0, 0);
                 }
                 //this.flash(parseInt(response));
-            })
+            })/*.then(function () {
+                window.location.reload();
+            })*/
         },
-
-        flash (code) {
-        }
     }))
 })

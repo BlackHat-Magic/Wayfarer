@@ -75,10 +75,11 @@
 			</div>
 			<!-- Speed -->
 			<div class="interior flex horizontal center">
-				<input style="width: calc(100% / 4 - 24px); min-width: 120px; font-size: 16px" placeholder="Walk Speed" name="walk" id="walk" x-model="walk">
-				<input style="width: calc(100% / 4 - 24px); min-width: 120px; font-size: 16px" placeholder="Swim Speed" name="swim" id="swim" x-model="swim">
-				<input style="width: calc(100% / 4 - 24px); min-width: 120px; font-size: 16px" placeholder="Fly Speed" name="fly" id="fly" x-model="fly">
-				<input style="width: calc(100% / 4 - 24px); min-width: 120px; font-size: 16px" placeholder="Burrow Speed" name="burrow" id="burrow" x-model="burrow">
+				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Walk Speed" name="walk" id="walk" x-model="walk">
+				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Swim Speed" name="swim" id="swim" x-model="swim">
+				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Climb Speed" name="climb" id="climb" x-model="climb">
+				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Fly Speed" name="fly" id="fly" x-model="fly">
+				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Burrow Speed" name="burrow" id="burrow" x-model="burrow">
 			</div>
 			<textarea placeholder="Flavor Text (You can use markdown syntax! A preview of what it will look like is shown below.)" x-model="text"></textarea>
 			<!-- Features -->
@@ -97,7 +98,7 @@
 			<h2>Subraces</h2>
 			<div class="interior flex horizontal center">
 				<label for="has_subraces">Has subraces?</label>
-				<input type="checkbox" name="has_subraces" id="has_subraces" x-model="has_subraces" @click="console.log(has_subraces)">
+				<input type="checkbox" name="has_subraces" id="has_subraces" x-model="has_subraces">
 			</div>
 			<!-- Display Subraces -->
 			<template x-if="has_subraces">
