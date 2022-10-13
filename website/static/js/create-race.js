@@ -212,7 +212,7 @@ document.addEventListener ("alpine:init", () => {
                 subraces = null;
             }
             
-            fetch("/Character/Races/Create", {
+            fetch ("/Character/Races/Create", {
                 method: "POST",
                 body: JSON.stringify({
                     name: fname,
@@ -240,7 +240,34 @@ document.addEventListener ("alpine:init", () => {
                     has_subraces: has_subraces,
                     subraces: subraces
                 })
+            }).then (function (response) {
+                codes = [
+                    "Aloha Snackbar",
+                    "You must specify a race name.",
+                    "Race name must be fewer than 128 characters.",
+                    "Race text must be fewer than 16384 characters.",
+                    "Angle brackets (\"<\" and \">\") are not allowed.",
+                    "Cross-site scripting attacks are not allowed.",
+                    "You must specify a name for each race feature.",
+                    "Each feature's name must be fewer than 128 characters.",
+                    "Each feature's text must be fewer than 16384 characters.",
+                    "You must specify a name for each subrace.",
+                    "Each subrace's name must be fewer than 128 characters.",
+                    "Each subrace's text must be fewer than 16384 characters.",
+                    "You must specify a name for each subrace feature.",
+                    "Each subrace feature's name must be fewer than 128 characters.",
+                    "Each subrace feature's text must be fewer than 16384 characters."
+                ];
+                if(parseInt(response) == 0) {
+                    window.location.href="/Character/Races"
+                } else {
+                    document.querySelector("#jsflash").insertAdjacentHTML(0, "<div class='interior flex horizontal red bar center'><span>" + codes[parseInt(response)] + "</span></div>")
+                }
+                //this.flash(parseInt(response));
             })
+        },
+
+        flash (code) {
         }
     }))
 })

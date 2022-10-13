@@ -35,6 +35,7 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
+    pinned = db.Column(db.Boolean)
     rules = db.relationship("Rule")
 
 class Rule(db.Model):

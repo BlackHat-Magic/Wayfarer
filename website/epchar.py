@@ -32,6 +32,50 @@ def createRace():
             flash("You cannot create a race in a ruleset that is not yours.")
         else:
             data = json.loads(request.data)
+            if(len(data["name"]) < 1):
+                return('1')
+            elif(len(data["name"]) > 127):
+                return('2')
+            elif(len(data["flavor"]) > 16383):
+                return('3')
+            elif("<" in data["name"] or ">" in data["name"] or "<" in data["flavor"] or ">" in data["flavor"]):
+                return('4')
+            elif("javascript" in data["name"] or "javascript" in data["flavor"]):
+                return('5')
+            for feature in data["features"]:
+                if(len(feature["name"]) < 1):
+                    return('6')
+                elif(len(feature["name"]) > 127):
+                    return('7')
+                elif(len(feature["text"]) > 16383):
+                    return('8')
+                elif("<" in feature["name"] or ">" in feature["name"] or "<" in feature["text"] or ">" in feature["text"]):
+                    return('4')
+                elif("javascript" in feature["name"] or "javascript" in feature["text"]):
+                    return('5')
+            if(data["has_subraces"]):
+                for subrace in data["subraces"]:
+                    if(len(subrace["name"]) < 1):
+                        return('9')
+                    elif(len(subrace["name"]) > 127):
+                        return('10')
+                    elif(len(subrace["text"]) > 16383):
+                        return('11')
+                    elif("<" in subrace["name"] or ">" in subrace["name"] or "<" in subrace["text"] or ">" in subrace["text"]):
+                        return('4')
+                    elif("javascript" in feature["name"] or "javascript" in feature["text"]):
+                        return('5')
+                    for feature in subrace["features"]:
+                        if(len(feature["name"]) < 1):
+                            return('12')
+                        elif(len(feature["name"]) > 127):
+                            return('13')
+                        elif(len(feature["text"]) > 16383):
+                            return('14')
+                        elif("<" in feature["name"] or ">" in feature["name"] or "<" in feature["text"] or ">" in feature["text"]):
+                            return('4')
+                        elif("javascript" in feature["name"] or "javascript" in feature["text"]):
+                            return('5')
             new_race = Race(
                 rulesetid = cruleset.id,
                 name = data["name"],
@@ -92,7 +136,7 @@ def createRace():
                         )
                         db.session.add(new_feature)
                     db.session.commit()
-            return(redirect(url_for("epchar.createRace")))
+            return(0)
     return(render_template("create-race.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
 @epchar.route("/Races/<string:race>")

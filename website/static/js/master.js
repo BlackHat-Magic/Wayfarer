@@ -15,7 +15,7 @@ document.addEventListener ("alpine:init", () => {
                 body: JSON.stringify({
                     rulesetid: document.querySelector("#current_ruleset").value
                 }),
-            }).then(function(){
+            }).then(function () {
                 window.location.reload();
             })
         }
