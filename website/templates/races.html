@@ -2,28 +2,43 @@
 
 {% block head %}
 <title>Create Rule Category | Wayfinder</title>
+<script src="{{ url_for('static', filename='js/races.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start">
+	<div class="flex vertical start" x-data="main">
 		<h1>Races</h1>
-		<input type="text" name="tableinput" id="tableinput" onkeyup="filter()" placeholder="Search Races...">
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Races..." x-model="query">
+		{% for race in cruleset.races %}
+		<template x-init="raceROM.push(
+			{
+				name: '{{ race.name }}',
+				strasi: {{ race.strasi }},
+				dexasi: {{ race.dexasi }},
+				conasi: {{ race.conasi }},
+				intasi: {{ race.intasi }},
+				wisasi: {{ race.wisasi }},
+				chaasi: {{ race.chaasi }},
+				asitext: '{{ race.asi_text }}',
+				size: {{ race.size }},
+				sizetext: {{ race.size_text }}
+			}
+		)"></template>
+		{% endfor %}
 		<table name="filtertable" id="filtertable">
 			<tr class="header">
 				<th style="width: 50%">Race Name</th>
 				<th style="width: 30%">Ability</th>
 				<th style="width: 20%">Size</th>
 			</tr>
-			{% for race in cruleset.races %}
-			<tr>
-				<td>{{ race.name }}</td>
-				<td> Test </td>
-				<td>
-					{{ ["Tiny", "Small", "Medium", "Large", "Huge", "Gargantuan"][race.size] }}
-				</td>
-			</tr>
-			{% endfor %}
+			<template x-for="race, index in filterQuery()">
+				<tr>
+					<td><a @click="window.location.href = '/Character/Races/' + race.name" x-text="race.name"></a></td>
+					<td x-text="race.asi"></td>
+					<td x-text="race.size"></td>
+				</tr>
+			</template>
 		</table>
 		<p>test text for reference. Loerm ipsum dolor sit amet consecteteur</p>
 		{% if cruleset.userid == user.id %}

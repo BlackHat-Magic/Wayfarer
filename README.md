@@ -14,6 +14,8 @@ In no particular order...
  - make website pretty
  - add CSS animations
  - clean up CSS file
+ - add edit functionality
+ - add duplication functionality
 
 ## Usage
 

@@ -35,8 +35,8 @@ def createRule():
             flash("You must specify rule text.")
         elif(len(text) > 16383):
             flash("Rule text must be fewer than 16384 characters")
-        elif("<" in text or ">" in text or "<" in name or ">" in name):
-            flash("Angle brackets (\"<\" and \">\") are not allowed.")
+        elif("<" in text or "<" in name):
+            flash("Opening angle brackets (\"<\") are not allowed.")
         elif("javascript" in name or "javascript" in text):
             flash("Cross-site scripting attacks are not allowed.")
         else:
@@ -69,10 +69,12 @@ def createCategory():
             flash("You must specify a name for the rule category.")
         elif(len(name) > 127):
             flash("Category name must be fewer than 128 chatacters.")
-        elif("<" in name or ">" in name):
-            flash("Angle brackets (\"<\" and \">\") are not allowed.")
+        elif("<" in name):
+            flash("Opening angle brackets (\"<\") are not allowed.")
         elif("javascript" in name):
             flash("Cross-site scripting attacks are not allowed.")
+        elif("-" in name):
+            flash("Dashes (\"-\") are not allowed in category name.")
         else:
             new_category = Category(name=request.form.get("name"), rulesetid=cruleset.id, pinned=False)
             db.session.add(new_category)

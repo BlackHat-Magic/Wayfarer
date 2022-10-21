@@ -58,8 +58,8 @@ def createRuleset():
             flash("You must specify a ruleset name.")
         elif(len(name) > 127):
             flash("Ruleset name must be fewer than 128 characters.")
-        elif("<" in name or ">" in name):
-            flash("Angle brackets (\"<\" and \">\") are not allowerd.")
+        elif("<" in name):
+            flash("Opening angle brackets (\"<\") are not allowerd.")
         elif("javascript" in name):
             flash("Cross-site scripting attacks are not allowed.")
         else:
@@ -95,8 +95,8 @@ def manageRuleset(rulesetid):
             flash("You must specify a ruleset name.")
         elif(len(name) > 127):
             flash("Ruleset name must be fewer than 128 characters.")
-        elif("<" in name or ">" in name):
-            flash("Angle brackets (\"<\" and \">\") are not allowerd.")
+        elif("<" in name):
+            flash("Opening angle brackets (\"<\") are not allowerd.")
         elif("javascript" in name):
             flash("Cross-site scripting attacks are not allowed.")
         else:

@@ -34,7 +34,6 @@ def createRace():
             data = json.loads(request.data)
             if(len(data["name"]) < 1):
                 result = jsonify({"code": 1})
-                flash("Fuck")
                 return(result)
             elif(len(data["name"]) > 127):
                 result = jsonify({"code": 2})
@@ -42,11 +41,14 @@ def createRace():
             elif(len(data["flavor"]) > 16383):
                 result = jsonify({"code": 3})
                 return(result)
-            elif("<" in data["name"] or ">" in data["name"] or "<" in data["flavor"] or ">" in data["flavor"]):
+            elif("<" in data["name"] or "<" in data["flavor"]):
                 result = jsonify({"code": 4})
                 return(result)
             elif("javascript" in data["name"] or "javascript" in data["flavor"]):
                 result = jsonify({"code": 5})
+                return(result)
+            elif("-" in data["name"]):
+                result = jsonify({"code": 15})
                 return(result)
             for feature in data["features"]:
                 if(len(feature["name"]) < 1):
@@ -58,7 +60,7 @@ def createRace():
                 elif(len(feature["text"]) > 16383):
                     result = jsonify({"code": 8})
                     return(result)
-                elif("<" in feature["name"] or ">" in feature["name"] or "<" in feature["text"] or ">" in feature["text"]):
+                elif("<" in feature["name"] or "<" in feature["text"]):
                     result = jsonify({"code": 4})
                     return(result)
                 elif("javascript" in feature["name"] or "javascript" in feature["text"]):
@@ -75,7 +77,7 @@ def createRace():
                     elif(len(subrace["text"]) > 16383):
                         result = jsonify({"code": 11})
                         return(result)
-                    elif("<" in subrace["name"] or ">" in subrace["name"] or "<" in subrace["text"] or ">" in subrace["text"]):
+                    elif("<" in subrace["name"] or "<" in subrace["text"]):
                         result = jsonify({"code": 4})
                         return(result)
                     elif("javascript" in feature["name"] or "javascript" in feature["text"]):
@@ -91,7 +93,7 @@ def createRace():
                         elif(len(feature["text"]) > 16383):
                             result = jsonify({"code": 14})
                             return(result)
-                        elif("<" in feature["name"] or ">" in feature["name"] or "<" in feature["text"] or ">" in feature["text"]):
+                        elif("<" in feature["name"] or "<" in feature["text"]):
                             result = jsonify({"code": 4})
                             return(result)
                         elif("javascript" in feature["name"] or "javascript" in feature["text"]):
@@ -119,7 +121,8 @@ def createRace():
                 height_die = data["height_die"],
                 base_weight = data["base_weight"],
                 weight_num = data["weight_num"],
-                weight_die = data["weight_die"]
+                weight_die = data["weight_die"],
+                subrace_flavor = data["subrace_flavor"]
             )
             db.session.add(new_race)
             db.session.commit()
@@ -157,14 +160,15 @@ def createRace():
                         )
                         db.session.add(new_feature)
                     db.session.commit()
-            return(0)
+            return("0")
     return(render_template("create-race.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
 @epchar.route("/Races/<string:race>")
-def race():
+def race(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("race.html", user=current_user, frulesets = frulesets, cruleset=cruleset))
+    display = Race.query.filter_by(rulesetid=cruleset.id, name=race).first()
+    return(render_template("race.html", user=current_user, frulesets=frulesets, cruleset=cruleset, race=display))
 
 @epchar.route("/Backgrounds")
 def backgrounds():

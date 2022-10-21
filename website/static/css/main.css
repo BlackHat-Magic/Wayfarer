@@ -29,6 +29,7 @@
 
 * {
     font-family: "noto-sans", sans-serif, serif;
+    max-width: 100%;
 }
 
 :root {
@@ -195,6 +196,11 @@ td {
     font-size: 24px;
     margin: 6px;
     padding: 12px;
+}
+
+td a {
+    color: var(--nord-text);
+    text-decoration: none;
 }
 
 footer,footer a {
@@ -550,6 +556,13 @@ a button {
 
 .usercontent * {
     width: 100%;
+    margin: 6px 0;
+}
+.usercontent table, .usercontent table * {
+    width: auto;
+}
+.usercontent blockquote * {
+    margin: 18px 0;
 }
 .usercontent {
     width: 100%!important;
@@ -581,6 +594,11 @@ button.circle * {
 
 button.danger {
     background-color: var(--nord-dark-red);
+    border-color: var(--nord-red);
+}
+
+button.danger.mild {
+    background-color: var(--nord-red);
     border-color: var(--nord-red);
 }
 

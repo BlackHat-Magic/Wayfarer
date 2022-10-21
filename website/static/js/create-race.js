@@ -208,8 +208,10 @@ document.addEventListener ("alpine:init", () => {
             features = this.features;
             has_subraces = this.has_subraces;
             if (has_subraces) {
+                subrace_flavor = this.subrace_flavor;
                 subraces = this.subraces;
             } else {
+                subrace_flavor = null;
                 subraces = null;
             }
             
@@ -238,6 +240,7 @@ document.addEventListener ("alpine:init", () => {
                     burrow: burrow,
                     flavor: flavor,
                     features: features,
+                    subrace_flavor: subrace_flavor,
                     has_subraces: has_subraces,
                     subraces: subraces
                 })
@@ -249,7 +252,7 @@ document.addEventListener ("alpine:init", () => {
                     "You must specify a race name.",
                     "Race name must be fewer than 128 characters.",
                     "Race text must be fewer than 16384 characters.",
-                    "Angle brackets (\"<\" and \">\") are not allowed.",
+                    "Opening angle brackets (\"<\") are not allowed.",
                     "Cross-site scripting attacks are not allowed.",
                     "You must specify a name for each race feature.",
                     "Each feature's name must be fewer than 128 characters.",
@@ -259,7 +262,8 @@ document.addEventListener ("alpine:init", () => {
                     "Each subrace's text must be fewer than 16384 characters.",
                     "You must specify a name for each subrace feature.",
                     "Each subrace feature's name must be fewer than 128 characters.",
-                    "Each subrace feature's text must be fewer than 16384 characters."
+                    "Each subrace feature's text must be fewer than 16384 characters.",
+                    "Dashes (\"-\") are not allowed in race name."
                 ];
                 if(parseInt(result.code) == 0) {
                     window.location.href="/Character/Races"

@@ -6,28 +6,35 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
+<div class="flex" x-data="main">
     <div class="flex vertical start">
-        <h1>{{ heading }}</h1>
-    </div>
-</div>
-<div class="wide flex" x-data="main">
-    <div class="flex vertical start tabs">
-        {% for rule in cruleset.races %}
-        <div class="tab-container">
-            <a 
-                class="tab" 
-                @click="activate({{ rule.id }}, `{{ rule.text }}`)" 
-                id="tab-{{ rule.id }}">
-                {{ rule.name }}
-            </a>
+        <h1>{{ race.name.replace(" ", "-") }}</h1>
+        {% if user.id == cruleset.userid %}
+        <a href="/Character/Races/{{ race.name }}/Duplicate"><button type="button">Duplicate {{ race.name }}</button></a>
+        {% endif %}
+        <div class="usercontent" x-html="convert(`{{ race.flavor }}`)"></div>
+        {% for feature in race.race_features %}
+        <div class="usercontent" x-html="convert('***{{ feature.name }}.*** ' + `{{ feature.text }}`)"></div>
+        {% endfor %}
+        {% if race.subraces %}
+        <div class="usercontent">
+            <h2>Subrace</h2>
+            <hr>
+            <div x-html="convert(`{{ race.subrace_flavor }}`)"></div>
+        </div>
+        {% for subrace in race.subraces %}
+        <div class="usercontent">
+            <h3>{{subrace.name}}</h3>
+            <div x-html="convert(`{{ subrace.flavor }}`)"></div>
+            {% for feature in subrace.subrace_features %}
+            <div x-html="convert('***{{feature.name}}.*** ' + `{{ feature.text }}`)"></div>
+            {% endfor %}
         </div>
         {% endfor %}
-    </div>
-    <div class="flex vertical start wide-content usercontent" id="rule">
-        {% for rule in rules %}
-            <div x-html="rule(`{{rule.text}}`)"></div>
-        {% endfor %}
+        {% endif %}
+        {% if cruleset.userid == current_user.id %}
+        <a @click="delete()"><button type="button" class="danger">Delete {{ race.name.replace(" ", "-") }}</button></a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
