@@ -176,6 +176,84 @@ def backgrounds():
     frulesets = getForeignRulesets(current_user)
     return(render_template("backgrounds.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
+@epchar.route("/Backgrounds/Create", methods=["GET", "POST"])
+def createBackground():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.id):
+            flash("You cannot create backgrounds for a ruleset that is not your own.")
+        else:
+            data = json.loads(request.data)
+            if(len(data["name"]) < 1):
+                flash("You must specify a background name.")
+            elif(len(data["name"]) > 127):
+                flash("Background name must be fewer than 128 characters.")
+            elif(len(data["skills"]) > 255 or len(data["tools"]) > 255 or len(data["languages"]) > 255):
+                flash("Skills, tools, and languages must be fewer than 256 characters each.")
+            elif(len(data["equipment"]) > 511):
+                flash("Equipment must be fewer than 512 characters.")
+            elif(len(data["text"]) > 16383):
+                flash("Text must be fewer than 16384 characters.")
+            elif("-" in data["name"]):
+                flash("Dashes (\"-\") are not allowed in the background name.")
+            elif("<" in data["text"] or "<" in data["name"]):
+                flash("Open angle brackets(\"<\") are not allowed.")
+            elif("javascript" in data["text"] or "javascript" in data["name"]):
+                flash("Cross-site scripting attacks are not allowed.")
+            else:
+                approved = True
+                for feature in data["features"]:
+                    if(len(feature["name"]) < 1):
+                        approved = False
+                        flash("You must specify a feature name.")
+                    elif(len(feature["name"]) > 127):
+                        approved = False
+                        flash("Feature name must be fewer than 128 characters.")
+                    elif(len(feature["text"]) > 16383):
+                        approved = False
+                        flash("Text must be fewer than 16383 characters.")
+                    elif("<" in feature["name"] or "<" in feature["text"]):
+                        approved = False
+                        flash("Open angle brackets(\"<\") are not allowed.")
+                    elif("javascript" in feature["name"] or "javascript" in feature["text"]):
+                        approved = False
+                        flash("Cross-site scripting attacks are not allowed.")
+                if(approved):
+                    new_background = Background(
+                        rulesetid = cruleset.id,
+                        name = data["name"],
+                        skills = data["skills"],
+                        tools = data["tools"],
+                        languages = data["languages"],
+                        equipment = data["equipment"],
+                        text = data["text"]
+                    )
+                    db.session.add(new_background)
+                    db.session.commit()
+
+                    new_background = db.query.filter_by(
+                        name = data["name"],
+                        rulesetid = cruleset.id
+                    ).first()
+                    for feature in data["features"]:
+                        new_feature = BackgroundFeature(
+                            backgroundid = new_background.id,
+                            name = feature["name"],
+                            text = feature["text"]
+                        )
+                        db.session.add(new_feature)
+                    db.session.commit()
+                    flash("Background created!")
+                    return(redirect(url_for("epchar.backgrounds")))
+    return(render_template("create-background.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
+@epchar.route("/Backgrounds/<string:background>")
+def background():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    return(render_template("background.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
 @epchar.route("/Feats")
 def feats():
     cruleset = getCurrentRuleset(current_user)

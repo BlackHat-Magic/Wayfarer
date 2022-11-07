@@ -17,6 +17,8 @@ In no particular order...
  - add edit functionality
  - add duplication functionality
  - unfuck Races page
+ - make background filters more useful
+ - make background page usable on mobile
 
 ## Usage
 

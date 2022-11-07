@@ -200,6 +200,7 @@ class Background(db.Model):
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     skills = db.Column(db.String(255))
+    tools = db.Column(db.String(255))
     languages = db.Column(db.String(255))
     equipment = db.Column(db.String(511))
     text = db.Column(db.String(16383))

@@ -3,16 +3,58 @@
 
 {% block head %}
 <title>Under Construction | Luke Henderson</title>
+<script src="{{ url_for('static', filename='js/backgrounds.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start">
-		<h1>Page Under Construction</h1>
-		<img src="https://cdn.betterttv.net/emote/609375b139b5010444d0c761/3x" style="max-width: 512px; width: 100%; border-radius: 10px; margin: 50px 150px 50px 150px;">
-		<p>This page isn't finished yet. Come back soon when it's done!</p>
-		<button onclick="window.location.href='/'">Return Home</button>
+	<div class="flex vertical start" x-data="main">
+		{% for background in cruleset.backgrounds %}
+		<template x-init="bgROM.push(
+			{
+				name: '{{ background.name }}',
+				skills: {{ background.skills }},
+				languages: {{ background.languages }},
+				equipment: {{ background.equipment }},
+			}
+		)"></template>
+		{% endfor %}
+		<h1>Backgrounds</h1>
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Backgrounds..." x-model="query">
+		<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+			<form class="interior flex horizontal start" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+				<label for="skills" style="box-sizing: border-box; width: 100%; min-width: 64px" @click="toggleSkills()"><a>Skills:</a></label>
+				<div name="skills" id="skills" style="width: 100%" x-show="skillshow">
+					<template x-for="(skill, index) in skills">
+						<div>
+							<input type="checkbox" x-model="skilltoggles[index]" style="width: auto">
+							<label x-text="skills[index]"></label>
+						</div>
+					</template>
+				</div>
+			</form>
+		</div>
+		<table name="filtertable" id="filtertable">
+			<tr class="header">
+				<th style="width: 25%">Background Name</th>
+				<th style="width: 15%">Skills</th>
+				<th style="width: 15%">Tools</th>
+				<th style="width: 15%">Languages</th>
+				<th style="width: 15%">Equipment</th>
+			</tr>
+			<template x-for="background, index in filterQuery()">
+				<tr>
+					<td><a @click="window.location.href = '/Character/Backgrounds/' + background.name.split(' ').join('-')" x-text="background.name"></a></td>
+					<td x-text="background.skills"></td>
+					<td x-text="background.tools"></td>
+					<td x-text="background.languages"></td>
+					<td x-text="background.equipment"></td>
+				</tr>
+			</template>
+		</table>
+		{% if cruleset.userid == user.id %}
+		<a href="/Character/Backgrounds/Create"><button>Create A Background</button></a>
+		{% endif %}
 	</div>
 </div>
-
 {% endblock %}
