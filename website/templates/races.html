@@ -8,8 +8,6 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Races</h1>
-		<input type="text" name="tableinput" id="tableinput" placeholder="Search Races..." x-model="query">
 		{% for race in cruleset.races %}
 		<template x-init="raceROM.push(
 			{
@@ -26,6 +24,22 @@
 			}
 		)"></template>
 		{% endfor %}
+		<h1>Races</h1>
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Races..." x-model="query">
+		<div class="interior flex horizontal center" style="width: 100%">
+			<form class="interior flex horizontal start" style="width: 50%; box-sizing: border-box; margin: 0px">
+				<label for="ability-filter" style="box-sizing: border-box; width: 33%; min-width: 64px">Ability:</label>
+				<select id="ability-filter" name="ability-filter" x-model="abilityfilter" style="width: calc(67% - 24px); min-width: 128px;" x-init="populateASI()">
+					<option value="null">Select</option>
+				</select>
+			</form>
+			<form class="interior flex horizontal start" style="width: 50%; box-sizing: border-box; margin: 0px">
+				<label for="size-filter" style="box-sizing: border-box; width: 33%; min-width: 64px">Size:</label>
+				<select id="size-filter" name="size-filter" x-model="sizefilter" style="width: calc(67% - 24px); min-width: 128px;" x-init="populateSize()">
+					<option value="null">Select</option>
+				</select>
+			</form>
+		</div>
 		<table name="filtertable" id="filtertable">
 			<tr class="header">
 				<th style="width: 50%">Race Name</th>

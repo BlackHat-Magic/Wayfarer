@@ -16,6 +16,7 @@ In no particular order...
  - clean up CSS file
  - add edit functionality
  - add duplication functionality
+ - unfuck Races page
 
 ## Usage
 

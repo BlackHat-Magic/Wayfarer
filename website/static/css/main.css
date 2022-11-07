@@ -125,7 +125,7 @@ form {
 }
 
 form {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 body {
@@ -137,12 +137,12 @@ body {
 
 button, input, select, textarea {
     border-style: solid;
-    padding: 16px 32px;
+    padding: 14px 16px;
     text-align: left;
     text-decoration: inline-block;
-    font-size: 24px;
+    font-size: 16px;
     margin: auto;
-    border-radius: 25px;
+    border-radius: 15px;
     background-color: var(--nord-inactive);
     color: var(--nord-important);
     border-color: var(--nord3);
@@ -176,26 +176,25 @@ input[type=number]::-webkit-inner-spin-buttton, input[type=number]::-webkit-oute
 }
 
 input, select {
-    max-width: calc(100% - 24px);
     box-sizing: border-box;
-    padding: 16px;
+    padding: 8px;
 }
 
 table {
     margin: 12px;
-    padding:24px;
+    padding:14px;
 }
 
 th {
-    font-size: 36px;
+    font-size: 18px;
     margin: 12px;
-    padding: 18px;
+    padding: 14px;
 }
 
 td {
-    font-size: 24px;
+    font-size: 16px;
     margin: 6px;
-    padding: 12px;
+    padding: 14px;
 }
 
 td a {
