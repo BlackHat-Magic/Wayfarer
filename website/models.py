@@ -103,8 +103,9 @@ class Condition(db.Model):
 class Skill(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
-    name = db.Column(db.String(127))
+    name = db.Column(db.String(63))
     ability_score = db.Column(db.String(3))
+    description = db.Column(db.String(16383))
 
 class Action(db.Model):
     id = db.Column(db.Integer, primary_key = True)

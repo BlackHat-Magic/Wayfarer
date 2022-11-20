@@ -65,5 +65,7 @@ document.addEventListener ("alpine:init", () => {
             }
             return(words.join(" "));
         },
+
+        filtertype: true,
     }))
 })

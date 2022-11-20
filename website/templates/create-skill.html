@@ -1,0 +1,33 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Create Skill | Wayfinder</title>
+<script src="{{ url_for('static', filename='js/create-skill.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+    <div class="flex vertical start" x-data="main">
+        <h1>Create a Skill</h1>
+        <form class="interior flex vertical start" method="post">
+            <input type="text" name="name" id="name" placeholder="Skill Name" x-model="name">
+            <label for="ability">Ability:</label>
+            <select name="ability" id="ability" x-model="ability">
+                <option value="N/A">N/A</option>
+                <option value="STR">Strength</option>
+                <option value="DEX">Dexterity</option>
+                <option value="CON">Constitution</option>
+                <option value="INT">Intelligence</option>
+                <option value="WIS">Wisdom</option>
+                <option value="CHA">Charisma</option>
+            </select>
+            <textarea name="text" id="text" placeholder="Skill Description" x-model="text"></textarea>
+            <a><button type="submit">Create Skill!</button></a>
+        </form>
+        <h1 x-text="name"></h1>
+        <p x-html="'<strong>Ability Score: </strong>' + abilitydict[ability]"></p>
+        <div x-html="convert(text)"></div>
+    </div>
+</div>
+{% endblock %}
+

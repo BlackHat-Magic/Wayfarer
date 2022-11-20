@@ -46,7 +46,9 @@ def signUp():
         if(user):   
             flash("Username already in use. Please pick another username.")
         elif(len(username) < 4):
-            flash("Username must be at least 4 characters")
+            flash("Username must be at least 4 characters.")
+        elif(len(username) > 255):
+            flash("Username must be fewer than 256 characters.")
         elif(password1 != password2):
             flash("Passwords do not match")
         elif(len(password1) < 8):

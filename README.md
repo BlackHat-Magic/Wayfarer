@@ -37,3 +37,12 @@ Deploy website. Ideally ensure that it is not publicly-facing yet (we'll get to 
 Wayfinder assumes that the user with ID 1 is the administrator account. It also assumes that the ruleset with ID 1 is the one that unauthenticated users will see. In the top bar, where users change which ruleset they are viewing, this is called "5e SRD" by default. I might change this in the future, but I'm lazy, it's not that hard for you to change it yourself manually anyway, and this repo isn't really intended to be used by other people anyway, I just thought that would be a nice feature to include, so usability isn't at the top of my priority list.
 
 Anyway, you'll want to create a user account with ID 1 to be used as the administrator account, and create a ruleset with ID 1 to be used as the default ruleset. Whichever ruleset and user are created first are the ones with ID 1, hence why it is preferable that you be the only one who can access the site at this stage. From here, you can add the rules and such for the default ruleset and begin using the site. Once the default ruleset and administrator account are set up, you can allow external connections to the site.
+
+## Acknowledgements
+
+This software is licensed under the GNU Affero General Public License Version 3.
+
+It utilizes the following works licensed under different terms:
+
+ - Alpine.js, licensed under the MIT License
+ - Showdown.js, licensed under the MIT License

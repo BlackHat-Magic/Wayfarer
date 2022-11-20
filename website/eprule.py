@@ -24,33 +24,34 @@ def createRule():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     if(request.method == "POST"):
-        name = request.form.get("name")
-        category = request.form.get("category")
-        text = request.form.get("text")
-        if(len(name) < 1) :
-            flash("You must specify a rule name.")
-        elif(len(name) > 127):
-            flash("Rule name must be fewer than 128 characters.")
-        elif(len(text) < 1):
-            flash("You must specify rule text.")
-        elif(len(text) > 16383):
-            flash("Rule text must be fewer than 16384 characters")
-        elif("<" in text or "<" in name):
-            flash("Opening angle brackets (\"<\") are not allowed.")
-        elif("javascript" in name or "javascript" in text):
-            flash("Cross-site scripting attacks are not allowed.")
+        if(current_user.id != cruleset.userid):
+            flash("You cannot create rules for rulesets that are not your own.")
         else:
-            new_rule = Rule(name=name, rule_categoryid=cruleset.id, text=text)
-            db.session.add(new_rule)
-            db.session.commit()
-            flash("Rule created.")
-            return(redirect(url_for("eprule.rules")))
+            name = request.form.get("name")
+            category = request.form.get("category")
+            text = request.form.get("text")
+            if(len(name) < 1) :
+                flash("You must specify a rule name.")
+            elif(len(name) > 127):
+                flash("Rule name must be fewer than 128 characters.")
+            elif(len(text) < 1):
+                flash("You must specify rule text.")
+            elif(len(text) > 16383):
+                flash("Rule text must be fewer than 16384 characters")
+            elif("<" in text or "<" in name):
+                flash("Opening angle brackets (\"<\") are not allowed.")
+            elif("javascript" in name or "javascript" in text):
+                flash("Cross-site scripting attacks are not allowed.")
+            else:
+                new_rule = Rule(name=name, rule_categoryid=cruleset.id, text=text)
+                db.session.add(new_rule)
+                db.session.commit()
+                flash("Rule created.")
+                return(redirect(url_for("eprule.rules")))
     if(len(cruleset.categories) < 1):
         flash("You must have at least one category to add the rule to.")
         return(redirect(url_for("eprule.createCategory")))
     
-    elif(cruleset.id == 1 and current_user.id != 1):
-        flash("You cannot edit the default ruleset.")
     return(render_template("create-rule.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
 @eprule.route("/Create-Category", methods=["GET", "POST"])
@@ -83,7 +84,7 @@ def createCategory():
             return(redirect(url_for("eprule.rules")))
     return(render_template("create-category.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
-@eprule.route("/Category/<string:categoryname>")
+@eprule.route("/<string:categoryname>")
 def CategoryRoute(categoryname):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)

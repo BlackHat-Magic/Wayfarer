@@ -1,0 +1,37 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Skills | Wayfinder</title>
+<script src="{{ url_for('static', filename='js/skills.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+    <div class="flex vertical start" x-data="main">
+        <h1>Skills</h1>
+        <ol class="toc">
+            {% for skill in cruleset.skills %}
+            <li><a href="/Quick-Reference/Skills#{{ skill.name.replace(' ', '-') }}">{{ skill.name }}</a></li>
+            {% endfor %}
+        </ol>
+        {% for skill in cruleset.skills %}
+        <div class="interior flex horizontal space-between" style="width: 100%">
+            <h2 style="margin: 0" id="{{ skill.name.replace(' ', '-') }}">{{ skill.name }}</h2>
+            {% if cruleset.userid == current_user.id %}
+            <div class="interior flex horizontal center" style="width: auto">
+                <a href="/Quick-Reference/Skills/Edit/{{ skill.id }}"><button>Edit Skill</button></a>
+                <a href="/Quick-Reference/Skills/Delete/{{ skill.id }}"><button class="danger">Delete Skill</button></a>
+            </div>
+            {% else %}
+            <a></a>
+            {% endif %}
+        </div>
+        <p><strong>Ability: </strong>{{ skill.ability_score }}</p>
+        <div x-html="convert(`{{ skill.description }}`)" style="width: 100%; margin-bottom: 48px"></div>
+        {% endfor %}
+        {% if cruleset.userid == current_user.id %}
+        <a href="/Quick-Reference/Skills/Create"><button>Create a Skill</button></a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
