@@ -13,18 +13,19 @@
 		<template x-init="bgROM.push(
 			{
 				name: '{{ background.name }}',
-				skills: {{ background.skills }},
-				languages: {{ background.languages }},
-				equipment: {{ background.equipment }},
+				skills: '{{ background.skills }}',
+				languages: '{{ background.languages }}',
+				equipment: '{{ background.equipment }}',
 			}
 		)"></template>
 		{% endfor %}
+		<template x-init="truncateEquipment()"></template>
 		<h1>Backgrounds</h1>
 		<input type="text" name="tableinput" id="tableinput" placeholder="Search Backgrounds..." x-model="query">
 		<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 			<form class="interior flex horizontal start" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
-				<div class="interior flex horizontal center" style="width: 100%; background-color: inherit">
-					<label for="skills" style="box-sizing: border-box; width: 50%; min-width: 64px; background-color: inherit" @click="toggleSkills()"><a>Skills:</a></label>
+				<div class="interior flex horizontal center" style="width: 100%; background-color: inherit" @click="toggleSkills()">
+					<label for="skills" style="box-sizing: border-box; width: 50%; min-width: 64px; background-color: inherit"><a>Skills:</a></label>
 					<div class="interior flex horizontal end" style="box-sizing: border-box; width: 50%; min-width: 64px; margin: 0; background-color: inherit">
 						<label for="filtertype" style="box-sizing: border-box; max-width: 128px">Filter Type: </label>
 						<select name="filtertype" id="filtertype" style="box-sizing: border-box; max-width: 96px" x-model="filtertype">
@@ -53,7 +54,7 @@
 			</tr>
 			<template x-for="background, index in filterQuery()">
 				<tr>
-					<td><a @click="window.location.href = '/Character/Backgrounds/' + background.name.split(' ').join('-')" x-text="background.name"></a></td>
+					<td><a @click="window.location.href = '/Character/Background/' + background.name.split(' ').join('-')" x-text="background.name"></a></td>
 					<td x-text="background.skills"></td>
 					<td x-text="background.tools"></td>
 					<td x-text="background.languages"></td>

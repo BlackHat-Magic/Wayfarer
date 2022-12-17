@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify
-from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature
+from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature
 from flask_login import current_user, login_required
 from .check_ruleset import *
 from . import db
@@ -163,7 +163,7 @@ def createRace():
             return("0")
     return(render_template("create-race.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
-@epchar.route("/Races/<string:race>")
+@epchar.route("/Race/<string:race>")
 def race(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
@@ -188,6 +188,7 @@ def createBackground():
         else:
             print("fuck")
             data = json.loads(request.data)
+            print(data["lang"])
             if(len(data["name"]) < 1):
                 flash("You must specify a background name.")
                 return("1")
@@ -229,19 +230,25 @@ def createBackground():
                     elif("javascript" in feature["name"] or "javascript" in feature["text"]):
                         flash("Cross-site scripting attacks are not allowed.")
                         return("1")
+                skills = ""
+                for skill in data["skills"]:
+                    if(len(skills) < 1):
+                        skills += skill
+                    else:
+                        skills += f", {skill}"
                 new_background = Background(
                     rulesetid = cruleset.id,
                     name = data["name"],
-                    skills = data["skills"],
+                    skills = skills,
                     tools = data["tools"],
-                    languages = data["languages"],
+                    languages = data["lang"],
                     equipment = data["equipment"],
                     text = data["text"]
                 )
                 db.session.add(new_background)
                 db.session.commit()
 
-                new_background = db.query.filter_by(
+                new_background = Background.query.filter_by(
                     name = data["name"],
                     rulesetid = cruleset.id
                 ).first()
@@ -257,11 +264,12 @@ def createBackground():
                 return("0")
     return(render_template("create-background.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
-@epchar.route("/Backgrounds/<string:background>")
-def background():
+@epchar.route("/Background/<string:background>")
+def background(background):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("background.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    background = Background.query.filter_by(rulesetid = cruleset.id, name = background.replace("-", " ")).first()
+    return(render_template("background.html", user=current_user, frulesets=frulesets, cruleset=cruleset, background=background))
 
 @epchar.route("/Feats")
 def feats():

@@ -10,7 +10,7 @@
     <div class="flex vertical start">
         <h1>{{ race.name.replace(" ", "-") }}</h1>
         {% if user.id == cruleset.userid %}
-        <a href="/Character/Races/{{ race.name }}/Duplicate"><button type="button">Duplicate {{ race.name }}</button></a>
+        <a href="/Character/Races/{{ race.name.replace(' ', '-') }}/Duplicate"><button type="button">Duplicate {{ race.name }}</button></a>
         {% endif %}
         <div class="usercontent" x-html="convert(`{{ race.flavor }}`)"></div>
         {% for feature in race.race_features %}
@@ -33,7 +33,7 @@
         {% endfor %}
         {% endif %}
         {% if cruleset.userid == current_user.id %}
-        <a @click="delete()"><button type="button" class="danger">Delete {{ race.name.replace(" ", "-") }}</button></a>
+        <a @click="delete()"><button type="button" class="danger">Delete {{ race.name }}</button></a>
         {% endif %}
     </div>
 </div>

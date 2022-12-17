@@ -1,0 +1,26 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Create Rule Category | Wayfinder</title>
+<script src="{{ url_for('static', filename='js/race.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex" x-data="main">
+    <div class="flex vertical start">
+        <h1>{{ background.name.replace(" ", "-") }}</h1>
+        {% if user.id == cruleset.userid %}
+        <a href="/Character/Background/{{ background.name.replace(' ', '-') }}/Duplicate"><button type="button">Duplicate {{ background.name }}</button></a>
+        {% endif %}
+        <div class="usercontent" x-html="convert(`{{ background.text }}`)"></div>
+        {% for feature in background.background_features %}
+        <h2>{{ feature.name }}</h2>
+        <div class="usercontent" x-html="convert(`{{ feature.text }}`)"></div>
+        {% endfor %}
+        {% if cruleset.userid == current_user.id %}
+        <a @click="delete()"><button type="button" class="danger">Delete {{ background.name.replace(" ", "-") }}</button></a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -27,7 +27,7 @@
 					</select>
 					<ul>
 						<template x-for="skill, index in skills">
-							<li><span x-text="skill"><span @click="removeSkill(index)"></span></li>
+							<li><span x-text="skill + ` `"></span><span @click="removeSkill(index)" style="color: var(--nord-red)">[X]</span></li>
 						</template>
 					</ul>
 				</div>

@@ -30,6 +30,15 @@ document.addEventListener ("alpine:init", () => {
                 this.skills.push(this.skillselect);
             }
         },
+        removeSkill(index) {
+            newSkills = [];
+            for (let i = 0; i < this.skills.length; i++) {
+                if(i != index) {
+                    newSkills.append(this.skills[i]);
+                }
+            }
+            this.skills = newSkills;
+        },
         
         addFeature() {
             this.features.push({
@@ -55,7 +64,7 @@ document.addEventListener ("alpine:init", () => {
             fname = this.name;
             skills = this.skills;
             tools = this.tools;
-            languages = this.langauges;
+            lang = document.querySelector("#languages").value; //for some reason this gets set to null if I try to define it using the variable, so document.querySelector it is.
             equipment = this.equipment;
             text = this.text;
             features = this.features;
@@ -65,10 +74,10 @@ document.addEventListener ("alpine:init", () => {
                     name: fname,
                     skills: skills,
                     tools: tools,
-                    lang: languages,
                     equipment: equipment,
                     text: text,
-                    features: features
+                    features: features,
+                    lang: lang
                 })
             }).then (function (response) {
                 return(response.json());
