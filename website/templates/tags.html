@@ -1,0 +1,24 @@
+
+{% extends "master.html" %}
+
+{% block head %}
+<title>Item Types | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/tags.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<div class="flex vertical start" x-data="main">
+		<h1>Item Types</h1>
+		{% for tag in cruleset.item_tags %}
+		<div class="usercontent">
+			<h2>{{ tag.name }}</h2>
+			<hr>
+			<div x-html="convert(`{{ tag.text }}`)"></div>
+		</div>
+		{% endfor %}
+		<a href="/Reference/Items/Tags/Create"><button>Create an Item Type</button></a>
+	</div>
+</div>
+
+{% endblock %}

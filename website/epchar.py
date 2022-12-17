@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify
-from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat
+from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item
 from flask_login import current_user, login_required
 from .check_ruleset import *
 from . import db
@@ -181,6 +181,9 @@ def backgrounds():
 def createBackground():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    tools = []
+    for tool in Item.query.filter_by(rulesetid = cruleset.id, is_tool = True):
+        tools.append(tool)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create backgrounds for a ruleset that is not your own.")
@@ -260,7 +263,7 @@ def createBackground():
                 db.session.commit()
                 flash("Background created!")
                 return("0")
-    return(render_template("create-background.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-background.html", user=current_user, frulesets=frulesets, cruleset=cruleset, tools=tools))
 
 @epchar.route("/Background/<string:background>")
 def background(background):

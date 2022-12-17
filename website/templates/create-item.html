@@ -1,0 +1,98 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Create an Item | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/create-item.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<div class="flex vertical start" x-data="main">
+		<h1>Create an Item</h1>
+		<form class="interior flex vertical start" method="post">
+			<input type="text" name="name" id="name" x-model="name" placeholder="Item Name">
+			<div class="interior flex horizontal space-around" style="width: 100%">
+				<div class="interior flex horizontal start">
+					<label for="istool">Is Tool?</label>
+					<input id="istool" name="istool" type="checkbox" x-model="istool" style="width: auto">
+				</div>
+				<div class="interior flex horizontal start">
+					<label for="isshield">Is Shield?</label>
+					<input id="isshield" name="isshield" type="checkbox" x-model="isshield" style="width: auto">
+				</div>
+				<div class="interior flex horizontal start">
+					<label for="isweapon">Is Weapon?</label>
+					<input id="isweapon" name="isweapon" type="checkbox" x-model="isweapon" style="width: auto">
+				</div>
+				<div class="interior flex vertical start">
+					<div class="interior flex horizontal start">
+						<label for="isarmor">Is Armor?</label>
+						<input id="isarmor" name="isarmor" type="checkbox" x-model="isarmor" style="width: auto">
+					</div>
+					<div class="interior flex horizontal start" x-show="isarmor">
+						<label for="adddex">Add Dex?</label>
+						<input id="adddex" name="adddex" type="checkbox" x-model="adddex" style="width: auto">
+					</div>
+					<div class="interior flex horizontal start" x-show="isarmor">
+						<label for="stealthdisadvantage">Stealth Disadvantage?</label>
+						<input id="stealthdisadvantage" name="stealthdisadvantage" type="checkbox" x-model="stealthdisadvantage" style="width: auto">
+					</div>
+				</div>
+			</div>
+			<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px">
+				<div style="width: 100%">
+					<label for="tagselect">Add Tag: </label>
+					<select name="tagselect" id="tagselect" x-model="tagselect" style="width: auto" @change="appendTag()" x-init="updateTags()">
+						{% for tag in cruleset.item_tags %}
+						<option>{{ tag.name }}</option>
+						{% endfor %}
+					</select>
+					<input type="hidden" x-model="tags" id="tags" name="tags">
+				</div>
+				<template x-for="tag, index in taglist">
+					<span class="chip"><span x-text="tag"></span><span @click="removeTag(index)" class="remove">&times</span></span>
+				</template>
+			</div>
+			<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px">
+				<div style="width: 100%">
+					<label for="propertyselect">Add Weapon Property: </label>
+					<select name="propertyselect" id="propertyselect" x-model="propertyselect" style="width: auto" @change="appendProperty()" x-init="updateProperties()">
+						{% for property in cruleset.item_properties %}
+						<option>{{ property.name }}</option>
+						{% endfor %}
+					</select>
+					<input type="hidden" x-model="properties" id="properties" name="properties">
+				</div>
+				<template x-for="property, index in propertylist">
+					<span class="chip"><span x-text="property"></span><span @click="removeProperty(index)" class="remove">&times</span></span>
+				</template>
+			</div>
+			<div class="interior flex horizontal space-around" style="width: 100%">
+				<input name="cost" id="cost" type="text" x-model="cost" style="width: auto" placeholder="Cost">
+				<input name="weight" id="weight" type="number" x-model="weight" style="width: auto" placeholder="Weight">
+				<input name="armortype" id="armortype" type="text" x-model="armortype" style="width: auto" placeholder="Armor Type" x-show="isarmor">
+				<input name="armorclass" id="armorclass" type="number" x-model="armorclass" style="width: auto" placeholder="Armor Class" x-show="isarmor">
+				<input name="maxdex" id="maxdex" type="number" x-model="maxdex" style="width: auto" placeholder="Max Dex" x-show="adddex">
+				<input name="minstr" id="minstr" type="number" x-model="minstr" style="width: auto" placeholder="Min Str" x-show="isarmor">
+				<input name="dienum" id="dienum" type="number" x-model="dienum" style="width: auto" placeholder="Damage Die Number" x-show="isweapon">
+				<select x-model="damagedie" style="width: auto" x-show="isweapon">
+					<option value="4">d4</option>
+					<option value="6">d6</option>
+					<option value="8">d8</option>
+					<option value="10">d10</option>
+					<option value="12">d12</option>
+					<option value="20">d20</option>
+				</select>
+				<input type="hidden" name="damagedie" id="damagedie" x-model="damagedie">
+			</div>
+			<textarea x-model="text" placeholder="Item Description"></textarea>
+			<input type="hidden" x-model="text" name="text" id="text">
+			<textarea x-model="special" placeholder="Special Weapon Properties" x-show="isweapon"></textarea>
+			<input type="hidden" x-model="special" name="special" id="special">
+			<a><button type="submit">Create Item!</button></a>
+		</form>
+		<div class="usercontent">
+		</div>
+	</div>
+</div>
+{% endblock %}

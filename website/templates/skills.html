@@ -11,7 +11,7 @@
         <h1>Skills</h1>
         <ol class="toc">
             {% for skill in cruleset.skills %}
-            <li><a href="/Quick-Reference/Skills#{{ skill.name.replace(' ', '-') }}">{{ skill.name }}</a></li>
+            <li><a href="/Reference/Skills#{{ skill.name.replace(' ', '-') }}">{{ skill.name }}</a></li>
             {% endfor %}
         </ol>
         {% for skill in cruleset.skills %}
@@ -19,8 +19,8 @@
             <h2 style="margin: 0" id="{{ skill.name.replace(' ', '-') }}">{{ skill.name }}</h2>
             {% if cruleset.userid == current_user.id %}
             <div class="interior flex horizontal center" style="width: auto">
-                <a href="/Quick-Reference/Skills/Edit/{{ skill.id }}"><button>Edit Skill</button></a>
-                <a href="/Quick-Reference/Skills/Delete/{{ skill.id }}"><button class="danger">Delete Skill</button></a>
+                <a href="/Reference/Skills/Edit/{{ skill.id }}"><button>Edit Skill</button></a>
+                <a href="/Reference/Skills/Delete/{{ skill.id }}"><button class="danger">Delete Skill</button></a>
             </div>
             {% else %}
             <a></a>
@@ -30,7 +30,7 @@
         <div x-html="convert(`{{ skill.description }}`)" style="width: 100%; margin-bottom: 48px"></div>
         {% endfor %}
         {% if cruleset.userid == current_user.id %}
-        <a href="/Quick-Reference/Skills/Create"><button>Create a Skill</button></a>
+        <a href="/Reference/Skills/Create"><button>Create a Skill</button></a>
         {% endif %}
     </div>
 </div>

@@ -19,6 +19,8 @@ class Ruleset(db.Model):
     name = db.Column(db.String(127))
     categories = db.relationship("Category")
     languages = db.relationship("Language")
+    item_tags = db.relationship("ItemTag")
+    item_properties = db.relationship("Property")
     items = db.relationship("Item")
     conditions = db.relationship("Condition")
     skills = db.relationship("Skill")
@@ -53,17 +55,32 @@ class Language(db.Model):
     speakers = db.Column(db.String(255))
     script = db.Column(db.String(127))
 
+class ItemTag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
+
+class Property(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
+
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
-    type = db.Column(db.String(127))
-    cost = db.Column(db.Integer)
+    tags = db.Column(db.String(127))
+    is_tool = db.Column(db.Boolean)
+    cost = db.Column(db.String(31))
     weight = db.Column(db.Integer)
     text = db.Column(db.String(16383))
     armor_type = db.Column(db.String(7))
     armor_class = db.Column(db.Integer)
     add_dex = db.Column(db.Boolean)
+    max_dex = db.Column(db.Integer)
+    max_dex = db.Column(db.Integer)
     is_shield = db.Column(db.Boolean)
     min_strength = db.Column(db.Integer)
     stealth_disadvantage = db.Column(db.Boolean)

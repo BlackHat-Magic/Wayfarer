@@ -8,9 +8,20 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
+		{% for tool in tools %}
+		<template x-init="toolROM.push(`{{ tool.name }}`)"></template>
+		{% endfor %}
 		<h1>Create a Background</h1>
 		<form class="interior flex vertical start" method="post">
-			<div class="interior flex horizontal center" style="width: 100%; height: auto">
+			<input name="name" id="name" x-model="name" placeholder="Background Name">
+			<div class="interior flex vertical start" style="background-color: var(--nord-inactive)">
+				<select style="width: auto" name="toolselect" id="toolselect" x-model="toolselect">
+					<template x-for="tool in toolROM">
+						<option x-text="tool.name"></option>
+					</template>
+				</select>
+			</div>
+			<!-- <div class="interior flex horizontal center" style="width: 100%; height: auto">
 				<div class="interior flex vertical start" style="width: calc(50% - 24px); height: 100%; margin: 35px 12px auto 12px">
 					<input name="name" id="name" x-model="name" placeholder="Background Name">
 					<input name="tools" id="tools" x-model="tools" placeholder="Tool Proficiencies">
@@ -31,8 +42,8 @@
 						</template>
 					</ul>
 				</div>
-				<textarea name="text" id="text" x-model="text" placeholder="Background Description"></textarea>
-			</div>
+			</div> -->
+			<textarea name="text" id="text" x-model="text" placeholder="Background Description"></textarea>
 			<h2>Background Features</h2>
 			<template x-for="feature, index, in features">
 				<div class="interior flex horizontal center space-between" style="width: 100%">

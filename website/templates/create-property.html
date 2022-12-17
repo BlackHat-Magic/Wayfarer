@@ -1,0 +1,24 @@
+
+{% extends "master.html" %}
+
+{% block head %}
+<title>Create Weapon Property | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/create-action.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<div class="flex vertical start" x-data="main">
+		<h1>Create Weapon Property</h1>
+		<form class="interior flex vertical start" method="post">
+			<input name="name" id="name" x-model="name" placeholder="Weapon Property Name">
+			<textarea name="text" id="text" x-model="text" placeholder="Weapon Property Description"></textarea>
+			<a><button type="submit">Create Weapon Property!</button></a>
+		</form>
+		<h2 x-text="name"></h2>
+		<hr>
+		<div class="usercontent" x-html="convert(text)"></div>
+	</div>
+</div>
+
+{% endblock %}

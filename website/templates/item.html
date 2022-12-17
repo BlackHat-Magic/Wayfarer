@@ -1,0 +1,28 @@
+
+{% extends "master.html" %}
+
+{% block head %}
+<title>{{ item.name }} | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/item.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<div class="flex vertical start" x-data="main">
+		<h1>{{ item.name }}</h1>
+		<div class="interior flex horizontal space-between" style="width: 100%">
+			<p><em>{{ item.tags }}</em></p>
+			<p>{{ item.cost }}, {{ item.weight }}lbs</p>
+		</div>
+		<div class="interior flex horizontal space-between" style="width: 100%">
+			<p><em>{{ item.properties }}</em></p>
+			<p></p>
+		</div>
+		<div class="interior flex horizontal space-between" style="width: 100%">
+			<p></p>
+		</div>
+		<div x-html="convert(`{{ item.text }}`)"></div>
+	</div>
+</div>
+
+{% endblock %}

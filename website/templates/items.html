@@ -2,17 +2,63 @@
 {% extends "master.html" %}
 
 {% block head %}
-<title>Under Construction | Luke Henderson</title>
+<title>Backgrounds | Wayfinder {{cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/items.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start">
-		<h1>Page Under Construction</h1>
-		<img src="https://cdn.betterttv.net/emote/609375b139b5010444d0c761/3x" style="max-width: 512px; width: 100%; border-radius: 10px; margin: 50px 150px 50px 150px;">
-		<p>This page isn't finished yet. Come back soon when it's done!</p>
-		<button onclick="window.location.href='/'">Return Home</button>
+	<div class="flex vertical start" x-data="main">
+		{% for item in cruleset.items %}
+		<template x-init="itemROM.push(
+			{
+				name: '{{ item.name }}',
+				type: '{{ item.tags }}',
+				cost: '{{ item.cost }}',
+				weight: '{{ item.weight }}',
+			}
+		)"></template>
+		{% endfor %}
+		<h1>Items</h1>
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Items..." x-model="query">
+		<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+			<form class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+				<div class="interior flex horizontal start" style="width: auto; background-color: inherit">
+					<label for="tags">Tags:</label>
+					<select name="tags" id="tags" x-model="tags" style="width: auto">
+						{% for tag in cruleset.item_tags %}
+						<option>{{ tag.name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="interior flex horizontal start" style="width: auto; background-color: inherit">
+					<label for="filterType">Filter Type: </label>
+					<select name="filterType" id="filterType" x-model="filterType" style="width:auto">
+						<option value="true">AND</option>
+						<option value="false">OR</option>
+					</select>
+				</div>
+			</form>
+		</div>
+		<table name="filtertable" id="filtertable">
+			<tr class="header">
+				<th style="width: 30%">Item Name</th>
+				<th style="width: 30%">Type</th>
+				<th style="width: 20%">Cost</th>
+				<th style="width: 20%">Weight</th>
+			</tr>
+			<template x-for="item, index in filterQuery()">
+				<tr>
+					<td><a @click="window.location.href = '/Reference/Item/' + item.name.split(' ').join('-')" x-text="item.name"></a></td>
+					<td x-text="item.tags"></td>
+					<td x-text="item.cost"></td>
+					<td x-text="item.weight + 'lbs'"></td>
+				</tr>
+			</template>
+		</table>
+		{% if cruleset.userid == user.id %}
+		<a href="/Reference/Items/Create"><button>Create An Item</button></a>
+		{% endif %}
 	</div>
 </div>
-
 {% endblock %}

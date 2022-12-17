@@ -617,6 +617,42 @@ textarea {
     height: 500px;
 }
 
+.code-editor {
+    width: 100%;
+    display: inline-flex;
+    gap: 0;
+    border-radius: 0px;
+    background-color: var(--nord-inactive);
+    height: auto;
+}
+
+.code-editor textarea {
+    resize: none;
+    font-family: monospace;
+    border-radius: 0;
+    padding: 0;
+    border: 0;
+    margin: 0;
+}
+
+.code-editor textarea:focus {
+    outline: none;
+}
+
+.code-editor .line-numbers {
+    width: 20px;
+    text-align: right;
+    background-color: var(--nord-active);
+    height: auto;
+}
+
+.code-editor .line-numbers span {
+    color: var(--nord-primary1);
+    width: 100%;
+    display: block;
+    font-family: monospace;
+}
+
 .inline {
     display: inline-block;
 }
@@ -643,6 +679,25 @@ div.interior {
 a:hover, a:hover span {
     color: var(--nord-tertiary);
     cursor: pointer;
+}
+
+.chip {
+    padding: 5px 10px;
+    border-radius: 16.5px;
+    background-color: var(--nord-canvas);
+    margin: 5px;
+}
+
+.chip span {
+    padding: 0px 5px;
+}
+
+.chips span.remove {
+    cursor: pointer;
+}
+
+.chip span.remove:hover {
+    color: var(--nord-red);
 }
 
 @media only screen and (max-width: 900px) {
