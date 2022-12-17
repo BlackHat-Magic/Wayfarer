@@ -301,6 +301,10 @@ def createFeat():
                 flash("Feat Prerequisite must be fewer than 256 characters.")
             elif(len(text) > 16383):
                 flash("Feat description must be fewer than 16384 characters.")
+            elif("<" in text):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in text):
+                flash("Cross-site scripting attacks are not allowed.")
             else:
                 try:
                     strasi = int(strasi)
@@ -338,20 +342,61 @@ def feat(feat):
     feat = Feat.query.filter_by(rulesetid = cruleset.id, name = feat.replace("-", " ")).first()
     return(render_template("feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, feat=feat))
 
-@epchar.route("/Stats")
+@epchar.route("/Ability-Scores")
 def stats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     return(render_template("stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
-@epchar.route("/Name")
-def name():
+@epchar.route("/Ability-Scores/Edit", methods=["GET", "POST"])
+@login_required
+def editStats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("name.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.userid):
+            flash("You cannot edit rulesets that are not your own.")
+        else:
+            text = request.form.get("text")
+            if(len(text) > 65534):
+                flash("Text must be fewer than 65535 characters.")
+            elif("<" in text):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in text):
+                flash("Cross-site scripting attacks are not allowed.")
+            else:
+                cruleset.ability_scores = text
+                db.session.commit()
+                flash("Changes saved.")
+                return(redirect(url_for("epchar.stats")))
+    return(render_template("edit-stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
 @epchar.route("/Step-by-Step")
 def stepByStep():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     return(render_template("step-by-step.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
+@epchar.route("/Step-by-Step/Edit", methods=["GET", "POST"])
+@login_required
+def editStepByStep():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.userid):
+            flash("You cannot edit rulesets that are not your own.")
+        else:
+            text = request.form.get("text")
+            if(len(text) > 65534):
+                flash("Text must be fewer than 65535 characters.")
+            elif("<" in text):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in text):
+                flash("Cross-site scripting attacks are not allowed.")
+            else:
+                cruleset.step_by_step_characters = text
+                db.session.commit()
+                print(cruleset.step_by_step_characters)
+                flash("Change saved")
+                return(redirect(url_for("epchar.stepByStep")))
+    return(render_template("edit-step-by-step.html", user=current_user, frulesets = frulesets, cruleset = cruleset))

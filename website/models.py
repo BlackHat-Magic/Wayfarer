@@ -111,6 +111,7 @@ class Action(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
+    time = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
 class Race(db.Model):
@@ -213,7 +214,7 @@ class BackgroundFeature(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
-# not UpperCamelCase because SQLAlchemy getsmad when it is. idk why
+# not UpperCamelCase because SQLAlchemy gets mad when it is. idk why
 class Playerclass(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
