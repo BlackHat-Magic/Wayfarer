@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 
 {% block head %}
-<title>Create A Race | Wayfinder</title>
+<title>Create A Race | Wayfinder {{ cruleset.name }}</title>
 <script src="{{ url_for('static', filename='js/create-race.js') }}"></script>
 {% endblock %}
 

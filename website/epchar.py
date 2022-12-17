@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify
-from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature
+from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat
 from flask_login import current_user, login_required
 from .check_ruleset import *
 from . import db
@@ -186,9 +186,7 @@ def createBackground():
             flash("You cannot create backgrounds for a ruleset that is not your own.")
             return("1")
         else:
-            print("fuck")
             data = json.loads(request.data)
-            print(data["lang"])
             if(len(data["name"]) < 1):
                 flash("You must specify a background name.")
                 return("1")
@@ -276,6 +274,69 @@ def feats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     return(render_template("feats.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
+@epchar.route("/Feats/Create", methods=["GET", "POST"])
+@login_required
+def createFeat():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.userid):
+            flash("You cannot create feats for rulesets that are not your own.")
+        else:
+            name = request.form.get("name")
+            prereq = request.form.get("prereq")
+            strasi = request.form.get("strasi")
+            dexasi = request.form.get("dexasi")
+            conasi = request.form.get("conasi")
+            intasi = request.form.get("intasi")
+            wisasi = request.form.get("wisasi")
+            chaasi = request.form.get("chaasi")
+            text = request.form.get("text")
+            if(len(name) < 1):
+                flash("You must specify a feat name.")
+            elif(len(name) > 127):
+                flash("Feat name must be fewer than 128 characters.")
+            elif(len(prereq) > 255):
+                flash("Feat Prerequisite must be fewer than 256 characters.")
+            elif(len(text) > 16383):
+                flash("Feat description must be fewer than 16384 characters.")
+            else:
+                try:
+                    strasi = int(strasi)
+                    dexasi = int(dexasi)
+                    conasi = int(conasi)
+                    intasi = int(intasi)
+                    wisasi = int(wisasi)
+                    chaasi = int(chaasi)
+                except:
+                    flash("Ability Score Improvements must all be integers.")
+                    return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                new_feat = Feat(
+                    rulesetid = cruleset.id,
+                    name = name,
+                    prerequisite = prereq,
+                    strasi = strasi,
+                    dexasi = dexasi,
+                    conasi = conasi,
+                    intasi = intasi,
+                    wisasi = wisasi,
+                    chaasi = chaasi,
+                    text = text
+                )
+                db.session.add(new_feat)
+                db.session.commit()
+                flash("Feat created!")
+                return(redirect(url_for("epchar.feats")))
+
+    return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
+@epchar.route("/Feat/<string:feat>")
+def feat(feat):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    feat = Feat.query.filter_by(rulesetid = cruleset.id, name = feat.replace("-", " ")).first()
+    return(render_template("feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, feat=feat))
 
 @epchar.route("/Stats")
 def stats():

@@ -2,17 +2,50 @@
 {% extends "master.html" %}
 
 {% block head %}
-<title>Under Construction | Luke Henderson</title>
+<title>Feats | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/feats.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start">
-		<h1>Page Under Construction</h1>
-		<img src="https://cdn.betterttv.net/emote/609375b139b5010444d0c761/3x" style="max-width: 512px; width: 100%; border-radius: 10px; margin: 50px 150px 50px 150px;">
-		<p>This page isn't finished yet. Come back soon when it's done!</p>
-		<button onclick="window.location.href='/'">Return Home</button>
+	<div class="flex vertical start" x-data="main">
+		{% for feat in cruleset.feats %}
+		<template x-init="featROM.push(
+			{
+				name: '{{ feat.name }}',
+				type: '{{ feat.type }}',
+				prerequisite: '{{ feat.prerequisite }}',
+				strasi: '{{ feat.strasi }}',
+				dexasi: '{{ feat.dexasi }}',
+				conasi: '{{ feat.conasi }}',
+				intasi: '{{ feat.intasi }}',
+				wisasi: '{{ feat.wisasi }}',
+				chaasi: '{{ feat.chaasi }}',
+				text: '{{ feat.text }}'
+			}
+		)"></template>
+		{% endfor %}
+		<h1>Feats</h1>
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Feats..." x-model="query">
+		<table name="filtertable" id="filtertable">
+			<tr class="header">
+				<th style="width: 15%">Feat Name</th>
+				<th style="width: 15%">Prerequisite</th>
+				<th style="width: 15%">ASI</th>
+				<th style="width: 55%">Text</th>
+			</tr>
+			<template x-for="feat, index in filterQuery()">
+				<tr>
+					<td><a @click="window.location.href = '/Character/Feat/' + feat.name.split(' ').join('-')" x-text="feat.name"></a></td>
+					<td x-text="feat.prerequisite"></td>
+					<td x-text="parseasi([feat.strasi, feat.dexasi, feat.conasi, feat.intasi, feat.wisasi, feat.chaasi])"></td>
+					<td x-text="truncate(feat.text)"></td>
+				</tr>
+			</template>
+		</table>
+		{% if cruleset.userid == user.id %}
+		<a href="/Character/Feats/Create"><button>Create A Feat</button></a>
+		{% endif %}
 	</div>
 </div>
-
 {% endblock %}
