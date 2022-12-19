@@ -13,12 +13,8 @@
 			<input type="text" name="name" id="name" x-model="name" placeholder="Item Name">
 			<div class="interior flex horizontal space-around" style="width: 100%">
 				<div class="interior flex horizontal start">
-					<label for="istool">Is Tool?</label>
-					<input id="istool" name="istool" type="checkbox" x-model="istool" style="width: auto">
-				</div>
-				<div class="interior flex horizontal start">
-					<label for="isshield">Is Shield?</label>
-					<input id="isshield" name="isshield" type="checkbox" x-model="isshield" style="width: auto">
+					<label for="proficiency">Can be Proficient?</label>
+					<input id="proficiency" name="proficiency" type="checkbox" x-model="proficiency" style="width: auto" @change="toggle('proficiency')">
 				</div>
 				<div class="interior flex horizontal start">
 					<label for="isweapon">Is Weapon?</label>
@@ -33,9 +29,11 @@
 						<label for="adddex">Add Dex?</label>
 						<input id="adddex" name="adddex" type="checkbox" x-model="adddex" style="width: auto">
 					</div>
-					<div class="interior flex horizontal start" x-show="isarmor">
-						<label for="stealthdisadvantage">Stealth Disadvantage?</label>
-						<input id="stealthdisadvantage" name="stealthdisadvantage" type="checkbox" x-model="stealthdisadvantage" style="width: auto">
+				</div>
+				<div class="interior flex vertical start">
+					<div class="interior flex horizontal start">
+						<label for="ismagical">Is Magical?</label>
+						<input type="checkbox" name="ismagical" id="ismagical" x-model="ismagical" style="width: auto">
 					</div>
 				</div>
 			</div>
@@ -50,10 +48,10 @@
 					<input type="hidden" x-model="tags" id="tags" name="tags">
 				</div>
 				<template x-for="tag, index in taglist">
-					<span class="chip"><span x-text="tag"></span><span @click="removeTag(index)" class="remove">&times</span></span>
+					<span @click="removeTag(index)" class="chip"><span x-text="tag"></span><span class="remove">&times</span></span>
 				</template>
 			</div>
-			<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px">
+			<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px" x-show="isweapon">
 				<div style="width: 100%">
 					<label for="propertyselect">Add Weapon Property: </label>
 					<select name="propertyselect" id="propertyselect" x-model="propertyselect" style="width: auto" @change="appendProperty()" x-init="updateProperties()">
@@ -69,29 +67,47 @@
 			</div>
 			<div class="interior flex horizontal space-around" style="width: 100%">
 				<input name="cost" id="cost" type="text" x-model="cost" style="width: auto" placeholder="Cost">
-				<input name="weight" id="weight" type="number" x-model="weight" style="width: auto" placeholder="Weight">
-				<input name="armortype" id="armortype" type="text" x-model="armortype" style="width: auto" placeholder="Armor Type" x-show="isarmor">
+				<input name="weight" id="weight" type="number" x-model="weight" style="width: auto" placeholder="Weight (lbs)">
 				<input name="armorclass" id="armorclass" type="number" x-model="armorclass" style="width: auto" placeholder="Armor Class" x-show="isarmor">
-				<input name="maxdex" id="maxdex" type="number" x-model="maxdex" style="width: auto" placeholder="Max Dex" x-show="adddex">
-				<input name="minstr" id="minstr" type="number" x-model="minstr" style="width: auto" placeholder="Min Str" x-show="isarmor">
-				<input name="dienum" id="dienum" type="number" x-model="dienum" style="width: auto" placeholder="Damage Die Number" x-show="isweapon">
-				<select x-model="damagedie" style="width: auto" x-show="isweapon">
-					<option value="4">d4</option>
-					<option value="6">d6</option>
-					<option value="8">d8</option>
-					<option value="10">d10</option>
-					<option value="12">d12</option>
-					<option value="20">d20</option>
-				</select>
-				<input type="hidden" name="damagedie" id="damagedie" x-model="damagedie">
+				<input name="maxdex" id="maxdex" type="number" x-model="maxdex" style="width: auto" placeholder="Max Dex (0 for None)" x-show="adddex">
+				<div class="interior flex horizontal start" x-show="isweapon">
+					<label for="dienum">Damage Dice:</label>
+					<input name="dienum" id="dienum" type="number" x-model="dienum" style="width: auto" placeholder="Damage Die Number">
+					<select x-model="damagedie" style="width: auto">
+						<option value="4">d4</option>
+						<option value="6">d6</option>
+						<option value="8">d8</option>
+						<option value="10">d10</option>
+						<option value="12">d12</option>
+						<option value="20">d20</option>
+					</select>99
+					<template x-if="maxdex != 0 && maxdex != null">
+						<span x-text=" '(Max ' + maxdex + ')'"></span>
+					</template>
+					<span x-show="isweapon" x-text="dienum + 'd' + damagedie + ' ' + damagetype + ' damage'"></span>
+				</div>
 			</div>
 			<textarea x-model="text" placeholder="Item Description"></textarea>
-			<input type="hidden" x-model="text" name="text" id="text">
-			<textarea x-model="special" placeholder="Special Weapon Properties" x-show="isweapon"></textarea>
-			<input type="hidden" x-model="special" name="special" id="special">
+			<input type="hidden" name="text" id="text" x-model="text">
 			<a><button type="submit">Create Item!</button></a>
 		</form>
 		<div class="usercontent">
+			<h1 x-text="name"></h1>
+			<div class="interior flex horizontal space-between" style="width: 100%">
+				<p><em x-text="tags"></em></p>
+			</div>
+			<div class="interior flex horizontal space-between">
+				<p x-text="cost + ', ' + weight + 'lbs'" style="width: auto"></p>
+				<p x-show="isarmor" style="width: auto">
+					<span x-text="'AC ' + armorclass"></span>
+					<span x-show="adddex" x-text="' + Dex'"></span>
+					<template x-if="maxdex != null && maxdex != 0 && adddex">
+						<span x-text="' (Max ' + maxdex + ')'"></span>
+					</template>
+				</p>
+			</div>
+			<hr>
+			<div x-html="convert(text)"></div>
 		</div>
 	</div>
 </div>

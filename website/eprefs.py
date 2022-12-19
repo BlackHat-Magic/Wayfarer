@@ -118,25 +118,65 @@ def createItem():
             flash("You cannot create items for rulesets that are not yours.")
         else:
             name = request.form.get("name")
+            is_magical = request.form.get("ismagical")
+            if(is_magical):
+                is_magical = True
+                tier = request.form.get("tier")
+                rarity = request.form.get("rarity")
+                attunement = request.form.get("attunement")
+                if(attunement):
+                    attunement = True
+                else:
+                    attunement = False
+            else:
+                is_magical = False
+                tier = None
+                rarity = None
+                attunement = None
             tags = request.form.get("tags")
-            is_tool = request.form.get("istool")
+            proficiency = request.form.get("proficiency")
+            if(proficiency):
+                proficiency = True
+            else:
+                proficiency = False
             cost = request.form.get("cost")
             weight = request.form.get("weight")
             text = request.form.get("text")
-            armor_type = request.form.get("armortype")
-            armor_class = request.form.get("armorclass")
-            add_dex = request.form.get("adddex")
-            is_shield = request.form.get("isshield")
-            min_strength = request.form.get("minstr")
-            stealth_disadvantage = request.form.get("stealthdisadvantage")
-            die_num = request.form.get("dienum")
-            damage_die = request.form.get("damagedie")
-            weapon_properties = request.form.get("properties")
-            weapon_special = request.form.get("special")
+            is_armor = request.form.get("isarmorr")
+            if(is_armor):
+                is_armor = True
+                armor_class = request.form.get("armorclass")
+                add_dex = request.form.get("adddex")
+                if(add_dex):
+                    add_dex = True
+                    max_dex = request.form.get("maxdex")
+                else:
+                    add_dex = False
+                    max_dex = None
+            else:
+                is_armor = False
+                armor_class = None
+                add_dex = None
+                max_dex = None
+            is_weapon = request.form.get("isweapon")
+            if(is_weapon):
+                is_weapon = True
+                die_num = request.form.get("dienum")
+                damage_die = request.form.get("damagedie")
+                damage_type = request.form.get("damagetype")
+                weapon_properties = request.form.get("properties")
+            else:
+                is_weapon = False
+                die_num = None
+                damage_die = None
+                damage_type = None
+                weapon_properties = ""
             if(len(name) < 1):
                 flash("You must specify an item name.")
             elif(len(name) > 127):
                 flash("Item name must be fewer than 128 characters.")
+            elif(len(cost) > 31):
+                flash("Item cost must be fewer than 32 characters.")
             elif(len(tags) > 127):
                 flash("Too many item tags specified (sorry).")
             elif(len(text) > 16383):
@@ -145,31 +185,30 @@ def createItem():
                 flash("Open angle brackets (\"<\") are not allowed.")
             elif("javascript" in text):
                 flash("Cross-site scripting attacks are not allowed.")
-            elif(len(armor_type) > 7):
-                flash("Armor type must be fewer than 8 characters.")
             elif(len(weapon_properties) > 255):
                 flash("Weapon Properties must be fewer than 256 characters.")
-            elif(len(weapon_special) > 16383):
-                flash("Weapon Special must be fewer than 16384 characters.")
             else:
                 new_item = Item(
                     rulesetid = cruleset.id,
                     name = name,
+                    is_magical = is_magical,
+                    rarity = rarity,
+                    tier = tier,
+                    attunement = attunement,
                     tags = tags,
-                    is_tool = is_tool,
+                    proficiency = proficiency,
                     cost = cost,
                     weight = weight,
                     text = text,
-                    armor_type = armor_type,
+                    is_armor = is_armor,
                     armor_class = armor_class,
                     add_dex = add_dex,
-                    is_shield = is_shield,
-                    min_strength = min_strength,
-                    stealth_disadvantage = stealth_disadvantage,
+                    max_dex = max_dex,
+                    is_weapon = is_weapon,
                     die_num = die_num,
                     damage_die = damage_die,
-                    weapon_properties = weapon_properties,
-                    weapon_special = weapon_special
+                    damage_type = damage_type,
+                    weapon_properties = weapon_properties
                 )
                 db.session.add(new_item)
                 db.session.commit()
@@ -181,14 +220,28 @@ def createItem():
 def item(item):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    item = Item.query.filter_by(rulesetid = cruleset.id, name=item.replace("-", " "))
+    item = Item.query.filter_by(rulesetid = cruleset.id, name=item.replace("-", " ")).first()
     return(render_template("item.html", user=current_user, frulesets=frulesets, cruleset=cruleset, item=item))
+
+@eprefs.route("/Item/<string:item>/Delete")
+@login_required
+def deleteItem(item):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete items from rulesets that are not yours.")
+    else:
+        db.session.delete(Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first())
+        db.session.commit()
+        flash("Item deleted.")
+    return(redirect(url_for("eprefs.items")))
 
 @eprefs.route("/Items/Tags")
 def tags():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("tags.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    tags = ItemTag.query.filter_by(rulesetid=cruleset.id).order_by(ItemTag.name)
+    return(render_template("tags.html", user=current_user, frulesets=frulesets, cruleset=cruleset, tags=tags))
 
 @eprefs.route("/Items/Tags/Create", methods=["GET", "POST"]) 
 @login_required
@@ -227,7 +280,8 @@ def createTag():
 def properties():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("properties.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    properties = Property.query.filter_by(rulesetid = cruleset.id).order_by(Property.name)
+    return(render_template("properties.html", user=current_user, frulesets=frulesets, cruleset=cruleset, properties=properties))
 
 @eprefs.route("/Items/Properties/Create", methods=["GET", "POST"])
 def createProperty():
@@ -261,17 +315,11 @@ def createProperty():
                 return(redirect(url_for("eprefs.properties")))
     return(render_template("create-property.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
-@eprefs.route("/Magic-Items")
-def magicItems():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    return(render_template("magic-items.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
-
 @eprefs.route("/Languages")
 def refsLang():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("refs-lang.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("languages.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
 @eprefs.route("/Spells")
 def spells():

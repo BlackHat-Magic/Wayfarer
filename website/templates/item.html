@@ -11,17 +11,40 @@
 	<div class="flex vertical start" x-data="main">
 		<h1>{{ item.name }}</h1>
 		<div class="interior flex horizontal space-between" style="width: 100%">
-			<p><em>{{ item.tags }}</em></p>
+			<p style="width: auto"><em>{{ item.tags }}
+				{% if item.is_weapon %}
+				<br>
+				{{ item.properties.weapon_properties }}
+				{% endif %}
+			</em></p>
+			<p style="width: auto">
+				{% if item.is_armor %}
+				<span>AC {{ item.armor_class }}</span>
+					{% if item.add_dex %}
+					<span> + Dex</span>
+					{% endif %}
+					{% if item.max_dex or item.max_dex != 0 %}
+					<span> (Max {{ item.max_dex }})</span>
+					{% endif %}
+				{% elif item.is_weapon %}
+				<span>{{ item.die_num }}d{{ item.damage_die }} {{  item.damage_type }} damage</span>
+				{% endif %}
+			</p>
+		</div>
+		<div class="interior flex horizontal space-between" style="width: 100%">
 			<p>{{ item.cost }}, {{ item.weight }}lbs</p>
-		</div>
-		<div class="interior flex horizontal space-between" style="width: 100%">
-			<p><em>{{ item.properties }}</em></p>
 			<p></p>
 		</div>
 		<div class="interior flex horizontal space-between" style="width: 100%">
 			<p></p>
 		</div>
-		<div x-html="convert(`{{ item.text }}`)"></div>
+		<div class="usercontent" x-html="convert(`{{ item.text }}`)"></div>
+		{% if current_user.id == cruleset.userid %}
+		<div class="interior flex horizontal center">
+			<a href="/Reference/Item/{{ item.name.replace(' ', '-') }}/Delete"><button class="danger">Delete {{ item.name }}</button></a>
+			<a href="/Reference/Item/{{ item.name.replace(' ', '-') }}/Edit"><button>Edit {{ item.name }}</button></a>
+		</div>
+		{% endif %}
 	</div>
 </div>
 

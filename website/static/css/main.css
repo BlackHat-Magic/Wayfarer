@@ -690,14 +690,16 @@ a:hover, a:hover span {
 
 .chip span {
     padding: 0px 5px;
-}
-
-.chips span.remove {
     cursor: pointer;
 }
 
-.chip span.remove:hover {
+.chip:hover span.remove {
     color: var(--nord-red);
+    cursor: pointer
+}
+
+.chip:hover span:not(.remove) {
+    text-decoration: line-through;
 }
 
 @media only screen and (max-width: 900px) {

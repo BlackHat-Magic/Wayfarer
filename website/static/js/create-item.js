@@ -2,19 +2,26 @@ document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
         name: "",
 
-        cost: null,
-        weight: null,
+        cost: "",
+        weight: "",
+        costweight(){
+            cost = 0;
+            weight = 0;
+            if(this.cost != null) {
+                cost = this.cost;
+            }
+            if (this.weight != null) {
+                weight = this.weight;
+            }
+            return(cost + "gp, " + weight + "lbs")
+        },
 
-        istool: false,
-        isshield: false,
+        proficiency: false,
         isweapon: false,
         isarmor: false,
         adddex: false,
-        stealthdisadvantage: false,
-        armortype: "",
         armorclass: null,
         maxdex: null,
-        minstr: null,
 
         tagselect: "",
         taglist: [],
@@ -89,7 +96,6 @@ document.addEventListener ("alpine:init", () => {
         },
 
         text: "",
-        special: "",
 
         converter: new showdown.Converter({tables: true}),
         convert(text) {
