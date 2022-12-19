@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, jsonify, flash
-from .models import Ruleset, Skill, Action, Condition, Item, ItemTag, Property, Language
+from .models import Ruleset, Skill, Action, Condition, Item, ItemTag, Property, Language, Recipe, Spell
 from flask_login import login_user, current_user, login_required
 from .check_ruleset import *
 from . import db
@@ -357,17 +357,125 @@ def spells():
     frulesets = getForeignRulesets(current_user)
     return(render_template("spells.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
-@eprefs.route("/Vehicles")
-def vehicles():
+@eprefs.route("/Spells/Create", methods=["GET", "POST"])
+@login_required
+def createSpell():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("vehicles.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.userid):
+            flash("You cannot create spells for rulesets that are not yours.")
+        else:
+            rulesetid = cruleset.id
+            name = request.form.get("name")
+            school = request.form.get("school")
+            level = request.form.get("level")
+            casting_time = request.form.get("time")
+            spell_range = request.form.get("range")
+            if(request.form.get("verbal")):
+                verbal = True
+            else:
+                verbal = False
+            if(request.form.get("somatic")):
+                somatic = True
+            else:
+                verbal = False
+            if(request.form.get("material")):
+                material = True
+                material_specific = request.form.get("material_specific")
+                if(request.form.get("consumes_material")):
+                    consumes_material = True
+                else:
+                    consumes_material = False
+            else:
+                material = False
+                material_specific = None
+                consumes_material = None
+            concentration = request.form.get("concentration")
+            duration = request.form.get("duration")
+            text = request.form.get("text")
+            if(len(name) > 127):
+                flash("Spell name must be fewer than 127 characters.")
+            elif(len(name) < 1):
+                flash("You must specify a spell name.")
+            elif(len(text) > 16383):
+                flash("Spell description must be fewer than 16383 characters.")
+            elif(material):
+                if(len(material_specific) > 255):
+                    flash("Spell material components must be fewer than 256 characters.")
+            elif("<" in text):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in text):
+                flash("Cross-site scripting attacks are not allowed.")
+            else:
+                new_spell = Spell(
+                    rulesetid = rulesetid,
+                    name = name,
+                    school = school,
+                    level = level,
+                    casting_time = casting_time,
+                    spell_range = spell_range,
+                    verbal = verbal,
+                    somatic = somatic,
+                    material = material,
+                    material_specific = material_specific,
+                    consumes_material = consumes_material,
+                    concentration = concentration,
+                    duration = duration,
+                    text = text
+                )
+                db.session.add(new_spell)
+                db.session.commit()
+                flash("Spell created.")
+                return(redirect(url_for("eprefs.spells")))
+    return(render_template("create-spell.html", user=current_user, cruleset=cruleset, frulesets=frulesets))
+
+@eprefs.route("/Spell/<string:spell>")
+def spell(spell):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    spell = Spell.query.filter_by(rulesetid = cruleset.id, name = spell.replace("-", " ")).first()
+    return(render_template("spell.html", user=current_user, frulesets=frulesets, cruleset=cruleset, spell=spell))
+
 
 @eprefs.route("/Recipes")
 def recipes():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     return(render_template("recipes.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
+@eprefs.route("/Recipes/Create", methods=["GET", "POST"])
+@login_required
+def createRecipe():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.userid):
+            flash("You cannot create recipes for rulesets that are not yours.")
+        else:
+            name = request.form.get("name")
+            text = request.form.get("text")
+            if(len(name) < 1):
+                flash("You must specify a recipe name.")
+            elif(len(name) > 127):
+                flash("Recipe name must be fewer than 127 characters.")
+            elif(len(text) > 16383):
+                flash("Recipe text must be fewer than 16384 characters.")
+            elif("<" in text):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in text):
+                flash("Cross-site scripting attacks are not allowed.")
+            else:
+                new_recipe = Recipe(
+                    rulesetid = cruleset.id,
+                    name = name,
+                    text = text
+                )
+                db.session.add(new_recipe)
+                db.session.commit()
+                flash("Recipe created!")
+                return(redirect(url_for("eprefs.recipes")))
+    return(render_template("create-recipe.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
 @eprefs.route("/Skills")
 def skills():

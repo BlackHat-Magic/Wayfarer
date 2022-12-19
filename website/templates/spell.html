@@ -1,0 +1,25 @@
+
+{% extends "master.html" %}
+
+{% block head %}
+<title>{{ spell.name }} | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/spell.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<div class="flex vertical start" x-data="main">
+		<div class="usercontent">
+			<h1>{{ spell.name }}</h1>
+			<p><em x-text="levellist[{{ spell.level }}] + '-level ' + `{{ spell.school }}`"></em></p>
+			<p><strong>Casting Time: </strong><span x-text="timelist[{{ spell.casting_time }}]"></span></p>
+			<p><strong>Range: </strong><span x-text="rangelist[`{{ spell.range }}`]"></span></p>
+			<p><strong>Components: </strong><span x-text="parseComponents(`{{ spell.verbal }}`, `{{ spell.somatic }}`, `{{ spell.material }}`, `{{ spell.material_specific }}`, `{{ spell.consumes_material }}`)"></span></p>
+			<p><strong>Duration: </strong><span x-text="durationlist[{{ spell.duration }}]"></span></p>
+			<hr>
+			<div x-html="convert(`{{ spell.text }}`)"></div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

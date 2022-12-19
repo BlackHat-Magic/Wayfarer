@@ -2,16 +2,22 @@
 {% extends "master.html" %}
 
 {% block head %}
-<title>Under Construction | Luke Henderson</title>
+<title>Recipes | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/recipes.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start">
-		<h1>Page Under Construction</h1>
-		<img src="https://cdn.betterttv.net/emote/609375b139b5010444d0c761/3x" style="max-width: 512px; width: 100%; border-radius: 10px; margin: 50px 150px 50px 150px;">
-		<p>This page isn't finished yet. Come back soon when it's done!</p>
-		<button onclick="window.location.href='/'">Return Home</button>
+	<div class="flex vertical start" x-data="main">
+		<h1>Recipes</h1>
+		{% for recipe in cruleset.recipes %}
+		<div class="usercontent">
+			<h2 x-text="'{{ recipe.name }}'"></h2>
+			<hr>
+			<div x-html="convert(`{{ recipe.text }}`)"></div>
+		</div>
+		{% endfor %}
+		<a href="/Reference/Recipes/Create"><button>Create Recipe</button></a>
 	</div>
 </div>
 

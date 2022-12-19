@@ -2,17 +2,94 @@
 {% extends "master.html" %}
 
 {% block head %}
-<title>Under Construction | Luke Henderson</title>
+<title>Spells | Wayfinder {{cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/spells.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start">
-		<h1>Page Under Construction</h1>
-		<img src="https://cdn.betterttv.net/emote/609375b139b5010444d0c761/3x" style="max-width: 512px; width: 100%; border-radius: 10px; margin: 50px 150px 50px 150px;">
-		<p>This page isn't finished yet. Come back soon when it's done!</p>
-		<button onclick="window.location.href='/'">Return Home</button>
+	<div class="flex vertical start" x-data="main">
+		{% for spell in cruleset.spells %}
+		<template x-init="itemROM.push(
+			{
+				name: `{{ spell.name }}`,
+				school: `{{ spell.school }}`,
+				level: `{{ spell.level }}`,
+				casting_time: `{{ spell.casting_time }}`,
+				spell_range: `{{ spell.spell_range }}`,
+				verbal: `{{ spell.verbal }}`,
+				somatic: `{{ spell.somatic }}`,
+				material: `{{ spell.material }}`,
+				consumes_material: `{{ spell.consumes_material }}`,
+				duration: `{{ spell.duration }}`,
+				text: `{{ spell.text }}`
+			}
+		)"></template>
+		{% endfor %}
+		<h1>Spells</h1>
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Items..." x-model="query" style="margin: 12px">
+		<div class="interior flex vertical start" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+			<div style="width: 100%">
+				<label for="school">Spell School: </label>
+				<select name="school" id="school" x-model="school" style="width: auto" @change="appendSchool">
+					<option>Abjuration</option>
+					<option>Conjuration</option>
+					<option>Divination</option>
+					<option>Enchantment</option>
+					<option>Evocation</option>
+					<option>Illusion</option>
+					<option>Transmutation</option>
+					<option>Necromancy</option>
+				</select>
+			</div>
+			<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
+				<template x-for="school, index in schools">
+					<span class="chip" @click="removeSchool(index)">
+						<span x-text="school"></span>
+						<span class="remove">&times</span>
+					</span>
+				</template>
+			</div>
+		</div>
+		<div class="interior flex horizontal space-between" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+			<label for="level" style="width: 25%">Spell Level:</label>
+			<input type="range" style="width: 30%; margin: 0" min="0" max="13" name="level" id="level" x-model="level">
+			<span style="width: 25%" x-text="levellist[level]"></span>
+			<label for="time" style="width: 25%">Casting Time: </label>
+			<input type="range" style="width: 30%; margin: 0" min="0" max="10" vname="time" id="time" x-model="time">
+			<span style="width: 25%" x-text="timelist[time]"></span>
+			<label for="range" style="width: 25%">Spell Range: </label>
+			<input type="range" style="width: 30%; margin: 0" min="0" max="24" name="range" id="range" x-model="range">
+			<span style="width: 25%" x-text="rangelist[range]"></span>
+			<label for="duration" style="width: 25%"> Spell Duration: </label>
+			<input type="range" style="width: 30%; margin: 0" min="0" max="12" name="duration" id="duration" x-model="duration">
+			<span style="width: 25%" x-text="durationlist[duration]"></span>
+		</div>
+		<table name="filtertable" id="filtertable">
+			<tr class="header">
+				<th style="width: 25%">Spell Name</th>
+				<th style="width: 15%">School</th>
+				<th style="width: 10%">Level</th>
+				<th style="width: 10%">Casting Time</th>
+				<th style="width: 10%">Duration</th>
+				<th style="width: 10%">Range</th>
+				<th style="width: 10%">Components</th>
+			</tr>
+			<template x-for="spell, index in filterQuery()">
+				<tr>
+					<td><a @click="window.location.href = '/Reference/Spell/' + spell.name.split(' ').join('-')" x-text="spell.name"></a></td>
+					<td x-text="spell.school"></td>
+					<td x-text="levellist[spell.level]"></td>
+					<td x-text="timelist[spell.casting_time]"></td>
+					<td x-text="durationlist[spell.duration]"></td>
+					<td x-text="rangelist[spell.spell_range]"></td>
+					<td x-text="parseComponents(spell)"></td>
+				</tr>
+			</template>
+		</table>
+		{% if cruleset.userid == user.id %}
+		<a href="/Reference/Spells/Create"><button>Create A Spell</button></a>
+		{% endif %}
 	</div>
 </div>
-
 {% endblock %}

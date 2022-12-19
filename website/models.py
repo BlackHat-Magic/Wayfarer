@@ -19,6 +19,7 @@ class Ruleset(db.Model):
     name = db.Column(db.String(127))
     categories = db.relationship("Category")
     languages = db.relationship("Language")
+    recipes = db.relationship("Recipe")
     item_tags = db.relationship("ItemTag")
     item_properties = db.relationship("Property")
     items = db.relationship("Item")
@@ -50,9 +51,13 @@ class Language(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
-    text = db.Column(db.String(255))
-    speakers = db.Column(db.String(255))
-    script = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
+
+class Recipe(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
 
 class ItemTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -181,7 +186,9 @@ class Spell(db.Model):
     verbal = db.Column(db.Boolean)
     somatic = db.Column(db.Boolean)
     material = db.Column(db.Boolean)
+    material_specific = db.Column(db.String(255))
     consumes_material = db.Column(db.Boolean)
+    concentration = db.Column(db.Boolean)
     duration = db.Column(db.String)
     text = db.Column(db.String(16383))
 
