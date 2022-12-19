@@ -2,23 +2,22 @@
 {% extends "master.html" %}
 
 {% block head %}
-<title>Actions | Wayfinder {{ cruleset.name }}</title>
-<script src="{{ url_for('static', filename='js/actions.js') }}"></script>
+<title>Languages | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/languages.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Actions</h1>
-		{% for action in actions %}
+		<h1>Languages</h1>
+		{% for language in cruleset.languages %}
 		<div class="usercontent">
-			<h2 x-text="'{{ action.name }}'"></h2>
-			<p><strong><em>Time: </em></strong>{{ action.time }}</p>
+			<h2 x-text="'{{ language.name }}'"></h2>
 			<hr>
-			<div x-html="convert(`{{ action.text }}`)"></div>
+			<div x-html="convert(`{{ language.text }}`)"></div>
 		</div>
 		{% endfor %}
-		<a href="/Reference/Actions/Create"><button>Create Action</button></a>
+		<a href="/Reference/Languages/Create"><button>Create Language</button></a>
 	</div>
 </div>
 

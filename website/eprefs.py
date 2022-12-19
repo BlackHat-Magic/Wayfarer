@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, jsonify, flash
-from .models import Ruleset, Skill, Action, Condition, Item, ItemTag, Property
+from .models import Ruleset, Skill, Action, Condition, Item, ItemTag, Property, Language
 from flask_login import login_user, current_user, login_required
 from .check_ruleset import *
 from . import db
@@ -18,9 +18,6 @@ def refs():
 def actions():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    actions = []
-    for action in Action.query.filter_by(rulesetid = cruleset.id):
-        actions.append(action)
     return(render_template("actions.html", user=current_user, frulesets=frulesets, cruleset=cruleset, actions=actions))
 
 @eprefs.route("/Actions/Create", methods=["GET", "POST"])
@@ -320,6 +317,39 @@ def refsLang():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     return(render_template("languages.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
+@eprefs.route("/Languages/Create", methods=["GET", "POST"])
+@login_required
+def createLanguage():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.userid):
+            flash("You cannot create languages for rulesets that are not yours.")
+        else:
+            name = request.form.get("name")
+            text = request.form.get("text")
+            if(len(name) < 1):
+                flash("You must specify a language name.")
+            elif(len(name) > 127):
+                flash("Language name must be fewer than 128 characters.")
+            elif(len(text) > 16383):
+                flash("Language description must be fewer than 16384 characters.")
+            elif("<" in text):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in text):
+                flash("Cross-site scripting attacks are not allowed.")
+            else:
+                new_language = Language(
+                    rulesetid = cruleset.id,
+                    name = name,
+                    text = text
+                )
+                db.session.add(new_language)
+                db.session.commit()
+                flash("Language created!")
+                return(redirect(url_for("eprefs.refsLang")))
+    return(render_template("create-language.html", user=current_user, cruleset=cruleset, frulesets=frulesets))
 
 @eprefs.route("/Spells")
 def spells():
