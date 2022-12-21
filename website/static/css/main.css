@@ -1,8 +1,3 @@
-@font-face {
-    font-family: "noto-sans";
-    src: url("../fonts/NotoSansDisplay-VariableFont_wdth,wght.ttf") format(truetype);
-}
-
 * {
     font-family: "noto-sans", sans-serif, serif;
     max-width: 100%;
