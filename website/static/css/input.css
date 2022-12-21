@@ -1,0 +1,112 @@
+form {
+    width: 100%;
+}
+
+form {
+    font-size: 16px;
+}
+
+button, input, select, textarea {
+    border-style: solid;
+    padding: 14px 16px;
+    text-align: left;
+    text-decoration: inline-block;
+    font-size: 16px;
+    margin: auto;
+    border-radius: 15px;
+    background-color: var(--nord-inactive);
+    color: var(--nord-important);
+    border-color: var(--nord3);
+    width: 100%;
+}
+
+button:hover, input[type=submit]:hover {
+    background-color: var(--nord-active);
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    cursor: pointer;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-buttton, input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+input, select {
+    box-sizing: border-box;
+    padding: 8px;
+}
+
+input[type=checkbox] {
+    width: auto;
+}
+
+textarea {
+    font-size: 16px;
+    max-width: calc(100% - 24px);
+    resize: vertical;
+    height: 500px;
+    padding: 12px;
+}
+
+a button {
+    margin: 12px;
+    text-align: center;
+    box-sizing: border-box;
+    width: auto;
+}
+
+form input, form textarea, form select, form button, form a {
+    margin: 12px;
+}
+
+.chip {
+    padding: 5px 10px;
+    border-radius: 16.5px;
+    background-color: var(--nord-canvas);
+    margin: 5px;
+}
+
+.chip span {
+    padding: 0px 5px;
+    cursor: pointer;
+}
+
+.chip:hover span.remove {
+    color: var(--nord-red);
+    cursor: pointer
+}
+
+.chip:hover span:not(.remove) {
+    text-decoration: line-through;
+}
+
+button.circle {
+    height: var(--size);
+    width: var(--size);
+    border-radius: 50%;
+}
+
+button.circle * {
+    position:  relative;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    margin: auto;
+}
+
+button.danger {
+    background-color: var(--nord-dark-red);
+    border-color: var(--nord-red);
+}
+
+button.danger.mild {
+    background-color: var(--nord-red);
+    border-color: var(--nord-red);
+}
+

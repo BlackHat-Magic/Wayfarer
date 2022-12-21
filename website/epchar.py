@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify
-from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item
+from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass
 from flask_login import current_user, login_required
 from .check_ruleset import *
 from . import db
@@ -373,6 +373,188 @@ def editStats():
                 flash("Changes saved.")
                 return(redirect(url_for("epchar.stats")))
     return(render_template("edit-stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
+@epchar.route("/Classes")
+def classes():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    return(render_template("classes.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+
+@epchar.route("/Classes/Create", methods=["GET", "POST"])
+@login_required
+def createClass():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.userid):
+            flash("You cannot create classes for rulesets that are not yours.")
+        else:
+            name = request.form.get("name")
+            hitdie = request.form.get("hitdie")
+            proficiencies = request.form.get("proficiencies")
+            saves = 0
+            if(request.form.get("str")):
+                saves += 32
+            if(request.form.get("dex")):
+                saves += 16
+            if(request.form.get("con")):
+                saves += 8
+            if(request.form.get("int")):
+                saves += 4
+            if(request.form.get("wis")):
+                saves += 2
+            if(request.form.get("cha")):
+                saves += 1
+            skills = request.form.get("skills")
+            equipment = request.form.get("equipment")
+            gold_nums = request.form.get("gold_nums")
+            gold_dice = request.form.get("gold_dice")
+            gold_mult = request.form.get("gold_mult")
+            multiclass_prereq = request.form.get("prereq")
+            multiclass_skills = request.form.get("skills")
+            subclass_name = request.form.get("subclass_name")
+            if(len(subclass_name) == 0):
+                subclass_name = "Subclass"
+            text = request.form.get("text")
+            class_features = []
+            subclasses = []
+            if(len(name) < 1):
+                flash("You must specify a class name.")
+            elif(len(name) > 127):
+                flash("Class name must be fewer than 128 characters.")
+            elif(len(equipment) > 1023):
+                flash("Class equipment must be fewer than 1024 characters.")
+            elif(len(gmulticlass_prereq) > 1023):
+                flash("Class prerequisites must be fewer than 1024 characters")
+            elif(len(subclass_name) > 127):
+                flash("Subclass name must be fewer than 128 characters.")
+            elif(len(text) > 16383):
+                flash("Class description must be fewer than 16384 characters.")
+            elif("<" in text):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in text):
+                flash("Cross-site scripting attacks are not allowed.")
+            else:
+                for index, featurename in request.form.getlist("class_feature_name"):
+                    level = request.form.getlist("level")[index]
+                    featuretext = request.form.getlist("class_feature_text")[index]
+                    if(len(featurename) < 1):
+                        flash("Each class feature must have a name.")
+                        return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                    elif(len(featurename) > 127):
+                        flash("Class feature names must be fewer than 128 characters.")
+                        return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                    elif(len(featuretext) > 16383):
+                        flash("Class feature descriptions must be fewer than 16383 characters.")
+                        return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                    elif("<" in featuretext):
+                        flash("Open angle brackets (\"<\") are not allowed.")
+                    elif("javascript" in featuretext):
+                        flash("Cross-site scripting attacks are not allowed.")
+                    else:
+                        class_features.append({
+                            "name": featurename,
+                            "level": level,
+                            "text": featuretext
+                        })
+                for index, subclassname in request.form.getlist("subclass_name"):
+                    subclasstext = request.form.getlist("subclass_text")[index]
+                    caster_type = request.form.getlist("caster_type")[index]
+                    if(len(subclassname) < 1):
+                        flash("Each subclass must have a name.")
+                        return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                    elif(len(subclassname) > 127):
+                        flash("Subclass names must be fewer than 128 characters.")
+                        return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                    elif(len(subclasstext) > 16383):
+                        flash("Subclass descriptions must be fewer than 16384 characters.")
+                        return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                    elif("<" in subclasstext):
+                        flash("Open angle brackets (\"<\") are not allowed.")
+                    elif("javascript" in subclass):
+                        flash("Cross-site scripting attacks are not allowed.")
+                    else:
+                        subclass_features = []
+                        for index2, subfeaturename in request.form.getlist(f"subclass_feature_{index}_name"):
+                            level = request.form.getlist(f"subclass_feature_{index}_level")[index2]
+                            stext = request.form.getlist(f"subclass_feature_{index}_text")
+                            if(len(subfeaturename) < 1):
+                                flash("Each subclass feature must have a name.")
+                                return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                            elif(len(subfeaturename) > 127):
+                                flash("Subclass feature names must be fewer than 128 characters.")
+                                return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                            elif(len(stext) > 16383):
+                                flash("Subclass feature descriptions must be fewer than 16384 characters.")
+                                return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+                            else:
+                                subclass_features.append({
+                                    "name": subfeaturename,
+                                    "level": level,
+                                    "text": stext
+                                })
+                        subclasses.append({
+                            "name": subclassname,
+                            "text": subclass,
+                            "caster_type": caster_type,
+                            "features": subclass_features
+                        })
+                new_class = Playerclass(
+                    rulesetid = cruleset.id,
+                    name = name,
+                    hitdie = hitdie,
+                    proficiencies = proficiencies,
+                    saves = saves,
+                    skills = skills,
+                    equipment = equipment,
+                    gold_nums = gold_nums,
+                    gold_dice = gold_dice,
+                    gold_mult = gold_mult,
+                    multiclass_prereq = multiclass_prereq,
+                    multiclass_skills = multiclass_skills,
+                    subclass_name = subclass_name,
+                    text = text
+                )
+                db.session.add(new_class)
+                db.session.commit()
+
+                new_class = Playerclass.query.filter_by(rulesetid = cruleset.id, name = name).first()
+
+                for feature in class_features:
+                    new_feature = ClassFeature(
+                        classid = new_class.id,
+                        level_obtained = feature["level"],
+                        name = feature["name"],
+                        text = feature["text"]
+                    )
+                    db.session.add(new_feature)
+                    db.session.commit()
+                
+                for subclass in subclasses:
+                    new_subclass = Subclass(
+                        classid = new_class.id,
+                        name = subclass["name"],
+                        caster_type = subclass["caster_type"],
+                        text = subclass["text"]
+                    )
+                    db.session.add(new_subclass)
+                    db.session.commit()
+
+                    new_subclass = Subclass.query.filter_by(classid = new_class.id, name = subclass["name"]).first()
+
+                    for feature in subclass["features"]:
+                        new_feature = SubclassFeature(
+                            subclassid = new_subclass.id,
+                            name = feature["name"],
+                            level_obtained = feature["level"],
+                            text = feature["text"]
+                        )
+                        db.session.add(new_feature)
+                        db.session.commit()
+                flash("Class created!")
+                return(redirect(url_for("epchar.classes")))
+                        
+    return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
 
 @epchar.route("/Step-by-Step")
 def stepByStep():

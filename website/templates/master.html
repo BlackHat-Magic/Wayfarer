@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie-edge">
-    <link rel="icon" type="image/x-ixon" href="https://discord.id/img/flags/7.png">
+    <link rel="icon" type="image/x-ixon" href="{{ url_for('static', filename='images/d20.png') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/text.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/input.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/containers.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/markdown.css') }}"
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 	<script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
 	<script src="{{ url_for('static', filename='js/master.js') }}"></script>
@@ -34,6 +39,7 @@
 			<a href="/Character/Backgrounds">Backgrounds</a>
 			<a href="/Character/Feats">Feats</a>
 			<a href="/Character/Ability-Scores">Ability Scores</a>
+			<a href="/Character/Classes">Classes</a>
 			<a href="/Character/Step-by-Step">Step-by-Step Characters</a>
 		</div>
 	</li>

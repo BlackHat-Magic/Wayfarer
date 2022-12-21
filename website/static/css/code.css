@@ -1,0 +1,36 @@
+.code-editor {
+    width: 100%;
+    display: inline-flex;
+    gap: 0;
+    border-radius: 0px;
+    background-color: var(--nord-inactive);
+    height: auto;
+}
+
+.code-editor textarea {
+    resize: none;
+    font-family: monospace;
+    border-radius: 0;
+    padding: 0;
+    border: 0;
+    margin: 0;
+}
+
+.code-editor textarea:focus {
+    outline: none;
+}
+
+.code-editor .line-numbers {
+    width: 20px;
+    text-align: right;
+    background-color: var(--nord-active);
+    height: auto;
+}
+
+.code-editor .line-numbers span {
+    color: var(--nord-primary1);
+    width: 100%;
+    display: block;
+    font-family: monospace;
+}
+

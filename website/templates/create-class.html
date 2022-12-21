@@ -1,0 +1,148 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Create A Class | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/create-class.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<div class="flex vertical start" x-data="main">
+		<h1>Create a Class</h1>
+		<h2>Base Class Info</h2>
+		<form method="POST" class="interior flex vertical start">
+			<input type="text" name="name" id="name" placeholder="Class Name">
+			<div class="interior flex horizontal space-between" style="width: 100%">
+				<div>
+					<label for="hitdie">Hit Die: </label>
+					<select name="hitdie" id="hitdie" style="width: auto">
+						<option value="0">d4</option>
+						<option value="1">d6</option>
+						<option value="2">d8</option>
+						<option value="3">d10</option>
+						<option value="4">d12</option>
+						<option value="5">d20</option>
+					</select>
+				</div>
+				<div>
+					<label for="gold_nums">Starting Gold: </label>
+					<input type="number" name="gold_nums" id="gold_nums" x-model="gold_nums" placeholder="Number of Dice" style="width: calc(100% / 4); min-width: 120px">
+					<select name="gold_dice" id="gold_dice" x-model="gold_dice" style="width: auto">
+						<option value="0">d4</option>
+						<option value="1">d6</option>
+						<option value="2">d8</option>
+						<option value="3">d10</option>
+						<option value="4">d12</option>
+						<option value="5">d20</option>
+					</select>
+					<span>&times</span>
+					<input type="number" name="gold_mult" id="gold_mult" x-model="gold_mult" placeholder="Multiplied by..." style="width: calc(100% / 4); min-width: 120px"> 
+				</div>
+			</div>
+			<div class="interior flex horizontal space-around" style="width: 100%">
+				<div>
+					<label for="str">Strength Saves</label>
+					<input type="checkbox" name="str" id="str" x-model="str">
+				</div>
+				<div>
+					<label for="dex">Dexterity Saves</label>
+					<input type="checkbox" name="dex" id="dex" x-model="dex">
+				</div>
+				<div>
+					<label for="con">Constitution Saves</label>
+					<input type="checkbox" name="con" id="con" x-model="con">
+				</div>
+				<div>
+					<label for="int">Intelligence Saves</label>
+					<input type="checkbox" name="int" id="int" x-model="int">
+				</div>
+				<div>
+					<label for="wis">Wisdom Saves</label>
+					<input type="checkbox" name="wis" id="wis" x-model="wis">
+				</div>
+				<div>
+					<label for="cha">Charisma Saves</label>
+					<input type="checkbox" name="cha" id="cha" x-model="cha">
+				</div>
+			</div>
+			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+				<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
+					<label for="proficiencies">Tool/Weapon Proficiencies:</label>
+					<select name="proficiencyselect" id="proficiencyselect" x-model="proficiencyselect" style="width: auto" @change="appendProficiency()">
+						{% for item in cruleset.items %}
+							{% if item.proficiency %}
+							<option>{{ item.name }}</option>
+							{% endif %}
+						{% endfor %}
+						{% for tag in cruleset.item_tags %}
+						<option>{{ tag.name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+					<template x-for="proficiency, index in proficiencylist">
+						<span class="chip" @click="removeProficiency(index)"><span x-text="proficiency"></span><span class="remove">&times</span></span>
+					</template>
+				</div>
+			</div>
+			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+				<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
+					<label for="skillselect">Skill Proficiencies:</label>
+					<select name="skillselect" id="skillselect" x-model="skillselect" style="width: auto" @change="appendSkill()">
+						{% for skill in cruleset.skills %}
+						<option>{{ skill.name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+					<template x-for="skill, index in proficiencylist">
+						<span class="chip" @click="removeSkill(index)"><span x-text="skill"></span><span class="remove">&times</span></span>
+					</template>
+				</div>
+			</div>
+			<textarea id="eqeuipment" name="equipment" x-model="equipment" placeholder="Starting Equipment" style="height: 100px"></textarea>
+			<textarea id="prereq" name="prereq" x-model="prereq" placeholder="Multiclassing Prerequisites" style="height: 100px"></textarea>
+			<input type="text" id="subclassname" name="subclassname" x-model="subclassname" placeholder='Subclass Name (e.g. "Primal Path," "Divine Domain," etc.)'>
+			<textarea id="text" name="text" x-model="text" placeholder="Class Description"></textarea>
+			<h3>Class Features</h3>
+			<template x-for="feature, index in features">
+				<div class="interior flex vertical start" style="width: 100%">
+					<div class="interior flex horizontal center" style="width: 100%">
+						<input type="text" name="class_feature_name" x-model="feature.name" placeholder="Class Feature Name" style="width: calc(50% - 24px); min-width: 240px"></input>
+						<input type="number" name="level" x-model="feature.level" placeholder="Level Obtained" style="width: calc(25% - 24px); min-width: 120px">
+						<a @click="deleteFeature(index)" style="width: calc(25% - 24px); min-width: 120px"><button class="danger">Delete Feature</button></a>
+					</div>
+					<textarea name="class_feature_text" x-model="feature.text" placeholder="Class Feature Description"></textarea>
+				</div>
+			</template>
+			<a @click="features.push({name: '', level: null, text: ''})"><button>Add Class Feature</button></a>
+			<h3>Subclasses</h3>
+			<template x-for="subclass, index in subclasses">
+				<div class="interior flex vertical start" style="width: 100%">
+					<div class="interior flex horizontal center" style="width: 100%">
+						<input name="subclass_name" placeholder="Subclass Name" x-model="subclass.name" style="width: calc(75% - 24px); min-width: 360px">
+						<a @click="deleteSubclass(index)" style="width: calc(25% - 24px); min-width: 120px"><button class="danger">Delete Subclass</button></a>
+					</div>
+					<textarea name="subclass_text" x-model="subclass.text" placeholder="Subclass Description"></textarea>
+					<h4 x-text="subclasses[index].name + ' Features'"></h4>
+					<template x-for="feature, index1 in subclass.features">
+						<div class="interior flex vertical start" style="width: 100%" style="width: 100%">
+							<div style="width: 100%" class="interior flex horizontal center" x-html="`
+								<input type='text' name='subclass_feature_$(index1)_name' x-model='subclasses[index].features[index1].name' placeholder='${subclass.name} Feature Name' style='width: calc(50% - 24px); min-width: 240px'>
+								<input type='number' name='subclass_feature_$(index1)_level' x-model='subclasses[index].features[index1].level' placeholder='Level Obtained' style='width: calc(25% - 24px); min-width: 120px'>
+								<a @click='deleteSubclassFeature(index, index1)' style='width: calc(25% - 24px); min-width: 120px'><button class='danger'>Delete Feature</button></a>
+							`"></div>
+							<div style="width: 100%" x-html="`
+								<textarea name='subclass_feature_$(index1)_text' x-model='subclasses[index].features[index1].text' placeholder='Feature Description' style='margin: 0'></textarea>
+							`"></div>
+						</div>
+					</template>
+					<a x-html="`<button @click='subclasses[index].features.push({name: null, level: null, text: null})'>Add Subclass Feature</button>`"></a>
+				</div>
+			</template>
+			<a @click="subclasses.push({name: '', text: '', features: [{name: '', level: null, text: ''}]})"><button>Add Subclass</button></a>
+			<a><button type="submit">Create Class!</button></a>
+		</form>
+	</div>
+</div>
+{% endblock %}

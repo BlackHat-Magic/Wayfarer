@@ -1,0 +1,197 @@
+.nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--nord-inactive);
+    z-index: 2;
+}
+
+.nav-item {
+    float: left;
+}
+
+.nav-right {
+    float: right;
+    background-color: var(--nord-tertiary);
+}
+
+.nav-item a, .nav-right a, .dropbtn {
+    display: inline-block;
+    color: var(--nord-subtle);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.nav-item a:hover {
+    background-color: var(--nord-active);
+}
+
+.dropdown.active:hover .dropbtn {
+    background-color: var(--nord3);
+}
+
+.nav-right a:hover, .nav-item.nav-right a:hover {
+    background-color: var(--nord-secondary);
+    color: var(--nord-text);
+}
+
+.nav-right .dropdown-content a:hover {
+    background-color: var(--nord-active);
+}
+
+.nav-item.dropdown {
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--nord-inactive);
+    min-width: 192px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: var(--nord-subtle);
+    padding: 14px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--nord-active);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.active, .active a {
+    background-color: var(--nord-active);
+}
+
+.active:hover, .active a:hover {
+    background-color: var(--nord3);
+}
+
+.nav-item a:hover, .small a:hover {
+    color: var(--nord-primary1);
+}
+
+.topbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--nord-canvas);
+}
+
+.topbar li, .topbar li * {
+    float: left;
+    font-size: 16px;
+    border: none;
+    border-radius: 0;
+    width: auto;
+    background-color: var(--nord-canvas);
+}
+
+.topbar li * {
+    padding: 14px 16px;
+    margin: 0;
+}
+
+.topbar li *:hover {
+    background-color: var(--nord-inactive);
+}
+
+.topbar li.static *:hover {
+    background-color: var(--nord-canvas);
+}
+
+.topbar li select {
+    max-width: 100%
+}
+
+select.nav-item {
+    font-size: 16px;
+    margin: 0;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 0;
+    display: inline-block;
+    width: auto;
+}
+
+select.nav-item:hover {
+    color: var(--nord-tertiary);
+    background-color: var(--nord-active);
+}
+
+.tabs {
+    width: 15%;
+    border-radius: 12px;
+}
+
+.tab {
+    display: block;
+    background-color: var(--nord-inactive);
+    width: 100%;
+    padding: 14px;
+}
+.tab:hover {
+    background-color: var(--nord-active);
+    color: var(--nord-primary1);
+}
+
+.tab.active {
+    background-color: var(--nord-active);
+}
+
+.tab.active:hover {
+    background-color: var(--nord3);
+    color: var(--nord-text);
+}
+
+.tab-container {
+    width: 100%;
+    background-color: var(--nord-canvas)!important;
+}
+
+.modal {
+    display: none; /*Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 3; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-alert {
+    background-color: var(--nord-canvas);
+    padding: 20px;
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    border: 3px var(--nord-inactive);
+    width: 50%; /* Could be more or less, depending on screen size */
+    border-radius: 12px;
+    z-index: 4;
+}
+
+@media only screen and (max-width: 900px) {
+    .tabs {
+        padding: 0;
+    }
+    .topbar {
+        width: calc(100% - 4px);
+        border: 2px solid var(--nord-inactive);
+    }
+}

@@ -1,0 +1,101 @@
+.flex {
+    display: flex;
+    background-color: var(--nord-canvas); 
+    align-content: space-around;
+    border-radius: 12px;
+    margin: 50px auto;
+    width: 75%;
+    align-items: flex-start;
+}
+
+.horizontal {
+    flex-flow: row wrap;
+    width: 100%;
+    margin: 25px;
+    align-items: center;
+}
+
+.vertical {
+    flex-flow: column nowrap;
+    width: 100%;
+    margin: 25px;
+    align-items: center;
+}
+
+.flex.center, .grid.center {
+    justify-content: center;
+}
+
+.flex.start, .grid.start {
+    justify-content: flex-start;
+}
+
+.flex.end, .grid.end {
+    justify-content: flex-end;
+}
+
+.flex.space-around, .grid-space-around {
+    justify-content: space-around;
+}
+
+.flex.space-between, .grid.space-between {
+    justify-content: space-between;
+}
+
+.flex.wide {
+    width: calc(100% - 100px)
+}
+
+.flex.narrow {
+    width: calc(35% + 100px);
+    max-width: calc(100% - 100px)
+}
+
+/* GRID CONTAINERS */
+.grid {
+    width: 100%;
+    background-color: var(--nord-inactive);
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto;
+    gap: 12px;
+}
+
+.grid.space-evenly {
+    justify-content: space-evenly;
+}
+
+/* SPLASH TEXT */
+.splashText {
+    padding: 16px 32px;
+    text-align: center;
+    font-size: 24px;
+    margin: 12px;
+    color: var(--nord-text);
+    text-decoration: none;
+}
+
+.splashText:hover {
+    color: var(--nord-primary1);
+    cursor: pointer;
+}
+
+div.interior {
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+
+@media only screen and (max-width: 900px) {
+    .flex, .flex.wide, .flex.narrow {
+        margin: 0;
+        width: calc(100% - 24px);
+        border-radius: 0px!important;
+        padding: 12px;
+        flex-flow: column nowrap;
+        max-width: 100%;
+    }
+    .interior.flex.horizontal {
+        flex-flow: row wrap;
+    }
+}

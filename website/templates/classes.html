@@ -1,0 +1,78 @@
+{% extends "master.html" %}
+
+{% block head %}
+<title>Classes | Wayfinder {{ cruleset.name }}</title>
+<script src="{{ url_for('static', filename='js/category.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+    <div class="flex vertical start">
+        <h1>Classes</h1>
+        {% if cruleset.userid == current_user.id %}
+        <a href="/Character/Classes/Create"><button>Create a Class</button></a>
+        {% endif %}
+    </div>
+</div>
+<div class="wide flex" x-data="main">
+    {% for class in cruleset.classes %}
+        <template x-init="classROM.push({
+            name: '{{ class.name }}',
+            hitdie: {{ class.hitdie }},
+            proficiencies: '{{ class.proficiencies }}',
+            saves: {{ class.saves }},
+            skills: '{{ class.skills }}',
+            equipment: '{{ class.equipment }}',
+            gold_nums: {{ class.gold_nums }},
+            gold_dice: {{ class.gold_dice }},
+            gold_mult: {{ class.gold_mult }},
+            multiclass_prereq: '{{ class.multiclass_prereq }}',
+            multiclass_profic: '{{ class.multiclass_profic }}',
+            multiclass_skills: '{{ class.multiclass_skills }}',
+            subclass_name: '{{ class.subclass_name }}',
+            text: `{{ class.text }}`
+            class_features: [],
+            subclasses: []
+        })"></template>
+        {% for feature in class.features %}
+            <template x-init="classROM[classROM.length - 1].class_features.push({
+                level_obtained: {{ feature.level_obtained }},
+                name: '{{ feature.name }}',
+                text: `{{ feature.text }}`
+            })"></template>
+        {% endfor %}
+        {% for subclass in class.subclasses %}
+            <template x-init="classROM[classROM.length - 1].subclasses.push({
+                name: '{{ subclass.name }}',
+                text: `{{ subclass.text }}`,
+                caster_type: {{ subclass.caster_type }},
+                features: []
+            })"></template>
+            {% for feature in subclass.features %}
+                <template x-init="classROM[classROM.length - 1].subclasses[classROM[classROM.length - 1].subclasses.length - 1].features.push({
+                    name: '{{ feature.name }}',
+                    level_obtained: {{ feature.level_obtained }},
+                    text: `{{ feature.text }}`
+                })"></template>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+    <div class="flex vertical start tabs">
+        {% for class in cruleset.classes %}
+        <div class="tab-container">
+            <a 
+                class="tab" 
+                @click="activate({{ class.id }})" 
+                id="tab-{{ class.id }}">
+                {{ rule.name }}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="flex vertical start wide-content usercontent" id="rule">
+        {% for rule in rules %}
+            <div x-html="rule(`{{rule.text}}`)"></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

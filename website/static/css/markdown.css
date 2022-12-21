@@ -1,0 +1,18 @@
+.usercontent * {
+    width: 100%;
+    margin: 6px 0;
+}
+.usercontent table, .usercontent table * {
+    width: auto;
+}
+.usercontent blockquote * {
+    margin: 18px 0;
+}
+.usercontent {
+    width: 100%!important;
+}
+.usercontent h2, .usercontent h3, .usercontent h4, .usercontent h5, .usercontent h6 {
+    text-align: left;
+    width: 100%
+}
+
