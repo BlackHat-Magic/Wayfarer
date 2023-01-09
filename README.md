@@ -9,7 +9,7 @@ Licensed under AGPL-v3.0
 
 In no particular order...
 
- [ ] finish website
+ [-] finish website
  [-] make mobile site less trash
  [-] make website pretty
  [-] add CSS animations
