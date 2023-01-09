@@ -104,21 +104,25 @@
 <div id="jsflash">
 </div>
 
-<ul class="topbar" x-data="master">
+<form class="topbar" x-data="master">
 	<li class="static"><p>Selected Ruleset: </p></li>
 	<li>
 		<select name="current_ruleset" id="current_ruleset"" x-init="init_selected({{ user.current_ruleset }})">
-			<option value="1">D&D 5e SRD</option>
+			{% for ruleset in adminrulesets %}
+			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
+			{% endfor %}
+			{% if current_user.id != adminrulesets[0].userid %}
 			{% for ruleset in user.rulesets %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}
+			{% endif %}
 			{% for ruleset in frulesets %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}
 		</select>
 	</li>
 	<li><a @click="changeRuleset()">Change Rulesets</a></li>
-</ul>
+</form>
 {% block body %}{% endblock %}
 </body>
 </html>

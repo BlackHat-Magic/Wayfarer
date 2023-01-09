@@ -13,20 +13,22 @@ epchar = Blueprint('epchar', __name__)
 def char():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("characters.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("characters.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Races")
 def races():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    # print(cruleset.races)
-    return(render_template("races.html", user=current_user, frulesets=frulesets, cruleset=cruleset, ability=''))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("races.html", user=current_user, frulesets=frulesets, cruleset=cruleset, ability='', adminrulesets=adminrulesets))
 
 @epchar.route("/Races/Create", methods=["GET", "POST"])
 @login_required
 def createRace():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create a race in a ruleset that is not yours.")
@@ -167,20 +169,23 @@ def createRace():
 def race(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     display = Race.query.filter_by(rulesetid=cruleset.id, name=race).first()
-    return(render_template("race.html", user=current_user, frulesets=frulesets, cruleset=cruleset, race=display))
+    return(render_template("race.html", user=current_user, frulesets=frulesets, cruleset=cruleset, race=display, adminrulesets=adminrulesets))
 
 @epchar.route("/Backgrounds")
 def backgrounds():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("backgrounds.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("backgrounds.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Backgrounds/Create", methods=["GET", "POST"])
 @login_required
 def createBackground():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     tools = []
     for tool in Item.query.filter_by(rulesetid = cruleset.id, is_tool = True):
         tools.append(tool)
@@ -269,20 +274,23 @@ def createBackground():
 def background(background):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     background = Background.query.filter_by(rulesetid = cruleset.id, name = background.replace("-", " ")).first()
-    return(render_template("background.html", user=current_user, frulesets=frulesets, cruleset=cruleset, background=background))
+    return(render_template("background.html", user=current_user, frulesets=frulesets, cruleset=cruleset, background=background, adminrulesets=adminrulesets))
 
 @epchar.route("/Feats")
 def feats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("feats.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("feats.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Feats/Create", methods=["GET", "POST"])
 @login_required
 def createFeat():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create feats for rulesets that are not your own.")
@@ -336,26 +344,29 @@ def createFeat():
                 flash("Feat created!")
                 return(redirect(url_for("epchar.feats")))
 
-    return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Feat/<string:feat>")
 def feat(feat):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     feat = Feat.query.filter_by(rulesetid = cruleset.id, name = feat.replace("-", " ")).first()
-    return(render_template("feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, feat=feat))
+    return(render_template("feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, feat=feat, adminrulesets=adminrulesets))
 
 @epchar.route("/Ability-Scores")
 def stats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Ability-Scores/Edit", methods=["GET", "POST"])
 @login_required
 def editStats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot edit rulesets that are not your own.")
@@ -372,19 +383,21 @@ def editStats():
                 db.session.commit()
                 flash("Changes saved.")
                 return(redirect(url_for("epchar.stats")))
-    return(render_template("edit-stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("edit-stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Classes")
 def classes():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("classes.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("classes.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Classes/Create", methods=["GET", "POST"])
 @login_required
 def createClass():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create classes for rulesets that are not yours.")
@@ -554,19 +567,21 @@ def createClass():
                 flash("Class created!")
                 return(redirect(url_for("epchar.classes")))
                         
-    return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Step-by-Step")
 def stepByStep():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("step-by-step.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("step-by-step.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @epchar.route("/Step-by-Step/Edit", methods=["GET", "POST"])
 @login_required
 def editStepByStep():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot edit rulesets that are not your own.")
@@ -584,4 +599,4 @@ def editStepByStep():
                 print(cruleset.step_by_step_characters)
                 flash("Change saved")
                 return(redirect(url_for("epchar.stepByStep")))
-    return(render_template("edit-step-by-step.html", user=current_user, frulesets = frulesets, cruleset = cruleset))
+    return(render_template("edit-step-by-step.html", user=current_user, frulesets = frulesets, cruleset = cruleset, adminrulesets=adminrulesets))

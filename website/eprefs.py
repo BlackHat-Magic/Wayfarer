@@ -12,19 +12,22 @@ eprefs = Blueprint('eprefs', __name__)
 def refs():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("quick-reference.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("quick-reference.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Actions")
 def actions():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("actions.html", user=current_user, frulesets=frulesets, cruleset=cruleset, actions=actions))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("actions.html", user=current_user, frulesets=frulesets, cruleset=cruleset, actions=actions, adminrulesets=adminrulesets))
 
 @eprefs.route("/Actions/Create", methods=["GET", "POST"])
 @login_required
 def createAction():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create actions for rulesets that are not yours.")
@@ -55,22 +58,24 @@ def createAction():
                 db.session.commit()
                 flash("Action created!")
                 return(redirect(url_for("eprefs.actions")))
-    return(render_template("create-action.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-action.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Conditions")
 def conditions():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     conditions = []
     for condition in Condition.query.filter_by(rulesetid = cruleset.id):
         conditions.append(condition)
-    return(render_template("conditions.html", user=current_user, frulesets=frulesets, cruleset=cruleset, conditions=conditions))
+    return(render_template("conditions.html", user=current_user, frulesets=frulesets, cruleset=cruleset, conditions=conditions, adminrulesets=adminrulesets))
 
 @eprefs.route("/Conditions/Create", methods=["GET", "POST"])
 @login_required
 def createCondition():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create conditions for rulesets that are not yours.")
@@ -97,19 +102,21 @@ def createCondition():
                 db.session.commit()
                 flash("Condition created!")
                 return(redirect(url_for("eprefs.conditions")))
-    return(render_template("create-condition.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-condition.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Items")
 def items():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("items.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("items.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Items/Create", methods=["GET", "POST"])
 @login_required
 def createItem():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create items for rulesets that are not yours.")
@@ -211,20 +218,22 @@ def createItem():
                 db.session.commit()
                 flash("Item created.")
                 return(redirect(url_for("eprefs.items")))
-    return(render_template("create-item.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-item.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Item/<string:item>")
 def item(item):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     item = Item.query.filter_by(rulesetid = cruleset.id, name=item.replace("-", " ")).first()
-    return(render_template("item.html", user=current_user, frulesets=frulesets, cruleset=cruleset, item=item))
+    return(render_template("item.html", user=current_user, frulesets=frulesets, cruleset=cruleset, item=item, adminrulesets=adminrulesets))
 
 @eprefs.route("/Item/<string:item>/Delete")
 @login_required
 def deleteItem(item):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(current_user.id != cruleset.userid):
         flash("You cannot delete items from rulesets that are not yours.")
     else:
@@ -237,14 +246,16 @@ def deleteItem(item):
 def tags():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     tags = ItemTag.query.filter_by(rulesetid=cruleset.id).order_by(ItemTag.name)
-    return(render_template("tags.html", user=current_user, frulesets=frulesets, cruleset=cruleset, tags=tags))
+    return(render_template("tags.html", user=current_user, frulesets=frulesets, cruleset=cruleset, tags=tags, adminrulesets=adminrulesets))
 
 @eprefs.route("/Items/Tags/Create", methods=["GET", "POST"]) 
 @login_required
 def createTag():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create item tags for rulesets that are not yours.")
@@ -271,19 +282,21 @@ def createTag():
                 db.session.commit()
                 flash("Item tag created!")
                 return(redirect(url_for("eprefs.tags")))
-    return(render_template("create-tag.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-tag.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Items/Properties")
 def properties():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     properties = Property.query.filter_by(rulesetid = cruleset.id).order_by(Property.name)
-    return(render_template("properties.html", user=current_user, frulesets=frulesets, cruleset=cruleset, properties=properties))
+    return(render_template("properties.html", user=current_user, frulesets=frulesets, cruleset=cruleset, properties=properties, adminrulesets=adminrulesets))
 
 @eprefs.route("/Items/Properties/Create", methods=["GET", "POST"])
 def createProperty():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create weapon properties for rulesets that are not yours.")
@@ -310,19 +323,21 @@ def createProperty():
                 db.session.commit()
                 flash("Weapon property created!")
                 return(redirect(url_for("eprefs.properties")))
-    return(render_template("create-property.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-property.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Languages")
 def refsLang():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("languages.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("languages.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Languages/Create", methods=["GET", "POST"])
 @login_required
 def createLanguage():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create languages for rulesets that are not yours.")
@@ -349,19 +364,21 @@ def createLanguage():
                 db.session.commit()
                 flash("Language created!")
                 return(redirect(url_for("eprefs.refsLang")))
-    return(render_template("create-language.html", user=current_user, cruleset=cruleset, frulesets=frulesets))
+    return(render_template("create-language.html", user=current_user, cruleset=cruleset, frulesets=frulesets, adminrulesets=adminrulesets))
 
 @eprefs.route("/Spells")
 def spells():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("spells.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("spells.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Spells/Create", methods=["GET", "POST"])
 @login_required
 def createSpell():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create spells for rulesets that are not yours.")
@@ -428,27 +445,30 @@ def createSpell():
                 db.session.commit()
                 flash("Spell created.")
                 return(redirect(url_for("eprefs.spells")))
-    return(render_template("create-spell.html", user=current_user, cruleset=cruleset, frulesets=frulesets))
+    return(render_template("create-spell.html", user=current_user, cruleset=cruleset, frulesets=frulesets, adminrulesets=adminrulesets))
 
 @eprefs.route("/Spell/<string:spell>")
 def spell(spell):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     spell = Spell.query.filter_by(rulesetid = cruleset.id, name = spell.replace("-", " ")).first()
-    return(render_template("spell.html", user=current_user, frulesets=frulesets, cruleset=cruleset, spell=spell))
+    return(render_template("spell.html", user=current_user, frulesets=frulesets, cruleset=cruleset, spell=spell, adminrulesets=adminrulesets))
 
 
 @eprefs.route("/Recipes")
 def recipes():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    return(render_template("recipes.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(render_template("recipes.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Recipes/Create", methods=["GET", "POST"])
 @login_required
 def createRecipe():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create recipes for rulesets that are not yours.")
@@ -475,12 +495,13 @@ def createRecipe():
                 db.session.commit()
                 flash("Recipe created!")
                 return(redirect(url_for("eprefs.recipes")))
-    return(render_template("create-recipe.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-recipe.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Skills")
 def skills():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     abilitydict = {
         "N/A": "N/A",
         "STR": "Strength",
@@ -490,13 +511,14 @@ def skills():
         "WIS": "Wisdom",
         "CHA": "Charisma"
     }
-    return(render_template("skills.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("skills.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Skills/Create", methods=["GET", "POST"])
 @login_required
 def createSkill():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.id):
             flash("You cannot create a skill for a ruleset that is not your own.")
@@ -527,13 +549,14 @@ def createSkill():
                 db.session.commit()
                 flash("Skill created!")
                 return(redirect(url_for("eprefs.skills")))
-    return(render_template("create-skill.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-skill.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprefs.route("/Skills/Delete/<int:rid>")
 @login_required
 def deleteSkill(rid):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(current_user.id != cruleset.userid):
         flash("You cannod delete skills from rulesets that are not your own.")
         return(redirect(url_for("eprefs.skills")))

@@ -1,15 +1,21 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("master", () => ({
         init_selected () {
-            fetch("/Get-Current-Ruleset")
-                .then(function (response) {
-                    return(response.json());
-                }).then(function (ruleset) {
-                    document.querySelector("#current_ruleset").value = ruleset.id;
-                });
+            fetch("/Get-Current-Ruleset", {
+                method: "GET",
+                body: JSON.stringify({
+                    local: localStorage.getItem("cruleset")
+                })
+            }).then(function (response) {
+                return(response.json());
+            }).then(function (ruleset) {
+                document.querySelector("#current_ruleset").value = ruleset.id;
+            });
         },
 
         changeRuleset() {
+            localStorage.setItem("cruleset", document.querySelector("#current_ruleset").value)
+            console.log(localStorage.getItem("cruleset"))
             fetch("/Change-Ruleset", {
                 method: "POST",
                 body: JSON.stringify({

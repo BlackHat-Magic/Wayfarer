@@ -1,6 +1,7 @@
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+import uuid
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -13,7 +14,8 @@ class User(db.Model, UserMixin):
     characters = db.relationship("Character")
 
 class Ruleset(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    is_admin = db.Column(db.Boolean)
     userid = db.Column(db.Integer, db.ForeignKey("user.id"))
     is_shareable = db.Column(db.Boolean)
     name = db.Column(db.String(127))

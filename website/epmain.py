@@ -11,18 +11,21 @@ epmain = Blueprint("epmain", __name__)
 def home():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     return(
         render_template(
             "index.html", 
             user=current_user, 
             frulesets=frulesets, 
-            cruleset=cruleset
+            cruleset=cruleset,
+            adminrulesets = adminrulesets
         )
     )
 
 @epmain.route("/Get-Current-Ruleset")
 def get():
-    cruleset = getCurrentRuleset(current_user)
+    data = json.loads(request.data)
+    cruleset = getCurrentRuleset(current_user, data["local"])
     ruleset = jsonify({
         "id": cruleset.id,
         "name": cruleset.name
@@ -34,12 +37,14 @@ def get():
 def myRulesets():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     return(
         render_template(
             "my-rulesets.html", 
             user=current_user, 
             frulesets=frulesets, 
-            cruleset=cruleset
+            cruleset=cruleset,
+            adminrulesets = adminrulesets
         )
     )
 
@@ -48,6 +53,7 @@ def myRulesets():
 def createRuleset():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         try:
             shareable = bool(request.form.get("shareable"))
@@ -63,7 +69,11 @@ def createRuleset():
         elif("javascript" in name):
             flash("Cross-site scripting attacks are not allowed.")
         else:
-            new_ruleset = Ruleset(userid=current_user.id, is_shareable=shareable, name=name)
+            if(current_user.username == "admin"):
+                is_admin = True
+            else:
+                is_admin = False
+            new_ruleset = Ruleset(userid=current_user.id, is_shareable=shareable, name=name, is_admin=is_admin)
             db.session.add(new_ruleset)
             db.session.commit()
             flash("Ruleset created!")
@@ -73,7 +83,8 @@ def createRuleset():
             "create-ruleset.html", 
             user=current_user, 
             frulesets=frulesets, 
-            cruleset=cruleset
+            cruleset=cruleset,
+            adminrulesets = adminrulesets
         )
     )
 
@@ -82,6 +93,7 @@ def createRuleset():
 def manageRuleset(rulesetid):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         ruleset = Ruleset.query.filter_by(id=rulesetid).first()
         print("got ruleset " + ruleset.name)
@@ -113,7 +125,8 @@ def manageRuleset(rulesetid):
             user=current_user, 
             ruleset=ruleset, 
             frulesets=frulesets, 
-            cruleset=cruleset
+            cruleset=cruleset,
+            adminrulesets = adminrulesets
         )
     )
 
@@ -138,6 +151,7 @@ def deleteRuleset():
 def addRuleset():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         ruleset = request.form.get("rulesetid")
         if(not Ruleset.query.filter_by(id=int(ruleset)).first()):
@@ -164,7 +178,8 @@ def addRuleset():
             "add-ruleset.html",
             user=current_user,
             frulesets=frulesets,
-            cruleset=cruleset
+            cruleset=cruleset,
+            adminrulesets = adminrulesets
         )
     )
 

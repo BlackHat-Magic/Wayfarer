@@ -10,6 +10,8 @@ epauth = Blueprint('epauth', __name__)
 @epauth.route("/Login", methods=["GET", "POST"])
 def login():
     cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         username = request.form.get("username")
         password = request.form.get("password")
@@ -23,7 +25,7 @@ def login():
                 flash("Incorrect password.")
         else:
             flash("User does not exist.")
-    return(render_template("login.html", user=current_user, cruleset=cruleset))
+    return(render_template("login.html", user=current_user, cruleset=cruleset, frulesets=frulesets, adminrulesets=adminrulesets))
     
 
 @epauth.route("/Logout")
@@ -35,6 +37,8 @@ def logout():
 @epauth.route("/Signup", methods=["GET", "POST"])
 def signUp():
     cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         username = request.form.get("username")
         email = request.form.get("email")
@@ -60,4 +64,4 @@ def signUp():
             login_user(User.query.filter_by(username = username).first(), remember = True)
             return(redirect(url_for("epmain.home")))
         
-    return(render_template("signup.html", user=current_user, cruleset=cruleset))
+    return(render_template("signup.html", user=current_user, cruleset=cruleset, frulesets=frulesets, adminrulesets=adminrulesets))
