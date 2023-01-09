@@ -1,6 +1,6 @@
 # Wayfinder
 
-A website used to store rulesets for tabletop roleplaying games. Primarily designed for 5h edition Dungeons and Dragons. On paper, storing rulesets for almost any TTRPG should be possible with minimal changes to the website.
+A website used to store rulesets for tabletop roleplaying games. Primarily designed for 5th edition Dungeons and Dragons. On paper, storing rulesets for almost any TTRPG should be possible with minimal changes to the website.
 
 Powered by AlpineJS, ShowdownJS, and Flask.
 Licensed under AGPL-v3.0
