@@ -8,9 +8,7 @@ eptool = Blueprint('eptool', __name__)
 ## TOOLS
 @eptool.route("/")
 def tools():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    return(render_template("tools.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(redirect(url_for("epmain.home")))
 
 @eptool.route("/VTT")
 def vtt():

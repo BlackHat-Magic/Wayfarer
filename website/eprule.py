@@ -11,18 +11,20 @@ eprule = Blueprint('eprule', __name__)
 def rules():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     pinnedrules = []
     for category in cruleset.categories:
         for rule in category.rules:
             if(rule.pinned):
                 pinnedrules.append(rule)
-    return(render_template("rules.html", user=current_user, frulesets=frulesets, cruleset=cruleset, prules=pinnedrules))
+    return(render_template("rules.html", user=current_user, frulesets=frulesets, cruleset=cruleset, prules=pinnedrules, adminrulesets=adminrulesets))
 
 @eprule.route("/Create", methods=["GET", "POST"])
 @login_required
 def createRule():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create rules for rulesets that are not your own.")
@@ -52,13 +54,14 @@ def createRule():
         flash("You must have at least one category to add the rule to.")
         return(redirect(url_for("eprule.createCategory")))
     
-    return(render_template("create-rule.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-rule.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprule.route("/Create-Category", methods=["GET", "POST"])
 @login_required
 def createCategory():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(len(current_user.rulesets) < 1):
         flash("The current ruleset must have at least one ruleset to add the category to.")
         return(redirect(url_for("epmain.createRuleset")))
@@ -82,12 +85,13 @@ def createCategory():
             db.session.commit()
             flash("Rule category created.")
             return(redirect(url_for("eprule.rules")))
-    return(render_template("create-category.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(render_template("create-category.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
 
 @eprule.route("/<string:categoryname>")
 def CategoryRoute(categoryname):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     categoryname = categoryname.replace("-", " ")
     rules = Category.query.filter_by(name=categoryname, rulesetid=cruleset.id).first().rules
-    return(render_template("category.html", user=current_user, frulesets=frulesets, cruleset=cruleset, rules=rules, heading=categoryname))
+    return(render_template("category.html", user=current_user, frulesets=frulesets, cruleset=cruleset, rules=rules, heading=categoryname, adminrulesets=adminrulesets))

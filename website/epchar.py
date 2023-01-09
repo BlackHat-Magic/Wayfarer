@@ -11,10 +11,7 @@ epchar = Blueprint('epchar', __name__)
 ## CHARACTERS
 @epchar.route("/")
 def char():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("characters.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(redirect(url_for("epmain.home")))
 
 @epchar.route("/Races")
 def races():

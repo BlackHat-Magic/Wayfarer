@@ -10,10 +10,7 @@ eprefs = Blueprint('eprefs', __name__)
 ## QUICK REFERENCE
 @eprefs.route("/")
 def refs():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("quick-reference.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(redirect(url_for("epmain.home")))
 
 @eprefs.route("/Actions")
 def actions():
