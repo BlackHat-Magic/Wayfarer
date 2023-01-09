@@ -9,18 +9,18 @@ Licensed under AGPL-v3.0
 
 In no particular order...
 
- [ ] finish website
- [ ] make mobile site less trash
- [ ] make website pretty
- [ ] add CSS animations
- [x] clean up CSS file
- [ ] add edit functionality
- [ ] add duplication functionality
- [ ] unfuck Races page
- [x] make background filters more useful
- [ ] make background page usable on mobile
- [ ] Add 5e.tools import/export functionality
- [ ] Add support for multiple administrator rulesets
+ - [ ] finish website
+ - [ ] make mobile site less trash
+ - [ ] make website pretty
+ - [ ] add CSS animations
+ - [x] clean up CSS file
+ - [ ] add edit functionality
+ - [ ] add duplication functionality
+ - [ ] unfuck Races page
+ - [x] make background filters more useful
+ - [ ] make background page usable on mobile
+ - [ ] Add 5e.tools import/export functionality
+ - [ ] Add support for multiple administrator rulesets
 
 ## Usage
 
