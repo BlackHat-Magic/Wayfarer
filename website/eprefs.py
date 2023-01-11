@@ -17,7 +17,17 @@ def actions():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("actions.html", user=current_user, frulesets=frulesets, cruleset=cruleset, actions=actions, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "actions.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            actions=actions, 
+            adminrulesets=adminrulesets,
+            title="Actions"
+        )
+    )
 
 @eprefs.route("/Actions/Create", methods=["GET", "POST"])
 @login_required
@@ -55,7 +65,16 @@ def createAction():
                 db.session.commit()
                 flash("Action created!")
                 return(redirect(url_for("eprefs.actions")))
-    return(render_template("create-action.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-action.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create an Action"
+        )
+    )
 
 @eprefs.route("/Conditions")
 def conditions():
@@ -65,7 +84,17 @@ def conditions():
     conditions = []
     for condition in Condition.query.filter_by(rulesetid = cruleset.id):
         conditions.append(condition)
-    return(render_template("conditions.html", user=current_user, frulesets=frulesets, cruleset=cruleset, conditions=conditions, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "conditions.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            conditions=conditions, 
+            adminrulesets=adminrulesets,
+            title="Conditions"
+        )
+    )
 
 @eprefs.route("/Conditions/Create", methods=["GET", "POST"])
 @login_required
@@ -99,14 +128,32 @@ def createCondition():
                 db.session.commit()
                 flash("Condition created!")
                 return(redirect(url_for("eprefs.conditions")))
-    return(render_template("create-condition.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-condition.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Condition"
+        )
+    )
 
 @eprefs.route("/Items")
 def items():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("items.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "items.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Items"
+        )
+    )
 
 @eprefs.route("/Items/Create", methods=["GET", "POST"])
 @login_required
@@ -215,7 +262,16 @@ def createItem():
                 db.session.commit()
                 flash("Item created.")
                 return(redirect(url_for("eprefs.items")))
-    return(render_template("create-item.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-item.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create an Item"
+        )
+    )
 
 @eprefs.route("/Item/<string:item>")
 def item(item):
@@ -223,7 +279,17 @@ def item(item):
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     item = Item.query.filter_by(rulesetid = cruleset.id, name=item.replace("-", " ")).first()
-    return(render_template("item.html", user=current_user, frulesets=frulesets, cruleset=cruleset, item=item, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "item.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            item=item, 
+            adminrulesets=adminrulesets,
+            title=item.name
+        )
+    )
 
 @eprefs.route("/Item/<string:item>/Delete")
 @login_required
@@ -245,7 +311,17 @@ def tags():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     tags = ItemTag.query.filter_by(rulesetid=cruleset.id).order_by(ItemTag.name)
-    return(render_template("tags.html", user=current_user, frulesets=frulesets, cruleset=cruleset, tags=tags, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "tags.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            tags=tags, 
+            adminrulesets=adminrulesets,
+            title="Item Types"
+        )
+    )
 
 @eprefs.route("/Items/Tags/Create", methods=["GET", "POST"]) 
 @login_required
@@ -279,7 +355,16 @@ def createTag():
                 db.session.commit()
                 flash("Item tag created!")
                 return(redirect(url_for("eprefs.tags")))
-    return(render_template("create-tag.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-tag.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create Item Type"
+        )
+    )
 
 @eprefs.route("/Items/Properties")
 def properties():
@@ -287,7 +372,17 @@ def properties():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     properties = Property.query.filter_by(rulesetid = cruleset.id).order_by(Property.name)
-    return(render_template("properties.html", user=current_user, frulesets=frulesets, cruleset=cruleset, properties=properties, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "properties.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            properties=properties, 
+            adminrulesets=adminrulesets,
+            title="Weapon Properties"
+        )
+    )
 
 @eprefs.route("/Items/Properties/Create", methods=["GET", "POST"])
 def createProperty():
@@ -320,14 +415,32 @@ def createProperty():
                 db.session.commit()
                 flash("Weapon property created!")
                 return(redirect(url_for("eprefs.properties")))
-    return(render_template("create-property.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-property.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create Weapon Properties"
+        )
+    )
 
 @eprefs.route("/Languages")
 def refsLang():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("languages.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "languages.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Languages"
+        )
+    )
 
 @eprefs.route("/Languages/Create", methods=["GET", "POST"])
 @login_required
@@ -361,14 +474,32 @@ def createLanguage():
                 db.session.commit()
                 flash("Language created!")
                 return(redirect(url_for("eprefs.refsLang")))
-    return(render_template("create-language.html", user=current_user, cruleset=cruleset, frulesets=frulesets, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-language.html", 
+            user=current_user, 
+            cruleset=cruleset, 
+            frulesets=frulesets, 
+            adminrulesets=adminrulesets,
+            title="Create a Language"
+        )
+    )
 
 @eprefs.route("/Spells")
 def spells():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("spells.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "spells.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Spells"
+        )
+    )
 
 @eprefs.route("/Spells/Create", methods=["GET", "POST"])
 @login_required
@@ -442,7 +573,16 @@ def createSpell():
                 db.session.commit()
                 flash("Spell created.")
                 return(redirect(url_for("eprefs.spells")))
-    return(render_template("create-spell.html", user=current_user, cruleset=cruleset, frulesets=frulesets, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-spell.html", 
+            user=current_user, 
+            cruleset=cruleset, 
+            frulesets=frulesets, 
+            adminrulesets=adminrulesets,
+            title="Create a Spell"
+        )
+    )
 
 @eprefs.route("/Spell/<string:spell>")
 def spell(spell):
@@ -450,7 +590,17 @@ def spell(spell):
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     spell = Spell.query.filter_by(rulesetid = cruleset.id, name = spell.replace("-", " ")).first()
-    return(render_template("spell.html", user=current_user, frulesets=frulesets, cruleset=cruleset, spell=spell, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "spell.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            spell=spell, 
+            adminrulesets=adminrulesets,
+            title=spell.name
+        )
+    )
 
 
 @eprefs.route("/Recipes")
@@ -458,7 +608,16 @@ def recipes():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("recipes.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "recipes.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Recipes"
+        )
+    )
 
 @eprefs.route("/Recipes/Create", methods=["GET", "POST"])
 @login_required
@@ -492,7 +651,16 @@ def createRecipe():
                 db.session.commit()
                 flash("Recipe created!")
                 return(redirect(url_for("eprefs.recipes")))
-    return(render_template("create-recipe.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-recipe.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Recipe"
+        )
+    )
 
 @eprefs.route("/Skills")
 def skills():
@@ -508,7 +676,16 @@ def skills():
         "WIS": "Wisdom",
         "CHA": "Charisma"
     }
-    return(render_template("skills.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "skills.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Skills"
+        )
+    )
 
 @eprefs.route("/Skills/Create", methods=["GET", "POST"])
 @login_required
@@ -546,7 +723,16 @@ def createSkill():
                 db.session.commit()
                 flash("Skill created!")
                 return(redirect(url_for("eprefs.skills")))
-    return(render_template("create-skill.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-skill.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Skill"
+        )
+    )
 
 @eprefs.route("/Skills/Delete/<int:rid>")
 @login_required

@@ -2,12 +2,7 @@ document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
         name: "",
 
-        str: null,
-        dex: null,
-        con: null,
-        int: null,
-        wis: null,
-        cha: null,
+        asi: {},
         asi_override: false,
         asi_text: "",
         parseASI () {

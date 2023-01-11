@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify
-from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass
+from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore
 from flask_login import current_user, login_required
 from .check_ruleset import *
 from . import db
@@ -18,7 +18,17 @@ def races():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("races.html", user=current_user, frulesets=frulesets, cruleset=cruleset, ability='', adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "races.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            ability='', 
+            adminrulesets=adminrulesets, 
+            title="Races"
+        )
+    )
 
 @epchar.route("/Races/Create", methods=["GET", "POST"])
 @login_required
@@ -160,7 +170,15 @@ def createRace():
                         db.session.add(new_feature)
                     db.session.commit()
             return("0")
-    return(render_template("create-race.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
+    return(
+        render_template(
+            "create-race.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            title="Create a Race"
+        )
+    )
 
 @epchar.route("/Race/<string:race>")
 def race(race):
@@ -168,14 +186,33 @@ def race(race):
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     display = Race.query.filter_by(rulesetid=cruleset.id, name=race).first()
-    return(render_template("race.html", user=current_user, frulesets=frulesets, cruleset=cruleset, race=display, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "race.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            race=display, 
+            adminrulesets=adminrulesets, 
+            title=race
+        )
+    )
 
 @epchar.route("/Backgrounds")
 def backgrounds():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("backgrounds.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "backgrounds.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Backgrounds"
+        )
+    )
 
 @epchar.route("/Backgrounds/Create", methods=["GET", "POST"])
 @login_required
@@ -265,7 +302,16 @@ def createBackground():
                 db.session.commit()
                 flash("Background created!")
                 return("0")
-    return(render_template("create-background.html", user=current_user, frulesets=frulesets, cruleset=cruleset, tools=tools))
+    return(
+        render_template(
+            "create-background.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            tools=tools, 
+            title="Create a Background"
+        )
+    )
 
 @epchar.route("/Background/<string:background>")
 def background(background):
@@ -273,14 +319,33 @@ def background(background):
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     background = Background.query.filter_by(rulesetid = cruleset.id, name = background.replace("-", " ")).first()
-    return(render_template("background.html", user=current_user, frulesets=frulesets, cruleset=cruleset, background=background, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "background.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            background=background, 
+            adminrulesets=adminrulesets, 
+            title=background.name
+        )
+    )
 
 @epchar.route("/Feats")
 def feats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("feats.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "feats.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Feats"
+        )
+    )
 
 @epchar.route("/Feats/Create", methods=["GET", "POST"])
 @login_required
@@ -340,8 +405,7 @@ def createFeat():
                 db.session.commit()
                 flash("Feat created!")
                 return(redirect(url_for("epchar.feats")))
-
-    return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets, title="Create a Feat"))
 
 @epchar.route("/Feat/<string:feat>")
 def feat(feat):
@@ -349,45 +413,92 @@ def feat(feat):
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     feat = Feat.query.filter_by(rulesetid = cruleset.id, name = feat.replace("-", " ")).first()
-    return(render_template("feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, feat=feat, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "feat.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            feat=feat, 
+            adminrulesets=adminrulesets, 
+            title=feat.name
+        )
+    )
 
 @epchar.route("/Ability-Scores")
 def stats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "stats.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Ability Scores"
+        )
+    )
 
-@epchar.route("/Ability-Scores/Edit", methods=["GET", "POST"])
-@login_required
-def editStats():
+@epchar.route("/Ability-Scores/Create", methods=["GET", "POST"])
+def createStat():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot edit rulesets that are not your own.")
+        name = request.form.get("name")
+        abbr = request.form.get("abbr")
+        text = request.form.get("text")
+        if(len(name) < 1):
+            flash("You must specify an Ability Score name.")
+        elif(len(name) > 127):
+            flash("Ability Score name must be fewer than 128 characters.")
+        elif(len(abbr) != 3):
+            flash("Ability Score abbreviation must be 3 characters.")
+        elif(len(text) > 16383):
+            flash("Ability Score description must be fewer than 16384 characters.")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.")
         else:
-            text = request.form.get("text")
-            if(len(text) > 65534):
-                flash("Text must be fewer than 65535 characters.")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
-            else:
-                cruleset.ability_scores = text
-                db.session.commit()
-                flash("Changes saved.")
-                return(redirect(url_for("epchar.stats")))
-    return(render_template("edit-stats.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+            new_ability_score = AbilityScore(
+                rulesetid = cruleset.id,
+                name = name,
+                abbr = abbr,
+                text = text
+            )
+            db.session.add(new_ability_score)
+            db.session.commit()
+            flash("Ability Score created!")
+            return(redirect(url_for("epchar.createStat")))
+    return(
+        render_template(
+            "create-stat.html",
+            user=current_user,
+            frulesets=frulesets,
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Create an Ability Score"
+        )
+    )
 
 @epchar.route("/Classes")
 def classes():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("classes.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "classes.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Classes"
+        )
+    )
 
 @epchar.route("/Classes/Create", methods=["GET", "POST"])
 @login_required
@@ -562,38 +673,14 @@ def createClass():
                         db.session.add(new_feature)
                         db.session.commit()
                 flash("Class created!")
-                return(redirect(url_for("epchar.classes")))
-                        
-    return(render_template("create-class.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
-
-@epchar.route("/Step-by-Step")
-def stepByStep():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(render_template("step-by-step.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
-
-@epchar.route("/Step-by-Step/Edit", methods=["GET", "POST"])
-@login_required
-def editStepByStep():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot edit rulesets that are not your own.")
-        else:
-            text = request.form.get("text")
-            if(len(text) > 65534):
-                flash("Text must be fewer than 65535 characters.")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
-            else:
-                cruleset.step_by_step_characters = text
-                db.session.commit()
-                print(cruleset.step_by_step_characters)
-                flash("Change saved")
-                return(redirect(url_for("epchar.stepByStep")))
-    return(render_template("edit-step-by-step.html", user=current_user, frulesets = frulesets, cruleset = cruleset, adminrulesets=adminrulesets))
+                return(redirect(url_for("epchar.classes")))             
+    return(
+        render_template(
+            "create-class.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Create a Class"
+        )
+    )

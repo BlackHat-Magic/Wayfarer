@@ -16,7 +16,7 @@ class User(db.Model, UserMixin):
 class Ruleset(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     is_admin = db.Column(db.Boolean)
-    userid = db.Column(db.Integer, db.ForeignKey("user.id"))
+    userid = db.Column(db.String(36), db.ForeignKey("user.id"))
     is_shareable = db.Column(db.Boolean)
     name = db.Column(db.String(127))
     categories = db.relationship("Category")
@@ -30,6 +30,7 @@ class Ruleset(db.Model):
     actions = db.relationship("Action")
     races = db.relationship("Race")
     feats = db.relationship("Feat")
+    ability_scores = db.relationship("AbilityScore")
     spells = db.relationship("Spell")
     backgrounds = db.relationship("Background")
     classes = db.relationship("Playerclass")
@@ -37,7 +38,7 @@ class Ruleset(db.Model):
     
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     pinned = db.Column(db.Boolean)
     rules = db.relationship("Rule")
@@ -51,31 +52,31 @@ class Rule(db.Model):
 
 class Language(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
 class Recipe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
 class ItemTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
 class Property(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     is_magical = db.Column(db.Boolean)
     rarity = db.Column(db.Integer)
@@ -98,35 +99,30 @@ class Item(db.Model):
 
 class Condition(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
 class Skill(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(63))
     ability_score = db.Column(db.String(3))
     description = db.Column(db.String(16383))
 
 class Action(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     time = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
 class Race(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     flavor = db.Column(db.String(16383))
-    strasi = db.Column(db.Integer)
-    dexasi = db.Column(db.Integer)
-    conasi = db.Column(db.Integer)
-    intasi = db.Column(db.Integer)
-    wisasi = db.Column(db.Integer)
-    chaasi = db.Column(db.Integer)
+    asis = db.Column(db.PickleType)
     asi_text = db.Column(db.String(255))
     size = db.Column(db.Integer)
     size_text = db.Column(db.String(255))
@@ -165,21 +161,23 @@ class SubraceFeature(db.Model):
 
 class Feat(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     type = db.Column(db.String(31))
     name = db.Column(db.String(127))
     prerequisite = db.Column(db.String(255))
-    strasi = db.Column(db.Integer)
-    dexasi = db.Column(db.Integer)
-    conasi = db.Column(db.Integer)
-    intasi = db.Column(db.Integer)
-    wisasi = db.Column(db.Integer)
-    chaasi = db.Column(db.Integer)
+    asis = db.Column(db.PickleType)
+    text = db.Column(db.String(16383))
+
+class AbilityScore(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    abbr = db.Column(db.String(3))
     text = db.Column(db.String(16383))
 
 class Spell(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     school = db.Column(db.String(31))
     level = db.Column(db.Integer)
@@ -196,7 +194,7 @@ class Spell(db.Model):
 
 class Background(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     skills = db.Column(db.String(255))
     tools = db.Column(db.String(255))
@@ -214,7 +212,7 @@ class BackgroundFeature(db.Model):
 # not UpperCamelCase because SQLAlchemy gets mad when it is. idk why
 class Playerclass(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     hitdie = db.Column(db.Integer)
     proficiencies = db.Column(db.String(255))
@@ -256,7 +254,7 @@ class SubclassFeature(db.Model):
 
 class Monster(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
     size = db.Column(db.Integer)
@@ -293,9 +291,9 @@ class MonsterAbility(db.Model):
     text = db.Column(db.String(2047))
 
 class Character(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     is_npc = db.Column(db.Boolean)
-    userid = db.Column(db.Integer, db.ForeignKey("user.id"))
+    userid = db.Column(db.String(36), db.ForeignKey("user.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
     size = db.Column(db.Integer)

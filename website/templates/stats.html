@@ -1,0 +1,22 @@
+{% extends "master.html" %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/showdown-only.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<div class="flex vertical start">
+		<h1>Ability Scores</h1>
+		{% for score in cruleset.ability_scores %}
+		<div class="usercontent">
+			<h2>{{ score.name + ' (' + score.abbr + ')' }}</h2>
+			<div x-html="convert(`{{ score.text }}`)"></div>
+		</div>
+		{% endfor %}
+		{% if cruleset.userid == current_user.id %}
+		<a href="/Character/Ability-Scores/Create"><button>Create Ability Score</button></a>
+		{% endif %}
+	</div>
+</div>
+{% endblock %}

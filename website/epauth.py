@@ -25,7 +25,16 @@ def login():
                 flash("Incorrect password.")
         else:
             flash("User does not exist.")
-    return(render_template("login.html", user=current_user, cruleset=cruleset, frulesets=frulesets, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "login.html", 
+            user=current_user, 
+            cruleset=cruleset, 
+            frulesets=frulesets, 
+            adminrulesets=adminrulesets, 
+            title="Log In"
+        )
+    )
     
 
 @epauth.route("/Logout")
@@ -64,4 +73,13 @@ def signUp():
             login_user(User.query.filter_by(username = username).first(), remember = True)
             return(redirect(url_for("epmain.home")))
         
-    return(render_template("signup.html", user=current_user, cruleset=cruleset, frulesets=frulesets, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "signup.html", 
+            user=current_user, 
+            cruleset=cruleset, 
+            frulesets=frulesets, 
+            adminrulesets=adminrulesets, 
+            title="Sign Up"
+        )
+    )

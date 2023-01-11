@@ -17,7 +17,17 @@ def rules():
         for rule in category.rules:
             if(rule.pinned):
                 pinnedrules.append(rule)
-    return(render_template("rules.html", user=current_user, frulesets=frulesets, cruleset=cruleset, prules=pinnedrules, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "rules.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            prules=pinnedrules, 
+            adminrulesets=adminrulesets,
+            title="Pinned Rules"
+        )
+    )
 
 @eprule.route("/Create", methods=["GET", "POST"])
 @login_required
@@ -54,7 +64,16 @@ def createRule():
         flash("You must have at least one category to add the rule to.")
         return(redirect(url_for("eprule.createCategory")))
     
-    return(render_template("create-rule.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-rule.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Rule"
+        )
+    )
 
 @eprule.route("/Create-Category", methods=["GET", "POST"])
 @login_required
@@ -85,7 +104,16 @@ def createCategory():
             db.session.commit()
             flash("Rule category created.")
             return(redirect(url_for("eprule.rules")))
-    return(render_template("create-category.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "create-category.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Rule Category"
+        )
+    )
 
 @eprule.route("/<string:categoryname>")
 def CategoryRoute(categoryname):
@@ -94,4 +122,14 @@ def CategoryRoute(categoryname):
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     categoryname = categoryname.replace("-", " ")
     rules = Category.query.filter_by(name=categoryname, rulesetid=cruleset.id).first().rules
-    return(render_template("category.html", user=current_user, frulesets=frulesets, cruleset=cruleset, rules=rules, heading=categoryname, adminrulesets=adminrulesets))
+    return(
+        render_template(
+            "category.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            rules=rules, 
+            title=categoryname, 
+            adminrulesets=adminrulesets
+        )
+    )

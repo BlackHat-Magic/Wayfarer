@@ -104,7 +104,7 @@
 <form class="topbar" x-data="master">
 	<li class="static"><p>Selected Ruleset: </p></li>
 	<li>
-		<select name="current_ruleset" id="current_ruleset"" x-init="init_selected({{ user.current_ruleset }})">
+		<select name="current_ruleset" id="current_ruleset"" x-init="init_selected(`{{ user.current_ruleset }}`)">
 			{% for ruleset in adminrulesets %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}

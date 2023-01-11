@@ -13,12 +13,16 @@
 			<input placeholder="Race Name" name="name" id="name" x-model="name">
 			<!-- Ability Score Improvement Inputs -->
 			<div class="interior flex horizontal center" x-show="!asi_override">
-				<input style="width: calc(100% / 6 - 24px); min-width: 55px; font-size: 16px" type="number" placeholder="STR Bonus" name="str" id="str" x-model="str">
-				<input style="width: calc(100% / 6 - 24px); min-width: 55px; font-size: 16px" type="number" placeholder="DEX Bonus" name="dex" id="dex" x-model="dex">
-				<input style="width: calc(100% / 6 - 24px); min-width: 55px; font-size: 16px" type="number" placeholder="CON Bonus" name="con" id="con" x-model="con">
-				<input style="width: calc(100% / 6 - 24px); min-width: 55px; font-size: 16px" type="number" placeholder="INT Bonus" name="int" id="int" x-model="int">
-				<input style="width: calc(100% / 6 - 24px); min-width: 55px; font-size: 16px" type="number" placeholder="WIS Bonus" name="wis" id="wis" x-model="wis">
-				<input style="width: calc(100% / 6 - 24px); min-width: 55px; font-size: 16px" type="number" placeholder="CHA Bonus" name="cha" id="cha" x-model="int">
+				{% for score in cruleset.ability_scores %}
+				<input 
+					style="width: calc(100% / 6 - 24px); min-width: 55px; font-size: 16px" 
+					type="number" 
+					placeholder="{{ score.abbr }} Bonus" 
+					name="{{ score.abbr }}" 
+					id="{{ score.abbr }}" 
+					x-model="asis.{{ score.abbr }}"
+				>
+				{% endfor %}
 			</div>
 			<textarea placeholder="Ability Score Improvement" x-show="asi_override" style="height: 100px" x-model="asi_text"></textarea>
 			<div class="interior flex horizontal start">

@@ -3,6 +3,10 @@ document.addEventListener ("alpine:init", () => {
         converter: new showdown.Converter({tables: true}),
         convert (text) {
             return(this.converter.makeHtml(text));
-        }
+        },
+        name: "",
+        abbr: "",
+        numb: "",
+        text: ""
     }))
 })

@@ -18,14 +18,16 @@ def home():
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
-            adminrulesets = adminrulesets
+            adminrulesets=adminrulesets,
+            title="Home"
         )
     )
 
 @epmain.route("/Get-Current-Ruleset")
 def get():
-    data = json.loads(request.data)
-    cruleset = getCurrentRuleset(current_user, data["local"])
+    # data = json.loads(request.data)
+    # cruleset = getCurrentRuleset(current_user, data["local"])
+    cruleset = getCurrentRuleset(current_user)
     ruleset = jsonify({
         "id": cruleset.id,
         "name": cruleset.name
@@ -44,7 +46,8 @@ def myRulesets():
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
-            adminrulesets = adminrulesets
+            adminrulesets=adminrulesets,
+            title="My Rulesets"
         )
     )
 
@@ -84,7 +87,8 @@ def createRuleset():
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
-            adminrulesets = adminrulesets
+            adminrulesets=adminrulesets,
+            title="Create a Ruleset"
         )
     )
 
@@ -126,7 +130,8 @@ def manageRuleset(rulesetid):
             ruleset=ruleset, 
             frulesets=frulesets, 
             cruleset=cruleset,
-            adminrulesets = adminrulesets
+            adminrulesets=adminrulesets,
+            title="Manage Ruleset"
         )
     )
 
@@ -179,7 +184,8 @@ def addRuleset():
             user=current_user,
             frulesets=frulesets,
             cruleset=cruleset,
-            adminrulesets = adminrulesets
+            adminrulesets=adminrulesets,
+            title="Add a Friend's Ruleset"
         )
     )
 
