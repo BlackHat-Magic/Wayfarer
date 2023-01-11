@@ -146,7 +146,7 @@ document.addEventListener ("alpine:init", () => {
         },
         removeSubraceFeature (subrace, feature) {
             newfeatures = [];
-            for (let i = 0; i < this.subraces[subrace].features; i++) {
+            for (let i = 0; i < this.subraces[subrace].features.length; i++) {
                 if (i != feature) {
                     newfeatures.push(
                         this.subraces[subrace].features[i]
@@ -160,117 +160,6 @@ document.addEventListener ("alpine:init", () => {
 
         convert (text) {
             return(this.converter.makeHtml(text))
-        },
-
-        submit() {
-            fname = this.name;
-            str = this.str;
-            dex = this.dex;
-            con = this.con;
-            int = this.int;
-            wis = this.wis;
-            cha = this.cha;
-            if (this.asi_override) {
-                str = null;
-                dex = null;
-                con = null;
-                int = null;
-                wis = null;
-                cha = null;
-                asi_text = this.asi_text;
-            } else {
-                asi_text = null;
-            }
-            size = this.size;
-            size_override = this.size_override;
-            if (this.size_override) {
-                size_text = this.size_text;
-            } else {
-                size_text = null;
-            }
-            base_height = this.base_height;
-            height_num = this.height_num;
-            height_die = this.height_die;
-            base_weight = this.base_weight;
-            weight_num = this.weight_num;
-            weight_die = this.weight_die;
-            walk = this.walk;
-            swim = this.swim;
-            climb = this.climb;
-            fly = this.fly;
-            burrow = this.burrow;
-            flavor = this.text;
-            features = this.features;
-            has_subraces = this.has_subraces;
-            if (has_subraces) {
-                subrace_flavor = this.subrace_flavor;
-                subraces = this.subraces;
-            } else {
-                subrace_flavor = null;
-                subraces = null;
-            }
-            
-            fetch ("/Character/Races/Create", {
-                method: "POST",
-                body: JSON.stringify({
-                    name: fname,
-                    str: str,
-                    dex: dex,
-                    con: con,
-                    int: int,
-                    wis: wis,
-                    cha: cha,
-                    asi_text: asi_text,
-                    size: size,
-                    size_text: size_text,
-                    base_height: base_height,
-                    height_num: height_num,
-                    height_die: height_die,
-                    base_weight: base_weight,
-                    weight_num: weight_num,
-                    weight_die: weight_die,
-                    walk: walk,
-                    swim: swim,
-                    fly: fly,
-                    burrow: burrow,
-                    flavor: flavor,
-                    features: features,
-                    subrace_flavor: subrace_flavor,
-                    has_subraces: has_subraces,
-                    subraces: subraces
-                })
-            }).then (function (response) {
-                return(response.json());
-            }).then(function (result) {
-                codes = [
-                    "Aloha Snackbar",
-                    "You must specify a race name.",
-                    "Race name must be fewer than 128 characters.",
-                    "Race text must be fewer than 16384 characters.",
-                    "Opening angle brackets (\"<\") are not allowed.",
-                    "Cross-site scripting attacks are not allowed.",
-                    "You must specify a name for each race feature.",
-                    "Each feature's name must be fewer than 128 characters.",
-                    "Each feature's text must be fewer than 16384 characters.",
-                    "You must specify a name for each subrace.",
-                    "Each subrace's name must be fewer than 128 characters.",
-                    "Each subrace's text must be fewer than 16384 characters.",
-                    "You must specify a name for each subrace feature.",
-                    "Each subrace feature's name must be fewer than 128 characters.",
-                    "Each subrace feature's text must be fewer than 16384 characters.",
-                    "Dashes (\"-\") are not allowed in race name."
-                ];
-                if(parseInt(result.code) == 0) {
-                    window.location.href="/Character/Races"
-                } else {
-                    document.querySelector("#jsflash").classList.add("interior", "flex", "horizontal", "red", "bar", "center");
-                    document.querySelector("#jsflash").innerHTML = "<span>" + codes[result.code] + "</span>";
-                    window.scrollTo(0, 0);
-                }
-                //this.flash(parseInt(response));
-            })/*.then(function () {
-                window.location.reload();
-            })*/
         },
     }))
 })

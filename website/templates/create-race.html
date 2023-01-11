@@ -24,7 +24,12 @@
 				>
 				{% endfor %}
 			</div>
-			<textarea placeholder="Ability Score Improvement" x-show="asi_override" style="height: 100px" x-model="asi_text"></textarea>
+			<textarea 
+				placeholder="Ability Score Improvement" 
+				x-show="asi_override" style="height: 100px" 
+				x-model="asi_text">
+			</textarea>
+			<input type="hidden" name="asi_text" id="asi_text" x-model="asi_text">
 			<div class="interior flex horizontal start">
 				<label for="asi_override">Override Ability Score Improvement?</label>
 				<input style="width: auto" type="checkbox" name="asi_override" id="asi_override" x-model="asi_override">
@@ -38,7 +43,13 @@
 				<option value="4">Huge</option>
 				<option value="5">Gargantuan</option>
 			</select>
-			<textarea placeholder="Size" x-show="size_override" style="height: 100px" x-model="size_text"></textarea>
+			<textarea 
+				placeholder="Size" 
+				x-show="size_override" 
+				style="height: 100px" 
+				x-model="size_text">
+			</textarea>
+			<input type="hidden" name="size_text" id="size_text" x-model="size_text">
 			<div class="interior flex horizontal start">
 				<label for="size_override">Override Size?</label>
 				<input style="width: auto" type="checkbox" name="size_override" id="size_override" x-model="size_override">
@@ -49,14 +60,30 @@
 				<div class="interior flex horizontal center" style="width: 50%">
 					<div style="width: 50%; min-width: 180px" class="interior flex vertical start">
 						<label for="base_height">Base Height</label>
-						<input style="font-size: 16px" type="number" id="base_height" name="base_height" x-model="base_height">
+						<input 
+							style="font-size: 16px" 
+							type="number" 
+							id="base_height" 
+							name="base_height" 
+							x-model="base_height"
+							placeholder="Base Height (Inches)">
 					</div>
 					<div style="width: 50%; min-width: 200px" class="interior flex vertical start">
 						<label for="height_num">Height Dice</label>
 						<div class="interior flex horizontal center" style="max-width: 250px">
-							<input style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" type="number" id="height_num" name="height_num">
+							<input 
+								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px"
+								type="number" 
+								id="height_num" 
+								name="height_num"
+								x-model="height_num">
 							<h6>d</h6>
-							<input style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" type="number" id="height_die" name="height_die">
+							<input 
+								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
+								type="number" 
+								id="height_die" 
+								name="height_die"
+								x-model="height_die">
 						</div>
 					</div>
 				</div>
@@ -64,14 +91,27 @@
 				<div class="interior flex horizontal center" style="width: 50%">
 					<div style="width: 50%; min-width: 180px" class="interior flex vertical start">
 						<label for="base_height">Base Weight</label>
-						<input style="font-size: 16px" type="number" id="base_weight" name="base_weight" x-model="base_weight">
+						<input 
+							style="font-size: 16px" 
+							type="number" 
+							id="base_weight" 
+							name="base_weight" 
+							x-model="base_weight">
 					</div>
 					<div style="width: 50%; min-width: 180px" class="interior flex vertical start">
 						<label for="weight_num">Race Height Dice</label>
 						<div class="interior flex horizontal center" style="max-width: 250px">
-							<input style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" type="number" id="weight_num" name="weight_num">
+							<input 
+								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
+								type="number" 
+								id="weight_num" 
+								name="weight_num">
 							<h6>d</h6>
-							<input style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" type="number" id="weight_die" name="weight_die">
+							<input 
+								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
+								type="number" 
+								id="weight_die" 
+								name="weight_die">
 						</div>
 					</div>
 				</div>
@@ -84,16 +124,31 @@
 				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Fly Speed" name="fly" id="fly" x-model="fly">
 				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Burrow Speed" name="burrow" id="burrow" x-model="burrow">
 			</div>
-			<textarea placeholder="Flavor Text (You can use markdown syntax! A preview of what it will look like is shown below.)" x-model="text"></textarea>
+			<textarea 
+				placeholder="Flavor Text (You can use markdown syntax! A preview of what it will look like is shown below.)" 
+				x-model="text">
+			</textarea>
+			<input type="hidden" name="text" id="text" x-model="text">
 			<!-- Features -->
 			<h2>Race Features</h2>
 			<template x-for="(feature, index) in features">
 				<div class="interior flex vertical start" style="width: 100%">
 					<div class="interior flex horizontal center">
-						<input type="text" placeholder="Feature Name" x-model="feature.name" style="width: 50%; min-width: 250px;">
+						<input 
+							type="text" 
+							placeholder="Feature Name" 
+							x-model="feature.name"
+							name="feature_name"
+							id="feature_name" 
+							style="width: 50%; min-width: 250px;">
 						<a @click="removeFeature(index)"><button type="button" class="mild danger">Remove Feature</button></a>
 					</div>
-					<textarea placeholder="Race feature text." style="height: 100px" x-model="feature.text"></textarea>
+					<textarea 
+						placeholder="Race feature text." 
+						style="height: 100px" 
+						x-model="feature.text">
+					</textarea>
+					<input type="hidden" name="feature_text" id="feature_text" x-model="feature.text">
 				</div>
 			</template>
 			<a @click="addFeature()"><button type="button">Add Racial Feature</button></a>
@@ -106,27 +161,61 @@
 			<!-- Display Subraces -->
 			<template x-if="has_subraces">
 				<div class="interior flex vertical start" style="width: 100%">
-					<textarea placeholder="Flavor text for all subraces." x-model="subrace_flavor"></textarea>
+					<textarea 
+						placeholder="Flavor text for all subraces." 
+						x-model="subrace_flavor">
+					</textarea>
+					<input type="hidden" name="subrace_flavor" id="subrace_flavor" x-model="subrace_flavor">
 					<!-- For each subrace, display its details -->
 					<template x-for="(subrace, index) in subraces">
 						<div class="interior flex vertical" style="width: 100%">
 							<!-- Subrace Name, Buttons -->
 							<div class="interior flex horizontal center" style="width: 100%">
-								<input type="text" placeholder="Subrace Name" x-model="subrace.name" style="width: calc(100% / 3 - 24px); min-width: 250px;">
+								<input 
+									type="text" 
+									placeholder="Subrace Name" 
+									x-model="subrace.name" 
+									name = "subrace_name"
+									id = "subrace_name"
+									style="width: calc(100% / 3 - 24px); min-width: 250px;">
 								<a @click="removeSubrace(index)" style="width: calc(100% / 3 - 24px); min-width: 250px"><button type="button" class="mild danger">Remove Subrace</button></a>
 								<a @click="addSubraceFeature(index)" style="width: calc(100% / 3 - 24px); min-width: 250px"><button type="button">Add Feature</button></a>
 							</div>
 							<!-- Subrace Flavor Text -->
-							<textarea placeholder="Subrace text." style="height: 100px" x-model="subrace.text"></textarea>
+							<textarea 
+								placeholder="Subrace text." 
+								style="height: 100px" 
+								x-model="subrace.text">
+							</textarea>
+							<input type="hidden" name="subrace_text" id="subrace_text" x-model="subrace.text">
 							<!-- For each subrace feature, display its details -->
 							<template x-for="(feature, findex) in subrace.features">
 								<div class="interior flex vertical start" style="width: 100%">
 									<!-- Feature name, actions -->
-									<div class="interior flex horizontal center" style="width: 100%">
-										<input type="text" placeholder="Subrace Feature Name" x-model="feature.name" style="width: 50%; min-width: 250px; font-size: 16px">
-										<a @click="removeSubraceFeature(findex)"><button type="button" class="mild danger">Remove Feature</button></a>
+									<div 
+										class="interior flex horizontal center" 
+										style="width: 100%"
+										x-html="`<input
+												type='text'
+												placeholder='Subrace Feature Name'
+												x-model='feature.name'
+												name='` + subrace.name + `_feature_name'
+												style='width: 50%; min-width: 250px; font-size: 16px'>
+											<a @click='removeSubraceFeature(index, findex)'>
+												<button type='button' class='mild danger'>
+													Remove Feature
+												</button>
+											</a>`">
 									</div>
-									<textarea placeholder="Subrace feature text." style="height: 100px" x-model="feature.text"></textarea>
+									<div 
+										style="width: 100%; height: auto"
+										x-html="`<textarea
+											placeholder='Subrace feature text.'
+											style='height: 100px'
+											x-model='feature.text'
+											<input type='hidden' name='` + subrace.name + `_feature_text' x-model='feature.text'>
+										></textarea>`"
+									></div>
 								</div>
 							</template>
 							<hr>
@@ -163,7 +252,7 @@
 					</template>
 				</div>
 			</template>
-			<a @click="submit()"><button type="button">Create Race!</button></a>
+			<a><button type="submit">Create Race!</button></a>
 		</form>
 	</div>
 </div>

@@ -104,7 +104,11 @@
 <form class="topbar" x-data="master">
 	<li class="static"><p>Selected Ruleset: </p></li>
 	<li>
-		<select name="current_ruleset" id="current_ruleset"" x-init="init_selected(`{{ user.current_ruleset }}`)">
+		{% if current_user.is_authenticated %}
+		<select name="current_ruleset" id="current_ruleset" x-init="init_selected(`{{ cruleset.id }}`)">
+		{% else %}
+		<select name="current_ruleset" id="current_ruleset" x-init="init_selected(`{{ adminrulesets[0].id }}`)">
+		{% endif %}
 			{% for ruleset in adminrulesets %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}

@@ -14,7 +14,8 @@ document.addEventListener ("alpine:init", () => {
         // },
 
         init_selected (rulesetid) {
-            document.querySelector("#current_ruleset").value = rulesetid
+            document.querySelector("#current_ruleset").value = rulesetid;
+            console.log(rulesetid);
         },
 
         changeRuleset() {

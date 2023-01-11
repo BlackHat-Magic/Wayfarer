@@ -40,115 +40,145 @@ def createRace():
         if(current_user.id != cruleset.userid):
             flash("You cannot create a race in a ruleset that is not yours.")
         else:
-            data = json.loads(request.data)
-            if(len(data["name"]) < 1):
-                result = jsonify({"code": 1})
-                return(result)
-            elif(len(data["name"]) > 127):
-                result = jsonify({"code": 2})
-                return(result)
-            elif(len(data["flavor"]) > 16383):
-                result = jsonify({"code": 3})
-                return(result)
-            elif("<" in data["name"] or "<" in data["flavor"]):
-                result = jsonify({"code": 4})
-                return(result)
-            elif("javascript" in data["name"] or "javascript" in data["flavor"]):
-                result = jsonify({"code": 5})
-                return(result)
+            name = request.form.get("name")
+            asi_override = request.form.get("asi_override")
+            if(asi_override):
+                asis = None
+                asi_text = request.form.get("asi_text")
+            else:
+                asis = request.form.getlist("asi")
+                asi_text = None
+            sizelib = [
+                "Tiny", 
+                "Small", 
+                "Medium", 
+                "Large", 
+                "Huge", 
+                "Gargantuan"
+            ]
+            size_override = request.form.get("size_override")
+            if(size_override):
+                size = None
+                size_text = request.form.get("size_text")
+            else:
+                size = int(request.form.get("size"))
+                size_text = None
+            base_height = request.form.get("base_height")
+            height_num = request.form.get("height_num")
+            height_die = request.form.get("height_die")
+            base_weight = request.form.get("base_weight")
+            weight_num = request.form.get("weight_num")
+            weight_die = request.form.get("weight_die")
+            walk = request.form.get("walk")
+            swim = request.form.get("swim")
+            climb = request.form.get("climb")
+            fly = request.form.get("fly")
+            burrow = request.form.get("burrow")
+            flavor = request.form.get("flavor")
+            features = request.form.getlist("feature_name")
+            feature_text = request.form.getlist("feature_text")
+            has_subraces = request.form.get("has_subraces")
+            if(has_subraces):
+                subraces = []
+                subrace_flavor = request.form.get("subrace_flavor")
+                print(request.form.getlist("subrace_text"))
+                for i, subrace in enumerate(request.form.getlist("subrace_name")):
+                    subraces[i] = {
+                        "name": subrace,
+                        "text": request.form.getlist("subrace_text")[i],
+                        "features": []
+                    }
+                    for i, feature in enumerate(request.form.getlist(f"{subrace}_feature_name")):
+                        subraces[i]["features"].append({
+                            "name": feature,
+                            "text": request.form.getlist(f"{subrace}_feature_text")[i]
+                        })
+            else:
+                subraces = None
+                subrace_flavor = None
+            if(len(name) < 1):
+                flash("You must specify a race name.")
+            elif(len(name) > 127):
+                flash("Race name must be fewer than 128 characters.")
+            elif(len(flavor) > 16383):
+                flash("Race description must be fewer than 16384 characters.")
+            elif("<" in flavor):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in flavor):
+                flash("Cross-site scripting attacks are not allowed.")
             elif("-" in data["name"]):
-                result = jsonify({"code": 15})
-                return(result)
-            for feature in data["features"]:
-                if(len(feature["name"]) < 1):
-                    result = jsonify({"code": 6})
-                    return(result)
-                elif(len(feature["name"]) > 127):
-                    result = jsonify({"code": 7})
-                    return(result)
-                elif(len(feature["text"]) > 16383):
-                    result = jsonify({"code": 8})
-                    return(result)
-                elif("<" in feature["name"] or "<" in feature["text"]):
-                    result = jsonify({"code": 4})
-                    return(result)
-                elif("javascript" in feature["name"] or "javascript" in feature["text"]):
-                    result = jsonify({"code": 5})
-                    return(result)
-            if(data["has_subraces"]):
-                for subrace in data["subraces"]:
+                flash("Dashes (\"-\") are not allowed in race name.")
+            for name in features:
+                if(len(name) < 1):
+                    flash("Each racial feature must have a name.")
+                elif(len(name) > 127):
+                    flash("Racial feature names must be fewer than 128 characters.")
+            for text in feature_text:
+                if(len(text) > 16383):
+                    flash("Racial feature text must be fewer than 16384 characters.")
+                elif("<" in text):
+                    flash("Open angle brackets (\"<\") are not allowed.")
+                elif("javascript" in text):
+                    flash("Cross-site scripting attacks are not allowed.")
+            if(has_subraces):
+                for subrace in subraces:
                     if(len(subrace["name"]) < 1):
-                        result = jsonify({"code": 9})
-                        return(result)
+                        flash("You must specify a name for each subrace.")
                     elif(len(subrace["name"]) > 127):
-                        result = jsonify({"code": 10})
-                        return(result)
+                        flash("Subrace names must be fewer than 128 characters.")
                     elif(len(subrace["text"]) > 16383):
-                        result = jsonify({"code": 11})
-                        return(result)
-                    elif("<" in subrace["name"] or "<" in subrace["text"]):
-                        result = jsonify({"code": 4})
-                        return(result)
-                    elif("javascript" in feature["name"] or "javascript" in feature["text"]):
-                        result = jsonify({"code": 5})
-                        return(result)
+                        flash("Subrace descriptions must be fewer than 16384 characters.")
+                    elif("<" in subrace["text"]):
+                        flash("Open angle brackets (\"<\") are not allowed.")
+                    elif("javascript" in feature["text"]):
+                        flash("Cross-site scripting attacks are not allowed.")
                     for feature in subrace["features"]:
                         if(len(feature["name"]) < 1):
-                            result = jsonify({"code": 12})
-                            return(result)
+                            flash("You must specify a name for each subrace features.")
                         elif(len(feature["name"]) > 127):
-                            result = jsonify({"code": 13})
-                            return(result)
+                            flash("Subrace feature names must be fewer than 128 characters.")
                         elif(len(feature["text"]) > 16383):
-                            result = jsonify({"code": 14})
-                            return(result)
-                        elif("<" in feature["name"] or "<" in feature["text"]):
-                            result = jsonify({"code": 4})
-                            return(result)
-                        elif("javascript" in feature["name"] or "javascript" in feature["text"]):
-                            result = jsonify({"code": 5})
-                            return(result)
+                            flash("Subrace feature text must be fewer than 16384 characters.")
+                        elif("<" in feature["text"]):
+                            flash("Open angle brackets (\"<\") are not allowed.")
+                        elif("javascript" in feature["text"]):
+                            flash("Cross-site scripting attacks are not allowed.")
             new_race = Race(
                 rulesetid = cruleset.id,
-                name = data["name"],
-                flavor = data["flavor"],
-                strasi = data["str"],
-                dexasi = data["dex"],
-                conasi = data["con"],
-                intasi = data["int"],
-                wisasi = data["wis"],
-                chaasi = data["cha"],
-                asi_text = data["asi_text"],
-                size = data["size"],
-                size_text = data["size_text"],
-                walk = data["walk"],
-                swim = data["swim"],
-                fly = data["fly"],
-                burrow = data["burrow"],
-                base_height = data["base_height"],
-                height_num = data["height_num"],
-                height_die = data["height_die"],
-                base_weight = data["base_weight"],
-                weight_num = data["weight_num"],
-                weight_die = data["weight_die"],
-                subrace_flavor = data["subrace_flavor"]
+                name = name,
+                flavor = flavor,
+                asis = asis,
+                asi_text = asi_text,
+                size = size,
+                size_text = size_text,
+                walk = walk,
+                swim = swim,
+                fly = fly,
+                burrow = burrow,
+                base_height = base_height,
+                height_num = height_num,
+                height_die = height_die,
+                base_weight = base_weight,
+                weight_num = weight_num,
+                weight_die = weight_die,
+                subrace_flavor = subrace_flavor
             )
             db.session.add(new_race)
             db.session.commit()
             new_race = Race.query.filter_by(
-                name = data["name"], 
+                name = name, 
                 rulesetid = cruleset.id
             ).first()
-            for feature in data["features"]:
+            for i, feature in enumerate(features):
                 new_feature = RaceFeature(
                     raceid = new_race.id,
-                    name = feature["name"],
-                    text = feature["text"]
+                    name = feature,
+                    text = feature_text[i]
                 )
                 db.session.add(new_feature)
             db.session.commit()
-            if(data["has_subraces"]):
-                for subrace in data["subraces"]:
+            if(has_subraces):
+                for subrace in subraces:
                     new_subrace = Subrace(
                         raceid = new_race.id,
                         name = subrace["name"],
@@ -169,7 +199,8 @@ def createRace():
                         )
                         db.session.add(new_feature)
                     db.session.commit()
-            return("0")
+            flash("Race created!")
+            return(redirect(url_for("epchar.races")))
     return(
         render_template(
             "create-race.html", 
@@ -472,7 +503,7 @@ def createStat():
             db.session.add(new_ability_score)
             db.session.commit()
             flash("Ability Score created!")
-            return(redirect(url_for("epchar.createStat")))
+            return(redirect(url_for("epchar.stats")))
     return(
         render_template(
             "create-stat.html",
