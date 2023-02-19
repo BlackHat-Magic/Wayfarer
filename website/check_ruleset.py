@@ -20,5 +20,5 @@ def getForeignRulesets(user):
 
 def getCurrentRuleset(user):
     if(not user.is_authenticated):
-        return(Ruleset.query.filter_by(is_admin=True).first())
+        return(Ruleset.query.filter_by(id=1).first())
     return(Ruleset.query.filter_by(id=current_user.current_ruleset).first())

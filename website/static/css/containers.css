@@ -1,3 +1,7 @@
+.flex.transparent, .flex.transparent .flex, .grid.transparent, .grid.transparent .grid, .grid.transparent .flex, .flex.transparent .grid {
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .flex {
     display: flex;
     background-color: var(--nord-canvas); 
