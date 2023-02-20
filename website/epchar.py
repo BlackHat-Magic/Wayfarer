@@ -41,12 +41,13 @@ def createRace():
             flash("You cannot create a race in a ruleset that is not yours.")
         else:
             name = request.form.get("name")
+            asis = request.form.getlist("asi")
             asi_override = request.form.get("asi_override")
             if(asi_override):
                 asis = None
                 asi_text = request.form.get("asi_text")
             else:
-                asis = request.form.getlist("asi")
+                # asis = request.form.getlist("asi")
                 asi_text = None
             sizelib = [
                 "Tiny", 
@@ -74,7 +75,7 @@ def createRace():
             climb = request.form.get("climb")
             fly = request.form.get("fly")
             burrow = request.form.get("burrow")
-            flavor = request.form.get("flavor")
+            flavor = request.form.get("text")
             features = request.form.getlist("feature_name")
             feature_text = request.form.getlist("feature_text")
             has_subraces = request.form.get("has_subraces")
@@ -106,19 +107,19 @@ def createRace():
                 flash("Open angle brackets (\"<\") are not allowed.")
             elif("javascript" in flavor):
                 flash("Cross-site scripting attacks are not allowed.")
-            elif("-" in data["name"]):
+            elif("-" in name):
                 flash("Dashes (\"-\") are not allowed in race name.")
-            for name in features:
-                if(len(name) < 1):
+            for feature in features:
+                if(len(feature) < 1):
                     flash("Each racial feature must have a name.")
-                elif(len(name) > 127):
+                elif(len(feature) > 127):
                     flash("Racial feature names must be fewer than 128 characters.")
-            for text in feature_text:
-                if(len(text) > 16383):
+            for ftext in feature_text:
+                if(len(ftext) > 16383):
                     flash("Racial feature text must be fewer than 16384 characters.")
-                elif("<" in text):
+                elif("<" in ftext):
                     flash("Open angle brackets (\"<\") are not allowed.")
-                elif("javascript" in text):
+                elif("javascript" in ftext):
                     flash("Cross-site scripting attacks are not allowed.")
             if(has_subraces):
                 for subrace in subraces:
@@ -143,6 +144,7 @@ def createRace():
                             flash("Open angle brackets (\"<\") are not allowed.")
                         elif("javascript" in feature["text"]):
                             flash("Cross-site scripting attacks are not allowed.")
+            print(name)
             new_race = Race(
                 rulesetid = cruleset.id,
                 name = name,
@@ -207,6 +209,7 @@ def createRace():
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
+            adminrulesets=adminrulesets,
             title="Create a Race"
         )
     )

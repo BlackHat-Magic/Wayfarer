@@ -37,6 +37,11 @@ p {
     margin: 0;
 }
 
+p a {
+    margin: 0!important;
+    color: var(--nord-primary2);
+}
+
 hr {
     width: 100%;
     color: var(--nord3);

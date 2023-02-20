@@ -7,16 +7,14 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
+		{% for ability_score in cruleset.ability_scores %}
+		<template x-init="namearray.push(`{{ ability_score.name }}`)"></template>
+		{% endfor %}
 		{% for race in cruleset.races %}
 		<template x-init="raceROM.push(
 			{
 				name: '{{ race.name }}',
-				strasi: {{ race.strasi }},
-				dexasi: {{ race.dexasi }},
-				conasi: {{ race.conasi }},
-				intasi: {{ race.intasi }},
-				wisasi: {{ race.wisasi }},
-				chaasi: {{ race.chaasi }},
+				asis: {{ race.asis }},
 				asitext: '{{ race.asi_text }}',
 				size: {{ race.size }},
 				sizetext: {{ race.size_text }}
@@ -53,9 +51,8 @@
 				</tr>
 			</template>
 		</table>
-		<p>test text for reference. Loerm ipsum dolor sit amet consecteteur</p>
 		{% if cruleset.userid == user.id %}
-		<a href="/Character/Races/Create"><button>Create A Race</button></a>
+		<a href="{{ url_for('epchar.createRace') }}"><button>Create A Race</button></a>
 		{% endif %}
 	</div>
 </div>

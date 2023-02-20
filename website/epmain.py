@@ -11,7 +11,9 @@ epmain = Blueprint("epmain", __name__)
 def home():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets = []
+    for ruleset in Ruleset.query.filter_by(is_admin=True):
+        adminrulesets.append(ruleset)
     return(
         render_template(
             "index.html", 

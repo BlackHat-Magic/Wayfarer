@@ -100,12 +100,14 @@ button.circle * {
     margin: auto;
 }
 
-button.danger {
+button.danger, div.danger {
     background-color: var(--nord-dark-red);
     border-color: var(--nord-red);
+    border-radius: 15px;
+    padding: 14px 16px;
 }
 
-button.danger.mild {
+button.danger.mild, div.danger.mild {
     background-color: var(--nord-red);
     border-color: var(--nord-red);
 }

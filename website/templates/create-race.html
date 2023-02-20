@@ -12,15 +12,22 @@
 		<form method="POST" class="interior flex vertical start">
 			<input placeholder="Race Name" name="name" id="name" x-model="name">
 			<!-- Ability Score Improvement Inputs -->
-			<div class="interior flex horizontal center" x-show="!asi_override">
+			{% if not cruleset.ability_scores %}
+			<div class="mild danger">
+				<h3>Hey!</h3>
+				<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify ability score improvements for this race. You can create ability scores <a href="{{ url_for('epchar.createStat') }}">here</a>.</p>
+			</div>
+			{% endif %}
+			<div class="interior flex horizontal center" x-show="!asi_override" style="width: 100%">
 				{% for score in cruleset.ability_scores %}
 				<input 
 					style="width: calc(100% / 6 - 24px); min-width: 55px; font-size: 16px" 
 					type="number" 
 					placeholder="{{ score.abbr }} Bonus" 
-					name="{{ score.abbr }}" 
-					id="{{ score.abbr }}" 
+					name="asi" 
+					id="asi" 
 					x-model="asis.{{ score.abbr }}"
+					value="0"
 				>
 				{% endfor %}
 			</div>

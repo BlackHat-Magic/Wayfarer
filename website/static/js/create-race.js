@@ -2,7 +2,7 @@ document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
         name: "",
 
-        asi: {},
+        asis: {},
         asi_override: false,
         asi_text: "",
         parseASI () {
@@ -11,22 +11,22 @@ document.addEventListener ("alpine:init", () => {
                 result += this.asi_text;
                 return(result);
             } else {
-                stat_array = [
-                    {name: "Str", value: this.str}, 
-                    {name: "Dex", value: this.dex}, 
-                    {name: "Con", value: this.con}, 
-                    {name: "Int", value: this.int}, 
-                    {name: "Wis", value: this.wis}, 
-                    {name: "Cha", value: this.cha}
-                ];
                 multiple = false;
-                for (let i = 0; i < stat_array.length; i++) {
-                    if (stat_array[i].value > 0) {
-                        if (multiple) {result += ", "} else {multiple = true}
-                        result += stat_array[i].name + " +" + stat_array[i].value;
-                    } else if (stat_array[i].value < 0) {
-                        if (multiple) {result += ", "} else {multiple = true}
-                        result += stat_array[i].name + stat_array[i].value;
+                for (const [key, value] of Object.entries(this.asis)) {
+                    if (value > 0) {
+                        if (multiple) {
+                            result += ", ";
+                        } else {
+                            multiple = true;
+                        }
+                        result += key + " +" + value;
+                    } else if (value < 0) {
+                        if (multiple) {
+                            result += ", ";
+                        } else {
+                            multiple = true;
+                        }
+                        result += key + value;
                     }
                 }
                 return(result);

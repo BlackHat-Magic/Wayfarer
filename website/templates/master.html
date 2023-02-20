@@ -107,7 +107,7 @@
 		{% if current_user.is_authenticated %}
 		<select name="current_ruleset" id="current_ruleset" x-init="init_selected(`{{ cruleset.id }}`)">
 		{% else %}
-		<select name="current_ruleset" id="current_ruleset" x-init="init_selected(`{{ adminrulesets[0].id }}`)">
+		<select name="current_ruleset" id="current_ruleset">
 		{% endif %}
 			{% for ruleset in adminrulesets %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
