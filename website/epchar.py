@@ -255,7 +255,7 @@ def createBackground():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     tools = []
-    for tool in Item.query.filter_by(rulesetid = cruleset.id, is_tool = True):
+    for tool in Item.query.filter_by(rulesetid = cruleset.id, proficiency = True):
         tools.append(tool)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):

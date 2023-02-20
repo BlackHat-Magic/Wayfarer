@@ -9,12 +9,19 @@
 	<div class="flex vertical start" x-data="main">
 		<h1>{{ item.name }}</h1>
 		<div class="interior flex horizontal space-between" style="width: 100%">
-			<p style="width: auto"><em>{{ item.tags }}
-				{% if item.is_weapon %}
-				<br>
-				{{ item.properties.weapon_properties }}
-				{% endif %}
-			</em></p>
+			<p style="width: auto">
+				<em>
+					{% for tag in item.tags %}
+						<span>{{ tag }}, </span>
+					{% endfor %}
+					{% if item.is_weapon %}
+						<br>
+						{% for property in item.weapon_properties %}
+						<span>{{ property }}, </span>
+						{% endfor %}
+					{% endif %}
+				</em>
+			</p>
 			<p style="width: auto">
 				{% if item.is_armor %}
 				<span>AC {{ item.armor_class }}</span>
@@ -31,11 +38,8 @@
 		</div>
 		<div class="interior flex horizontal space-between" style="width: 100%">
 			<p>{{ item.cost }}, {{ item.weight }}lbs</p>
-			<p></p>
 		</div>
-		<div class="interior flex horizontal space-between" style="width: 100%">
-			<p></p>
-		</div>
+		<hr>
 		<div class="usercontent" x-html="convert(`{{ item.text }}`)"></div>
 		{% if current_user.id == cruleset.userid %}
 		<div class="interior flex horizontal center">

@@ -82,7 +82,7 @@ class Item(db.Model):
     rarity = db.Column(db.Integer)
     tier = db.Column(db.Integer)
     attunement = db.Column(db.Boolean)
-    tags = db.Column(db.String(127))
+    tags = db.Column(db.PickleType)
     proficiency = db.Column(db.Boolean)
     cost = db.Column(db.String(31))
     weight = db.Column(db.Integer)
@@ -95,7 +95,7 @@ class Item(db.Model):
     die_num = db.Column(db.Integer)
     damage_die = db.Column(db.Integer)
     damage_type = db.Column(db.String(15))
-    weapon_properties = db.Column(db.String(255))
+    weapon_properties = db.Column(db.PickleType)
 
 class Condition(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -196,10 +196,10 @@ class Background(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
-    skills = db.Column(db.String(255))
-    tools = db.Column(db.String(255))
-    languages = db.Column(db.String(255))
-    equipment = db.Column(db.String(511))
+    skills = db.Column(db.PickleType)
+    tools = db.Column(db.PickleType)
+    languages = db.Column(db.PickleType)
+    equipment = db.Column(db.PickleType)
     text = db.Column(db.String(16383))
     background_features = db.relationship("BackgroundFeature")
 

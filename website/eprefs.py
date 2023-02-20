@@ -181,7 +181,7 @@ def createItem():
                 tier = None
                 rarity = None
                 attunement = None
-            tags = request.form.get("tags")
+            tags = request.form.getlist("tag")
             proficiency = request.form.get("proficiency")
             if(proficiency):
                 proficiency = True
@@ -212,13 +212,13 @@ def createItem():
                 die_num = request.form.get("dienum")
                 damage_die = request.form.get("damagedie")
                 damage_type = request.form.get("damagetype")
-                weapon_properties = request.form.get("properties")
+                weapon_properties = request.form.getlist("property")
             else:
                 is_weapon = False
                 die_num = None
                 damage_die = None
                 damage_type = None
-                weapon_properties = ""
+                weapon_properties = []
             if(len(name) < 1):
                 flash("You must specify an item name.")
             elif(len(name) > 127):
@@ -667,15 +667,6 @@ def skills():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    abilitydict = {
-        "N/A": "N/A",
-        "STR": "Strength",
-        "DEX": "Dexterity",
-        "CON": "Constitution",
-        "INT": "Intelligence",
-        "WIS": "Wisdom",
-        "CHA": "Charisma"
-    }
     return(
         render_template(
             "skills.html", 
@@ -694,7 +685,7 @@ def createSkill():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.id):
+        if(current_user.id != cruleset.userid):
             flash("You cannot create a skill for a ruleset that is not your own.")
         else:
             name = request.form.get("name")

@@ -13,7 +13,7 @@
 			<div class="interior flex horizontal space-around" style="width: 100%">
 				<div class="interior flex horizontal start">
 					<label for="proficiency">Can be Proficient?</label>
-					<input id="proficiency" name="proficiency" type="checkbox" x-model="proficiency" style="width: auto" @change="toggle('proficiency')">
+					<input id="proficiency" name="proficiency" type="checkbox" x-model="proficiency" style="width: auto">
 				</div>
 				<div class="interior flex horizontal start">
 					<label for="isweapon">Is Weapon?</label>
@@ -36,34 +36,55 @@
 					</div>
 				</div>
 			</div>
-			<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px">
-				<div style="width: 100%">
-					<label for="tagselect">Add Tag: </label>
-					<select name="tagselect" id="tagselect" x-model="tagselect" style="width: auto" @change="appendTag()" x-init="updateTags()">
-						{% for tag in cruleset.item_tags %}
-						<option>{{ tag.name }}</option>
-						{% endfor %}
-					</select>
-					<input type="hidden" x-model="tags" id="tags" name="tags">
+			{% if not cruleset.item_tags %}
+				<div class="mild danger">
+					<h3>Hey!</h3>
+					<p>You don't have any item tags in this ruleset! Without adding any, you won't be able to assign tags to this item. You can create item tags <a href="{{ url_for('eprefs.createTag') }}">here</a>.</p>
 				</div>
-				<template x-for="tag, index in taglist">
-					<span @click="removeTag(index)" class="chip"><span x-text="tag"></span><span class="remove">&times</span></span>
-				</template>
-			</div>
-			<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px" x-show="isweapon">
-				<div style="width: 100%">
-					<label for="propertyselect">Add Weapon Property: </label>
-					<select name="propertyselect" id="propertyselect" x-model="propertyselect" style="width: auto" @change="appendProperty()" x-init="updateProperties()">
-						{% for property in cruleset.item_properties %}
-						<option>{{ property.name }}</option>
-						{% endfor %}
-					</select>
-					<input type="hidden" x-model="properties" id="properties" name="properties">
+				<div style="height: 30px"></div>
+			{% else %}
+				<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px">
+					<div style="width: 100%">
+						<label for="tagselect">Add Tag: </label>
+						<select name="tagselect" id="tagselect" x-model="tagselect" style="width: auto" @change="appendTag()" x-init="updateTags()">
+							{% for tag in cruleset.item_tags %}
+							<option>{{ tag.name }}</option>
+							{% endfor %}
+						</select>
+						<input type="hidden" x-model="tags" id="tags" name="tags">
+					</div>
+					<template x-for="tag, index in taglist">
+						<span @click="removeTag(index)" class="chip"><span x-text="tag"></span><span class="remove">&times</span></span>
+					</template>
+					<template x-for="tag, index in taglist">
+						<input type="hidden" name="tag" id="tag" x-model="taglist[index]">
+					</template>
 				</div>
-				<template x-for="property, index in propertylist">
-					<span class="chip"><span x-text="property"></span><span @click="removeProperty(index)" class="remove">&times</span></span>
-				</template>
-			</div>
+			{% endif %}
+			{% if not cruleset.item_properties %}
+				<div class="mild danger" x-show="isweapon">
+					<h3>Hey!</h3>
+					<p>You don't have any weapon properties in this ruleset! Without adding any, you won't be able to assign properties to this weapon. You can create weapon properties <a href="{{ url_for('eprefs.createProperty') }}">here</a>.</p>
+				</div>
+			{% else %}
+				<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px" x-show="isweapon">
+					<div style="width: 100%">
+						<label for="propertyselect">Add Weapon Property: </label>
+						<select name="propertyselect" id="propertyselect" x-model="propertyselect" style="width: auto" @change="appendProperty()" x-init="updateProperties()">
+							{% for property in cruleset.item_properties %}
+							<option>{{ property.name }}</option>
+							{% endfor %}
+						</select>
+						<input type="hidden" x-model="properties" id="properties" name="properties">
+					</div>
+					<template x-for="property, index in propertylist">
+						<span class="chip"><span x-text="property"></span><span @click="removeProperty(index)" class="remove">&times</span></span>
+					</template>
+					<template x-for="property, index in propertylist">
+						<input type="hidden" name="property" id="property" x-model="propertylist[index]">
+					</template>
+				</div>
+			{% endif %}
 			<div class="interior flex horizontal space-around" style="width: 100%">
 				<input name="cost" id="cost" type="text" x-model="cost" style="width: auto" placeholder="Cost">
 				<input name="weight" id="weight" type="number" x-model="weight" style="width: auto" placeholder="Weight (lbs)">
@@ -79,11 +100,8 @@
 						<option value="10">d10</option>
 						<option value="12">d12</option>
 						<option value="20">d20</option>
-					</select>99
-					<template x-if="maxdex != 0 && maxdex != null">
-						<span x-text=" '(Max ' + maxdex + ')'"></span>
-					</template>
-					<span x-show="isweapon" x-text="dienum + 'd' + damagedie + ' ' + damagetype + ' damage'"></span>
+					</select>
+					<input name="damagetype" id="damagetype" type="text" x-model="damagetype" style="width: auto" placeholder="Damage Type">
 				</div>
 			</div>
 			<textarea x-model="text" placeholder="Item Description"></textarea>

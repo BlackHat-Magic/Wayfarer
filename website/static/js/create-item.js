@@ -63,6 +63,7 @@ document.addEventListener ("alpine:init", () => {
         properties: "",
         dienum: null,
         damagedie: "d4",
+        damagetype: "",
         appendProperty() {
             if(!(this.propertylist.includes(document.querySelector("#propertyselect").value))) {
                 this.propertylist.push(document.querySelector("#propertyselect").value);

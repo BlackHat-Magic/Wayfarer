@@ -3,8 +3,17 @@ document.addEventListener ("alpine:init", () => {
         name: "",
         skillselect: "",
         skills: [],
-        tools: "",
-        languages: "",
+
+        toolselect: "",
+        tools: [],
+
+        langnum: null,
+        languageselect: "",
+        languages: [],
+
+        itemselect: "",
+        items: [],
+
         equipment: "",
         text: "",
         features: [
@@ -13,6 +22,7 @@ document.addEventListener ("alpine:init", () => {
                 text: ""
             }
         ],
+        toolROM: [],
         parseSkills() {
             result = "";
             for (let i = 0; i < this.skills.length; i++) {
@@ -39,6 +49,40 @@ document.addEventListener ("alpine:init", () => {
             }
             this.skills = newSkills;
         },
+
+        parseTools() {
+            result = "";
+            for (let i = 0; i < this.tools.length; i++) {
+                if(result.length < 1) {
+                    result += this.tools[i];
+                } else {
+                    result += ", " + this.tools[i];
+                }
+            }
+            result = "<strong>Tool Proficiencies: </strong> " + result;
+            return(result);
+        },
+        appendTool() {
+            if(!(this.tools.includes(this.toolselect) || this.toolselect == "select")) {
+                this.tools.push(this.toolselect);
+            }
+        },
+        removeTool(index) {
+            newTools = [];
+            for (let i = 0; i < this.tools.length; i++) {
+                if (i != index) {
+                    newTools.push(this.tools[i]);
+                }
+            }
+            this.tools = newTools;
+        },
+
+        parseLanguages() {
+            result = "";
+            if(this.languages[0] == "Any") {
+                result = "<strong>Languages: </strong>";
+            }
+        },
         
         addFeature() {
             this.features.push({
@@ -59,35 +103,6 @@ document.addEventListener ("alpine:init", () => {
         converter: new showdown.Converter({tables: true}),
         convert(text) {
             return(this.converter.makeHtml(text))
-        },
-        submit() {
-            fname = this.name;
-            skills = this.skills;
-            tools = this.tools;
-            lang = document.querySelector("#languages").value; //for some reason this gets set to null if I try to define it using the variable, so document.querySelector it is.
-            equipment = this.equipment;
-            text = this.text;
-            features = this.features;
-            fetch ("/Character/Backgrounds/Create", {
-                method: "POST",
-                body: JSON.stringify({
-                    name: fname,
-                    skills: skills,
-                    tools: tools,
-                    equipment: equipment,
-                    text: text,
-                    features: features,
-                    lang: lang
-                })
-            }).then (function (response) {
-                return(response.json());
-            }).then(function (result) {
-                if(result == 0) {
-                    window.location.href="/Character/Backgrounds";
-                } else {
-                    window.location.reload();
-                }
-            })
         },
     }))
 })
