@@ -16,11 +16,11 @@ In no particular order...
  - [x] ~~clean up CSS file~~
  - [ ] add edit functionality
  - [ ] add duplication functionality
- - [ ] unfuck Races page
+ - [x] ~~unfuck Races page~~
  - [x] ~~make background filters more useful~~
  - [ ] make background page usable on mobile
  - [ ] Add 5e.tools import/export functionality
- - [ ] Add support for multiple administrator rulesets
+ - [x] ~~Add support for multiple administrator rulesets~~
 
 ## Usage
 
