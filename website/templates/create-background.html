@@ -72,7 +72,7 @@
 				<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 					<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
 						<label for="languages">Languages:</label>
-						<input style="width: auto" type="number" id="langnum" name="langnum" placeholder="Number of Languages">
+						<input style="width: auto" type="number" id="langnum" name="langnum" x-model="langnum" placeholder="Number of Languages">
 						<select name="languages" id="languages" x-model="languageselect" style="width: auto" @change="appendLanguage()">
 							<option>Any</option>
 							{% for language in cruleset.languages %}
@@ -84,7 +84,7 @@
 						<template x-for="language, index in languages">
 							<span class="chip" @click="removeLanguage(index)"><span x-text="language"></span><span class="remove">&times</span></span>
 						</template>
-						<template x-for="language, index in language">
+						<template x-for="language, index in languages">
 							<input type="hidden" id="language" name="language" x-model="language[index]">
 						</template> 
 					</div>
@@ -111,7 +111,7 @@
 						<template x-for="item, index in items">
 							<span class="chip" @click="removeItem(index)"><span x-text="item"></span><span class="remove">&times</span></span>
 						</template>
-						<template x-for="item, index in language">
+						<template x-for="item, index in items">
 							<input type="hidden" id="item" name="item" x-model="items[index]">
 						</template> 
 					</div>
@@ -137,8 +137,8 @@
 			<template x-if="tools != ''">
 				<p x-html="parseTools()"></p>
 			</template>
-			<template x-if="languages != ''">
-				<p x-html="'<strong>Languages: </strong>' + languages"></p>
+			<template x-if="languages != '' && langnum != 0">
+				<p x-html="'<strong>Languages: </strong>' + parseLanguages()"></p>
 			</template>
 			<template x-if="equipment != ''">
 				<p x-html="'<strong>Equipment: </strong>' + equipment"></p>

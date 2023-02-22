@@ -7,7 +7,7 @@ document.addEventListener ("alpine:init", () => {
         toolselect: "",
         tools: [],
 
-        langnum: null,
+        langnum: 0,
         languageselect: "",
         languages: [],
 
@@ -79,9 +79,51 @@ document.addEventListener ("alpine:init", () => {
 
         parseLanguages() {
             result = "";
-            if(this.languages[0] == "Any") {
-                result = "<strong>Languages: </strong>";
+            numlist = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+            langstring = "";
+            for (let i = 0; i < this.languages.length; i++) {
+                if (i == 0) {
+                    langstring += this.languages[i];
+                } else {
+                    langstring += ", " + this.languages[i];
+                }
             }
+            if (this.langnum == this.languages.length) {
+                result = langstring;
+            } else if (this.langnum == 0) {
+                result = "none";
+            } else if (this.langnum < 10) {
+                if (this.langnum.includes("Any")) {
+                    result = "Any " + numlist[this.langnum - 1] + " of your choice.";
+                } else {
+                    result = "Any " + numlist[this.langnum - 1] + " of your choice from: " + langstring;
+                }
+            } else {
+                if (this.langnum.includes("Any")) {
+                    result = "Any " + this.langnum + " of your choice.";
+                } else {
+                    result = "Any " + this.langnum + " of your choice from: " + langstring;
+                }
+            }
+            return(result);
+        },
+        appendLanguage() {
+            if (this.languageselect == "Any") {
+                this.languages = ["Any"];
+            } else if (this.languages[0] == "Any") {
+                this.languages = [this.languageselect];
+            } else if (!(this.languages.includes(this.languageselect) || this.languageselect == "select")) {
+                this.languages.push(this.languageselect);
+            }
+        },
+        removeLanguage(index) {
+            newLanguages = [];
+            for (let i = 0; i < this.languages.length; i++) {
+                if (i != index) {
+                    newLanguages.push(this.languages[i]);
+                }
+            }
+            this.languages = newLanguages;
         },
         
         addFeature() {
