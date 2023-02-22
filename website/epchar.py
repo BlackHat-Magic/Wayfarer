@@ -262,86 +262,70 @@ def createBackground():
             flash("You cannot create backgrounds for a ruleset that is not your own.")
             return("1")
         else:
-            data = json.loads(request.data)
-            if(len(data["name"]) < 1):
+            name = request.form.get("name")
+            skills = request.form.getlist("skill")
+            tools = request.form.getlist("tool")
+            languages = request.form.get("language")
+            items = request.form.getlist("item")
+            text = request.form.get("text")
+            featurenames = request.form.getlist("featurename")
+            featuretexts = request.form.getlist("featuretext")
+            if(len("name") < 1):
                 flash("You must specify a background name.")
-                return("1")
-            elif(len(data["name"]) > 127):
+            elif(len("name") > 127):
                 flash("Background name must be fewer than 128 characters.")
-                return("1")
-            elif(len(data["skills"]) > 255 or len(data["tools"]) > 255 or len(data["lang"]) > 255):
-                flash("Skills, tools, and languages must be fewer than 256 characters each.")
-                return("1")
-            elif(len(data["equipment"]) > 511):
-                flash("Equipment must be fewer than 512 characters.")
-                return("1")
-            elif(len(data["text"]) > 16383):
+            elif(len("text") > 16383):
                 flash("Text must be fewer than 16384 characters.")
-                return("1")
-            elif("-" in data["name"]):
+            elif("-" in "name"):
                 flash("Dashes (\"-\") are not allowed in the background name.")
-                return("1")
-            elif("<" in data["text"] or "<" in data["name"]):
+            elif("<" in "text"):
                 flash("Open angle brackets(\"<\") are not allowed.")
-                return("1")
-            elif("javascript" in data["text"] or "javascript" in data["name"]):
+            elif("javascript" in "text"):
                 flash("Cross-site scripting attacks are not allowed.")
-                return("1")
             else:
-                for feature in data["features"]:
-                    if(len(feature["name"]) < 1):
+                for index, feature in enumerate(featurenames):
+                    if(len(feature) < 1):
                         flash("You must specify a feature name.")
-                        return("1")
-                    elif(len(feature["name"]) > 127):
+                    elif(len(feature) > 127):
                         flash("Feature name must be fewer than 128 characters.")
-                        return("1")
-                    elif(len(feature["text"]) > 16383):
+                    elif(len(featuretexts[index]) > 16383):
                         flash("Text must be fewer than 16383 characters.")
-                        return("1")
-                    elif("<" in feature["name"] or "<" in feature["text"]):
+                    elif("<" in featuretexts[index]):
                         flash("Open angle brackets(\"<\") are not allowed.")
-                        return("1")
-                    elif("javascript" in feature["name"] or "javascript" in feature["text"]):
+                    elif("javascript" in featuretexts[index]):
                         flash("Cross-site scripting attacks are not allowed.")
-                        return("1")
-                skills = ""
-                for skill in data["skills"]:
-                    if(len(skills) < 1):
-                        skills += skill
-                    else:
-                        skills += f", {skill}"
                 new_background = Background(
                     rulesetid = cruleset.id,
-                    name = data["name"],
+                    name = name,
                     skills = skills,
-                    tools = data["tools"],
-                    languages = data["lang"],
-                    equipment = data["equipment"],
-                    text = data["text"]
+                    tools = tools,
+                    languages = languages,
+                    equipment = items,
+                    text = text
                 )
                 db.session.add(new_background)
                 db.session.commit()
 
                 new_background = Background.query.filter_by(
-                    name = data["name"],
+                    name = name,
                     rulesetid = cruleset.id
                 ).first()
-                for feature in data["features"]:
+                for index, feature in enumerate(featurenames):
                     new_feature = BackgroundFeature(
                         backgroundid = new_background.id,
-                        name = feature["name"],
-                        text = feature["text"]
+                        name = feature,
+                        text = featuretexts[index]
                     )
                     db.session.add(new_feature)
                 db.session.commit()
                 flash("Background created!")
-                return("0")
     return(
         render_template(
             "create-background.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
+            adminrulesets=adminrulesets,
             tools=tools, 
             title="Create a Background"
         )
@@ -392,14 +376,8 @@ def createFeat():
             flash("You cannot create feats for rulesets that are not your own.")
         else:
             name = request.form.get("name")
-            prereq = request.form.get("prereq")
-            strasi = request.form.get("strasi")
-            dexasi = request.form.get("dexasi")
-            conasi = request.form.get("conasi")
-            intasi = request.form.get("intasi")
-            wisasi = request.form.get("wisasi")
-            chaasi = request.form.get("chaasi")
             text = request.form.get("text")
+            prereq = request.form.get("prereq")
             if(len(name) < 1):
                 flash("You must specify a feat name.")
             elif(len(name) > 127):
@@ -413,26 +391,10 @@ def createFeat():
             elif("javascript" in text):
                 flash("Cross-site scripting attacks are not allowed.")
             else:
-                try:
-                    strasi = int(strasi)
-                    dexasi = int(dexasi)
-                    conasi = int(conasi)
-                    intasi = int(intasi)
-                    wisasi = int(wisasi)
-                    chaasi = int(chaasi)
-                except:
-                    flash("Ability Score Improvements must all be integers.")
-                    return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset))
                 new_feat = Feat(
                     rulesetid = cruleset.id,
                     name = name,
                     prerequisite = prereq,
-                    strasi = strasi,
-                    dexasi = dexasi,
-                    conasi = conasi,
-                    intasi = intasi,
-                    wisasi = wisasi,
-                    chaasi = chaasi,
                     text = text
                 )
                 db.session.add(new_feat)

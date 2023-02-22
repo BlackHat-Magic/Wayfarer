@@ -26,7 +26,7 @@ document.addEventListener ("alpine:init", () => {
             }
         },
         truncate(text) {
-            return(text.substring(0, 129));
+            return(text.substring(0, 129) + "...");
         }
     }))
 })

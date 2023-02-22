@@ -1,25 +1,20 @@
 {% extends "master.html" %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/feat.js') }}"></script>
+<script src="{{ url_for('static', filename='js/showdown-only.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex" x-data="main">
     <div class="flex vertical start">
         <h1>{{ feat.name }}</h1>
-        {% if user.id == cruleset.userid %}
-        <a href="/Character/Feat/{{ feat.name.replace(' ', '-') }}/Duplicate"><button type="button">Duplicate {{ feat.name }}</button></a>
         {% if feat.prerequisite != "" %}
-        <p><strong><em>Prerequisite: </em></strong>{{ feat.prerequisite }}</p>
-        {% endif %}
-        {% if feat.strasi != 0 or feat.dexasi != 0 or feat.conasi != 0 or feat.intasi != 0 or feat.wisasi != 0 or feat.chaasi != 0 %}
-        <p><strong><em>Ability Score Improvement: </em></strong><span x-text="parseASI([{{ feat.strasi }}, {{ feat.dexasi }}, {{ feat.conasi }}, {{ feat.intasi }}, {{ feat.wisasi }}, {{ feat.chaasi }}])"></span></p>
-        {% endif %}
+            <p><strong><em>Prerequisite: </em></strong>{{ feat.prerequisite }}</p>
         {% endif %}
         <div class="usercontent" x-html="convert(`{{ feat.text }}`)"></div>
         {% if cruleset.userid == current_user.id %}
-        <a @click="delete()"><button type="button" class="danger">Delete {{ feat.name }}</button></a>
+            <a href="/Character/Feat/{{ feat.name.replace(' ', '-') }}/Delete"><button type="button" class="danger">Delete {{ feat.name }}</button></a>
+            <a href="/Character/Feat/{{ feat.name.replace(' ', '-') }}/Duplicate"><button type="button">Duplicate {{ feat.name }}</button></a>
         {% endif %}
     </div>
 </div>

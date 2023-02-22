@@ -11,14 +11,6 @@
 		<form class="interior flex vertical start" method="post">
 			<input id="name" name="name" x-model="name" placeholder="Feat Name">
 			<input id="prereq" name="prereq" x-model="prereq" placeholder="Feat Prerequisite">
-			<div class="interior flex horizontal center" style="width: 100%">
-				<input type="number" id="strasi" name="strasi" x-model="strasi" placeholder="STR Bonus" style="width: calc(100% / 6 - 24px)">
-				<input type="number" id="dexasi" name="dexasi" x-model="dexasi" placeholder="DEX Bonus" style="width: calc(100% / 6 - 24px)">
-				<input type="number" id="conasi" name="conasi" x-model="conasi" placeholder="CON Bonus" style="width: calc(100% / 6 - 24px)">
-				<input type="number" id="intasi" name="intasi" x-model="intasi" placeholder="INT Bonus" style="width: calc(100% / 6 - 24px)">
-				<input type="number" id="wisasi" name="wisasi" x-model="wisasi" placeholder="WIS Bonus" style="width: calc(100% / 6 - 24px)">
-				<input type="number" id="chaasi" name="chaasi" x-model="chaasi" placeholder="CHA Bonus" style="width: calc(100% / 6 - 24px)">
-			</div>
 			<textarea id="text" name="text" x-model="text" placeholder="Feat Description"></textarea>
 			<a><button type="submit">Create Feat</button></a>
 		</form>
@@ -26,9 +18,6 @@
 			<h1 x-text="name"></h1>
 			<template x-if="prereq.length != 0">
 				<p><strong><em>Prerequisite: </em></strong><span x-text="prereq"></span></p>
-			</template>
-			<template x-if="strasi != 0 || dexasi != 0 || conasi != 0 || intasi != 0 || wisasi != 0 || chaasi != 0">
-				<p><strong><em>Ability Score Improvements:</em></strong><span x-text="parseASI()"></span></p>
 			</template>
 			<hr>
 			<div x-html="convert(text)" style="width: 100%"></div>

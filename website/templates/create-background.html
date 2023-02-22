@@ -5,37 +5,11 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-	<div class="flex vertical start" x-data="main">
+<div class="flex" x-data="main">
+	<div class="flex vertical start">
 		<h1>Create a Background</h1>
 		<form class="interior flex vertical start" method="post">
 			<input name="name" id="name" x-model="name" placeholder="Background Name">
-			{% if not tools %}
-				<div class="mild danger">
-					<h3>Hey!</h3>
-					<p>You don't have any items with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tool proficiencies granted by this background. You can create items <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
-				</div>
-				<div style="height: 30px"></div>
-			{% else %}
-				<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-					<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
-						<label for="tools">Tool Proficiencies:</label>
-						<select name="tools" id="tools" x-model="toolselect" style="width: auto" @change="appendTool()">
-							{% for tool in tools %}
-							<option>{{ tool.name }}</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-						<template x-for="tool, index in tools">
-							<span class="chip" @click="removeTool(index)"><span x-text="tool"></span><span class="remove">&times</span></span>
-						</template>
-						<template x-for="tool, index in tools">
-							<input type="hidden" id="tool" name="tool" x-model="tools[index]">
-						</template> 
-					</div>
-				</div>
-			{% endif %}
 			{% if not cruleset.skills %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
@@ -62,6 +36,32 @@
 					</div>
 				</div>
 			{% endif %}
+			{% if not tools %}
+				<div class="mild danger">
+					<h3>Hey!</h3>
+					<p>You don't have any items with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tool proficiencies granted by this background. You can create items <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
+				</div>
+				<div style="height: 30px"></div>
+			{% else %}
+				<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+					<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+						<label for="tools">Tool Proficiencies:</label>
+						<select name="tools" id="tools" x-model="toolselect" style="width: auto" @change="appendTool()">
+							{% for tool in tools %}
+							<option>{{ tool.name }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+						<template x-for="tool, index in tools">
+							<span class="chip" @click="removeTool(index)"><span x-text="tool"></span><span class="remove">&times</span></span>
+						</template>
+						<template x-for="tool, index in tools">
+							<input type="hidden" id="tool" name="tool" x-model="tools[index]">
+						</template> 
+					</div>
+				</div>
+			{% endif %}
 			{% if not cruleset.languages %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
@@ -84,9 +84,7 @@
 						<template x-for="language, index in languages">
 							<span class="chip" @click="removeLanguage(index)"><span x-text="language"></span><span class="remove">&times</span></span>
 						</template>
-						<template x-for="language, index in languages">
-							<input type="hidden" id="language" name="language" x-model="language[index]">
-						</template> 
+						<input type="hidden" name="language" id="language" x-model="parsedlanguage">
 					</div>
 				</div>
 			{% endif %}
@@ -114,16 +112,26 @@
 						<template x-for="item, index in items">
 							<input type="hidden" id="item" name="item" x-model="items[index]">
 						</template> 
+						<template x-if="gold > 0">
+							<input type="hidden" id="item" name="item" x-model="parsedgold">
+						</template>
 					</div>
 				</div>
 			{% endif %}
+			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+				<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+					<label for="items">Starting Gold: </label>
+					<input name="goldcontainer" id="goldcontainer" x-model="goldcontainer" placeholder='Gold Container (e.g. "Purse," "Pouch", etc )' style="width: 33%; min-width: auto">
+					<input type="number" name="gold" id="gold" x-model="gold" style="width: 33%; min-width: auto">
+				</div>
+			</div>
 			<textarea name="text" id="text" x-model="text" placeholder="Background Description"></textarea>
 			<h2>Background Features</h2>
 			<template x-for="feature, index, in features">
 				<div class="interior flex horizontal center space-between" style="width: 100%">
-					<input x-model="features[index].name" placeholder="Feature Name" style="width: calc(50% - 24px)">
+					<input x-model="features[index].name" placeholder="Feature Name" style="width: calc(50% - 24px)" id="featurename" name="featurename">
 					<a @click="deleteFeature(index)" style="width: calc(50% - 24px); text-align: right"><button class="danger" type="button">Delete Feature</button></a>
-					<textarea style="height: 200px" x-model="features[index].text" placeholder="Background Feature Description"></textarea>
+					<textarea style="height: 200px" x-model="features[index].text" placeholder="Background Feature Description" id="featuretext" name="featuretext"></textarea>
 				</div>
 			</template>
 			<a @click="addFeature()"><button type="button">Add a Background Feature</button></a>
@@ -137,11 +145,11 @@
 			<template x-if="tools != ''">
 				<p x-html="parseTools()"></p>
 			</template>
-			<template x-if="languages != '' && langnum != 0">
+			<template x-if="langnum != 0">
 				<p x-html="'<strong>Languages: </strong>' + parseLanguages()"></p>
 			</template>
-			<template x-if="equipment != ''">
-				<p x-html="'<strong>Equipment: </strong>' + equipment"></p>
+			<template x-if="parseItems() != ''">
+				<p x-html="parseItems()"></p>
 			</template>
 			<hr>
 			<div x-html="convert(text)" style="width: 100%"></div>
@@ -152,6 +160,18 @@
 				</div>
 			</template>
 		</div>
+	</div>
+
+	<div class="modal" x-show="modal" @click="modal = !modal"></div>
+	<div class="modal-alert flex vertical start" x-show="modal">
+		<h1>Add Custom Item</h1>
+		<p>Add a custom item to the background's starting equipment. This is typically used for items not found outside of a background's starting equipment, such as the leather ball that comes with the Athlete background.</p>
+		<div style="height: 30px"></div>
+		<input type="text" name="customitem" id="customitem" x-model="customitem">
+		<div style="height: 30px"></div>
+		<a><button @click="appendCustom()">Add Custom Item</button></a>
+		<div style="height: 30px"></div>
+		<a><span class="small" @click="modal = !modal">Nevermind</span></a>
 	</div>
 </div>
 {% endblock %}

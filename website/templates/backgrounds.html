@@ -12,9 +12,9 @@
 		<template x-init="bgROM.push(
 			{
 				name: '{{ background.name }}',
-				skills: '{{ background.skills }}',
+				skills: {{ background.skills }},
 				languages: '{{ background.languages }}',
-				equipment: '{{ background.equipment }}',
+				equipment: {{ background.equipment }}
 			}
 		)"></template>
 		{% endfor %}

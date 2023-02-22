@@ -1,6 +1,7 @@
 * {
     font-family: "noto-sans", sans-serif, serif;
     max-width: 100%;
+    box-sizing: border-box;
 }
 
 :root {

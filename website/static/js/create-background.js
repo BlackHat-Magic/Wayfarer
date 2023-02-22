@@ -1,5 +1,7 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
+        modal: false,
+
         name: "",
         skillselect: "",
         skills: [],
@@ -10,11 +12,16 @@ document.addEventListener ("alpine:init", () => {
         langnum: 0,
         languageselect: "",
         languages: [],
+        parsedlanguage: "",
 
         itemselect: "",
         items: [],
+        customitem: "",
 
-        equipment: "",
+        gold: 0,
+        goldcontainer: "",
+        parsedgold: "",
+
         text: "",
         features: [
             {
@@ -105,6 +112,7 @@ document.addEventListener ("alpine:init", () => {
                     result = "Any " + this.langnum + " of your choice from: " + langstring;
                 }
             }
+            this.parsedlanguage = result;
             return(result);
         },
         appendLanguage() {
@@ -125,6 +133,55 @@ document.addEventListener ("alpine:init", () => {
             }
             this.languages = newLanguages;
         },
+
+        parseItems() {
+            result = "";
+            for (let i = 0; i < this.items.length; i++) {
+                if (i == 0) {
+                    result += this.items[i];
+                } else {
+                    result += ", " + this.items[i];
+                }
+            }
+            if (this.gold != 0) {
+                if ("aeiou".includes(this.goldcontainer.toLowerCase()[0])) {
+                    this.parsedgold = "an " + this.goldcontainer + " containing " + this.gold + "gp"
+                } else {
+                    this.parsedgold = "a " + this.goldcontainer + " containing " + this.gold + "gp"
+                }
+                if (result.length < 1) {
+                    result += this.parsedgold;
+                } else {
+                    result += ", " + this.parsedgold;
+                }
+            }
+            if (result != "") {
+                result = '<strong>Equipment: </strong>' + result;
+            }
+            console.log(this.parsedgold);
+            return(result);
+        },
+        appendItem() {
+            if (this.itemselect == "(Custom)") {
+                this.modal = true;
+            } else if (!this.items.includes(this.itemselect)) {
+                this.items.push(this.itemselect);
+            }
+        },
+        appendCustom() {
+            this.items.push(this.customitem);
+            this.customitem = "";
+            this.modal = false;
+        },
+        removeItem(index) {
+            newItems = [];
+            for (let i = 0; i < this.items.length; i++) {
+                if (i != index) {
+                    newItems.push(this.items[i]);
+                }
+            }
+            this.items = newItems;
+        },
         
         addFeature() {
             this.features.push({
@@ -143,8 +200,8 @@ document.addEventListener ("alpine:init", () => {
         },
 
         converter: new showdown.Converter({tables: true}),
-        convert(text) {
-            return(this.converter.makeHtml(text))
-        },
+        convert (text) {
+            return(this.converter.makeHtml(text));
+        }
     }))
 })

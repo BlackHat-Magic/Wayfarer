@@ -13,13 +13,7 @@
 				name: '{{ feat.name }}',
 				type: '{{ feat.type }}',
 				prerequisite: '{{ feat.prerequisite }}',
-				strasi: '{{ feat.strasi }}',
-				dexasi: '{{ feat.dexasi }}',
-				conasi: '{{ feat.conasi }}',
-				intasi: '{{ feat.intasi }}',
-				wisasi: '{{ feat.wisasi }}',
-				chaasi: '{{ feat.chaasi }}',
-				text: '{{ feat.text }}'
+				text: `{{ feat.text }}`
 			}
 		)"></template>
 		{% endfor %}
@@ -27,16 +21,14 @@
 		<input type="text" name="tableinput" id="tableinput" placeholder="Search Feats..." x-model="query">
 		<table name="filtertable" id="filtertable">
 			<tr class="header">
-				<th style="width: 15%">Feat Name</th>
+				<th style="width: 30%">Feat Name</th>
 				<th style="width: 15%">Prerequisite</th>
-				<th style="width: 15%">ASI</th>
 				<th style="width: 55%">Text</th>
 			</tr>
 			<template x-for="feat, index in filterQuery()">
 				<tr>
 					<td><a @click="window.location.href = '/Character/Feat/' + feat.name.split(' ').join('-')" x-text="feat.name"></a></td>
 					<td x-text="feat.prerequisite"></td>
-					<td x-text="parseasi([feat.strasi, feat.dexasi, feat.conasi, feat.intasi, feat.wisasi, feat.chaasi])"></td>
 					<td x-text="truncate(feat.text)"></td>
 				</tr>
 			</template>
