@@ -21,12 +21,7 @@ document.addEventListener ("alpine:init", () => {
         gold_dice: 0,
         gold_mult: null,
 
-        str: false,
-        dex: false,
-        con: false,
-        int: false,
-        wis: false,
-        cha: false,
+        save: {},
 
         proficiencyselect: null,
         proficiencylist: [],

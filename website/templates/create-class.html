@@ -39,30 +39,12 @@
 				</div>
 			</div>
 			<div class="interior flex horizontal space-around" style="width: 100%">
-				<div>
-					<label for="str">Strength Saves</label>
-					<input type="checkbox" name="str" id="str" x-model="str">
-				</div>
-				<div>
-					<label for="dex">Dexterity Saves</label>
-					<input type="checkbox" name="dex" id="dex" x-model="dex">
-				</div>
-				<div>
-					<label for="con">Constitution Saves</label>
-					<input type="checkbox" name="con" id="con" x-model="con">
-				</div>
-				<div>
-					<label for="int">Intelligence Saves</label>
-					<input type="checkbox" name="int" id="int" x-model="int">
-				</div>
-				<div>
-					<label for="wis">Wisdom Saves</label>
-					<input type="checkbox" name="wis" id="wis" x-model="wis">
-				</div>
-				<div>
-					<label for="cha">Charisma Saves</label>
-					<input type="checkbox" name="cha" id="cha" x-model="cha">
-				</div>
+				{% for score in cruleset.ability_scores %}
+					<div>
+						<label for="str">{{ score.name }} Saves</label>
+						<input type="checkbox" name="save" id="save" x-model="save.{{ score.abbr }}">
+					</div>
+				{% endfor %}
 			</div>
 			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 				<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
@@ -94,7 +76,7 @@
 					</select>
 				</div>
 				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-					<template x-for="skill, index in proficiencylist">
+					<template x-for="skill, index in skilllist">
 						<span class="chip" @click="removeSkill(index)"><span x-text="skill"></span><span class="remove">&times</span></span>
 					</template>
 				</div>
