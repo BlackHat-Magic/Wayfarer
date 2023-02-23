@@ -4,6 +4,9 @@ document.addEventListener ("alpine:init", () => {
         convert (text) {
             return(this.converter.makeHtml(text));
         },
+        name: "",
+
+        hitdie: 0,
         dicelist: [
             "d4",
             "d6",
@@ -12,10 +15,14 @@ document.addEventListener ("alpine:init", () => {
             "d12",
             "d20"
         ],
-
-        name: "",
-        
-        hitdie: 0,
+        fhplist: [
+            4,
+            6,
+            8,
+            10,
+            12,
+            20
+        ],
 
         gold_nums: null,
         gold_dice: 0,
@@ -25,70 +32,61 @@ document.addEventListener ("alpine:init", () => {
 
         proficiencyselect: null,
         proficiencylist: [],
-        proficiencies: null,
         appendProficiency () {
-            if(!this.proficiencylisst.includes(document.querySelector("#proficiencyselect").value)) {
-                this.proficiencylisst.push(document.querySelector("#proficiencyselect").value);
+            if(!this.proficiencylist.includes(document.querySelector("#proficiencyselect").value)) {
+                this.proficiencylist.push(document.querySelector("#proficiencyselect").value);
             }
-            this.updateProficiencies();
         },
         removeProficiency(index) {
             output = [];
-            for (let i = this.proficiencylist.length - 1; i >= 0; i--) {
+            for (let i = 0; i < this.proficiencylist.length; i++) {
                 if(index != i) {
                     output.push(this.proficiencylist[i]);
                 }
             }
-            newoutput = [];
-            for (let i = 0; i < output.length; i++) {
-                newoutput.push(output[i]);
-            }
-            this.updateProficiencies;
-            this.proficiencylist = newoutput;
-        },
-        updateProficiencies () {
-            output = "";
-            for (let i = 0; i < this.proficiencylist.length; i++) {
-                if(output.length == 0) {
-                    output += this.proficiencylist[i];
-                } else {
-                    output += ", ${this.proficiencylist[i]}";
-                }
-            }
+            this.proficiencylist = output;
         },
 
         skillselect: null,
         skilllist: [],
-        skills: null,
         appendSkill () {
             if(!this.skilllist.includes(document.querySelector("#skillselect").value)) {
                 this.skilllist.push(document.querySelector("#skillselect").value);
             }
-            this.updateSkills();
         },
         removeSkill(index) {
             output = [];
-            for (let i = this.skilllist.length -1; i >= 0; i--) {
+            for (let i = 0; i < this.skilllist.length; i++) {
                 if(index != i) {
                     output.push(this.skilllist[i]);
                 }
             }
-            newoutput = [];
-            for (let i = 0; i < newoutput.length; i++) {
-                newoutput.push(output[i]);
-            }
-            this.updateProficiencies;
-            this.skillist = newoutput;
+            this.skilllist = output;
         },
-        updateSkills () {
+
+        parseList (list) {
             output = "";
-            for (let i = 0; i < this.skilllist.length; i++) {
+            for (let i = 0; i < list.length; i++) {
                 if(output.length == 0) {
-                    output += this.skilllist[i];
+                    output += list[i];
                 } else {
-                    output += ", ${this.skillist[i]}"
+                    output += ", " + list[i];
                 }
             }
+            return(output);
+        },
+        parseSaves () {
+            output = "";
+            for (const [key, value] of Object.entries(this.save)) {
+                if (value) {
+                    if (output.length == 0) {
+                        output += key;
+                    } else {
+                        output += ", " + key;
+                    }
+                }
+            }
+            return(output);
         },
 
         equipment: "",

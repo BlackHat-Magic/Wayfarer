@@ -56,6 +56,16 @@ blockquote {
     border-style: solid;
     width: calc(100% - 80px)!important;
 }
+blockquote.classinfo {
+    margin: 0 0 24px 0;
+    width: 100%!important;
+}
+blockquote.classinfo section {
+    padding: 6px 0;
+}
+blockquote.classinfo section * {
+    margin: 6px 0;
+}
 
 blockquote * {
     text-align: left;
