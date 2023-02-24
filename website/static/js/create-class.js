@@ -28,13 +28,15 @@ document.addEventListener ("alpine:init", () => {
         gold_dice: 0,
         gold_mult: null,
 
+        levels: 20,
+
         save: {},
 
         proficiencyselect: null,
         proficiencylist: [],
         appendProficiency () {
-            if(!this.proficiencylist.includes(document.querySelector("#proficiencyselect").value)) {
-                this.proficiencylist.push(document.querySelector("#proficiencyselect").value);
+            if(!this.proficiencylist.includes(this.proficiencyselect)) {
+                this.proficiencylist.push(this.proficiencyselect);
             }
         },
         removeProficiency(index) {
@@ -45,6 +47,23 @@ document.addEventListener ("alpine:init", () => {
                 }
             }
             this.proficiencylist = output;
+        },
+
+        multiproficselect: null,
+        multiproficlist: [],
+        appendMultiProfic () {
+            if(!this.multiproficlist.includes(this.multiproficselect)) {
+                this.multiproficlist.push(this.multiproficselect);
+            }
+        },
+        removeMultiProfic(index) {
+            output = [];
+            for (let i = 0; i < this.multiproficlist.length; i++) {
+                if(index != i) {
+                    output.push(this.multiproficlist[i]);
+                }
+            }
+            this.multiproficlist = output;
         },
 
         skillselect: null,
@@ -101,7 +120,8 @@ document.addEventListener ("alpine:init", () => {
             {
                 name: "",
                 level: null,
-                text: ""
+                text: "",
+                is_subclass: false
             }
         ],
 
@@ -113,10 +133,28 @@ document.addEventListener ("alpine:init", () => {
                     {
                         name: "",
                         level: null,
-                        text: ""
+                        text: "",
+                        is_subclass: true
                     }
                 ]
             }
-        ]
+        ],
+
+        currentsubclass: 0,
+
+        concatClassFeatures () {
+            concatenated =[];
+
+            for (let i = 0; i < this.features.length; i++) {
+                concatenated.push(this.features[i]);
+            }
+            for (let i = 0; i < this.subclasses[this.currentsubclass].features.length; i++) {
+                concatenated.push(this.subclasses[this.currentsubclass].features[i]);
+            }
+
+            sorted = concatenated.sort((a, b) => (a.level > b.level) ? 1 : -1);
+
+            return(sorted);
+        }
     }))
 })

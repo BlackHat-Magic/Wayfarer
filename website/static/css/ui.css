@@ -166,6 +166,7 @@ select.nav-item:hover {
 .tabs {
     width: 15%;
     border-radius: 12px;
+    min-width: 250px;
 }
 
 .tab {
@@ -220,6 +221,7 @@ select.nav-item:hover {
 @media only screen and (max-width: 900px) {
     .tabs {
         padding: 0;
+        width: 100%;
     }
     .topbar {
         width: calc(100% - 4px);

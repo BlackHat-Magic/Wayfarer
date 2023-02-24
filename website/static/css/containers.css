@@ -99,6 +99,11 @@ div.interior {
         flex-flow: column nowrap;
         max-width: 100%;
     }
+
+    .flex.wide {
+        flex-flow: column nowrap;
+    }
+
     .interior.flex.horizontal {
         flex-flow: row wrap;
     }

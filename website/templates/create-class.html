@@ -14,7 +14,7 @@
 			<!-- Class name -->
 			<input type="text" name="name" id="name" placeholder="Class Name" x-model="name">
 
-			<!-- Hit Dice and Gold -->
+			<!-- Hit Dice and Gold and Additional Levels-->
 			<div class="interior flex horizontal space-between" style="width: 100%">
 				<!-- Hit Dice -->
 				<div>
@@ -44,13 +44,17 @@
 					<span>&times</span>
 					<input type="number" name="gold_mult" id="gold_mult" x-model="gold_mult" placeholder="Multiplied by..." style="width: calc(100% / 4); min-width: 120px"> 
 				</div>
+				<div>
+					<label for="levels">Max Level: </label>
+					<input type="number" name="levels" id="levels" x-model="levels" style="width: auto" placeholder="Max Level">
+				</div>
 			</div>
 
 			<!-- saving throws -->
 			{% if not cruleset.ability_scores %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify saving throw proficiencies granted by this class. You can create skills <a href="{{ url_for('eprefs.createAbilityScore') }}">here</a>.</p>
+					<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify saving throw proficiencies granted by this class. You can create skills <a href="{{ url_for('epchar.createStat') }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -68,7 +72,7 @@
 			{% if not tools and not cruleset.item_tags %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tools granted by this background. You can create item types <a href="{{ url_for('eprefs.createTag') }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
+					<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify item type or tool proficiencies granted by this class. You can create item types <a href="{{ url_for('eprefs.createTag') }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -133,6 +137,39 @@
 			<textarea x-model="prereq" placeholder="Multiclassing Prerequisites" style="height: 100px"></textarea>
 			<input type="hidden" name="prereq" id="prereq" x-model="prereq">
 
+			<!-- multiclass proficiencies -->
+			{% if not tools and not cruleset.item_tags %}
+				<div class="mild danger">
+					<h3>Hey!</h3>
+					<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tools granted by this class when multiclassing. You can create item types <a href="{{ url_for('eprefs.createTag') }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
+				</div>
+				<div style="height: 30px"></div>
+			{% else %}
+				<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+					<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
+						<label for="multiproficselect">Multiclass Proficiencies:</label>
+						<select name="multiproficselect" id="multiproficselect" x-model="multiproficselect" style="width: auto" @change="appendMultiProfic()">
+							{% for item in cruleset.items %}
+								{% if item.proficiency %}
+								<option>{{ item.name }}</option>
+								{% endif %}
+							{% endfor %}
+							{% for tag in cruleset.item_tags %}
+							<option>{{ tag.name }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+						<template x-for="proficiency, index in multiproficlist">
+							<span class="chip" @click="removeMultiProfic(index)"><span x-text="proficiency"></span><span class="remove">&times</span></span>
+						</template>
+						<template x-for="proficiency, index in multiproficlist">
+							<input type="hidden" name="multiprofic" id="multiprofic" x-model="multiproficlist[index]">
+						</template>
+					</div>
+				</div>
+			{% endif %}
+
 			<!-- subclass name -->
 			<input type="text" id="subclassname" name="subclassname" x-model="subclassname" placeholder='Subclass Name (e.g. "Primal Path," "Divine Domain," etc.)'>
 
@@ -146,12 +183,12 @@
 					<div class="interior flex horizontal center" style="width: 100%">
 						<input type="text" name="class_feature_name" x-model="feature.name" placeholder="Class Feature Name" style="width: calc(50% - 24px); min-width: 240px"></input>
 						<input type="number" name="level" x-model="feature.level" placeholder="Level Obtained" style="width: calc(25% - 24px); min-width: 120px">
-						<a @click="deleteFeature(index)" style="width: calc(25% - 24px); min-width: 120px"><button class="danger">Delete Feature</button></a>
+						<a @click="deleteFeature(index)" style="width: calc(25% - 24px); min-width: 120px"><button type="button" class="danger">Delete Feature</button></a>
 					</div>
 					<textarea name="class_feature_text" x-model="feature.text" placeholder="Class Feature Description"></textarea>
 				</div>
 			</template>
-			<a @click="features.push({name: '', level: null, text: ''})"><button>Add Class Feature</button></a>
+			<a @click="features.push({name: '', level: null, text: '', is_subclass: false})"><button type="button">Add Class Feature</button></a>
 
 			<!-- subclasses -->
 			<h3>Subclasses</h3>
@@ -170,14 +207,14 @@
 							<div style="width: 100%" class="interior flex horizontal center" x-html="`
 								<input type='text' name='subclass_feature_${index}_name' x-model='subclasses[index].features[index1].name' placeholder='${subclass.name} Feature Name' style='width: calc(50% - 24px); min-width: 240px'>
 								<input type='number' name='subclass_feature_${index}_level' x-model='subclasses[index].features[index1].level' placeholder='Level Obtained' style='width: calc(25% - 24px); min-width: 120px'>
-								<a @click='deleteSubclassFeature(index, index1)' style='width: calc(25% - 24px); min-width: 120px'><button class='danger'>Delete Feature</button></a>
+								<a @click='deleteSubclassFeature(index, index1)' style='width: calc(25% - 24px); min-width: 120px'><button type='submit' class='danger'>Delete Feature</button></a>
 							`"></div>
 							<div style="width: 100%" x-html="`
 								<textarea name='subclass_feature_${index1}_text' x-model='subclasses[index].features[index1].text' placeholder='Feature Description' style='margin: 0'></textarea>
 							`"></div>
 						</div>
 					</template>
-					<a x-html="`<button @click='subclasses[index].features.push({name: null, level: null, text: null})'>Add Subclass Feature</button>`"></a>
+					<a x-html="`<button type='button' @click='subclasses[index].features.push({name: null, level: null, text: null, is_subclass: true})'>Add Subclass Feature</button>`"></a>
 				</div>
 			</template>
 			<a @click="subclasses.push({name: '', text: '', features: [{name: '', level: null, text: ''}]})"><button>Add Subclass</button></a>
@@ -194,7 +231,7 @@
 					<h6>Hit Points</h6>
 					<p><strong>Hit Dice: </strong><span x-text="dicelist[hitdie]"></span></p>
 					<p><strong>Hit Points at First Level: </strong><span x-text="fhplist[hitdie] + ' + your Constitution modifier'"></span></p>
-					<p><strong>Hit Points at Higher Levels: </strong>1<span x-text="dicelist[hitdie]"></span> (or <span x-text="fhplist[hitdie] / 2 + 1"></span> ) + your Constitution modifier per <span x-text="name"></span> level after 1st</p>
+					<p><strong>Hit Points at Higher Levels: </strong>1<span x-text="dicelist[hitdie]"></span> (or <span x-text="fhplist[hitdie] / 2 + 1"></span>) + your Constitution modifier per <span x-text="name"></span> level after 1st</p>
 				</section>
 				<section>
 					<h6>Proficiencies</h6>
@@ -204,25 +241,50 @@
 				</section>
 				<section>
 					<h6>Starting Equipment</h6>
+					<p>You start with the following items, plus anything provided by your background.</p>
 					<div x-html="convert(equipment)"></div>
 					<p>Alternatively, you may start the game with <span x-text="gold_nums + dicelist[gold_dice]"></span> &times <span x-text="gold_mult"></span> gp to buy your own equipment.</p>
 				</section>
 				<section>
 					<h6>Multiclassing</h6>
 					<div x-html="convert(prereq)"></div>
-					<p>blahblah</p>
+					<p>When you gain a level in a class other than your first, you gain only some of that class's starting proficiencies.</p>
+					<p><strong>Proficiencies: </strong><span x-text="parseList(multiproficlist)"></span></p>
 				</section>
 			</blockquote>
 		</div>
-		<template x-for="subclass in subclasses">
+		<template x-for="subclass, index in subclasses">
 			<div class="tab-container">
-				<a class="tab" @click="console.log('activate subclass')" x-text="subclass.name"></a>
+				<a class="tab" @click="currentsubclass = index" x-text="subclass.name"></a>
 			</div>
 		</template>
 	</div>
 	<div class="usercontent">
 		<h1 x-text="name"></h1>
 		<hr>
+		<div x-html="convert(text)"></div>
+		<hr>
+		<h3 x-text="name + ` Table`"></h3>
+		<table>
+			<tr>
+				<th>Level</th>
+				<th>Features</th>
+			</tr>
+		</table>
+		<hr>
+		<h2 x-text="name + ` Features`"></h2>
+		<template x-for="feature in concatClassFeatures()">
+			<div>
+				<template x-if="feature.is_subclass">
+					<h3 x-text="subclassname + ` Feature: ` + feature.name" x-init="console.log(feature.is_subclass)"></h3>
+				</template>
+				<template x-if="!feature.is_subclass">
+					<h3 x-text="feature.name"></h3>
+				</template>
+				<hr>
+				<div x-html="convert(feature.text)"></div>
+			</div>
+		</template>
 	</div>
 </div>
 </div>
