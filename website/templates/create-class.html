@@ -48,6 +48,14 @@
 					<label for="levels">Max Level: </label>
 					<input type="number" name="levels" id="levels" x-model="levels" style="width: auto" placeholder="Max Level">
 				</div>
+				<div>
+					<label for="subclasslevel">Subclass Level: </label>
+					<select name="subclasslevel" id="subclasslevel" x-model="subclasslevel" style="width: auto">
+						<template x-for="index in levels">
+							<option x-text="index"></option>
+						</template>
+					</select>
+				</div>
 			</div>
 
 			<!-- saving throws -->
@@ -225,6 +233,7 @@
 <div class="wide flex">
 	<div class="flex vertical start tabs">
 		<div class="tab-container" style="width: 100%">
+			<!-- info block -->
 			<blockquote class="classinfo">
 				<h5 x-text="name"></h5>
 				<section>
