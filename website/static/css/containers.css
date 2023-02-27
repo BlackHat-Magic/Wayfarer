@@ -58,7 +58,6 @@
 /* GRID CONTAINERS */
 .grid {
     width: 100%;
-    background-color: var(--nord-inactive);
     border-radius: 12px;
     display: grid;
     grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto;
@@ -67,6 +66,10 @@
 
 .grid.space-evenly {
     justify-content: space-evenly;
+}
+
+.inactive {
+    background-color: var(--nord-inactive);
 }
 
 /* SPLASH TEXT */

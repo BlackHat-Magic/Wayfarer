@@ -94,7 +94,7 @@ def createRuleset():
         )
     )
 
-@epmain.route("/Manage-Ruleset/<int:rulesetid>", methods=["GET", "POST"])
+@epmain.route("/Manage-Ruleset/<string:rulesetid>", methods=["GET", "POST"])
 @login_required
 def manageRuleset(rulesetid):
     cruleset = getCurrentRuleset(current_user)

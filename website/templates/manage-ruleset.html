@@ -9,39 +9,36 @@
 <div class="flex">
 	<div class="flex vertical start">
 		<h1>Manage {{ ruleset.name }}</h1>
-		<form class="grid space-evenly" method="POST">
-			<h5 style="grid-column: 1 / span 10">Ruleset ID: </h5>
-			<h5 style="grid-column: 11 / span 2">{{ ruleset.id }}</h5>
+		<form class="interior flex vertical start" method="POST">
+			<h5 >Ruleset ID: {{ ruleset.id }}</h5>
 			<span class="small" style="grid-column: 1 / span 12; text-align: center; margin: 0 12px 12px 12px">
 				Give this to your friends to share your ruleset!
 			</span>
-			<h5 style="grid-column: 1 / span 4">Ruleset Name: </h5>
-			<input 
-				type="text" 
-				value="{{ ruleset.name }}" 
-				name="name"
-				style="grid-column: 5 / span 5"
-				id="name">
-			</input></span>
-			<h5 style="grid-column: 1 / span 4">Is Shareable? </h5>
-			{% if ruleset.is_shareable %}
-				<select
-					style="grid-column: 5 / span 7"
-					name="shareable"
-					id="shareable">
-					<option value="True">Yes</option>
-					<option value="False">No</option>
-				</select>
-			{% else %}
-				<select
-					style="grid-column: 5 / span 7"
-					name="shareable"
-					id="shareable">
-					<option value="False">No</option>
-					<option value="True">Yes</option>
-				</select>
-			{% endif %}
-			<button type="submit" style="grid-column: 2 / span 10">Submit Changes</button>
+			<div class="interior flex horizontal center">
+				<label for="name"><h5 style="grid-column: 1 / span 4">Ruleset Name: </h5></label>
+				<input type="text" value="{{ ruleset.name }}" name="name"style="width: auto"id="name">
+			</div>
+			<div class="interior flex horizontal center">
+				<label for="shareable"><h5 style="grid-column: 1 / span 4">Is Shareable? </h5></label>
+				{% if ruleset.is_shareable %}
+					<select
+						style="width: auto"
+						name="shareable"
+						id="shareable">
+						<option value="True">Yes</option>
+						<option value="False">No</option>
+					</select>
+				{% else %}
+					<select
+						style="width: auto"
+						name="shareable"
+						id="shareable">
+						<option value="False">No</option>
+						<option value="True">Yes</option>
+					</select>
+				{% endif %}
+			</div>
+			<a><button type="submit">Submit Changes</button></a>
 		</form>
 		<a style="margin: 50px"><button class="danger" @click="toggle()">Delete Ruleset</button></a>
 	</div>

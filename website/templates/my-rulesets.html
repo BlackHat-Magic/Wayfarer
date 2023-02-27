@@ -9,21 +9,15 @@
 <div class="flex">
 	<div class="flex vertical start">
 		<h1>My Rulesets</h1>
-		<div class="grid space-evenly" style="margin: 25px 0;">
+		<div class="inactive interior flex vertical start">
 			{% for ruleset in user.rulesets %}
-			<h3 
-				style="grid-column: 1 / span 8; text-decoration: underline">
-				{{ ruleset.name }}
-			</h3>
-			<a 
-				href="/Manage-Ruleset/{{ ruleset.id }}" 
-				style="margin: auto; grid-column: 9 / span 3">
-				<button>Manage</button>
-			</a>
-			<h6 style="grid-column: 1 / span 3">Ruleset ID:</h6>
-			<h6 style="grid-column: 10 / span 3">{{ruleset.id}}</h6>
-			<h6 style="grid-column: 1 / span 3">Is Shareable: </h6>
-			<h6 style="grid-column: 10 / span 3">
+				<div class="inactive interior flex horizontal center">
+					<h3 style="grid-column: 1 / span 8; text-decoration: underline">{{ ruleset.name }}</h3>
+					<a href="{{ url_for('epmain.manageRuleset', rulesetid=ruleset.id) }}"><button>Manage</button></a>
+				</div>
+			<h6>Ruleset ID: {{ruleset.id}}</h6>
+			<h6 style="grid-column: 1 / span 3">
+				Is Shareable: 
 				{% if ruleset.is_shareable %}
 					Yes
 				{% else %}
@@ -34,19 +28,20 @@
 		</div>
 		<a href="/Create-Ruleset"><button>Create a Ruleset</button></a>
 		<h1>Shared With Me</h1>
-		<div class="grid space-evenly" style="margin: 25px 0">
-			{% for ruleset in frulesets %}
-			<h3 
-				style="grid-column: 1 / span 8; text-decoration: underline">
-				{{ ruleset.name }}
-			</h3>
-			<a 
-				@click="toggle({{ ruleset.id }})"
-				style="margin: auto; grid-column: 9 / span 3">
-				<button class="danger">Remove</button>
-			</a>
-			<h6 style="grid-column: 1 / span 3">Ruleset ID:</h6>
-			<h6 style="grid-column: 10 / span 3">{{ruleset.id}}</h6>
+		<div class="inactive interior flex vertical start">
+			{% for ruleset in user.frulesets %}
+				<div class="inactive interior flex horizontal center">
+					<h3 style="grid-column: 1 / span 8; text-decoration: underline">{{ ruleset.name }}</h3>
+				</div>
+			<h6>Ruleset ID: {{ruleset.id}}</h6>
+			<h6 style="grid-column: 1 / span 3">
+				Is Shareable: 
+				{% if ruleset.is_shareable %}
+					Yes
+				{% else %}
+					No
+				{% endif %}
+			</h6>
 			{% endfor %}
 		</div>
 		<a href="/Add-Ruleset"><button>Add a Friend's Ruleset</button></a>

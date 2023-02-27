@@ -4,9 +4,11 @@
 <div class="flex">
     <div class="flex vertical start">
         <h1>Add a Friend's Ruleset</h1>
-        <p>Enter the ruleset id below and click "Add Ruleset" to gain access to it. If you don't know what it is, it can be found in the owner's "My Rulesets" page. Ask them for it. In order for you to add a ruleset, it must be Shareable.</p>
-        <form method="post" class="flex vertical start"</form>
-            <span class="flex center"><input type="text" name="rulesetid" id="rulesetid"></input></span>
+        <span style="width: 50%; min-width: 250px">
+            <p>Enter the ruleset id below and click "Add Ruleset" to gain access to it. If you don't know what it is, it can be found in the owner's "My Rulesets" page. Ask them for it. In order for you to add a ruleset, it must be Shareable.</p>
+        </span>
+        <form method="post" class="flex vertical start">
+            <input type="text" name="rulesetid" id="rulesetid" placeholder="Ruleset ID" style="width: auto">
             <a><button type="submit">Add Ruleset</button></a>
         </form>
     </div>

@@ -5,17 +5,11 @@
 	<div class="flex vertical start">
 		<h1>Log In</h1>
 		<form class="interior flex vertical start" method="post">
-			<div class="interior flex horizontal center">
-				<input type="text" name="username" id="username" placeholder="Username">
-			</div>
-			<div class="interior flex horizontal center">
-				<input type="password" name="password" id="password" placeholder="Password">
-			</div>
-			<span class="small">Don't have an account? <a href="/Signup">Sign Up!</a></span>
+			<input type="text" name="username" id="username" placeholder="Username" style="width: auto">
+			<input type="password" name="password" id="password" placeholder="Passwords" style="width: auto">
+			<span class="small">Don't have an account? <a href="{{ url_for('epauth.signUp') }}">Sign Up!</a></span>
 			<span id="forgotpassword" style="display: none" class="small">a</span>
-			<div class="interior flex horizontal center">
-				<input type="submit">
-			</div>
+			<a><button type="submit">Log In</button></a>
 		</form>
 	</div>
 </div>

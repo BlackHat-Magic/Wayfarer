@@ -4,30 +4,16 @@
 <div class="flex">
 	<div class="flex vertical start">
 		<h1>Create a Ruleset</h1>
-		<form method="POST" class="grid space-evenly">
-			<input 
-				type="text" 
-				placeholder="Ruleset Name" 
-				name="name" 
-				id="name"
-				style="grid-column: 1 / span 10">
-			</input>
-			<h3 
-				style="grid-column: 1 / span 8">
-				Make ruleset shareable?
-			</h3>
-			<select
-				name="shareable" 
-				id="shareable"
-				style="grid-column: 9 / span 3">
-				<option value="True">Yes</option>
-				<option value="False">No</option>
-			</select>
-			<button 
-				type="submit"
-				style="grid-column: 4 / span 6">
-				Create Ruleset
-			</button>
+		<form method="POST" class="interior flex vertical start">
+			<input type="text" placeholder="Ruleset Name" name="name" id="name"style="width: auto">
+			<div class="interior flex horizontal center">
+				<label for="shareable"><h3 style="width: auto">Make ruleset shareable?</h3></label>
+				<select name="shareable" id="shareable"style="width: auto">
+					<option value="True">Yes</option>
+					<option value="False">No</option>
+				</select>
+			</div>
+			<a><button type="submit">Create Ruleset</button></a>
 		</form>
 	</div>
 </div>
