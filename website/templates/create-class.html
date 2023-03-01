@@ -44,14 +44,18 @@
 					<span>&times</span>
 					<input type="number" name="gold_mult" id="gold_mult" x-model="gold_mult" placeholder="Multiplied by..." style="width: calc(100% / 4); min-width: 120px"> 
 				</div>
+
+				<!-- Max Level -->
 				<div>
 					<label for="levels">Max Level: </label>
 					<input type="number" name="levels" id="levels" x-model="levels" style="width: auto" placeholder="Max Level">
 				</div>
+
+				<!-- Subclass Level -->
 				<div>
 					<label for="subclasslevel">Subclass Level: </label>
 					<select name="subclasslevel" id="subclasslevel" x-model="subclasslevel" style="width: auto">
-						<template x-for="index in levels">
+						<template x-for="index in parseInt(levels)">
 							<option x-text="index"></option>
 						</template>
 					</select>
@@ -62,7 +66,7 @@
 			{% if not cruleset.ability_scores %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify saving throw proficiencies granted by this class. You can create skills <a href="{{ url_for('epchar.createStat') }}">here</a>.</p>
+					<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify saving throw proficiencies granted by this class. You can create ability scores <a href="{{ url_for('epchar.createStat') }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -75,6 +79,27 @@
 					{% endfor %}
 				</div>
 			{% endif %}
+
+			<!-- Additional Table Columns -->
+			<div class="inactive interior flex vertical start" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+				<div>
+					<label>Additional Class Table Columns: </label>
+					<a><button type="button" @click="appendColumn()">Add Table Column</button></a>
+				</div>
+				<div class="interior flex horizontal center">
+					<template x-if="columns.length > 0">
+						<template x-for="column, index in columns">
+							<div class="inactive interior flex vertical start" style="margin: 12px">
+								<input type="text" name="columnname" id="columnanme" x-model="columns[index].name" style="width: auto" :placeholder="`Column ` + (index + 1) + ` Name`">
+								<template x-for="level in parseInt(levels)">
+									<input type="text" :name="`column` + index + `value`" :id="`column` + index + `value`" x-model="columns[index].values[level - 1]" :placeholder="`Value at Level ` + level" style="width: auto">
+								</template>
+								<a><button type="button" @click="deleteColumn(index)" class="mild danger">Delete Column</button></a>
+							</div>
+						</template>
+					</template>
+				</div>
+			</div>
 
 			<!-- tool/weapon proficiencies -->
 			{% if not tools and not cruleset.item_tags %}
@@ -203,8 +228,38 @@
 			<template x-for="subclass, index in subclasses">
 				<div class="interior flex vertical start" style="width: 100%">
 					<div class="interior flex horizontal center" style="width: 100%">
-						<input name="subclass_name" id="subclass_name" placeholder="Subclass Name" x-model="subclass.name" style="width: calc(75% - 24px); min-width: 360px">
+						<input name="subclass_name" id="subclass_name" placeholder="Subclass Name" x-model="subclass.name" style="width: calc(40% - 24px); min-width: 360px">
+						<div style="width: calc(35% - 24px); min-width: 120px">
+							<label for="castertype">Caster Type: </label>
+							<select name="castertype" id="castertype" x-model="subclass.castertype" style="width: auto">
+								<option value="0">None</option>
+								<option value="1">One-Third Caster</option>
+								<option value="2">Half Caster</option>
+								<option value="3">Full Caster</option>
+							</select>
+						</div>
 						<a @click="deleteSubclass(index)" style="width: calc(25% - 24px); min-width: 120px"><button class="danger">Delete Subclass</button></a>
+					</div>
+
+					<!-- Additional Table Columns -->
+					<div class="inactive interior flex vertical start" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+						<div>
+							<label>Columns in Class Table Added by Subclass: </label>
+							<a><button type="button" @click="appendSubclassColumn(index)">Add Table Column</button></a>
+						</div>
+						<div class="interior flex horizontal center">
+							<template x-if="subclasses[index].columns.length > 0">
+								<template x-for="column, index1 in subclasses[index].columns">
+									<div class="inactive interior flex vertical start" style="margin: 12px">
+										<input type="text" :name="`subclass` + index + `columnname`" :id="`subclass` + index + `columnname`" x-model="subclasses[index].columns[index1].name" style="width: auto" :placeholder="`Column ` + (index1 + 1) + ` Name`">
+										<template x-for="level in parseInt(levels)">
+											<input type="text" :name="`subclass` + index + `column` + level + `value`" :id="`subclass` + index + `column` + level + `value`" x-model="subclasses[index].columns[index1].values[level - 1]" :placeholder="`Value at Level ` + level" style="width: auto">
+										</template>
+										<a><button type="button" @click="deleteSubclassColumn(index, index1)" class="mild danger">Delete Column</button></a>
+									</div>
+								</template>
+							</template>
+						</div>
 					</div>
 					<textarea name="subclass_text" x-model="subclass.text" placeholder="Subclass Description"></textarea>
 					<h4 x-text="subclasses[index].name + ' Features'"></h4>
@@ -212,17 +267,16 @@
 					<!-- subclass features -->
 					<template x-for="feature, index1 in subclass.features">
 						<div class="interior flex vertical start" style="width: 100%" style="width: 100%">
-							<div style="width: 100%" class="interior flex horizontal center" x-html="`
-								<input type='text' name='subclass_feature_${index}_name' x-model='subclasses[index].features[index1].name' placeholder='${subclass.name} Feature Name' style='width: calc(50% - 24px); min-width: 240px'>
-								<input type='number' name='subclass_feature_${index}_level' x-model='subclasses[index].features[index1].level' placeholder='Level Obtained' style='width: calc(25% - 24px); min-width: 120px'>
+							<div style="width: 100%" class="interior flex horizontal center">
+								<input type='text' :name='`subclass_${index}_feature_name`' :id='`subclass_${index}_feature_name`' x-model='subclasses[index].features[index1].name' :placeholder='subclass.name + ` Feature Name`' style='width: calc(50% - 24px); min-width: 240px'>
+								<input type='number' :name='`subclass_${index}_feature_level`' :id='`subclass_${index}_feature_level`' x-model='subclasses[index].features[index1].level' placeholder='Level Obtained' style='width: calc(25% - 24px); min-width: 120px'>
 								<a @click='deleteSubclassFeature(index, index1)' style='width: calc(25% - 24px); min-width: 120px'><button type='submit' class='danger'>Delete Feature</button></a>
-							`"></div>
-							<div style="width: 100%" x-html="`
-								<textarea name='subclass_feature_${index1}_text' x-model='subclasses[index].features[index1].text' placeholder='Feature Description' style='margin: 0'></textarea>
-							`"></div>
+							</div>
+							<textarea x-model='subclasses[index].features[index1].text' placeholder='Feature Description' style='margin: 0'></textarea>
+							<input type="hidden"  :name='`subclass_${index}_feature_text`'  :id='`subclass_${index}_feature_text`' x-model="subclasses[index].features[index1].text">
 						</div>
 					</template>
-					<a x-html="`<button type='button' @click='subclasses[index].features.push({name: null, level: null, text: null, is_subclass: true})'>Add Subclass Feature</button>`"></a>
+					<a><button type='button' @click='subclasses[index].features.push({name: null, level: null, text: null, is_subclass: true})'>Add Subclass Feature</button></a>
 				</div>
 			</template>
 			<a @click="subclasses.push({name: '', text: '', features: [{name: '', level: null, text: ''}]})"><button>Add Subclass</button></a>
@@ -232,8 +286,8 @@
 </div>
 <div class="wide flex">
 	<div class="flex vertical start tabs">
+		<!-- info block -->
 		<div class="tab-container" style="width: 100%">
-			<!-- info block -->
 			<blockquote class="classinfo">
 				<h5 x-text="name"></h5>
 				<section>
@@ -262,6 +316,7 @@
 				</section>
 			</blockquote>
 		</div>
+		<!-- class tabs -->
 		<template x-for="subclass, index in subclasses">
 			<div class="tab-container">
 				<a class="tab" @click="currentsubclass = index" x-text="subclass.name"></a>
@@ -270,22 +325,47 @@
 	</div>
 	<div class="usercontent">
 		<h1 x-text="name"></h1>
-		<hr>
 		<div x-html="convert(text)"></div>
-		<hr>
 		<h3 x-text="name + ` Table`"></h3>
+
+		<!-- Class Table -->
 		<table>
 			<tr>
-				<th>Level</th>
-				<th>Features</th>
+				<th rowspan="2">Level</th>
+				<th rowspan="2">Features</th>
+				<template x-for="column in columns">
+					<th x-text="column.name" rowspan="2"></th>
+				</template>
+				<template x-if="subclasses[currentsubclass].castertype != 0">
+					<th :colspan="spelllist[subclasses[currentsubclass].castertype].length">Spell Slots Per Level</th>
+				</template>
 			</tr>
+			<tr>
+				<template x-for="spelllevel, index in spelllist[subclasses[currentsubclass].castertype]">
+					<th x-text="index + 1"></th>
+				</template>
+			</tr>
+			<template x-for="level in parseInt(levels)">
+				<tr>
+					<td x-text="level"></td>
+					<td x-text="parseFeatures(level)"></td>
+					<template x-for="column, index in columns">
+						<td x-text="columns[index].values[level - 1]"></td>
+					</template>
+					<template x-for="spelllevel, index in spelllist[subclasses[currentsubclass].castertype]">
+						<td x-text="spelllevel[level - 1]"></td>
+					</template>
+				</tr>
+			</template>
 		</table>
+
+		<!-- Everything Else -->
 		<hr>
 		<h2 x-text="name + ` Features`"></h2>
 		<template x-for="feature in concatClassFeatures()">
 			<div>
 				<template x-if="feature.is_subclass">
-					<h3 x-text="subclassname + ` Feature: ` + feature.name" x-init="console.log(feature.is_subclass)"></h3>
+					<h3 x-text="subclassname + ` Feature: ` + feature.name"></h3>
 				</template>
 				<template x-if="!feature.is_subclass">
 					<h3 x-text="feature.name"></h3>

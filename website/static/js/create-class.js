@@ -30,6 +30,29 @@ document.addEventListener ("alpine:init", () => {
 
         levels: 20,
 
+        subclasslevel: 3,
+
+        columns: [],
+        appendColumn () {
+            values = [];
+            for (let i = 0; i < this.levels; i++) {
+                values.push("");
+            }
+            this.columns.push({
+                name: "",
+                values: values
+            })
+        },
+        deleteColumn (index) {
+            output = [];
+            for (let i = 0; i < this.columns.length; i++) {
+                if (i != index) {
+                    output.push(this.columns[i]);
+                }
+            }
+            this.columns = output;
+        },
+
         save: {},
 
         proficiencyselect: null,
@@ -124,11 +147,22 @@ document.addEventListener ("alpine:init", () => {
                 is_subclass: false
             }
         ],
+        deleteFeature(index) {
+            output = [];
+            for (let i = 0; i < this.features.length; i++) {
+                if (index != i) {
+                    output.push(this.features[i]);
+                }
+            }
+            this.features = output;
+        },
 
         subclasses: [
             {
                 name: "",
                 text: "",
+                castertype: 0,
+                columns: [],
                 features: [
                     {
                         name: "",
@@ -139,6 +173,94 @@ document.addEventListener ("alpine:init", () => {
                 ]
             }
         ],
+        appendSubclassColumn (subclass) {
+            console.log(subclass)
+            values = [];
+            for (let i = 0; i < this.levels; i++) {
+                values.push("");
+            }
+            this.subclasses[subclass].columns.push({
+                name: "",
+                values: values
+            })
+        },
+        deleteSubclassColumn (subclass, index) {
+            output = [];
+            for (let i = 0; i < this.columns.length; i++) {
+                if (i != index) {
+                    output.push(this.columns[i]);
+                }
+            }
+            this.subclasses[subclass].columns = output;
+        },
+        spelllist: [
+            [],
+            [
+                [0, 0, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+                [0, 0, 0, 0, 0, 0, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]
+            ],
+            [
+                [0, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+                [0, 0, 0, 0, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2]
+            ],
+            [
+                [2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+                [0, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 2, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
+            ]
+        ],
+        deleteSubclass(index) {
+            output = [];
+            for (let i = 0; i < this.subclasses.length; i++) {
+                if (index != i) {
+                    output.push(this.subclasses[i]);
+                }
+            }
+            this.subclasses = output;
+        },
+        deleteSubclassFeature (subclass, feature) {
+            output = [];
+            for (let i = 0; i < this.subclasses[subclass].features.length; i++) {
+                if (feature != i) {
+                    output.push(this.subclasses[subclass].features[i]);
+                }
+            }
+            this.subclasses[subclass].features = output;
+        },
+
+        parseFeatures (level) {
+            output = "";
+            for (let i = 0; i < this.features.length; i++) {
+                if (this.features[i].level == level) {
+                    if (output.length < 1) {
+                        output += this.features[i].name;
+                    } else {
+                        output += ", " + this.features[i].name;
+                    }
+                }
+            }
+            for (let i = 0; i < this.subclasses[this.currentsubclass].features.length; i++) {
+                if (this.subclasses[this.currentsubclass].features[i].level == level) {
+                    if (output.length < 1) {
+                        output += this.subclasses[this.currentsubclass].name + " Feature: " + this.subclasses[this.currentsubclass].features[i].name;
+                    } else {
+                        output += ", " + this.subclasses[this.currentsubclass].name + " Feature: " + this.subclasses[this.currentsubclass].features[i].name;
+                    }
+                }
+            }
+            return(output);
+        },
 
         currentsubclass: 0,
 
@@ -152,7 +274,7 @@ document.addEventListener ("alpine:init", () => {
                 concatenated.push(this.subclasses[this.currentsubclass].features[i]);
             }
 
-            sorted = concatenated.sort((a, b) => (a.level > b.level) ? 1 : -1);
+            sorted = concatenated.sort((a, b) => (parseInt(a.level) > parseInt(b.level)) ? 1 : -1);
 
             return(sorted);
         }

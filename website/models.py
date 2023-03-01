@@ -222,14 +222,15 @@ class Playerclass(db.Model):
     gold_nums = db.Column(db.Integer)
     gold_dice = db.Column(db.Integer)
     gold_mult = db.Column(db.Integer)
-    multiclass_prereq = db.Column(db.String(1024))
+    multiclass_prereq = db.Column(db.String(1023))
     multiclass_profic = db.Column(db.PickleType)
     subclass_name = db.Column(db.String(127))
+    subclass_level = db.Column(db.Integer)
     levels = db.Column(db.Integer)
-    additional_columns = db.Column(db.PickleType)
     text = db.Column(db.String(16383))
     class_features = db.relationship("ClassFeature")
     subclasses = db.relationship("Subclass")
+    columns = db.relationship("ClassColumn")
 
 class ClassFeature(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -238,6 +239,12 @@ class ClassFeature(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+class ClassColumn(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    classid = db.Column(db.Integer, db.ForeignKey("playerclass.id"))
+    name = db.Column(db.String(127))
+    data = db.Column(db.PickleType)
+
 class Subclass(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     classid = db.Column(db.Integer, db.ForeignKey("playerclass.id"))
@@ -245,6 +252,7 @@ class Subclass(db.Model):
     text = db.Column(db.String(16383))
     caster_type = db.Column(db.Integer)
     subclass_features = db.relationship("SubclassFeature")
+    columns = db.relationship("SubclassColumn")
 
 class SubclassFeature(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -252,6 +260,12 @@ class SubclassFeature(db.Model):
     level_obtained = db.Column(db.Integer)
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
+
+class SubclassColumn(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    subclassid = db.Column(db.Integer, db.ForeignKey("subclass.id"))
+    name = db.Column(db.String(127))
+    data = db.Column(db.PickleType)
 
 class Monster(db.Model):
     id = db.Column(db.Integer, primary_key = True)
