@@ -528,12 +528,12 @@ def createClass():
             multiclass_profic = request.form.getlist("multiprofic")
             subclass_name = request.form.get("subclass_name")
             subclass_level = int(request.form.get("subclasslevel"))
-            levels = request.form.get(levels)
+            levels = request.form.get("levels")
             try:
                 levels = int(levels)
             except:
                 flash("Max level must be a number.")
-            if(len(name < 1)):
+            if(len(name) < 1):
                 flash("You must specify a class name.")
             elif(len(name) > 127):
                 flash("Class name must be fewer than 128 characters.")
@@ -562,9 +562,9 @@ def createClass():
                         if(len(value) > 127):
                             bad = True
                             flash("Custom column values must be fewer than 128 characters.")
-                for feature in request.form.getlist("class_feature_name"):
+                for i, feature in enumerate(request.form.getlist("class_feature_name")):
                     try:
-                        testint = int(request.form.getlist("level"))
+                        testint = int(request.form.getlist("level")[i])
                     except:
                         bad = True
                         flash("Feature levels must be numbers.")
@@ -590,12 +590,13 @@ def createClass():
                     elif(len(subclass) > 127):
                         bad = True
                         flash("Subclass names must be fewer than 128 characters.")
-                    elif(len(request.form.getlist("subclass_text") > 16383)):
+                    elif(len(request.form.getlist("subclass_text")[i]) > 16383):
                         bad = True
                         flash("Subclass descriptions must be fewer than 16383 characters.")
                     for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
+                        print(int(request.form.getlist(f"subclass_{i}_feature_level")[j]))
                         try:
-                            testint = int(request.form.get("subclass_{i}_feature_level")[j])
+                            testint = int(request.form.getlist(f"subclass_{i}_feature_level")[j])
                         except:
                             bad = True
                             flash("Subclass feature levels must be numbers.")
@@ -626,46 +627,74 @@ def createClass():
                                 bad = True
                                 flash("Each subclass' custom column values must be fewer than 128 characters.")
 
-                new_class = Playerclass(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    hitdie = hitdie,
-                    proficiencies = proficiencies,
-                    saves = saves,
-                    equipment = equipment,
-                    gold_nums = gold_nums,
-                    gold_dice = gold_dice,
-                    gold_mult = gold_mult,
-                    multiclass_prereq = multiclass_prereq,
-                    multiclass_profic = multiclass_profic,
-                    subclass_name = subclass_name,
-                    subclass_level = subclass_level,
-                    levels = levels,
-                    text = text
-                )
-                db.session.add(new_class)
-                db.session.commit()
-                classid = Playerclass.query.filter_by(name=name, text=text, rulesetid=cruleset.id).first().id
-
-                for i, column in enumerate(request.form.getlist("columnname")):
-                    new_column = ClassColumn(
-                        classid = classid,
-                        name = column,
-                        data = request.form.getlist(f"column{i}value")
+                if(not bad):
+                    new_class = Playerclass(
+                        rulesetid = cruleset.id,
+                        name = name,
+                        hitdie = hitdie,
+                        proficiencies = proficiencies,
+                        saves = saves,
+                        equipment = equipment,
+                        gold_nums = gold_nums,
+                        gold_dice = gold_dice,
+                        gold_mult = gold_mult,
+                        multiclass_prereq = multiclass_prereq,
+                        multiclass_profic = multiclass_profic,
+                        subclass_name = subclass_name,
+                        subclass_level = subclass_level,
+                        levels = levels,
+                        text = text
                     )
-                    db.session.add(new_column)
-                db.session.commit()
+                    db.session.add(new_class)
+                    db.session.commit()
+                    classid = Playerclass.query.filter_by(name=name, text=text, rulesetid=cruleset.id).first().id
 
-                for i, feature in enumerate(request.form.getlist("class_feature_name")):
-                    new_feature = ClassFeature(
-                        classid = classid,
-                        level_obtained = request.form.getlist("level")[i]
-                        name = feature,
-                    )
-                    db.session.add(new_feature)
+                    for i, column in enumerate(request.form.getlist("columnname")):
+                        new_column = ClassColumn(
+                            classid = classid,
+                            name = column,
+                            data = request.form.getlist(f"column{i}value")
+                        )
+                        db.session.add(new_column)
 
-                for i, subclass in enumerate(request.form.getlist(""))zdfkuhbfgadlbhfvbhi
-            
+                    for i, feature in enumerate(request.form.getlist("class_feature_name")):
+                        new_feature = ClassFeature(
+                            classid = classid,
+                            level_obtained = request.form.getlist("level")[i],
+                            name = feature,
+                            text = request.form.getlist("class_feature_text")[i]
+                        )
+                        db.session.add(new_feature)
+                    
+                    for i, sublcass in enumerate(request.form.getlist("subclass_name")):
+                        new_subclass = Subclass(
+                            classid = classid,
+                            name = subclass,
+                            text = request.form.getlist("subclass_text")[i],
+                            caster_type = request.form.getlist("castertype")[i],
+                        )
+                        db.session.add(new_subclass)
+                        db.session.commit()
+                        new_subclass = Subclass.query.filter_by(classid = classid, name = subclass).first()
+
+                        for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
+                            new_subclass_feature = SubclassFeature(
+                                subclassid = new_subclass.id,
+                                level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j],
+                                name = feature,
+                                text = request.form.getlist(f"subclass_{i}_feature_text")[j]
+                            )
+                            db.session.add(new_subclass_feature)
+                        for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
+                            new_subclass_column = SubclassColumn(
+                                subclassid = new_subclass.id,
+                                name = column,
+                                data = request.form.getlist(f"subclass{i}column{j}value")
+                            )
+                            db.session.add(new_subclass_column)
+                    db.session.commit()
+                    flash("Class Created!")
+                    return(redirect(url_for("epchar.classes")))
     return(
         render_template(
             "create-class.html", 

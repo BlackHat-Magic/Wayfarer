@@ -219,6 +219,7 @@
 						<a @click="deleteFeature(index)" style="width: calc(25% - 24px); min-width: 120px"><button type="button" class="danger">Delete Feature</button></a>
 					</div>
 					<textarea name="class_feature_text" x-model="feature.text" placeholder="Class Feature Description"></textarea>
+					<input type="hidden" name="class_feature_text" id="class_feature_text" x-model="feature.text">
 				</div>
 			</template>
 			<a @click="features.push({name: '', level: null, text: '', is_subclass: false})"><button type="button">Add Class Feature</button></a>
@@ -253,7 +254,7 @@
 									<div class="inactive interior flex vertical start" style="margin: 12px">
 										<input type="text" :name="`subclass` + index + `columnname`" :id="`subclass` + index + `columnname`" x-model="subclasses[index].columns[index1].name" style="width: auto" :placeholder="`Column ` + (index1 + 1) + ` Name`">
 										<template x-for="level in parseInt(levels)">
-											<input type="text" :name="`subclass` + index + `column` + level + `value`" :id="`subclass` + index + `column` + level + `value`" x-model="subclasses[index].columns[index1].values[level - 1]" :placeholder="`Value at Level ` + level" style="width: auto">
+											<input type="text" :name="`subclass` + index + `column` + index1 + `value`" :id="`subclass` + index + `column` + index1 + `value`" x-model="subclasses[index].columns[index1].values[level - 1]" :placeholder="`Value at Level ` + level" style="width: auto">
 										</template>
 										<a><button type="button" @click="deleteSubclassColumn(index, index1)" class="mild danger">Delete Column</button></a>
 									</div>
