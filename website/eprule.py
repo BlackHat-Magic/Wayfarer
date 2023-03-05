@@ -37,28 +37,28 @@ def createRule():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create rules for rulesets that are not your own.")
+            flash("You cannot create rules for rulesets that are not your own.", "red")
         else:
             name = request.form.get("name")
             category = request.form.get("category")
             text = request.form.get("text")
             if(len(name) < 1) :
-                flash("You must specify a rule name.")
+                flash("You must specify a rule name.", "red")
             elif(len(name) > 127):
-                flash("Rule name must be fewer than 128 characters.")
+                flash("Rule name must be fewer than 128 characters.", "red")
             elif(len(text) < 1):
-                flash("You must specify rule text.")
+                flash("You must specify rule text.", "red")
             elif(len(text) > 16383):
-                flash("Rule text must be fewer than 16384 characters")
+                flash("Rule text must be fewer than 16384 characters", "red")
             elif("<" in text or "<" in name):
-                flash("Opening angle brackets (\"<\") are not allowed.")
+                flash("Opening angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in name or "javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_rule = Rule(name=name, rule_categoryid=cruleset.id, text=text)
                 db.session.add(new_rule)
                 db.session.commit()
-                flash("Rule created.")
+                flash("Rule created.", "green")
                 return(redirect(url_for("eprule.rules")))
     if(len(cruleset.categories) < 1):
         flash("You must have at least one category to add the rule to.")
@@ -82,27 +82,27 @@ def createCategory():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(len(current_user.rulesets) < 1):
-        flash("The current ruleset must have at least one ruleset to add the category to.")
+        flash("The current ruleset must have at least one ruleset to add the category to.", "red")
         return(redirect(url_for("epmain.createRuleset")))
     elif(cruleset.id == 1 and current_user.id != 1):
-        flash("You cannot edit the default ruleset.")
+        flash("You cannot edit the default ruleset.", "red")
     elif(request.method == "POST"):
         name = request.form.get("name")
         if(len(name) < 1):
-            flash("You must specify a name for the rule category.")
+            flash("You must specify a name for the rule category.", "red")
         elif(len(name) > 127):
-            flash("Category name must be fewer than 128 chatacters.")
+            flash("Category name must be fewer than 128 chatacters.", "red")
         elif("<" in name):
-            flash("Opening angle brackets (\"<\") are not allowed.")
+            flash("Opening angle brackets (\"<\") are not allowed.", "red")
         elif("javascript" in name):
-            flash("Cross-site scripting attacks are not allowed.")
+            flash("Cross-site scripting attacks are not allowed.", "red")
         elif("-" in name):
-            flash("Dashes (\"-\") are not allowed in category name.")
+            flash("Dashes (\"-\") are not allowed in category name.", "red")
         else:
             new_category = Category(name=request.form.get("name"), rulesetid=cruleset.id, pinned=False)
             db.session.add(new_category)
             db.session.commit()
-            flash("Rule category created.")
+            flash("Rule category created.", "green")
             return(redirect(url_for("eprule.rules")))
     return(
         render_template(

@@ -20,11 +20,12 @@ def login():
         if(user):
             if(check_password_hash(user.password, password)):
                 login_user(user, remember=True)
+                flash(f"Welcome back, {username}.", "green")
                 return(redirect(url_for("epmain.home")))
             else:
-                flash("Incorrect password.")
+                flash("Incorrect password.", "red")
         else:
-            flash("User does not exist.")
+            flash("User does not exist.", "red")
     return(
         render_template(
             "login.html", 
@@ -57,15 +58,15 @@ def signUp():
         user = User.query.filter_by(username=username).first()
 
         if(user):   
-            flash("Username already in use. Please pick another username.")
+            flash("Username already in use. Please pick another username.", "red")
         elif(len(username) < 4):
-            flash("Username must be at least 4 characters.")
+            flash("Username must be at least 4 characters.", "red")
         elif(len(username) > 255):
-            flash("Username must be fewer than 256 characters.")
+            flash("Username must be fewer than 256 characters.", "red")
         elif(password1 != password2):
-            flash("Passwords do not match")
+            flash("Passwords do not match", "red")
         elif(len(password1) < 8):
-            flash("Password must be at least 8 characters")
+            flash("Password must be at least 8 characters", "red")
         else:
             try:
                 new_user = User(username = username, email = email, password=generate_password_hash(password1, method="sha256"), current_ruleset=Ruleset.query.filter_by(is_admin=True).first().id)
@@ -74,6 +75,7 @@ def signUp():
             db.session.add(new_user)
             db.session.commit()
             login_user(User.query.filter_by(username = username).first(), remember = True)
+            flash(f"Welcome, {username}.", "green")
             return(redirect(url_for("epmain.home")))
         
     return(

@@ -66,13 +66,13 @@ def createRuleset():
             shareable = False
         name = request.form.get("name")
         if(len(name) < 1):
-            flash("You must specify a ruleset name.")
+            flash("You must specify a ruleset name.", "red")
         elif(len(name) > 127):
-            flash("Ruleset name must be fewer than 128 characters.")
+            flash("Ruleset name must be fewer than 128 characters.", "red")
         elif("<" in name):
-            flash("Opening angle brackets (\"<\") are not allowerd.")
+            flash("Opening angle brackets (\"<\") are not allowerd.", "red")
         elif("javascript" in name):
-            flash("Cross-site scripting attacks are not allowed.")
+            flash("Cross-site scripting attacks are not allowed.", "red")
         else:
             if(current_user.username == "admin"):
                 is_admin = True
@@ -81,7 +81,7 @@ def createRuleset():
             new_ruleset = Ruleset(userid=current_user.id, is_shareable=shareable, name=name, is_admin=is_admin)
             db.session.add(new_ruleset)
             db.session.commit()
-            flash("Ruleset created!")
+            flash("Ruleset created!", "green")
             return(redirect(url_for("epmain.myRulesets")))
     return(
         render_template(
@@ -110,18 +110,18 @@ def manageRuleset(rulesetid):
         else:
             shareable = False
         if(len(name) < 1):
-            flash("You must specify a ruleset name.")
+            flash("You must specify a ruleset name.", "red")
         elif(len(name) > 127):
-            flash("Ruleset name must be fewer than 128 characters.")
+            flash("Ruleset name must be fewer than 128 characters.", "red")
         elif("<" in name):
-            flash("Opening angle brackets (\"<\") are not allowerd.")
+            flash("Opening angle brackets (\"<\") are not allowerd.", "red")
         elif("javascript" in name):
-            flash("Cross-site scripting attacks are not allowed.")
+            flash("Cross-site scripting attacks are not allowed.", "red")
         else:
             ruleset.name = name
             ruleset.is_shareable = shareable
             db.session.commit()
-            flash("Success")
+            flash("Success", "green")
             return(redirect(url_for("epmain.myRulesets")))
     else:
         ruleset = Ruleset.query.filter_by(id=rulesetid).first()
@@ -148,9 +148,9 @@ def deleteRuleset():
         if(current_user.current_ruleset == ruleset.id):
             current_user.current_ruleset = 1
         db.session.commit()
-        flash("Ruleset deleted.")
+        flash("Ruleset deleted.", "orange")
     else:
-        flash("This is not your ruleset.")
+        flash("This is not your ruleset.", "red")
     return(redirect("epmain.myRulesets"))
 
 @epmain.route("/Add-Ruleset/", methods=["GET", "POST"])
@@ -162,23 +162,23 @@ def addRuleset():
     if(request.method == "POST"):
         ruleset = request.form.get("rulesetid")
         if(not Ruleset.query.filter_by(id=int(ruleset)).first()):
-            flash("Ruleset does not exist.")
+            flash("Ruleset does not exist.", "red")
         elif(not Ruleset.query.filter_by(id=int(ruleset)).first().is_shareable):
-            flash("Ruleset is not shareable.")
+            flash("Ruleset is not shareable.", "red")
         elif(Ruleset.query.filter_by(id=int(ruleset)).first().userid == current_user.id):
-            flash("You cannot add your own ruleset as a foreign ruleset.")
+            flash("You cannot add your own ruleset as a foreign ruleset.", "red")
         elif(current_user.foreign_ruleset):
             if(ruleset in current_user.foreign_ruleset.split(",")):
-                flash("You've already added that ruleset.")
+                flash("You've already added that ruleset.", "red")
             else:
                 current_user.foreign_ruleset.append("," + ruleset)
                 db.session.commit()
-                flash("Added ruleset.")
+                flash("Added ruleset.", "green")
                 return(redirect(url_for("epmain.myRulesets")))
         else:
             current_user.foreign_ruleset = ruleset
             db.session.commit()
-            flash("Added ruleset.")
+            flash("Added ruleset.", "green")
             return(redirect(url_for("epmain.myRulesets")))
     return(
         render_template(
@@ -212,7 +212,7 @@ def removeRuleset():
             newruleset.append(i)
         current_user.foreign_ruleset = newruleset
         db.session.commit()
-    flash("Removed Ruleset.")
+    flash("Removed Ruleset.", "orange")
     return(redirect(url_for("epmain.myRulesets")))
 
 @epmain.route("/Change-Ruleset", methods=["POST"])

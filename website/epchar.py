@@ -98,52 +98,52 @@ def createRace():
                 subraces = None
                 subrace_flavor = None
             if(len(name) < 1):
-                flash("You must specify a race name.")
+                flash("You must specify a race name.", "red")
             elif(len(name) > 127):
-                flash("Race name must be fewer than 128 characters.")
+                flash("Race name must be fewer than 128 characters.", "red")
             elif(len(flavor) > 16383):
-                flash("Race description must be fewer than 16384 characters.")
+                flash("Race description must be fewer than 16384 characters.", "red")
             elif("<" in flavor):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in flavor):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             elif("-" in name):
-                flash("Dashes (\"-\") are not allowed in race name.")
+                flash("Dashes (\"-\") are not allowed in race name.", "red")
             for feature in features:
                 if(len(feature) < 1):
-                    flash("Each racial feature must have a name.")
+                    flash("Each racial feature must have a name.", "red")
                 elif(len(feature) > 127):
-                    flash("Racial feature names must be fewer than 128 characters.")
+                    flash("Racial feature names must be fewer than 128 characters.", "red")
             for ftext in feature_text:
                 if(len(ftext) > 16383):
-                    flash("Racial feature text must be fewer than 16384 characters.")
+                    flash("Racial feature text must be fewer than 16384 characters.", "red")
                 elif("<" in ftext):
-                    flash("Open angle brackets (\"<\") are not allowed.")
+                    flash("Open angle brackets (\"<\") are not allowed.", "red")
                 elif("javascript" in ftext):
-                    flash("Cross-site scripting attacks are not allowed.")
+                    flash("Cross-site scripting attacks are not allowed.", "red")
             if(has_subraces):
                 for subrace in subraces:
                     if(len(subrace["name"]) < 1):
-                        flash("You must specify a name for each subrace.")
+                        flash("You must specify a name for each subrace.", "red")
                     elif(len(subrace["name"]) > 127):
-                        flash("Subrace names must be fewer than 128 characters.")
+                        flash("Subrace names must be fewer than 128 characters.", "red")
                     elif(len(subrace["text"]) > 16383):
-                        flash("Subrace descriptions must be fewer than 16384 characters.")
+                        flash("Subrace descriptions must be fewer than 16384 characters.", "red")
                     elif("<" in subrace["text"]):
-                        flash("Open angle brackets (\"<\") are not allowed.")
+                        flash("Open angle brackets (\"<\") are not allowed.", "red")
                     elif("javascript" in feature["text"]):
-                        flash("Cross-site scripting attacks are not allowed.")
+                        flash("Cross-site scripting attacks are not allowed.", "red")
                     for feature in subrace["features"]:
                         if(len(feature["name"]) < 1):
-                            flash("You must specify a name for each subrace features.")
+                            flash("You must specify a name for each subrace features.", "red")
                         elif(len(feature["name"]) > 127):
-                            flash("Subrace feature names must be fewer than 128 characters.")
+                            flash("Subrace feature names must be fewer than 128 characters.", "red")
                         elif(len(feature["text"]) > 16383):
-                            flash("Subrace feature text must be fewer than 16384 characters.")
+                            flash("Subrace feature text must be fewer than 16384 characters.", "red")
                         elif("<" in feature["text"]):
-                            flash("Open angle brackets (\"<\") are not allowed.")
+                            flash("Open angle brackets (\"<\") are not allowed.", "red")
                         elif("javascript" in feature["text"]):
-                            flash("Cross-site scripting attacks are not allowed.")
+                            flash("Cross-site scripting attacks are not allowed.", "red")
             print(name)
             new_race = Race(
                 rulesetid = cruleset.id,
@@ -201,7 +201,7 @@ def createRace():
                         )
                         db.session.add(new_feature)
                     db.session.commit()
-            flash("Race created!")
+            flash("Race created!", "green")
             return(redirect(url_for("epchar.races")))
     return(
         render_template(
@@ -271,29 +271,29 @@ def createBackground():
             featurenames = request.form.getlist("featurename")
             featuretexts = request.form.getlist("featuretext")
             if(len("name") < 1):
-                flash("You must specify a background name.")
+                flash("You must specify a background name.", "red")
             elif(len("name") > 127):
-                flash("Background name must be fewer than 128 characters.")
+                flash("Background name must be fewer than 128 characters.", "red")
             elif(len("text") > 16383):
-                flash("Text must be fewer than 16384 characters.")
+                flash("Text must be fewer than 16384 characters.", "red")
             elif("-" in "name"):
-                flash("Dashes (\"-\") are not allowed in the background name.")
+                flash("Dashes (\"-\") are not allowed in the background name.", "red")
             elif("<" in "text"):
-                flash("Open angle brackets(\"<\") are not allowed.")
+                flash("Open angle brackets(\"<\") are not allowed.", "red")
             elif("javascript" in "text"):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 for index, feature in enumerate(featurenames):
                     if(len(feature) < 1):
-                        flash("You must specify a feature name.")
+                        flash("You must specify a feature name.", "red")
                     elif(len(feature) > 127):
-                        flash("Feature name must be fewer than 128 characters.")
+                        flash("Feature name must be fewer than 128 characters.", "red")
                     elif(len(featuretexts[index]) > 16383):
-                        flash("Text must be fewer than 16383 characters.")
+                        flash("Text must be fewer than 16383 characters.", "red")
                     elif("<" in featuretexts[index]):
-                        flash("Open angle brackets(\"<\") are not allowed.")
+                        flash("Open angle brackets(\"<\") are not allowed.", "red")
                     elif("javascript" in featuretexts[index]):
-                        flash("Cross-site scripting attacks are not allowed.")
+                        flash("Cross-site scripting attacks are not allowed.", "red")
                 new_background = Background(
                     rulesetid = cruleset.id,
                     name = name,
@@ -318,7 +318,7 @@ def createBackground():
                     )
                     db.session.add(new_feature)
                 db.session.commit()
-                flash("Background created!")
+                flash("Background created!", "green")
     return(
         render_template(
             "create-background.html", 
@@ -379,17 +379,17 @@ def createFeat():
             text = request.form.get("text")
             prereq = request.form.get("prereq")
             if(len(name) < 1):
-                flash("You must specify a feat name.")
+                flash("You must specify a feat name.", "red")
             elif(len(name) > 127):
-                flash("Feat name must be fewer than 128 characters.")
+                flash("Feat name must be fewer than 128 characters.", "red")
             elif(len(prereq) > 255):
-                flash("Feat Prerequisite must be fewer than 256 characters.")
+                flash("Feat Prerequisite must be fewer than 256 characters.", "red")
             elif(len(text) > 16383):
-                flash("Feat description must be fewer than 16384 characters.")
+                flash("Feat description must be fewer than 16384 characters.", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_feat = Feat(
                     rulesetid = cruleset.id,
@@ -399,7 +399,7 @@ def createFeat():
                 )
                 db.session.add(new_feat)
                 db.session.commit()
-                flash("Feat created!")
+                flash("Feat created!", "green")
                 return(redirect(url_for("epchar.feats")))
     return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets, title="Create a Feat"))
 
@@ -447,17 +447,17 @@ def createStat():
         abbr = request.form.get("abbr")
         text = request.form.get("text")
         if(len(name) < 1):
-            flash("You must specify an Ability Score name.")
+            flash("You must specify an Ability Score name.", "red")
         elif(len(name) > 127):
-            flash("Ability Score name must be fewer than 128 characters.")
+            flash("Ability Score name must be fewer than 128 characters.", "red")
         elif(len(abbr) != 3):
-            flash("Ability Score abbreviation must be 3 characters.")
+            flash("Ability Score abbreviation must be 3 characters.", "red")
         elif(len(text) > 16383):
-            flash("Ability Score description must be fewer than 16384 characters.")
+            flash("Ability Score description must be fewer than 16384 characters.", "red")
         elif("<" in text):
-            flash("Open angle brackets (\"<\") are not allowed.")
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
         elif("javascript" in text):
-            flash("Cross-site scripting attacks are not allowed.")
+            flash("Cross-site scripting attacks are not allowed.", "red")
         else:
             new_ability_score = AbilityScore(
                 rulesetid = cruleset.id,
@@ -467,7 +467,7 @@ def createStat():
             )
             db.session.add(new_ability_score)
             db.session.commit()
-            flash("Ability Score created!")
+            flash("Ability Score created!", "green")
             return(redirect(url_for("epchar.stats")))
     return(
         render_template(
@@ -504,7 +504,7 @@ def createClass():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create classes for rulesets that are not yours.")
+            flash("You cannot create classes for rulesets that are not yours.", "red")
         else:
             name = request.form.get("name")
             text = request.form.get("text")
@@ -523,13 +523,13 @@ def createClass():
             try:
                 gold_nums = int(gold_nums)
             except:
-                flash("Number of dice rolled for starting gold must be a number.")
+                flash("Number of dice rolled for starting gold must be a number.", "red")
             gold_dice = request.form.get("gold_dice")
             gold_mult = request.form.get("gold_mult")
             try:
                 gold_mult = int(gold_mult)
             except:
-                flash("Starting gold multiplier must be a number.")
+                flash("Starting gold multiplier must be a number.", "red")
             multiclass_prereq = request.form.get("prereq")
             multiclass_profic = request.form.getlist("multiprofic")
             subclass_name = request.form.get("subclass_name")
@@ -538,27 +538,27 @@ def createClass():
             try:
                 levels = int(levels)
             except:
-                flash("Max level must be a number.")
+                flash("Max level must be a number.", "red")
             if(len(name) < 1):
-                flash("You must specify a class name.", category="red")
+                flash("You must specify a class name.", "red")
             elif(len(name) > 127):
-                flash("Class name must be fewer than 128 characters.")
+                flash("Class name must be fewer than 128 characters.", "red")
             elif(len(text) > 16383):
-                flash("Class description must be fewer than 16383 characters.")
+                flash("Class description must be fewer than 16383 characters.", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             elif(len(equipment) > 1023):
-                flash("Class equipment must be fewer than 1024 characters.")
+                flash("Class equipment must be fewer than 1024 characters.", "red")
             elif(len(multiclass_prereq) > 1023):
-                flash("Multiclassing prerequisites must be fewer than 1024 characters.")
+                flash("Multiclassing prerequisites must be fewer than 1024 characters.", "red")
             elif("<" in multiclass_prereq):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in multiclass_prereq):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             elif(len(subclass_name) > 127):
-                flash("Subclass title must be fewer than 128 characters.")
+                flash("Subclass title must be fewer than 128 characters.", "red")
             else:
                 bad = False
                 for i, column in enumerate(request.form.getlist("columnname")):
@@ -566,16 +566,16 @@ def createClass():
                         break
                     if(len(column) < 1):
                         bad = True
-                        flash("Each custom column must have a name.")
+                        flash("Each custom column must have a name.", "red")
                     elif(len(column) > 127):
                         bad = True
-                        flash("Custom column names must be fewer than 128 characters.")
+                        flash("Custom column names must be fewer than 128 characters.", "red")
                     for value in request.form.getlist(f"column{i}value"):
                         if(bad):
                             break
                         elif(len(value) > 127):
                             bad = True
-                            flash("Custom column values must be fewer than 128 characters.")
+                            flash("Custom column values must be fewer than 128 characters.", "red")
                 for i, feature in enumerate(request.form.getlist("class_feature_name")):
                     if(bad):
                         break
@@ -583,40 +583,40 @@ def createClass():
                         testint = int(request.form.getlist("level")[i])
                     except:
                         bad = True
-                        flash("Feature levels must be numbers.")
+                        flash("Feature levels must be numbers.", "red")
                     if(len(feature) < 1):
                         bad = True
-                        flash("You must specify a name for each class feature")
+                        flash("You must specify a name for each class feature", "red")
                     elif(len(feature) > 127):
                         bad = True
-                        flash("Class feature names must be fewer than 128 characters")
+                        flash("Class feature names must be fewer than 128 characters", "red")
                     elif(len(request.form.getlist("class_feature_text")[i]) > 16383):
                         bad = True
-                        flash("Class feature text must be fewer than 128 characters")
+                        flash("Class feature text must be fewer than 128 characters", "red")
                     elif("<" in request.form.getlist("class_feature_text")[i]):
                         bad = True
-                        flash("Open angle brackets (\"<\") are not allowed.")
+                        flash("Open angle brackets (\"<\") are not allowed.", "red")
                     elif("javascript" in request.form.getlist("class_feature_text")[i]):
                         bad = True
-                        flash("Cross-site scripting attacks are not allowed.")
+                        flash("Cross-site scripting attacks are not allowed.", "red")
                 for i, subclass in enumerate(request.form.getlist("subclass_name")):
                     if(bad):
                         break
                     if(len(subclass) < 1):
                         bad = True
-                        flash("You must specify a name for each subclass.")
+                        flash("You must specify a name for each subclass.", "red")
                     elif(len(subclass) > 127):
                         bad = True
-                        flash("Subclass names must be fewer than 128 characters.")
+                        flash("Subclass names must be fewer than 128 characters.", "red")
                     elif(len(request.form.getlist("subclass_text")[i]) > 16383):
                         bad = True
-                        flash("Subclass descriptions must be fewer than 16383 characters.")
+                        flash("Subclass descriptions must be fewer than 16383 characters.", "red")
                     elif("<" in request.form.getlist("subclass_text")[i]):
                         bad = True
-                        flash("Open angle brackets (\"<\") are not allowed.")
+                        flash("Open angle brackets (\"<\") are not allowed.", "red")
                     elif("javascript" in request.form.getlist("subclass_text")[i]):
                         bad = True
-                        flash("Cross-site scripting attacks are not allowed.")
+                        flash("Cross-site scripting attacks are not allowed.", "red")
                     for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
                         if(bad):
                             break
@@ -624,35 +624,35 @@ def createClass():
                             testint = int(request.form.getlist(f"subclass_{i}_feature_level")[j])
                         except:
                             bad = True
-                            flash("Subclass feature levels must be numbers.")
+                            flash("Subclass feature levels must be numbers.", "red")
                         if(len(feature) < 1):
                             bad = True
-                            flash("You must specify a name for each subclass feature.")
+                            flash("You must specify a name for each subclass feature.", "red")
                         elif(len(feature) > 127):
                             bad = True
-                            flash("Subclass feature names must be fewer than 128 characters.")
+                            flash("Subclass feature names must be fewer than 128 characters.", "red")
                         elif(len(request.form.getlist(f"subclass_{i}_feature_text")[j]) > 16383):
                             bad = True
-                            flash("Subclass feature descriptions must be fewer than 16383 characters.")
+                            flash("Subclass feature descriptions must be fewer than 16383 characters.", "red")
                         elif("<" in request.form.getlist(f"subclass_{i}_feature_text")[j]):
                             bad = True
-                            flash("Open angle brackets (\"<\") are not allowed.")
+                            flash("Open angle brackets (\"<\") are not allowed.", "red")
                         elif("javascript" in request.form.getlist(f"subclass_{i}_feature_text")[j]):
                             bad = True
-                            flash("Cross-site scripting attacks are not allowed.")
+                            flash("Cross-site scripting attacks are not allowed.", "red")
                     for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
                         if(bad):
                             break
                         if(len(column) < 1):
                             bad = True
-                            flash("You must specify a name for each subclass' custom columns.")
+                            flash("You must specify a name for each subclass' custom columns.", "red")
                         elif(len(column) > 127):
                             bad = True
-                            flash("Each subclass' custom column names must be fewer than 128 characters.")
+                            flash("Each subclass' custom column names must be fewer than 128 characters.", "red")
                         for value in request.form.getlist(f"subclass{i}column{j}value"):
                             if(len(value) > 127):
                                 bad = True
-                                flash("Each subclass' custom column values must be fewer than 128 characters.")
+                                flash("Each subclass' custom column values must be fewer than 128 characters.", "red")
 
                 if(not bad):
                     new_class = Playerclass(
@@ -721,7 +721,7 @@ def createClass():
                             )
                             db.session.add(new_subclass_column)
                     db.session.commit()
-                    flash("Class Created!")
+                    flash("Class Created!", "green")
                     return(redirect(url_for("epchar.classes")))
     return(
         render_template(

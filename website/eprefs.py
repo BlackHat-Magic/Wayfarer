@@ -43,17 +43,17 @@ def createAction():
             text = request.form.get("text")
             time = request.form.get("time")
             if(len(name) < 1):
-                flash("You must specify an action name.")
+                flash("You must specify an action name.", "red")
             elif(len(name) > 127):
-                flash("Action name must be fewer than 128 characters.")
+                flash("Action name must be fewer than 128 characters.", "red")
             elif(len(time) > 127):
-                flash("Action time must be fewer than 128 characters.")
+                flash("Action time must be fewer than 128 characters.", "red")
             elif(len(text) > 16383):
-                flash("Action text must be fewer than 16383 characters")
+                flash("Action text must be fewer than 16383 characters", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_action = Action(
                     rulesetid = cruleset.id,
@@ -63,7 +63,7 @@ def createAction():
                 )
                 db.session.add(new_action)
                 db.session.commit()
-                flash("Action created!")
+                flash("Action created!", "green")
                 return(redirect(url_for("eprefs.actions")))
     return(
         render_template(
@@ -109,15 +109,15 @@ def createCondition():
             name = request.form.get("name")
             text = request.form.get("text")
             if(len(name) < 1):
-                flash("You must specify an action name.")
+                flash("You must specify an action name.", "red")
             elif(len(name) > 127):
-                flash("Action name must be fewer than 128 characters.")
+                flash("Action name must be fewer than 128 characters.", "red")
             elif(len(text) > 16383):
-                flash("Action text must be fewer than 16383 characters")
+                flash("Action text must be fewer than 16383 characters", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_action = Condition(
                     rulesetid = cruleset.id,
@@ -126,7 +126,7 @@ def createCondition():
                 )
                 db.session.add(new_action)
                 db.session.commit()
-                flash("Condition created!")
+                flash("Condition created!", "green")
                 return(redirect(url_for("eprefs.conditions")))
     return(
         render_template(
@@ -163,7 +163,7 @@ def createItem():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create items for rulesets that are not yours.")
+            flash("You cannot create items for rulesets that are not yours.", "red")
         else:
             name = request.form.get("name")
             is_magical = request.form.get("ismagical")
@@ -220,21 +220,21 @@ def createItem():
                 damage_type = None
                 weapon_properties = []
             if(len(name) < 1):
-                flash("You must specify an item name.")
+                flash("You must specify an item name.", "red")
             elif(len(name) > 127):
-                flash("Item name must be fewer than 128 characters.")
+                flash("Item name must be fewer than 128 characters.", "red")
             elif(len(cost) > 31):
-                flash("Item cost must be fewer than 32 characters.")
+                flash("Item cost must be fewer than 32 characters.", "red")
             elif(len(tags) > 127):
-                flash("Too many item tags specified (sorry).")
+                flash("Too many item tags specified (sorry).", "red")
             elif(len(text) > 16383):
-                flash("Item text must be fewer than 16384 characters.")
+                flash("Item text must be fewer than 16384 characters.", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             elif(len(weapon_properties) > 255):
-                flash("Weapon Properties must be fewer than 256 characters.")
+                flash("Weapon Properties must be fewer than 256 characters.", "red")
             else:
                 new_item = Item(
                     rulesetid = cruleset.id,
@@ -260,7 +260,7 @@ def createItem():
                 )
                 db.session.add(new_item)
                 db.session.commit()
-                flash("Item created.")
+                flash("Item created.", "green")
                 return(redirect(url_for("eprefs.items")))
     return(
         render_template(
@@ -298,11 +298,11 @@ def deleteItem(item):
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(current_user.id != cruleset.userid):
-        flash("You cannot delete items from rulesets that are not yours.")
+        flash("You cannot delete items from rulesets that are not yours.", "red")
     else:
         db.session.delete(Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first())
         db.session.commit()
-        flash("Item deleted.")
+        flash("Item deleted.", "orange")
     return(redirect(url_for("eprefs.items")))
 
 @eprefs.route("/Items/Tags")
@@ -331,20 +331,20 @@ def createTag():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create item tags for rulesets that are not yours.")
+            flash("You cannot create item tags for rulesets that are not yours.", "red")
         else:
             name = request.form.get("name")
             text = request.form.get("text")
             if(len(name) < 1):
-                flash("You must specify a tag name.")
+                flash("You must specify a tag name.", "red")
             elif(len(name) > 127):
-                flash("Tag name must be fewer than 128 characters.")
+                flash("Tag name must be fewer than 128 characters.", "red")
             elif(len(text) > 16383):
-                flash("Tag description must be fewer than 16384 characters.")
+                flash("Tag description must be fewer than 16384 characters.", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_tag = ItemTag(
                     rulesetid = cruleset.id,
@@ -353,7 +353,7 @@ def createTag():
                 )
                 db.session.add(new_tag)
                 db.session.commit()
-                flash("Item tag created!")
+                flash("Item tag created!", "green")
                 return(redirect(url_for("eprefs.tags")))
     return(
         render_template(
@@ -391,20 +391,20 @@ def createProperty():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create weapon properties for rulesets that are not yours.")
+            flash("You cannot create weapon properties for rulesets that are not yours.", "red")
         else:
             name = request.form.get("name")
             text = request.form.get("text")
             if(len(name) < 1):
-                flash("You must specify a property name.")
+                flash("You must specify a property name.", "red")
             elif(len(name) > 127):
-                flash("Property name must be fewer than 128 characters.")
+                flash("Property name must be fewer than 128 characters.", "red")
             elif(len(text) > 16383):
-                flash("Property description must be fewer than 16384 characters.")
+                flash("Property description must be fewer than 16384 characters.", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_tag = Property(
                     rulesetid = cruleset.id,
@@ -413,7 +413,7 @@ def createProperty():
                 )
                 db.session.add(new_tag)
                 db.session.commit()
-                flash("Weapon property created!")
+                flash("Weapon property created!", "green")
                 return(redirect(url_for("eprefs.properties")))
     return(
         render_template(
@@ -450,20 +450,20 @@ def createLanguage():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create languages for rulesets that are not yours.")
+            flash("You cannot create languages for rulesets that are not yours.", "red")
         else:
             name = request.form.get("name")
             text = request.form.get("text")
             if(len(name) < 1):
-                flash("You must specify a language name.")
+                flash("You must specify a language name.", "red")
             elif(len(name) > 127):
-                flash("Language name must be fewer than 128 characters.")
+                flash("Language name must be fewer than 128 characters.", "red")
             elif(len(text) > 16383):
-                flash("Language description must be fewer than 16384 characters.")
+                flash("Language description must be fewer than 16384 characters.", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_language = Language(
                     rulesetid = cruleset.id,
@@ -472,7 +472,7 @@ def createLanguage():
                 )
                 db.session.add(new_language)
                 db.session.commit()
-                flash("Language created!")
+                flash("Language created!", "green")
                 return(redirect(url_for("eprefs.refsLang")))
     return(
         render_template(
@@ -509,7 +509,7 @@ def createSpell():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create spells for rulesets that are not yours.")
+            flash("You cannot create spells for rulesets that are not yours.", "red")
         else:
             rulesetid = cruleset.id
             name = request.form.get("name")
@@ -540,18 +540,18 @@ def createSpell():
             duration = request.form.get("duration")
             text = request.form.get("text")
             if(len(name) > 127):
-                flash("Spell name must be fewer than 127 characters.")
+                flash("Spell name must be fewer than 127 characters.", "red")
             elif(len(name) < 1):
-                flash("You must specify a spell name.")
+                flash("You must specify a spell name.", "red")
             elif(len(text) > 16383):
-                flash("Spell description must be fewer than 16383 characters.")
+                flash("Spell description must be fewer than 16383 characters.", "red")
             elif(material):
                 if(len(material_specific) > 255):
-                    flash("Spell material components must be fewer than 256 characters.")
+                    flash("Spell material components must be fewer than 256 characters.", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_spell = Spell(
                     rulesetid = rulesetid,
@@ -571,7 +571,7 @@ def createSpell():
                 )
                 db.session.add(new_spell)
                 db.session.commit()
-                flash("Spell created.")
+                flash("Spell created.", "green")
                 return(redirect(url_for("eprefs.spells")))
     return(
         render_template(
@@ -627,20 +627,20 @@ def createRecipe():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create recipes for rulesets that are not yours.")
+            flash("You cannot create recipes for rulesets that are not yours.", "red")
         else:
             name = request.form.get("name")
             text = request.form.get("text")
             if(len(name) < 1):
-                flash("You must specify a recipe name.")
+                flash("You must specify a recipe name.", "red")
             elif(len(name) > 127):
-                flash("Recipe name must be fewer than 127 characters.")
+                flash("Recipe name must be fewer than 127 characters.", "red")
             elif(len(text) > 16383):
-                flash("Recipe text must be fewer than 16384 characters.")
+                flash("Recipe text must be fewer than 16384 characters.", "red")
             elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.")
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             else:
                 new_recipe = Recipe(
                     rulesetid = cruleset.id,
@@ -649,7 +649,7 @@ def createRecipe():
                 )
                 db.session.add(new_recipe)
                 db.session.commit()
-                flash("Recipe created!")
+                flash("Recipe created!", "green")
                 return(redirect(url_for("eprefs.recipes")))
     return(
         render_template(
@@ -686,7 +686,7 @@ def createSkill():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
-            flash("You cannot create a skill for a ruleset that is not your own.")
+            flash("You cannot create a skill for a ruleset that is not your own.", "red")
         else:
             name = request.form.get("name")
             text = request.form.get("text")
@@ -694,15 +694,15 @@ def createSkill():
             if(ability == ""):
                 ability = "STR"
             if(len(name) < 1):
-                flash("You must specify a skill name.")
+                flash("You must specify a skill name.", "red")
             elif(len(name) > 63):
-                flash("Skill name must be fewer than 64 characters.")
+                flash("Skill name must be fewer than 64 characters.", "red")
             elif(len(text) > 16383):
-                flash("Skill description must be fewer than 16384 characters.")
+                flash("Skill description must be fewer than 16384 characters.", "red")
             elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.")
+                flash("Cross-site scripting attacks are not allowed.", "red")
             elif("<" in text):
-                flash("Open angle brackets(\"<\") are not allowed.")
+                flash("Open angle brackets(\"<\") are not allowed.", "red")
             else:
                 new_skill = Skill(
                     rulesetid = cruleset.id,
@@ -712,7 +712,7 @@ def createSkill():
                 )
                 db.session.add(new_skill)
                 db.session.commit()
-                flash("Skill created!")
+                flash("Skill created!", "green")
                 return(redirect(url_for("eprefs.skills")))
     return(
         render_template(
@@ -732,11 +732,11 @@ def deleteSkill(rid):
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(current_user.id != cruleset.userid):
-        flash("You cannod delete skills from rulesets that are not your own.")
+        flash("You cannod delete skills from rulesets that are not your own.", "red")
         return(redirect(url_for("eprefs.skills")))
     else:
         skill = Skill.query.filter_by(id=rid, rulesetid = cruleset.id).first()
         db.session.delete(skill)
         db.session.commit()
-        flash("Skill deleted.")
+        flash("Skill deleted.", "orange")
         return(redirect(url_for("eprefs.skills")))

@@ -87,10 +87,10 @@
 </ul>
 
 
-{% with messages = get_flashed_messages(with_categories="red") %}
+{% with messages = get_flashed_messages(with_categories=true) %}
 	{% if messages %}
-		{% for message in messages %}
-			<div class="interior flex horizontal center red bar">
+		{% for category, message in messages %}
+			<div class="interior flex horizontal center {{ category }} bar">
 				<span>{{ message }}</span>
 			</div>
 		{% endfor %}
