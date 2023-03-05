@@ -73,8 +73,10 @@
 				<div class="interior flex horizontal space-around" style="width: 100%">
 					{% for score in cruleset.ability_scores %}
 						<div>
+							<template x-init="save.{{ score.name }} = false"></template>
 							<label for="save">{{ score.name }} Saves</label>
-							<input type="checkbox" name="save" id="save" x-model="save.{{ score.name }}">
+							<input type="checkbox" @change="save.{{ score.name }} = !save.{{ score.name }}">
+							<input type="hidden" name="save" id="save" x-model="save.{{ score.name }}">
 						</div>
 					{% endfor %}
 				</div>
@@ -324,7 +326,7 @@
 			</div>
 		</template>
 	</div>
-	<div class="usercontent">
+	<div class="usercontent" style="padding: 24px">
 		<h1 x-text="name"></h1>
 		<div x-html="convert(text)"></div>
 		<h3 x-text="name + ` Table`"></h3>

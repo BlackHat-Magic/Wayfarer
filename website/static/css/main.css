@@ -60,13 +60,13 @@ template, template.vertical, template.horizontal {
 }
 
 .red {
-    background-color: var(--nord-red);
+    background-color: var(--nord-red)!important;
 }
 .orange {
-    background-color: var(--nord-orange);
+    background-color: var(--nord-orange)!important;
 }
 .green {
-    background-color: var(--nord-green);
+    background-color: var(--nord-green)!important;
 }
 .red.text, .orange.text, .green.text {
     border-radius: 5px;

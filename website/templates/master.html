@@ -35,12 +35,11 @@
 	<li id="nav-char" class="dropdown nav-item">
 		<a href="#" class="dropbtn">Characters</a>
 		<div class="dropdown-content">
-			<a href="/Character/Races">Races</a>
-			<a href="/Character/Backgrounds">Backgrounds</a>
-			<a href="/Character/Feats">Feats</a>
-			<a href="/Character/Ability-Scores">Ability Scores</a>
-			<a href="/Character/Classes">Classes</a>
-			<a href="/Character/Step-by-Step">Step-by-Step Characters</a>
+			<a href="{{ url_for('epchar.races') }}">Races</a>
+			<a href="{{ url_for('epchar.backgrounds') }}">Backgrounds</a>
+			<a href="{{ url_for('epchar.feats') }}">Feats</a>
+			<a href="{{ url_for('epchar.stats') }}">Ability Scores</a>
+			<a href="{{ url_for('epchar.classes') }}">Classes</a>
 		</div>
 	</li>
 	<li id="nav-qref" class="dropdown nav-item">
@@ -88,7 +87,7 @@
 </ul>
 
 
-{% with messages = get_flashed_messages(with_categories=false) %}
+{% with messages = get_flashed_messages(with_categories="red") %}
 	{% if messages %}
 		{% for message in messages %}
 			<div class="interior flex horizontal center red bar">

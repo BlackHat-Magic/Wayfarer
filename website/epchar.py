@@ -512,6 +512,12 @@ def createClass():
             proficiencies = request.form.getlist("proficiency")
             skills = request.form.getlist("skill")
             saves = request.form.getlist("save")
+            for i in range(len(saves)):
+                if(saves[i] == "true"):
+                    saves[i] = True
+                else:
+                    saves[i] = False
+            print(saves)
             equipment = request.form.get("equipment")
             gold_nums = request.form.get("gold_nums")
             try:
@@ -534,7 +540,7 @@ def createClass():
             except:
                 flash("Max level must be a number.")
             if(len(name) < 1):
-                flash("You must specify a class name.")
+                flash("You must specify a class name.", category="red")
             elif(len(name) > 127):
                 flash("Class name must be fewer than 128 characters.")
             elif(len(text) > 16383):
@@ -547,11 +553,17 @@ def createClass():
                 flash("Class equipment must be fewer than 1024 characters.")
             elif(len(multiclass_prereq) > 1023):
                 flash("Multiclassing prerequisites must be fewer than 1024 characters.")
+            elif("<" in multiclass_prereq):
+                flash("Open angle brackets (\"<\") are not allowed.")
+            elif("javascript" in multiclass_prereq):
+                flash("Cross-site scripting attacks are not allowed.")
             elif(len(subclass_name) > 127):
                 flash("Subclass title must be fewer than 128 characters.")
             else:
                 bad = False
                 for i, column in enumerate(request.form.getlist("columnname")):
+                    if(bad):
+                        break
                     if(len(column) < 1):
                         bad = True
                         flash("Each custom column must have a name.")
@@ -559,10 +571,14 @@ def createClass():
                         bad = True
                         flash("Custom column names must be fewer than 128 characters.")
                     for value in request.form.getlist(f"column{i}value"):
-                        if(len(value) > 127):
+                        if(bad):
+                            break
+                        elif(len(value) > 127):
                             bad = True
                             flash("Custom column values must be fewer than 128 characters.")
                 for i, feature in enumerate(request.form.getlist("class_feature_name")):
+                    if(bad):
+                        break
                     try:
                         testint = int(request.form.getlist("level")[i])
                     except:
@@ -584,6 +600,8 @@ def createClass():
                         bad = True
                         flash("Cross-site scripting attacks are not allowed.")
                 for i, subclass in enumerate(request.form.getlist("subclass_name")):
+                    if(bad):
+                        break
                     if(len(subclass) < 1):
                         bad = True
                         flash("You must specify a name for each subclass.")
@@ -593,8 +611,15 @@ def createClass():
                     elif(len(request.form.getlist("subclass_text")[i]) > 16383):
                         bad = True
                         flash("Subclass descriptions must be fewer than 16383 characters.")
+                    elif("<" in request.form.getlist("subclass_text")[i]):
+                        bad = True
+                        flash("Open angle brackets (\"<\") are not allowed.")
+                    elif("javascript" in request.form.getlist("subclass_text")[i]):
+                        bad = True
+                        flash("Cross-site scripting attacks are not allowed.")
                     for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
-                        print(int(request.form.getlist(f"subclass_{i}_feature_level")[j]))
+                        if(bad):
+                            break
                         try:
                             testint = int(request.form.getlist(f"subclass_{i}_feature_level")[j])
                         except:
@@ -616,6 +641,8 @@ def createClass():
                             bad = True
                             flash("Cross-site scripting attacks are not allowed.")
                     for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
+                        if(bad):
+                            break
                         if(len(column) < 1):
                             bad = True
                             flash("You must specify a name for each subclass' custom columns.")
@@ -643,7 +670,8 @@ def createClass():
                         subclass_name = subclass_name,
                         subclass_level = subclass_level,
                         levels = levels,
-                        text = text
+                        text = text,
+                        skills = skills
                     )
                     db.session.add(new_class)
                     db.session.commit()
@@ -703,5 +731,23 @@ def createClass():
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Create a Class"
+        )
+    )
+
+@epchar.route("/Class/<string:selectedclass>")
+def classPage(selectedclass):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    selectedclass = Playerclass.query.filter_by(name=selectedclass.replace("-", " ")).first()
+    return(
+        render_template(
+            "class.html",
+            user=current_user,
+            frulesets=frulesets,
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title=selectedclass.name + " Class",
+            playerclass=selectedclass
         )
     )

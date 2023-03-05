@@ -6,9 +6,32 @@
 
 {% block body %}
 <div class="flex" x-data="main">
+    {% for playerclass in cruleset.classes %}
+    <template x-init="classROM.push(
+        {
+            name: '{{ playerclass.name }}',
+            multiclass_prereq: '{{ playerclass.multiclass_prereq }}',
+            text: `{{ playerclass.text }}`
+        }
+    )"></template>
+    {% endfor %}
     <div class="flex vertical start">
         <h1>Classes</h1>
 		<input type="text" name="tableinput" id="tableinput" placeholder="Search Classes..." x-model="query">
+		<table name="filtertable" id="filtertable">
+			<tr class="header">
+				<th style="width: 30%">Class Name</th>
+				<th style="width: 15%">Multiclass Prereq.</th>
+				<th style="width: 55%">Info</th>
+			</tr>
+			<template x-for="playerclass, index in filterQuery()">
+				<tr>
+					<td><a :href="'/Character/Class/' + playerclass.name.split(' ').join('-')" x-text="playerclass.name"></a></td>
+					<td x-html="convert(playerclass.multiclass_prereq)"></td>
+					<td x-text="truncate(playerclass.text)"></td>
+				</tr>
+			</template>
+		</table>
         {% if cruleset.userid == current_user.id %}
         <a href="/Character/Classes/Create"><button>Create a Class</button></a>
         {% endif %}
