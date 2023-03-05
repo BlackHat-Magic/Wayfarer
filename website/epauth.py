@@ -57,7 +57,7 @@ def signUp():
 
         user = User.query.filter_by(username=username).first()
 
-        if(user):   
+        if(user):
             flash("Username already in use. Please pick another username.", "red")
         elif(len(username) < 4):
             flash("Username must be at least 4 characters.", "red")

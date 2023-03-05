@@ -7,10 +7,7 @@
 {% block body %}
 <div class="flex" x-data="main">
     <div class="flex vertical start">
-        <h1>{{ race.name.replace(" ", "-") }}</h1>
-        {% if user.id == cruleset.userid %}
-        <a href="/Character/Races/{{ race.name.replace(' ', '-') }}/Duplicate"><button type="button">Duplicate {{ race.name }}</button></a>
-        {% endif %}
+        <h1>{{ race.name }}</h1>
         <div class="usercontent" x-html="convert(`{{ race.flavor }}`)"></div>
         {% for feature in race.race_features %}
         <div class="usercontent" x-html="convert('***{{ feature.name }}.*** ' + `{{ feature.text }}`)"></div>
@@ -21,18 +18,19 @@
             <hr>
             <div x-html="convert(`{{ race.subrace_flavor }}`)"></div>
         </div>
-        {% for subrace in race.subraces %}
-        <div class="usercontent">
-            <h3>{{subrace.name}}</h3>
-            <div x-html="convert(`{{ subrace.flavor }}`)"></div>
-            {% for feature in subrace.subrace_features %}
-            <div x-html="convert('***{{feature.name}}.*** ' + `{{ feature.text }}`)"></div>
+            {% for subrace in race.subraces %}
+            <div class="usercontent">
+                <h3>{{subrace.name}}</h3>
+                <div x-html="convert(`{{ subrace.flavor }}`)"></div>
+                {% for feature in subrace.subrace_features %}
+                <div x-html="convert('***{{feature.name}}.*** ' + `{{ feature.text }}`)"></div>
+                {% endfor %}
+            </div>
             {% endfor %}
-        </div>
-        {% endfor %}
         {% endif %}
         {% if cruleset.userid == current_user.id %}
-        <a @click="delete()"><button type="button" class="danger">Delete {{ race.name }}</button></a>
+        <a href="/Character/Races/Duplicate/{{ race.name.replace(' ', '-') }}"><button type="button">Duplicate {{ race.name }}</button></a>
+        <a href="/Character/Races/Delete/{{ race.name.replace(' ', '-') }}"><button type="button" class="mild danger">Delete {{ race.name }}</button></a>
         {% endif %}
     </div>
 </div>

@@ -214,6 +214,23 @@ def createRace():
         )
     )
 
+@epchar.route("/Races/Delete/<string:race>")
+@login_required
+def deleteRace(race):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    race = Race.query.filter_by(rulesetid=cruleset.id, name=race.replace("-", " ")).first()
+    if(not race):
+        flash("Race does not exist.", "red")
+    elif(current_user.id != cruleset.userid):
+        flash("You cannot delete races in rulesets that are not yours.", "red")
+    else:
+        db.session.delete(race)
+        db.session.commit()
+        flash("Race deleted.", "orange")
+    return(redirect(url_for("epchar.races")))
+
 @epchar.route("/Race/<string:race>")
 def race(race):
     cruleset = getCurrentRuleset(current_user)

@@ -1,5 +1,6 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from .models import Ruleset
+from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import current_user, login_required
 from .check_ruleset import *
@@ -146,7 +147,7 @@ def deleteRuleset():
     if(current_user.id == ruleset.userid):
         db.session.delete(ruleset)
         if(current_user.current_ruleset == ruleset.id):
-            current_user.current_ruleset = 1
+            current_user.current_ruleset = Ruleset.query.filter_by(is_admin=True).first()
         db.session.commit()
         flash("Ruleset deleted.", "orange")
     else:
@@ -221,4 +222,57 @@ def changeRuleset():
     rulesetid = json.loads(request.data)["rulesetid"]
     current_user.current_ruleset = rulesetid
     db.session.commit()
+    flash("Ruleset changed.", "green")
     return("")
+
+@epmain.route("/My-Account", methods=["GET", "POST"])
+@login_required
+def myAccount():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        username = request.form.get("username")
+        email = request.form.get("email")
+        cpasswd = request.form.get("cpasswd")
+        npasswd1 = request.form.get("npasswd1")
+        npasswd2 = request.form.get("npasswd2")
+        user = User.query.filter_by(username = username).first()
+        if (len(username) < 1):
+            username = current_user.username
+        if(len(email) < 1):
+            email = current_user.email
+        if(len(npasswd1) < 1):
+            npasswd1 = "eternity-freezing-mama"
+            npasswd2 = "eternity-freezing-mama"
+        if(len(username) < 4):
+            flash("Username must be at least 4 characters", "red")
+        elif(user):
+            flash("Username already in use. Please pick another username.", "red")
+        elif(len(email) < 5):
+            flash("Email is not valid.", "red")
+        elif(len(username) > 255):
+            flash("Username must be fewer than 256 characters.", "red")
+        elif(not check_password_hash(current_user.password, cpasswd)):
+            flash("Incorrect password", "red")
+        elif(len(npasswd1) < 8):
+            flash("Password must be at least 8 characters.", "red")
+        elif(npasswd1 != npasswd2):
+            flash("Passwords do not match", "red")
+        else:
+            current_user.username = username
+            current_user.email = email
+            if(npasswd1 != "eternity-freezing-mama"):
+                current_user.password = generate_password_hash(npasswd1, method="sha256")
+            flash("Changes saved.", "green")
+            return(redirect(url_for("epmain.home")))
+    return(
+        render_template(
+            "my-account.html",
+            user=current_user,
+            frulesets=frulesets,
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="My Account"
+        )
+    )

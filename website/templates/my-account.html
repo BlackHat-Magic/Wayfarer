@@ -1,0 +1,29 @@
+{% extends "master.html" %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/my-account.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div x-data="main">
+<div class="flex">
+	<form class="flex vertical start" method="post">
+		<h1>My Account</h1>
+		<div class="interior grid center">
+			<label for="username" style="margin: auto; grid-column: 6">Username: </label>
+			<input name="username" id="username" type="text" placeholder="Username" style="grid-column: 7">
+			<label for="email" style="margin: auto; grid-column: 6">Email: </label>
+			<input name="email" id="email" type="text" placeholder="Email Address">
+			<label for="cpasswd" style="margin: auto; grid-column: 6">Current Password: </label>
+			<input name="cpasswd" id="cpasswd" type="text" placeholder="Password" style="grid-column: 7">
+			<label for="npasswd1" style="margin: auto; grid-column: 6">New Password: </label>
+			<input name="npasswd1" id="npasswd1" type="password" placeholder="New Password" style="grid-column: 7">
+			<label for="npasswd2" style="margin: auto; grid-column: 6">New Password (Confirm): </label>
+			<input name="npasswd2" id="npasswd2" type="password" placeholder="New Password" style="grid-column: 7">
+		</div>
+		<a><button type="submit">Submit Changes</button></a>
+		<a><button class="mild danger" type="button">Delete Account</button></a>
+	</form>
+</div>
+</div>
+{% endblock %}

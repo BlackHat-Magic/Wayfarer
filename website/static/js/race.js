@@ -4,8 +4,5 @@ document.addEventListener ("alpine:init", () => {
         convert (text) {
             return(this.converter.makeHtml(text));
         },
-        delete() {
-            console.log("fuck")
-        }
     }))
 })

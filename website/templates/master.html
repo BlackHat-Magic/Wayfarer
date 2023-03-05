@@ -74,8 +74,7 @@
 			<a href="/My-Account">My Account</a>
 			<div class="dropdown-content" style="right: 0px">
 				<a href="/My-Rulesets">My Rulesets</a>
-				<a href="/My-PCs">My Characters</a>
-				<a href="/My-NPCs">My NPCs</a>
+				<!-- <a href="/My-PCs">My CharacYou can speak, read, and write Common and Draconic. Draconic is thought to be one of the oldest languages and is often used in the study of magic. The language sounds harsh to most other creatures and includes numerous hard consonants and sibilants. -->
 				<a href="/Logout">Log Out</a>
 			</div>
 		</li>
@@ -86,19 +85,13 @@
 	{% endif %}
 </ul>
 
-
 {% with messages = get_flashed_messages(with_categories=true) %}
-	{% if messages %}
-		{% for category, message in messages %}
-			<div class="interior flex horizontal center {{ category }} bar">
-				<span>{{ message }}</span>
-			</div>
-		{% endfor %}
-	{% endif %}
+	{% for category, message in messages %}
+		<div class="interior flex horizontal center {{ category }} bar">
+			<span>{{ message }}</span>
+		</div>
+	{% endfor %}
 {% endwith %}
-
-<div id="jsflash">
-</div>
 
 <form class="topbar" x-data="master">
 	<li class="static"><p>Selected Ruleset: </p></li>
