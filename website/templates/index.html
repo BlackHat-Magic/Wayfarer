@@ -1,9 +1,18 @@
 {% extends "master.html" %}
 
 {% block body %}
-<div class="flex">
+<div class="narrow flex">
     <div class="flex vertical start">
-        <h1>Test</h1>
+        <h1>Welcome to Wayfinder!</h1>
+        <p>Wayfinder is a website for you to store your custom tabletop RPG rulesets and share them with friends. It was primarily designed with 5th edition Dungeons and Dragons in mind, but was designed to accomodate other systems as well as was reasonably possible during development. To get started, sign up and create a ruleset!</p>
+        {% if current_user.is_authenticated %}
+        <div class="flex vertical start mild danger">
+            <h2>Warning: Wayfinder is Alpha Software</h2>
+            <p>It is strongly advised that you do not keep any information that you do not have backed up elsewhere on Wayfinder. Always have a backup! Wayfinder was developed by a single developer, and this is a very early build. As such, there are likely some nasty security and/or usability bugs waiting to be discovered.</p>
+            <div style="height: 24px"></div>
+            <p>Additionally, it is genrally inadvisable to keep exceedingly private information somewhere other than Wayfinder. All of your information other than your email address and password is stored in plaintext. Should anyone break into the machine that the server is running on and steal the database file (such as by exploiting a bug mentioned above), they would have access to <em>all of your content</em>.</p>
+        </div>
+        {% endif %}
     </div> 
 </div>
 {% endblock %}
