@@ -84,15 +84,15 @@ def createRace():
                 subrace_flavor = request.form.get("subrace_flavor")
                 print(request.form.getlist("subrace_text"))
                 for i, subrace in enumerate(request.form.getlist("subrace_name")):
-                    subraces[i] = {
+                    subraces.append({
                         "name": subrace,
                         "text": request.form.getlist("subrace_text")[i],
                         "features": []
-                    }
-                    for i, feature in enumerate(request.form.getlist(f"{subrace}_feature_name")):
+                    })
+                    for j, feature in enumerate(request.form.getlist(f"{subrace}_feature_name")):
                         subraces[i]["features"].append({
                             "name": feature,
-                            "text": request.form.getlist(f"{subrace}_feature_text")[i]
+                            "text": request.form.getlist(f"{subrace}_feature_text")[j]
                         })
             else:
                 subraces = None
@@ -131,7 +131,7 @@ def createRace():
                         flash("Subrace descriptions must be fewer than 16384 characters.", "red")
                     elif("<" in subrace["text"]):
                         flash("Open angle brackets (\"<\") are not allowed.", "red")
-                    elif("javascript" in feature["text"]):
+                    elif("javascript" in subrace["text"]):
                         flash("Cross-site scripting attacks are not allowed.", "red")
                     for feature in subrace["features"]:
                         if(len(feature["name"]) < 1):
@@ -213,6 +213,63 @@ def createRace():
             title="Create a Race"
         )
     )
+
+@epchar.route("/Races/Duplicate/<string:race>")
+@login_required
+def duplicateRace(race):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    race = Race.query.filter_by(rulesetid=cruleset.id, name=race.replace("-", " ")).first()
+    new_race = Race(
+        rulesetid = cruleset.id,
+        name = f"{race.name} Duplicate",
+        flavor = race.flavor,
+        asis = race.asis,
+        asi_text = race.asi_text,
+        size = race.size,
+        size_text = race.size_text,
+        walk = race.walk,
+        fly = race.fly,
+        swim = race.swim,
+        burrow = race.burrow,
+        base_height = race.base_height,
+        base_weight = race.base_weight,
+        height_num = race.height_num,
+        height_die = race.height_die,
+        weight_num = race.weight_num,
+        weight_die = race.weight_die,
+        subrace_flavor = race.subrace_flavor,
+    )
+    db.session.add(new_race)
+    db.session.commit()
+    new_race = Race.query.filter_by(rulesetid=cruleset.id, name=f"{race.name} Duplicate").first()
+    for feature in race.race_features:
+        new_feature = RaceFeature(
+            raceid = new_race.id,
+            name = feature.name,
+            text = feature.name
+        )
+        db.session.add(new_feature)
+    for subrace in race.subraces:
+        new_subrace = Subrace(
+            raceid = new_race.id,
+            name = subrace.name,
+            text = subrace.text
+        )
+        db.session.add(new_subrace)
+        db.session.commit()
+        new_subrace = Subrace.query.filter_by(rulesetid=cruleset.id, raceid=new_race.id, name=subrace.name, text=new_subrace.text)
+        for feature in subrace.subrace_features:
+            new_subrace_feature = SubraceFeature(
+                raceid = new_race.id,
+                name = feature.name,
+                text = feature.text
+            )
+            db.session.add(new_subrace_feature)
+    db.session.commit()
+    flash("Race duplicated!", "green")
+    return(redirect(url_for("epchar.races")))
 
 @epchar.route("/Races/Delete/<string:race>")
 @login_required
@@ -336,6 +393,7 @@ def createBackground():
                     db.session.add(new_feature)
                 db.session.commit()
                 flash("Background created!", "green")
+                return(redirect(url_for("epchar.backgrounds")))
     return(
         render_template(
             "create-background.html", 

@@ -162,10 +162,8 @@ class SubraceFeature(db.Model):
 class Feat(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
-    type = db.Column(db.String(31))
     name = db.Column(db.String(127))
     prerequisite = db.Column(db.String(255))
-    asis = db.Column(db.PickleType)
     text = db.Column(db.String(16383))
 
 class AbilityScore(db.Model):
@@ -198,6 +196,7 @@ class Background(db.Model):
     name = db.Column(db.String(127))
     skills = db.Column(db.PickleType)
     tools = db.Column(db.PickleType)
+    lang_num = db.Column(db.Integer)
     languages = db.Column(db.PickleType)
     equipment = db.Column(db.PickleType)
     text = db.Column(db.String(16383))

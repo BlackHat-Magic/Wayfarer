@@ -10,7 +10,7 @@
 		<h1>Languages</h1>
 		{% for language in cruleset.languages %}
 		<div class="usercontent">
-			<h2 x-text="'{{ language.name }}'"></h2>
+			<h2 x-text="`{{ language.name }}`"></h2>
 			<hr>
 			<div x-html="convert(`{{ language.text }}`)"></div>
 		</div>
