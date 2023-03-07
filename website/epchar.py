@@ -18,6 +18,7 @@ def races():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    races = Race.query.filter_by(rulesetid=cruleset.id).order_by(Race.name)
     return(
         render_template(
             "races.html", 
@@ -26,7 +27,8 @@ def races():
             cruleset=cruleset, 
             ability='', 
             adminrulesets=adminrulesets, 
-            title="Races"
+            title="Races",
+            races=races
         )
     )
 
@@ -109,100 +111,126 @@ def createRace():
                 flash("Cross-site scripting attacks are not allowed.", "red")
             elif("-" in name):
                 flash("Dashes (\"-\") are not allowed in race name.", "red")
-            for feature in features:
-                if(len(feature) < 1):
-                    flash("Each racial feature must have a name.", "red")
-                elif(len(feature) > 127):
-                    flash("Racial feature names must be fewer than 128 characters.", "red")
-            for ftext in feature_text:
-                if(len(ftext) > 16383):
-                    flash("Racial feature text must be fewer than 16384 characters.", "red")
-                elif("<" in ftext):
-                    flash("Open angle brackets (\"<\") are not allowed.", "red")
-                elif("javascript" in ftext):
-                    flash("Cross-site scripting attacks are not allowed.", "red")
-            if(has_subraces):
-                for subrace in subraces:
-                    if(len(subrace["name"]) < 1):
-                        flash("You must specify a name for each subrace.", "red")
-                    elif(len(subrace["name"]) > 127):
-                        flash("Subrace names must be fewer than 128 characters.", "red")
-                    elif(len(subrace["text"]) > 16383):
-                        flash("Subrace descriptions must be fewer than 16384 characters.", "red")
-                    elif("<" in subrace["text"]):
+            else:
+                bad = False
+                for feature in features:
+                    if(bad):
+                        break
+                    elif(len(feature) < 1):
+                        bad = True
+                        flash("Each racial feature must have a name.", "red")
+                    elif(len(feature) > 127):
+                        bad = True
+                        flash("Racial feature names must be fewer than 128 characters.", "red")
+                for ftext in feature_text:
+                    if(bad):
+                        break
+                    elif(len(ftext) > 16383):
+                        bad = True
+                        flash("Racial feature text must be fewer than 16384 characters.", "red")
+                    elif("<" in ftext):
+                        bad = True
                         flash("Open angle brackets (\"<\") are not allowed.", "red")
-                    elif("javascript" in subrace["text"]):
+                    elif("javascript" in ftext):
+                        bad = True
                         flash("Cross-site scripting attacks are not allowed.", "red")
-                    for feature in subrace["features"]:
-                        if(len(feature["name"]) < 1):
-                            flash("You must specify a name for each subrace features.", "red")
-                        elif(len(feature["name"]) > 127):
-                            flash("Subrace feature names must be fewer than 128 characters.", "red")
-                        elif(len(feature["text"]) > 16383):
-                            flash("Subrace feature text must be fewer than 16384 characters.", "red")
-                        elif("<" in feature["text"]):
+                if(has_subraces and not bad):
+                    for subrace in subraces:
+                        if(bad):
+                            break
+                        elif(len(subrace["name"]) < 1):
+                            bad = True
+                            flash("You must specify a name for each subrace.", "red")
+                        elif(len(subrace["name"]) > 127):
+                            bad = True
+                            flash("Subrace names must be fewer than 128 characters.", "red")
+                        elif(len(subrace["text"]) > 16383):
+                            bad = True
+                            flash("Subrace descriptions must be fewer than 16384 characters.", "red")
+                        elif("<" in subrace["text"]):
+                            bad = True
                             flash("Open angle brackets (\"<\") are not allowed.", "red")
-                        elif("javascript" in feature["text"]):
+                        elif("javascript" in subrace["text"]):
+                            bad = True
                             flash("Cross-site scripting attacks are not allowed.", "red")
-            print(name)
-            new_race = Race(
-                rulesetid = cruleset.id,
-                name = name,
-                flavor = flavor,
-                asis = asis,
-                asi_text = asi_text,
-                size = size,
-                size_text = size_text,
-                walk = walk,
-                swim = swim,
-                fly = fly,
-                burrow = burrow,
-                base_height = base_height,
-                height_num = height_num,
-                height_die = height_die,
-                base_weight = base_weight,
-                weight_num = weight_num,
-                weight_die = weight_die,
-                subrace_flavor = subrace_flavor
-            )
-            db.session.add(new_race)
-            db.session.commit()
-            new_race = Race.query.filter_by(
-                name = name, 
-                rulesetid = cruleset.id
-            ).first()
-            for i, feature in enumerate(features):
-                new_feature = RaceFeature(
-                    raceid = new_race.id,
-                    name = feature,
-                    text = feature_text[i]
-                )
-                db.session.add(new_feature)
-            db.session.commit()
-            if(has_subraces):
-                for subrace in subraces:
-                    new_subrace = Subrace(
-                        raceid = new_race.id,
-                        name = subrace["name"],
-                        text = subrace["text"]
+                        for feature in subrace["features"]:
+                            if(bad):
+                                break
+                            elif(len(feature["name"]) < 1):
+                                bad = True
+                                flash("You must specify a name for each subrace features.", "red")
+                            elif(len(feature["name"]) > 127):
+                                bad = True
+                                flash("Subrace feature names must be fewer than 128 characters.", "red")
+                            elif(len(feature["text"]) > 16383):
+                                bad = True
+                                flash("Subrace feature text must be fewer than 16384 characters.", "red")
+                            elif("<" in feature["text"]):
+                                bad = True
+                                flash("Open angle brackets (\"<\") are not allowed.", "red")
+                            elif("javascript" in feature["text"]):
+                                bad = True
+                                flash("Cross-site scripting attacks are not allowed.", "red")
+                if(not bad):
+                    print(name)
+                    new_race = Race(
+                        rulesetid = cruleset.id,
+                        name = name,
+                        flavor = flavor,
+                        asis = asis,
+                        asi_text = asi_text,
+                        size = size,
+                        size_text = size_text,
+                        walk = walk,
+                        swim = swim,
+                        fly = fly,
+                        burrow = burrow,
+                        base_height = base_height,
+                        height_num = height_num,
+                        height_die = height_die,
+                        base_weight = base_weight,
+                        weight_num = weight_num,
+                        weight_die = weight_die,
+                        subrace_flavor = subrace_flavor
                     )
-                    db.session.add(new_subrace)
+                    db.session.add(new_race)
                     db.session.commit()
-                    new_subrace = Subrace.query.filter_by(
-                        raceid = new_race.id,
-                        name = subrace["name"],
-                        text = subrace["text"]
+                    new_race = Race.query.filter_by(
+                        name = name, 
+                        rulesetid = cruleset.id
                     ).first()
-                    for feature in subrace["features"]:
-                        new_feature = SubraceFeature(
-                            raceid = new_subrace.id,
-                            name = feature["name"],
-                            text = feature["text"]
+                    for i, feature in enumerate(features):
+                        new_feature = RaceFeature(
+                            raceid = new_race.id,
+                            name = feature,
+                            text = feature_text[i]
                         )
                         db.session.add(new_feature)
                     db.session.commit()
-            flash("Race created!", "green")
-            return(redirect(url_for("epchar.races")))
+                    if(has_subraces):
+                        for subrace in subraces:
+                            new_subrace = Subrace(
+                                raceid = new_race.id,
+                                name = subrace["name"],
+                                text = subrace["text"]
+                            )
+                            db.session.add(new_subrace)
+                            db.session.commit()
+                            new_subrace = Subrace.query.filter_by(
+                                raceid = new_race.id,
+                                name = subrace["name"],
+                                text = subrace["text"]
+                            ).first()
+                            for feature in subrace["features"]:
+                                new_feature = SubraceFeature(
+                                    raceid = new_subrace.id,
+                                    name = feature["name"],
+                                    text = feature["text"]
+                                )
+                                db.session.add(new_feature)
+                            db.session.commit()
+                    flash("Race created!", "green")
+                    return(redirect(url_for("epchar.races")))
     return(
         render_template(
             "create-race.html", 
@@ -283,6 +311,12 @@ def deleteRace(race):
     elif(current_user.id != cruleset.userid):
         flash("You cannot delete races in rulesets that are not yours.", "red")
     else:
+        for feature in race.race_features:
+            db.session.delete(feature)
+        for subrace in race.subraces:
+            for feature in subrace.subrace_features:
+                db.session.delete(feature)
+            db.session.delete(subrace)
         db.session.delete(race)
         db.session.commit()
         flash("Race deleted.", "orange")
@@ -293,7 +327,7 @@ def race(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    display = Race.query.filter_by(rulesetid=cruleset.id, name=race).first()
+    display = Race.query.filter_by(rulesetid=cruleset.id, name=race.replace("-", " ")).first()
     return(
         render_template(
             "race.html", 

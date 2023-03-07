@@ -78,7 +78,7 @@
 						<input type="hidden" x-model="properties" id="properties" name="properties">
 					</div>
 					<template x-for="property, index in propertylist">
-						<span class="chip"><span x-text="property"></span><span @click="removeProperty(index)" class="remove">&times</span></span>
+						<span @click="removeProperty(index)" class="chip"><span x-text="property"></span><span class="remove">&times</span></span>
 					</template>
 					<template x-for="property, index in propertylist">
 						<input type="hidden" name="property" id="property" x-model="propertylist[index]">

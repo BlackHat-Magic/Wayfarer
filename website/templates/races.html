@@ -10,7 +10,7 @@
 		{% for ability_score in cruleset.ability_scores %}
 		<template x-init="namearray.push(`{{ ability_score.name }}`)"></template>
 		{% endfor %}
-		{% for race in cruleset.races %}
+		{% for race in races %}
 		<template x-init="raceROM.push(
 			{
 				name: '{{ race.name }}',
@@ -45,7 +45,7 @@
 			</tr>
 			<template x-for="race, index in filterQuery()">
 				<tr>
-					<td><a @click="window.location.href = '/Character/Race/' + race.name" x-text="race.name"></a></td>
+					<td><a @click="window.location.href = '/Character/Race/' + race.name.split(' ').join('-')" x-text="race.name"></a></td>
 					<td x-text="race.asi"></td>
 					<td x-text="race.size"></td>
 				</tr>
