@@ -2,6 +2,7 @@ from flask import Blueprint, Flask, render_template, redirect, url_for, request,
 from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore, ClassColumn, SubclassColumn, ClassFeature, Playerclass, Subclass, SubclassFeature
 from flask_login import current_user, login_required
 from .check_ruleset import *
+from .postformschar import *
 from . import db
 import json
 
@@ -535,6 +536,7 @@ def stats():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    scores = AbilityScore.query.filter_by(rulesetid=cruleset.id).order_by(AbilityScore.order)
     return(
         render_template(
             "stats.html", 
@@ -542,42 +544,21 @@ def stats():
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
+            scores=scores,
             title="Ability Scores"
         )
     )
 
 @epchar.route("/Ability-Scores/Create", methods=["GET", "POST"])
+@login_required
 def createStat():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    if(request.method == "POST"):
-        name = request.form.get("name")
-        abbr = request.form.get("abbr")
-        text = request.form.get("text")
-        if(len(name) < 1):
-            flash("You must specify an Ability Score name.", "red")
-        elif(len(name) > 127):
-            flash("Ability Score name must be fewer than 128 characters.", "red")
-        elif(len(abbr) != 3):
-            flash("Ability Score abbreviation must be 3 characters.", "red")
-        elif(len(text) > 16383):
-            flash("Ability Score description must be fewer than 16384 characters.", "red")
-        elif("<" in text):
-            flash("Open angle brackets (\"<\") are not allowed.", "red")
-        elif("javascript" in text):
-            flash("Cross-site scripting attacks are not allowed.", "red")
-        else:
-            new_ability_score = AbilityScore(
-                rulesetid = cruleset.id,
-                name = name,
-                abbr = abbr,
-                text = text
-            )
-            db.session.add(new_ability_score)
-            db.session.commit()
-            flash("Ability Score created!", "green")
-            return(redirect(url_for("epchar.stats")))
+    if(request.method=="POST"):
+        result = abilityScore(request, cruleset, None)
+        if(result != False):
+            return(result)
     return(
         render_template(
             "create-stat.html",
@@ -588,6 +569,48 @@ def createStat():
             title="Create an Ability Score"
         )
     )
+
+@epchar.route("/Ability-Scores/Edit/<string:score>", methods=["GET", "POST"])
+@login_required
+def editStat(score):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score.replace("-", " ")).first()
+    if(not ability_score):
+        flash("Ability Score not found.", "red")
+        return(redirect(url_for("epchar.stats")))
+    if(request.method=="POST"):
+        result = abilityScore(request, cruleset, ability_score)
+        if(result != False):
+            return(result)
+    return(
+        render_template(
+            "create-stat.html",
+            user=current_user,
+            frulesets=frulesets,
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Create an Ability Score",
+            score=ability_score
+        )
+    )
+
+@epchar.route("/Ability-Scores/Delete/<string:score>")
+@login_required
+def deleteStat(score):
+    cruleset = getCurrentRuleset(current_user)
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete Ability Scores in rulesets that are not your own.", "red")
+    else:
+        ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score.replace("-", " ")).first()
+        if(not ability_score):
+            flash("Ability Score does not exist.", "red")
+        else:
+            db.session.delete(ability_score)
+            db.session.commit()
+            flash("Ability Score deleted.", "orange")
+    return(redirect(url_for("epchar.stats")))
 
 @epchar.route("/Classes")
 def classes():

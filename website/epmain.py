@@ -28,8 +28,6 @@ def home():
 
 @epmain.route("/Get-Current-Ruleset")
 def get():
-    # data = json.loads(request.data)
-    # cruleset = getCurrentRuleset(current_user, data["local"])
     cruleset = getCurrentRuleset(current_user)
     ruleset = jsonify({
         "id": cruleset.id,
@@ -71,7 +69,7 @@ def createRuleset():
         elif(len(name) > 127):
             flash("Ruleset name must be fewer than 128 characters.", "red")
         elif("<" in name):
-            flash("Opening angle brackets (\"<\") are not allowerd.", "red")
+            flash("Opening angle brackets (\"<\") are not allowed.", "red")
         elif("javascript" in name):
             flash("Cross-site scripting attacks are not allowed.", "red")
         else:

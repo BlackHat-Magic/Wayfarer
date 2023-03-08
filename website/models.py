@@ -19,6 +19,7 @@ class Ruleset(db.Model):
     userid = db.Column(db.String(36), db.ForeignKey("user.id"))
     is_shareable = db.Column(db.Boolean)
     name = db.Column(db.String(127))
+    description = db.Column(db.String(16383))
     categories = db.relationship("Category")
     languages = db.relationship("Language")
     recipes = db.relationship("Recipe")
@@ -170,6 +171,7 @@ class AbilityScore(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
+    order = db.Column(db.Integer)
     abbr = db.Column(db.String(3))
     text = db.Column(db.String(16383))
 
