@@ -90,7 +90,7 @@ document.addEventListener ("alpine:init", () => {
                 if(output.length == 0) {
                     output += this.propertylist[i];
                 } else {
-                    output += ", " + this.propertylistlist[i];
+                    output += ", " + this.propertylist[i];
                 }
             }
             this.properties = output;
