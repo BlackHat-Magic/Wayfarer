@@ -7,6 +7,7 @@ document.addEventListener ("alpine:init", () => {
         name: "",
         abbr: "",
         numb: "",
-        text: ""
+        text: "",
+        order: null,
     }))
 })
