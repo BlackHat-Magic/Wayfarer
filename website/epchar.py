@@ -69,7 +69,7 @@ def duplicateRace(race):
 
 @epchar.route("/Races/Edit/<string:race>", methods=["GET", "POST"])
 @login_required
-def editRace():
+def editRace(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)

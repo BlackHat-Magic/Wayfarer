@@ -7,10 +7,14 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Create a Race</h1>
+		{% if not race %}
+			<h1>Create a Race</h1>
+		{% else %}
+			<h1>Edit {{ race.name }}</h1>
+		{% endif %}
 		<h2>Base Race Info</h2>
 		<form method="POST" class="interior flex vertical start">
-			<input placeholder="Race Name" name="name" id="name" x-model="name">
+			<input placeholder="Race Name" name="name" id="name" x-model="name" {% if race %} x-init="name=`{{ race.name }}`" {% endif %}>
 			<!-- Ability Score Improvement Inputs -->
 			{% if not cruleset.ability_scores %}
 			<div class="mild danger">
@@ -28,38 +32,41 @@
 					id="asi" 
 					x-model="asis.{{ score.abbr }}"
 					value="0"
+					{% if race %} x-init="asis.{{ score.abbr }} = {{ race.asis[loop.index] }}" {% endif %}
 				>
 				{% endfor %}
 			</div>
 			<textarea 
 				placeholder="Ability Score Improvement" 
 				x-show="asi_override" style="height: 100px" 
-				x-model="asi_text">
+				x-model="asi_text"
+				{% if race %} x-init="asi_text = `{{ race.asi_text }}`" {% endif %}>
 			</textarea>
 			<input type="hidden" name="asi_text" id="asi_text" x-model="asi_text">
 			<div class="interior flex horizontal start">
 				<label for="asi_override">Override Ability Score Improvement?</label>
-				<input style="width: auto" type="checkbox" name="asi_override" id="asi_override" x-model="asi_override">
+				<input style="width: auto" type="checkbox" name="asi_override" id="asi_override" x-model="asi_override" {% if race and race.asi_text %} x-init="asi_override=true" {% endif %}>
 			</div>
 			<!-- Size Inputs -->
 			<select name="size" id="size" x-show="!size_override" style="font-size: 16px" x-model="size">
-				<option value="0">Tiny</option>
-				<option value="1">Small</option>
-				<option value="2" selected>Medium</option>
-				<option value="3">Large</option>
-				<option value="4">Huge</option>
-				<option value="5">Gargantuan</option>
+				<option value="0" {% if race and race.size == 0 %} selected="true" {% endif %}>Tiny</option>
+				<option value="1" {% if race and race.size == 1 %} selected="true" {% endif %}>Small</option>
+				<option value="2" {% if race and race.size == 2 %} selected="true" {% endif %} selected>Medium</option>
+				<option value="3" {% if race and race.size == 3 %} selected="true" {% endif %}>Large</option>
+				<option value="4" {% if race and race.size == 4 %} selected="true" {% endif %}>Huge</option>
+				<option value="5" {% if race and race.size == 5 %} selected="true" {% endif %}>Gargantuan</option>
 			</select>
 			<textarea 
 				placeholder="Size" 
 				x-show="size_override" 
 				style="height: 100px" 
-				x-model="size_text">
+				x-model="size_text"
+				{% if race %} x-init="size_text=`{{ race.size_text }}`" {% endif %}>
 			</textarea>
 			<input type="hidden" name="size_text" id="size_text" x-model="size_text">
 			<div class="interior flex horizontal start">
 				<label for="size_override">Override Size?</label>
-				<input style="width: auto" type="checkbox" name="size_override" id="size_override" x-model="size_override">
+				<input style="width: auto" type="checkbox" name="size_override" id="size_override" x-model="size_override" {% if race and race.size_text %} x-init="size_override=true {% endif %}">
 			</div>
 			<!-- Weight and Height -->
 			<div class="interior flex horizontal center">
@@ -73,7 +80,8 @@
 							id="base_height" 
 							name="base_height" 
 							x-model="base_height"
-							placeholder="Base Height (Inches)">
+							placeholder="Base Height (Inches)"
+							{% if race %} x-init="base_height={{ race.base_height }}" {% endif %}>
 					</div>
 					<div style="width: 50%; min-width: 200px" class="interior flex vertical start">
 						<label for="height_num">Height Dice</label>
@@ -83,14 +91,16 @@
 								type="number" 
 								id="height_num" 
 								name="height_num"
-								x-model="height_num">
+								x-model="height_num"
+								{% if race %} x-init="height_num={{ race.height_num }}" {% endif %}>
 							<h6>d</h6>
 							<input 
 								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
 								type="number" 
 								id="height_die" 
 								name="height_die"
-								x-model="height_die">
+								x-model="height_die"
+								{% if race %} x-init="height_die={{ race.height_die }}" {% endif %}>
 						</div>
 					</div>
 				</div>
@@ -103,7 +113,8 @@
 							type="number" 
 							id="base_weight" 
 							name="base_weight" 
-							x-model="base_weight">
+							x-model="base_weight"
+							{% if race %} x-init="base_weight={{ race.base_weight }}" {% endif %}>
 					</div>
 					<div style="width: 50%; min-width: 180px" class="interior flex vertical start">
 						<label for="weight_num">Race Height Dice</label>
@@ -112,28 +123,61 @@
 								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
 								type="number" 
 								id="weight_num" 
-								name="weight_num">
+								name="weight_num"
+								{% if race %} x-init="weight_num={{ race.weight_num }}" {% endif %}>
 							<h6>d</h6>
 							<input 
 								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
 								type="number" 
 								id="weight_die" 
-								name="weight_die">
+								name="weight_die"
+								{% if race %} x-init="weight_die={{ race.weight_die }}" {% endif %}>
 						</div>
 					</div>
 				</div>
 			</div>
 			<!-- Speed -->
 			<div class="interior flex horizontal center">
-				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Walk Speed" name="walk" id="walk" x-model="walk">
-				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Swim Speed" name="swim" id="swim" x-model="swim">
-				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Climb Speed" name="climb" id="climb" x-model="climb">
-				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Fly Speed" name="fly" id="fly" x-model="fly">
-				<input style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" placeholder="Burrow Speed" name="burrow" id="burrow" x-model="burrow">
+				<input 
+					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
+					placeholder="Walk Speed" 
+					name="walk" 
+					id="walk" 
+					x-model="walk"
+					{% if race %} x-init="walk={{ race.walk }}" {% endif %}>
+				<input 
+					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
+					placeholder="Swim Speed" 
+					name="swim" 
+					id="swim" 
+					x-model="swim"
+					{% if race %} xinit="swim={{ race.swim }}" {% endif %}>
+				<input 
+					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
+					placeholder="Climb Speed" 
+					name="climb" 
+					id="climb" 
+					x-model="climb"
+					{% if race %} x-init="climb={{ race.climb }}" {% endif %}>
+				<input 
+					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
+					placeholder="Fly Speed" 
+					name="fly" 
+					id="fly" 
+					x-model="fly"
+					{% if race %} x-init="fly={{ race.fly }}" {% endif %}>
+				<input 
+					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
+					placeholder="Burrow Speed" 
+					name="burrow" 
+					id="burrow" 
+					x-model="burrow"
+					{% if race %} x-init="burrow={{ race.burrow }}" {% endif %}>
 			</div>
 			<textarea 
 				placeholder="Flavor Text (You can use markdown syntax! A preview of what it will look like is shown below.)" 
-				x-model="text">
+				x-model="text"
+				{% if race %} x-init="text={{ race.text }}" {% endif %}>
 			</textarea>
 			<input type="hidden" name="text" id="text" x-model="text">
 			<!-- Features -->
@@ -158,14 +202,29 @@
 					<input type="hidden" name="feature_text" id="feature_text" x-model="feature.text">
 				</div>
 			</template>
+			{% if race %}
+			<template x-init="features=[]"></template>
+			{% for feature in race.race_features %}
+			<template x-init="features.push({name: `{{ feature.name }}`, text: `{{ feature.text }}`})"></template>
+			{% endfor %}
+			{% endif %}
 			<a @click="addFeature()"><button type="button">Add Racial Feature</button></a>
 			<!-- Subraces -->
 			<h2>Subraces</h2>
 			<div class="interior flex horizontal center">
 				<label for="has_subraces">Has subraces?</label>
-				<input type="checkbox" name="has_subraces" id="has_subraces" x-model="has_subraces">
+				<input type="checkbox" name="has_subraces" id="has_subraces" x-model="has_subraces" {% if race and race.subraces %} x-init="has_subraces=true" {% endif %}>
 			</div>
 			<!-- Display Subraces -->
+			{% if race %}
+			{% for subrace in race.subraces %}
+				{% set subrace_num = loop.index %}
+				<template x-init="subraces.push({name: `{{ subrace.name }}`, text: `{{ subrace.text }}`, features: []})"></template>
+				{% for feature in subrace.features %}
+					<template x-init="subraces[{{subrace_num}}].features.push({name: `{{ feature.name }}`, text: `{{ feature.text }}`})"></template>
+				{% endfor %}
+			{% endfor %}
+			{% endif %}
 			<template x-if="has_subraces">
 				<div class="interior flex vertical start" style="width: 100%">
 					<textarea 
