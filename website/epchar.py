@@ -67,6 +67,31 @@ def duplicateRace(race):
         result = makerace(request, cruleset, race, "duplicate")
     return(redirect(url_for("epchar.races")))
 
+@epchar.route("/Races/Edit/<string:race>", methods=["GET", "POST"])
+@login_required
+def editRace():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    target_race = Race.query.filter_by(name=race.replace("-", " "), rulesetid=cruleset.id).first()
+    if(not target_race):
+        flash("Race does not exist.", "red")
+    elif(request.method == "POST"):
+        result = makerace(request, cruleset, target_race, "edit")
+        if(result != False):
+            return(result)
+    return(
+        render_template(
+            "create-race.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Race",
+            race=target_race
+        )
+    )
+
 @epchar.route("/Races/Delete/<string:race>")
 @login_required
 def deleteRace(race):
