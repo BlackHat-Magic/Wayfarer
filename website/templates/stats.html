@@ -10,7 +10,7 @@
 		<h1>Ability Scores</h1>
 		{% for score in scores %}
 		<div class="usercontent">
-			<h2 style="width: auto; padding: auto">{{ score.name + ' (' + score.abbr + ')' }}</h2>
+			<h2>{{ score.name + ' (' + score.abbr + ')' }}</h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
 					<a href="/Character/Ability-Scores/Edit/{{ score.name.replace(' ', '-') }}"><button style="width: auto">Edit {{ score.name }}</button></a>

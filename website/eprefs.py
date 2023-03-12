@@ -2,6 +2,7 @@ from flask import Blueprint, Flask, render_template, redirect, url_for, request,
 from .models import Ruleset, Skill, Action, Condition, Item, ItemTag, Property, Language, Recipe, Spell
 from flask_login import login_user, current_user, login_required
 from .check_ruleset import *
+from .postformsrefs import *
 from . import db
 import json
 
@@ -685,35 +686,7 @@ def createSkill():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create a skill for a ruleset that is not your own.", "red")
-        else:
-            name = request.form.get("name")
-            text = request.form.get("text")
-            ability = request.form.get("ability")
-            if(ability == ""):
-                ability = "STR"
-            if(len(name) < 1):
-                flash("You must specify a skill name.", "red")
-            elif(len(name) > 63):
-                flash("Skill name must be fewer than 64 characters.", "red")
-            elif(len(text) > 16383):
-                flash("Skill description must be fewer than 16384 characters.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            elif("<" in text):
-                flash("Open angle brackets(\"<\") are not allowed.", "red")
-            else:
-                new_skill = Skill(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    ability_score = ability,
-                    description = text
-                )
-                db.session.add(new_skill)
-                db.session.commit()
-                flash("Skill created!", "green")
-                return(redirect(url_for("eprefs.skills")))
+        return(skill(request, cruleset, None, "create"))
     return(
         render_template(
             "create-skill.html", 
@@ -725,18 +698,50 @@ def createSkill():
         )
     )
 
-@eprefs.route("/Skills/Delete/<int:rid>")
+@eprefs.route("/Skills/Duplicate/<string:tskill>")
 @login_required
-def deleteSkill(rid):
+def duplicateSkill(tskill):
+    cruleset = getCurrentRuleset(current_user)
+    tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
+    if(not tskill):
+        flash("Skill does not exist.", "red")
+        return(redirect(url_for("eprefs.skills")))
+    return(skill(request, cruleset, tskill, "duplicate"))
+
+@eprefs.route("/Skills/Edit/<string:tskill>", methods=["GET", "POST"])
+@login_required
+def editSkill(tskill):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    if(current_user.id != cruleset.userid):
-        flash("You cannod delete skills from rulesets that are not your own.", "red")
+    tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
+    if(not tskill):
+        flash("Skill does not exist.", "red")
         return(redirect(url_for("eprefs.skills")))
+    elif(request.method == "POST"):
+        return(skill(request, cruleset, tskill, "edit"))
+    return(
+        render_template(
+            "create-skill.html",
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Skill",
+            skill=tskill
+        )
+    )
+
+
+@eprefs.route("/Skills/Delete/<string:tskill>")
+@login_required
+def deleteSkill(tskill):
+    cruleset = getCurrentRuleset(current_user)
+    tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
+    if(not tskill):
+        flash("Skill does not exist.", "red")
     else:
-        skill = Skill.query.filter_by(id=rid, rulesetid = cruleset.id).first()
-        db.session.delete(skill)
+        db.session.delete(tskill)
         db.session.commit()
         flash("Skill deleted.", "orange")
-        return(redirect(url_for("eprefs.skills")))
+    return(redirect(url_for("eprefs.skills")))

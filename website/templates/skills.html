@@ -8,22 +8,17 @@
 <div class="flex">
     <div class="flex vertical start" x-data="main">
         <h1>Skills</h1>
-        <ol class="toc">
-            {% for skill in cruleset.skills %}
-            <li><a href="/Reference/Skills#{{ skill.name.replace(' ', '-') }}">{{ skill.name }}</a></li>
-            {% endfor %}
-        </ol>
         {% for skill in cruleset.skills %}
-        <div class="interior flex horizontal space-between" style="width: 100%">
-            <h2 style="margin: 0" id="{{ skill.name.replace(' ', '-') }}">{{ skill.name }}</h2>
-            {% if cruleset.userid == current_user.id %}
-            <div class="interior flex horizontal center" style="width: auto">
-                <a href="/Reference/Skills/Edit/{{ skill.id }}"><button>Edit Skill</button></a>
-                <a href="/Reference/Skills/Delete/{{ skill.id }}"><button class="danger">Delete Skill</button></a>
-            </div>
-            {% else %}
-            <a></a>
-            {% endif %}
+        <div class="usercontent">
+            <h2>{{ skill.name }}</h2>
+			{% if cruleset.userid == current_user.id %}
+				<div>
+					<a href="/Reference/Skills/Edit/{{ skill.name.replace(' ', '-') }}"><button style="width: auto">Edit {{ skill.name }}</button></a>
+					<a href="/Reference/Skills/Duplicate/{{ skill.name.replace(' ', '-') }}"><button style="width: auto">Duplicate {{ skill.name }}</button></a>
+					<a href="/Reference/Skills/Delete/{{ skill.name.replace(' ', '-') }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
+				</div>
+			{% endif %}
+            <hr>
         </div>
         <p><strong>Ability: </strong>{{ skill.ability_score }}</p>
         <div x-html="convert(`{{ skill.description }}`)" style="width: 100%; margin-bottom: 48px"></div>

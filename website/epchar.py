@@ -399,7 +399,7 @@ def duplicateStat(score):
         flash("Ability Score does not exist.", "red")
     else:
         result = abilityScore(None, cruleset, ability_score, "duplicate")
-        return(result)
+    return(redirect(url_for("epchar.stats")))
 
 @epchar.route("/Ability-Scores/Delete/<string:score>")
 @login_required

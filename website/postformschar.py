@@ -3,7 +3,6 @@ from flask_login import current_user
 from . import db
 from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore, ClassColumn, SubclassColumn, ClassFeature, Playerclass, Subclass, SubclassFeature
 
-## CHARACTER
 def abilityScore(request, cruleset, ability_score, instruction):
     name = request.form.get("name")
     abbr = request.form.get("abbr")
@@ -308,7 +307,3 @@ def makerace(request, cruleset, race, instruction):
                     flash("Race created!", "green")
                 return(redirect(url_for("epchar.races")))
     return(False)
-
-## REFERENCES
-
-def skill():
