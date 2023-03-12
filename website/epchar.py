@@ -8,8 +8,6 @@ import json
 
 epchar = Blueprint('epchar', __name__)
 
-
-## CHARACTERS
 @epchar.route("/")
 def char():
     return(redirect(url_for("epmain.home")))
@@ -87,7 +85,7 @@ def editRace(race):
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
-            title="Create a Race",
+            title=f"Edit {target_race.name}",
             race=target_race
         )
     )

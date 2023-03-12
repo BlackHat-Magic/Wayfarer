@@ -331,31 +331,7 @@ def createTag():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create item tags for rulesets that are not yours.", "red")
-        else:
-            name = request.form.get("name")
-            text = request.form.get("text")
-            if(len(name) < 1):
-                flash("You must specify a tag name.", "red")
-            elif(len(name) > 127):
-                flash("Tag name must be fewer than 128 characters.", "red")
-            elif(len(text) > 16383):
-                flash("Tag description must be fewer than 16384 characters.", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                new_tag = ItemTag(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    text = text
-                )
-                db.session.add(new_tag)
-                db.session.commit()
-                flash("Item tag created!", "green")
-                return(redirect(url_for("eprefs.tags")))
+        return(itemTag(request, cruleset, None, "create"))
     return(
         render_template(
             "create-tag.html", 
@@ -366,6 +342,54 @@ def createTag():
             title="Create Item Type"
         )
     )
+
+@eprefs.route("/Items/Tags/Duplicate/<string:item>")
+@login_required
+def duplicateTag(item):
+    cruleset = getCurrentRuleset(current_user)
+    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    if(not tag):
+        flash("Tag does not exist", "red")
+    return(itemTag(None, cruleset, tag, "duplicate"))
+
+@eprefs.route("/Items/Tags/Edit/<string:item>", methods=["GET", "POST"]) 
+@login_required
+def editTag(item):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    if(not tag):
+        flash("Tag does not exist", "red")
+        return(redirect(url_for("eprefs.tags")))
+    elif(request.method == "POST"):
+        return(itemTag(request, cruleset, None, "edit"))
+    return(
+        render_template(
+            "create-tag.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title=f"Edit {tag.name}",
+            tag=tag
+        )
+    )
+
+@eprefs.route("/Items/Tags/Delete/<string:item>")
+@login_required
+def deleteTag(item):
+    cruleset = getCurrentRuleset(current_user)
+    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete item tags in rulesets that are not your own.", "red")
+    elif(not tag):
+        flash("Item tag does not exist", "red")
+    else:
+        db.session.delete(tag)
+        db.session.commit()
+        flash("Item deleted.", "orange")
+    return(redirect(url_for("eprefs.tags")))
 
 @eprefs.route("/Items/Properties")
 def properties():
@@ -386,36 +410,13 @@ def properties():
     )
 
 @eprefs.route("/Items/Properties/Create", methods=["GET", "POST"])
+@login_required
 def createProperty():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create weapon properties for rulesets that are not yours.", "red")
-        else:
-            name = request.form.get("name")
-            text = request.form.get("text")
-            if(len(name) < 1):
-                flash("You must specify a property name.", "red")
-            elif(len(name) > 127):
-                flash("Property name must be fewer than 128 characters.", "red")
-            elif(len(text) > 16383):
-                flash("Property description must be fewer than 16384 characters.", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                new_tag = Property(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    text = text
-                )
-                db.session.add(new_tag)
-                db.session.commit()
-                flash("Weapon property created!", "green")
-                return(redirect(url_for("eprefs.properties")))
+        return(itemProperty(request, cruleset, None, "create"))
     return(
         render_template(
             "create-property.html", 
@@ -423,9 +424,57 @@ def createProperty():
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
-            title="Create Weapon Properties"
+            title="Create Weapon Property"
         )
     )
+
+@eprefs.route("/Items/Properties/Duplicate/<string:item>")
+@login_required
+def duplicateProperty(item):
+    cruleset = getCurrentRuleset(current_user)
+    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    if(not tproperty):
+        flash("Item property does not exist", "red")
+        return(redirect(url_for("eprefs.properties")))
+    return(itemProperty(None, cruleset, tproperty, "duplicate"))
+
+@eprefs.route("/Items/Properties/Edit/<string:item>")
+@login_required
+def editProperty(item):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    if(not tproperty):
+        flash("Item property does not exist", "red")
+    elif(request.method == "POST"):
+        return(itemProperty(request, cruleset, None, "create"))
+    return(
+        render_template(
+            "create-property.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title=f"Edit {tproperty.name}",
+            tproperty=tproperty
+        )
+    )
+
+@eprefs.route("/Items/Properties/Delete/<string:item>")
+@login_required
+def deleteProperty(item):
+    cruleset = getCurrentRuleset(current_user)
+    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    if(not tproperty):
+        flash("Item property does not exist.", "red")
+    elif(current_user.id != cruleset.userid):
+        flash("You cannot delete item properties in rulesets that are not your own.")
+    else:
+        db.session.delete(tproperty)
+        db.session.commit()
+        flash("Item property deleted.", "orange")
+    return(redirect(url_for("eprefs.properties")))
 
 @eprefs.route("/Languages")
 def refsLang():

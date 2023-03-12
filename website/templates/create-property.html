@@ -7,11 +7,19 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Create Weapon Property</h1>
+		{% if tproperty %}
+			<h1>Edit {{ tproperty.name }}</h1>
+		{% else %}
+			<h1>Create Weapon Property</h1>
+		{% endif %}
 		<form class="interior flex vertical start" method="post">
-			<input name="name" id="name" x-model="name" placeholder="Weapon Property Name">
-			<textarea name="text" id="text" x-model="text" placeholder="Weapon Property Description"></textarea>
-			<a><button type="submit">Create Weapon Property!</button></a>
+			<input name="name" id="name" x-model="name" placeholder="Weapon Property Name" {% if tproperty %} x-init="name=`{{ tproperty.name }}`" {% endif %}>
+			<textarea name="text" id="text" x-model="text" placeholder="Weapon Property Description" {% if tproperty %} x-init="text=`{{ tproperty.text }}`" {% endif %}></textarea>
+			{% if tproperty %}
+				<a><button type="submit">Submit Changes</button></a>
+			{% else %}
+				<a><button type="submit">Create Weapon Property!</button></a>
+			{% endif %}
 		</form>
 		<h2 x-text="name"></h2>
 		<hr>
