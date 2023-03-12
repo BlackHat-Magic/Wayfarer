@@ -370,7 +370,7 @@ def editStat(score):
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score.replace("-", " ")).first()
     if(not ability_score):
-        flash("Ability Score not found.", "red")
+        flash("Ability Score does not exist.", "red")
         return(redirect(url_for("epchar.stats")))
     if(request.method=="POST"):
         result = abilityScore(request, cruleset, ability_score)
@@ -387,6 +387,29 @@ def editStat(score):
             score=ability_score
         )
     )
+
+@epchar.route("/Ability-Scores/Duplicate/<string:score>")
+@login_required
+def duplicateStat(score):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score.replace("-", " ")).first()
+    if(not ability_score):
+        flash("Ability Score does not exist.", "red")
+    elif(current_user.id != cruleset.userid):
+        flash("You cannot create ability scores for rulesets that are not your own.")
+    else:
+        new_ability_score = AbilityScore(
+            rulesetid=cruleset.id,
+            name=f"{ability_score.name} Duplicate",
+            abbr=ability_score.abbr,
+            order=ability_score.order,
+            text=ability_score.text
+        )
+        db.session.add(new_ability_score)
+        db.session.commit()
+    return(redirect(url_for("epchar.stats")))
 
 @epchar.route("/Ability-Scores/Delete/<string:score>")
 @login_required

@@ -14,6 +14,7 @@
 			{% if cruleset.userid == current_user.id %}
 				<div>
 					<a href="/Character/Ability-Scores/Edit/{{ score.name.replace(' ', '-') }}"><button style="width: auto">Edit {{ score.name }}</button></a>
+					<a href="/Character/Ability-Scores/Duplicate/{{ score.name.replace(' ', '-') }}"><button style="width: auto">Duplicate {{ score.name }}</button></a>
 					<a href="/Character/Ability-Scores/Delete/{{ score.name.replace(' ', '-') }}"><button class="mild danger" style="width: auto">Delete {{ score.name }}</button></a>
 				</div>
 			{% endif %}

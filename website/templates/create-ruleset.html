@@ -1,11 +1,17 @@
 {% extends "master.html" %}
 
+{% block head %}
+<script src="{{ url_for('static', filename='js/create-ruleset.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start">
+	<div class="flex vertical start" x-data="main">
 		<h1>Create a Ruleset</h1>
 		<form method="POST" class="interior flex vertical start">
 			<input type="text" placeholder="Ruleset Name" name="name" id="name"style="width: auto">
+			<textarea placeholder="Ruleset description" x-model="text"></textarea>
+			<input type="hidden" name="text" id="text" x-model="text">
 			<div class="interior flex horizontal center">
 				<label for="shareable"><h3 style="width: auto">Make ruleset shareable?</h3></label>
 				<select name="shareable" id="shareable"style="width: auto">
@@ -15,6 +21,9 @@
 			</div>
 			<a><button type="submit">Create Ruleset</button></a>
 		</form>
+		<h2>Ruleset Description:</h2>
+		<hr>
+		<div class="usercontent" x-html="convert(text)"></div>
 	</div>
 </div>
 

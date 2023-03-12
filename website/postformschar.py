@@ -15,7 +15,7 @@ def abilityScore(request, cruleset, ability_score):
         except:
             flash("Ability Score Order must be a number.")
             bad = True
-    if(current_user.id != ability_score.userid):
+    if(ability_score and current_user.id != cruleset.userid):
         flash("You cannot edit Ability Scores for rulesets that are not your own.", "red")
     elif(len(name) < 1):
         flash("You must specify an Ability Score name.", "red")
