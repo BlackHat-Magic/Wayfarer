@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, session, flash, jsonify
 from flask_login import current_user
 from . import db
-from .models import Skill, ItemTag, Property
+from .models import Skill, ItemTag, Property, Language
 
 def itemTag(request, cruleset, tag, instruction):
     if(current_user.id != cruleset.userid):
@@ -95,6 +95,52 @@ def itemProperty(request, cruleset, tproperty, instruction):
                 tproperty.text = text
                 db.session.commit()
     return(redirect(url_for("eprefs.properties")))
+
+def language(request, cruleset, language, instruction):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot create languages for rulesets that are not your own.", "red")
+    elif(instruction == "duplicate"):
+        new_language = Language(
+            rulesetid=cruleset.id,
+            name=f"{language.name} Duplicate",
+            text=language.text
+        )
+        db.session.add(new_language)
+        db.session.commit()
+    else:
+        name = request.form.get("name")
+        text = request.form.get("text")
+        if(len(name) < 1):
+            flash("You must specify a language name.", "red")
+            return(redirect(url_for("eprefs.createLanguage")))
+        elif(len(name) > 127):
+            flash("Language name must be fewer than 128 characters.", "red")
+            return(redirect(url_for("eprefs.createLanguage")))
+        elif(len(text) > 16383):
+            flash("Language description must be fewer than 16384 characters.", "red")
+            return(redirect(url_for("eprefs.createLanguage")))
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+            return(redirect(url_for("eprefs.createLanguage")))
+        elif("<" in text):
+            flash("Open angle brackets(\"<\") are not allowed.", "red")
+            return(redirect(url_for("eprefs.createLanguage")))
+        else:
+            if(instruction == "edit"):
+                language.name = name
+                language.ability_score = ability_score
+                language.description = description
+                flash("Changes Saved!", "green")
+            else:
+                new_language = Language(
+                    rulesetid = cruleset.id,
+                    name = name,
+                    text = text
+                )
+                db.session.add(new_language)
+                db.session.commit()
+                flash("Language created!", "green")
+    return(redirect(url_for("eprefs.refsLang")))
 
 def skill(request, cruleset, skill, instruction):
     if(current_user.id != cruleset.userid):

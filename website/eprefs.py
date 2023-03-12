@@ -438,7 +438,7 @@ def duplicateProperty(item):
         return(redirect(url_for("eprefs.properties")))
     return(itemProperty(None, cruleset, tproperty, "duplicate"))
 
-@eprefs.route("/Items/Properties/Edit/<string:item>")
+@eprefs.route("/Items/Properties/Edit/<string:item>", methods=["GET", "POST"])
 @login_required
 def editProperty(item):
     cruleset = getCurrentRuleset(current_user)
@@ -447,6 +447,7 @@ def editProperty(item):
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
     if(not tproperty):
         flash("Item property does not exist", "red")
+        return(redirect(url_for("eprefs.refslang")))
     elif(request.method == "POST"):
         return(itemProperty(request, cruleset, None, "create"))
     return(
@@ -499,31 +500,7 @@ def createLanguage():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create languages for rulesets that are not yours.", "red")
-        else:
-            name = request.form.get("name")
-            text = request.form.get("text")
-            if(len(name) < 1):
-                flash("You must specify a language name.", "red")
-            elif(len(name) > 127):
-                flash("Language name must be fewer than 128 characters.", "red")
-            elif(len(text) > 16383):
-                flash("Language description must be fewer than 16384 characters.", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                new_language = Language(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    text = text
-                )
-                db.session.add(new_language)
-                db.session.commit()
-                flash("Language created!", "green")
-                return(redirect(url_for("eprefs.refsLang")))
+        return(language(request, cruleset, None, "create"))
     return(
         render_template(
             "create-language.html", 
@@ -534,6 +511,59 @@ def createLanguage():
             title="Create a Language"
         )
     )
+
+@eprefs.route("/Languages/Duplicate/<string:tlanguage>")
+@login_required
+def duplicateLanguage(tlanguage):
+    cruleset = getCurrentRuleset(current_user)
+    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage.replace("-", " ")).first()
+    if(cruleset.userid != current_user.id):
+        flash("You cannot create languages for rulesets that are not your own.", "red")
+    elif(not tlanguage):
+        flash("Language does not exist.")
+    else:
+        return(language(None, cruleset, tlanguage, "duplicate"))
+    return(redirect(url_for("eprefs.refsLang")))
+
+@eprefs.route("/Languages/Edit/<string:tlanguage>")
+@login_required
+def editLanguage(tlanguage):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage.replace("-", " ")).first()
+    if(not tlanguage):
+        flash("Language does not exist.", "red")
+        return(redirect(url_for("eprefs.refsLang")))
+    elif(request.method == "POST"):
+        return(language(request, cruleset, tlanguage, "edit"))
+    return(
+        render_template(
+            "create-language.html",
+            user=current_user, 
+            cruleset=cruleset, 
+            frulesets=frulesets, 
+            adminrulesets=adminrulesets,
+            title=f"Edit {tlanguage.name}",
+            tlanguage=tlanguage
+        )
+    )
+
+@eprefs.route("/Languages/Delete/<string:tlanguage>")
+@login_required
+def deleteLanguage(tlanguage):
+    cruleset = getCurrentRuleset(current_user)
+    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage.replace("-", " ")).first()
+    if(not language):
+        flash("Language does not exist.", "red")
+    elif(current_user.id != cruleset.userid):
+        flash("You cannot delete languages in rulesets that are not your own.", "red")
+    else:
+        db.session.delete(tlanguage)
+        db.session.commit()
+        flash("Language deleted.", "orange")
+    return(redirect(url_for("eprefs.refsLang")))
+    
 
 @eprefs.route("/Spells")
 def spells():

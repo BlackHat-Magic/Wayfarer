@@ -7,11 +7,19 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Create Language</h1>
+		{% if tlanguage %}
+			<h1>Edit {{ tlanguage.name }}</h1>
+		{% else %}
+			<h1>Create Language</h1>
+		{% endif %}
 		<form class="interior flex vertical start" method="post">
-			<input name="name" id="name" x-model="name" placeholder="Language Name">
-			<textarea name="text" id="text" x-model="text" placeholder="Language Description"></textarea>
-			<a><button type="submit">Create Language!</button></a>
+			<input name="name" id="name" x-model="name" placeholder="Language Name" {% if tlanguage %} x-init="name=`{{ tlanguage.name }}`" {% endif %}>
+			<textarea name="text" id="text" x-model="text" placeholder="Language Description" {% if tlanguage %} x-init="text=`{{ tlanguage.text }}`" {% endif %}></textarea>
+			{% if tlanguage %}
+				<a><button type="submit">Submit Changes</button></a>
+			{% else %}
+				<a><button type="submit">Create Language!</button></a>
+			{% endif %}
 		</form>
 		<h2 x-text="name"></h2>
 		<hr>
