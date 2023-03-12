@@ -63,9 +63,9 @@ def duplicateRace(race):
     race = Race.query.filter_by(rulesetid=cruleset.id, name=race.replace("-", " ")).first()
     if(not race):
         flash("Race does not exist.", "red")
-    else:
-        result = makerace(request, cruleset, race, "duplicate")
-    return(redirect(url_for("epchar.races")))
+        return(redirect(url_for("epchar.races")))
+    result = makerace(request, cruleset, race, "duplicate")
+    return(result)
 
 @epchar.route("/Races/Edit/<string:race>", methods=["GET", "POST"])
 @login_required
@@ -372,8 +372,8 @@ def editStat(score):
     if(not ability_score):
         flash("Ability Score does not exist.", "red")
         return(redirect(url_for("epchar.stats")))
-    if(request.method=="POST"):
-        result = abilityScore(request, cruleset, ability_score)
+    elif(request.method=="POST"):
+        result = abilityScore(request, cruleset, ability_score, "edit")
         if(result != False):
             return(result)
     return(
@@ -397,19 +397,9 @@ def duplicateStat(score):
     ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score.replace("-", " ")).first()
     if(not ability_score):
         flash("Ability Score does not exist.", "red")
-    elif(current_user.id != cruleset.userid):
-        flash("You cannot create ability scores for rulesets that are not your own.")
     else:
-        new_ability_score = AbilityScore(
-            rulesetid=cruleset.id,
-            name=f"{ability_score.name} Duplicate",
-            abbr=ability_score.abbr,
-            order=ability_score.order,
-            text=ability_score.text
-        )
-        db.session.add(new_ability_score)
-        db.session.commit()
-    return(redirect(url_for("epchar.stats")))
+        result = abilityScore(None, cruleset, ability_score, "duplicate")
+        return(result)
 
 @epchar.route("/Ability-Scores/Delete/<string:score>")
 @login_required

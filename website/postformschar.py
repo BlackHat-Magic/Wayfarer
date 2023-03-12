@@ -3,13 +3,26 @@ from flask_login import current_user
 from . import db
 from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore, ClassColumn, SubclassColumn, ClassFeature, Playerclass, Subclass, SubclassFeature
 
-def abilityScore(request, cruleset, ability_score):
+## CHARACTER
+def abilityScore(request, cruleset, ability_score, instruction):
     name = request.form.get("name")
     abbr = request.form.get("abbr")
     order = request.form.get("order")
     text = request.form.get("text")
     bad = False
-    if(order):
+    if(instruction == "duplicate"):
+        new_ability_score = AbilityScore(
+            rulesetid=cruleset.id,
+            name=ability_score.name,
+            abbr=ability_score.abbr,
+            order=ability_score.order,
+            text=ability_score.text
+        )
+        db.session.add(new_ability_score)
+        db.session.commit()
+        flash("Ability Score Duplicated!")
+        return(redirect(url_for("epchar.stats")))
+    elif(order):
         try:
             order = int(order)
         except:
@@ -295,3 +308,7 @@ def makerace(request, cruleset, race, instruction):
                     flash("Race created!", "green")
                 return(redirect(url_for("epchar.races")))
     return(False)
+
+## REFERENCES
+
+def skill():
