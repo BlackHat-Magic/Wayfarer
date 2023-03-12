@@ -18,7 +18,7 @@
 			}
 		)"></template>
 		{% endfor %}
-		<template x-init="truncateEquipment()"></template>
+		<template x-init="truncateEquipment(); console.log(bgROM)"></template>
 		<h1>Backgrounds</h1>
 		<input type="text" name="tableinput" id="tableinput" placeholder="Search Backgrounds..." x-model="query">
 		<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">

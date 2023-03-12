@@ -17,7 +17,9 @@
         <div class="usercontent" x-html="convert(`{{ feature.text }}`)"></div>
         {% endfor %}
         {% if cruleset.userid == current_user.id %}
-        <a @click="delete()"><button type="button" class="danger">Delete {{ background.name.replace(" ", "-") }}</button></a>
+        <a href="/Character/Backgrounds/Duplicate/{{ background.name.replace(' ', '-') }}"><button type="button">Duplicate {{ background.name }}</button></a>
+        <a href="/Character/Backgrounds/Edit/{{ background.name.replace(' ', '-') }}"><button type="button">Edit {{ background.name }}</button></a>
+        <a href="/Character/Backgrounds/Delete/{{ background.name.replace(' ', '-') }}"><button type="button" class="mild danger">Delete {{ background.name }}</button></a>
         {% endif %}
     </div>
 </div>

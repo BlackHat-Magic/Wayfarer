@@ -7,9 +7,13 @@
 {% block body %}
 <div class="flex" x-data="main">
 	<div class="flex vertical start">
-		<h1>Create a Background</h1>
+		{% if tbackground %}
+			<h1>Edit {{ tbackground.name }}</h1>
+		{% else %}
+			<h1>Create a Background</h1>
+		{% endif %}
 		<form class="interior flex vertical start" method="post">
-			<input name="name" id="name" x-model="name" placeholder="Background Name">
+			<input name="name" id="name" x-model="name" placeholder="Background Name" {% if tbackground %} x-init="name=`{{ tbackground.name }}`" {% endif %}>
 			{% if not cruleset.skills %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
@@ -34,6 +38,11 @@
 							<input type="hidden" id="skill" name="skill" x-model="skills[index]">
 						</template> 
 					</div>
+					{% if tbackground %}
+						{% for skill in tbackground.skills %}
+							<template x-init="skillselect=`{{ skill }}`; appendSkill()"></template>
+						{% endfor %}
+					{% endif %}
 				</div>
 			{% endif %}
 			{% if not tools %}
@@ -60,6 +69,11 @@
 							<input type="hidden" id="tool" name="tool" x-model="tools[index]">
 						</template> 
 					</div>
+					{% if tbackground %}
+						{% for tool in tbackground.tools %}
+							<template x-init="toolselect=`{{ tool }}`; appendTool()"></template>
+						{% endfor %}
+					{% endif %}
 				</div>
 			{% endif %}
 			{% if not cruleset.languages %}
@@ -83,9 +97,15 @@
 					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
 						<template x-for="language, index in languages">
 							<span class="chip" @click="removeLanguage(index)"><span x-text="language"></span><span class="remove">&times</span></span>
+							<input type="hidden" name="language" id="language" x-model="languages[index]">
 						</template>
-						<input type="hidden" name="language" id="language" x-model="parsedlanguage">
 					</div>
+					{% if tbackground %}
+						<template x-init="langnum={{ tbackground.langnum }}"></template>
+						{% for language in tbackground.languages %}
+							<template x-init="languageselect={{ language }}; appendLanguage()"></template>
+						{% endfor %}
+					{% endif %}
 				</div>
 			{% endif %}
 			{% if not cruleset.items %}
@@ -112,20 +132,22 @@
 						<template x-for="item, index in items">
 							<input type="hidden" id="item" name="item" x-model="items[index]">
 						</template> 
-						<template x-if="gold > 0">
-							<input type="hidden" id="item" name="item" x-model="parsedgold">
-						</template>
 					</div>
+					{% if tbackground %}
+						{% for item in tbackground.equipment %}
+							<template x-init="itemselect=`{{ item }}`; appendItem()"></template>
+						{% endfor %}
+					{% endif %}
 				</div>
 			{% endif %}
 			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 				<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
 					<label for="items">Starting Gold: </label>
-					<input name="goldcontainer" id="goldcontainer" x-model="goldcontainer" placeholder='Gold Container (e.g. "Purse," "Pouch", etc )' style="width: 33%; min-width: auto">
-					<input type="number" name="gold" id="gold" x-model="gold" style="width: 33%; min-width: auto">
+					<input name="goldcontainer" id="goldcontainer" x-model="goldcontainer" placeholder='Gold Container (e.g. "Purse," "Pouch", etc )' style="width: 33%; min-width: auto" {% if tbackground %} x-init="goldcontainer=`{{ tbackground.gold_container }}`" {% endif %}>
+					<input type="number" name="gold" id="gold" x-model="gold" style="width: 33%; min-width: auto" {% if tbackground %} x-init="gold={{ tbackground.starting_gold }}" {% endif %}>
 				</div>
 			</div>
-			<textarea name="text" id="text" x-model="text" placeholder="Background Description"></textarea>
+			<textarea name="text" id="text" x-model="text" placeholder="Background Description" {% if tbackground %} x-init="text=`{{ tbackground.text }}`" {% endif %}></textarea>
 			<h2>Background Features</h2>
 			<template x-for="feature, index, in features">
 				<div class="interior flex horizontal center space-between" style="width: 100%">
@@ -134,6 +156,12 @@
 					<textarea style="height: 200px" x-model="features[index].text" placeholder="Background Feature Description" id="featuretext" name="featuretext"></textarea>
 				</div>
 			</template>
+			{% if tbackground %}
+				<template x-init="features = []"></template>
+				{% for feature in tbackground.background_features %}
+					<template x-init="features.push({name: `{{ feature.name }}`, text: `{{ feature.text }}`})"></template>
+				{% endfor %}
+			{% endif %}
 			<a @click="addFeature()"><button type="button">Add a Background Feature</button></a>
 			<a><button type="submit">Create Background</button></a>
 		</form>

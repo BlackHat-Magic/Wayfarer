@@ -157,68 +157,7 @@ def createBackground():
     for tool in Item.query.filter_by(rulesetid = cruleset.id, proficiency = True):
         tools.append(tool)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create backgrounds for a ruleset that is not your own.")
-            return("1")
-        else:
-            name = request.form.get("name")
-            skills = request.form.getlist("skill")
-            tools = request.form.getlist("tool")
-            languages = request.form.get("language")
-            items = request.form.getlist("item")
-            text = request.form.get("text")
-            featurenames = request.form.getlist("featurename")
-            featuretexts = request.form.getlist("featuretext")
-            if(len("name") < 1):
-                flash("You must specify a background name.", "red")
-            elif(len("name") > 127):
-                flash("Background name must be fewer than 128 characters.", "red")
-            elif(len("text") > 16383):
-                flash("Text must be fewer than 16384 characters.", "red")
-            elif("-" in "name"):
-                flash("Dashes (\"-\") are not allowed in the background name.", "red")
-            elif("<" in "text"):
-                flash("Open angle brackets(\"<\") are not allowed.", "red")
-            elif("javascript" in "text"):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                for index, feature in enumerate(featurenames):
-                    if(len(feature) < 1):
-                        flash("You must specify a feature name.", "red")
-                    elif(len(feature) > 127):
-                        flash("Feature name must be fewer than 128 characters.", "red")
-                    elif(len(featuretexts[index]) > 16383):
-                        flash("Text must be fewer than 16383 characters.", "red")
-                    elif("<" in featuretexts[index]):
-                        flash("Open angle brackets(\"<\") are not allowed.", "red")
-                    elif("javascript" in featuretexts[index]):
-                        flash("Cross-site scripting attacks are not allowed.", "red")
-                new_background = Background(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    skills = skills,
-                    tools = tools,
-                    languages = languages,
-                    equipment = items,
-                    text = text
-                )
-                db.session.add(new_background)
-                db.session.commit()
-
-                new_background = Background.query.filter_by(
-                    name = name,
-                    rulesetid = cruleset.id
-                ).first()
-                for index, feature in enumerate(featurenames):
-                    new_feature = BackgroundFeature(
-                        backgroundid = new_background.id,
-                        name = feature,
-                        text = featuretexts[index]
-                    )
-                    db.session.add(new_feature)
-                db.session.commit()
-                flash("Background created!", "green")
-                return(redirect(url_for("epchar.backgrounds")))
+        return(makebackground(request, cruleset, None, "create"))
     return(
         render_template(
             "create-background.html", 
@@ -230,6 +169,61 @@ def createBackground():
             title="Create a Background"
         )
     )
+
+@epchar.route("/Backgrounds/Duplicate/<string:tbackground>")
+@login_required
+def duplicateBackground(tbackground):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground.replace("-", " ")).first()
+    if(not tbackground):
+        flash("Background does not exist.")
+        return(redirect(url_for("epchar.backgrounds")))
+    return(makebackground(request, cruleset, tbackground, "duplicate"))
+
+@epchar.route("/Backgrounds/Edit/<string:tbackground>", methods=["GET", "POST"])
+@login_required
+def editBackground(tbackground):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground.replace("-", " ")).first()
+    tools = []
+    for tool in Item.query.filter_by(rulesetid = cruleset.id, proficiency = True):
+        tools.append(tool)
+    if(not tbackground):
+        flash("Background does not exist.")
+        return(redirect(url_for("epchar.backgrounds")))
+    elif(request.method == "POST"):
+        return(makebackground(request, cruleset, None, "create"))
+    return(
+        render_template(
+            "create-background.html",
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            tools=tools, 
+            title=f"Edit {tbackground.name}",
+            tbackground=tbackground
+        )
+    )
+
+@epchar.route("/Backgrounds/Delete/<string:tbackground>")
+@login_required
+def deleteBackground(tbackground):
+    cruleset = getCurrentRuleset(current_user)
+    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground.replace("-", " ")).first()
+    if(not tbackground):
+        flash("Background does not exist.", "red")
+    elif(current_user.id != cruleset.userid):
+        flash("You cannot delete backgrounds in rulesets that are not your own.", "red")
+    else:
+        db.session.delete(tbackground)
+        db.session.commit()
+        flash("Background deleted.", "orange")
+    return(redirect(url_for("epchar.backgrounds")))
 
 @epchar.route("/Background/<string:background>")
 def background(background):
@@ -272,36 +266,66 @@ def createFeat():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create feats for rulesets that are not your own.")
-        else:
-            name = request.form.get("name")
-            text = request.form.get("text")
-            prereq = request.form.get("prereq")
-            if(len(name) < 1):
-                flash("You must specify a feat name.", "red")
-            elif(len(name) > 127):
-                flash("Feat name must be fewer than 128 characters.", "red")
-            elif(len(prereq) > 255):
-                flash("Feat Prerequisite must be fewer than 256 characters.", "red")
-            elif(len(text) > 16383):
-                flash("Feat description must be fewer than 16384 characters.", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                new_feat = Feat(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    prerequisite = prereq,
-                    text = text
-                )
-                db.session.add(new_feat)
-                db.session.commit()
-                flash("Feat created!", "green")
-                return(redirect(url_for("epchar.feats")))
-    return(render_template("create-feat.html", user=current_user, frulesets=frulesets, cruleset=cruleset, adminrulesets=adminrulesets, title="Create a Feat"))
+        return(makefeat(request, cruleset, None, "create"))
+    return(
+        render_template(
+            "create-feat.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Create a Feat"
+        )
+    )
+
+@epchar.route("/Feats/Duplicate/<string:tfeat>")
+@login_required
+def duplicateFeat(tfeat):
+    cruleset = getCurrentRuleset(current_user)
+    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat.replace("-", " ")).first()
+    if(not tfeat):
+        flash("Feat does not exist.", "red")
+    else:
+        return(makefeat(None, cruleset, tfeat, "duplicate"))
+    return(redirect(url_for("epchar.feats")))
+
+@epchar.route("/Feats/Edit/<string:tfeat>", methods=["GET", "POST"])
+@login_required
+def editFeat(tfeat):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat.replace("-", " ")).first()
+    if(not tfeat):
+        flash("Feat does not exist.", "red")
+    elif(request.method == "POST"):
+        return(makefeat(request, cruleset, tfeat, "edit"))
+    return(
+        render_template(
+            "create-feat.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title=f"Edit {tfeat.name}",
+            tfeat=tfeat
+        )
+    )
+
+@epchar.route("/Feats/Delete/<string:tfeat>")
+@login_required
+def deleteFeat(tfeat):
+    cruleset = getCurrentRuleset(current_user)
+    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat.replace("-", " ")).first()
+    if(not tfeat):
+        flash("Feat does not exist.", "red")
+    elif(current_user.id != cruleset.userid):
+        flash("You cannot delete feats in rulesets that are not your own.", "red")
+    else:
+        db.session.delete(tfeat)
+        db.session.commit()
+        flash("Feat deleted.", "orange")
+    return(redirect(url_for("epchar.feats")))
 
 @epchar.route("/Feat/<string:feat>")
 def feat(feat):

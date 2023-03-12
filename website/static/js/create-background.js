@@ -100,7 +100,7 @@ document.addEventListener ("alpine:init", () => {
             } else if (this.langnum == 0) {
                 result = "none";
             } else if (this.langnum < 10) {
-                if (this.langnum.includes("Any")) {
+                if (this.languages.length == 0) {
                     result = "Any " + numlist[this.langnum - 1] + " of your choice.";
                 } else {
                     result = "Any " + numlist[this.langnum - 1] + " of your choice from: " + langstring;

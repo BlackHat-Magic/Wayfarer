@@ -201,6 +201,8 @@ class Background(db.Model):
     lang_num = db.Column(db.Integer)
     languages = db.Column(db.PickleType)
     equipment = db.Column(db.PickleType)
+    gold_container = db.Column(db.String(127))
+    starting_gold = db.Column(db.Integer)
     text = db.Column(db.String(16383))
     background_features = db.relationship("BackgroundFeature")
 

@@ -4,12 +4,10 @@ from . import db
 from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore, ClassColumn, SubclassColumn, ClassFeature, Playerclass, Subclass, SubclassFeature
 
 def abilityScore(request, cruleset, ability_score, instruction):
-    name = request.form.get("name")
-    abbr = request.form.get("abbr")
-    order = request.form.get("order")
-    text = request.form.get("text")
     bad = False
-    if(instruction == "duplicate"):
+    if(ability_score and current_user.id != cruleset.userid):
+        flash("You cannot edit Ability Scores for rulesets that are not your own.", "red")
+    elif(instruction == "duplicate"):
         new_ability_score = AbilityScore(
             rulesetid=cruleset.id,
             name=ability_score.name,
@@ -27,8 +25,6 @@ def abilityScore(request, cruleset, ability_score, instruction):
         except:
             flash("Ability Score Order must be a number.")
             bad = True
-    if(ability_score and current_user.id != cruleset.userid):
-        flash("You cannot edit Ability Scores for rulesets that are not your own.", "red")
     elif(len(name) < 1):
         flash("You must specify an Ability Score name.", "red")
     elif(len(name) > 127):
@@ -42,6 +38,10 @@ def abilityScore(request, cruleset, ability_score, instruction):
     elif("javascript" in text):
         flash("Cross-site scripting attacks are not allowed.", "red")
     elif(not bad):
+        name = request.form.get("name")
+        abbr = request.form.get("abbr")
+        order = request.form.get("order")
+        text = request.form.get("text")
         if(not ability_score):
             new_ability_score = AbilityScore(
                 rulesetid = cruleset.id,
@@ -307,3 +307,184 @@ def makerace(request, cruleset, race, instruction):
                     flash("Race created!", "green")
                 return(redirect(url_for("epchar.races")))
     return(False)
+
+def makebackground(request, cruleset, background, instruction):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot create backgrounds in rulesets that are not your own.", "red")
+    elif(instruction == "duplicate"):
+        new_background = Background(
+            rulesetid = background.rulesetid,
+            name = f"{background.name} Duplicate",
+            skills = background.skills,
+            tools = background.tools,
+            lang_num = background.lang_num,
+            languages = background.languages,
+            equipment = background.equipment,
+            text = background.text
+        )
+        db.session.add(new_background)
+        db.session.commit()
+        new_background = Background.query.filter_by(rulesetid = cruleset.id, name=new_background.name).first()
+        for feature in background.background_features:
+            new_background_feature = BackgroundFeature(
+                backgroundid = new_background.id,
+                name = feature.name,
+                text = feature.text
+            )
+            db.session.add(new_background_feature)
+            db.session.commit()
+        flash("Background Duplicated!", "green")
+    else:
+        name = request.form.get("name")
+        skills = request.form.getlist("skill")
+        tools = request.form.getlist("tool")
+        lang_num = reuqest.form.get("lang_num")
+        languages = request.form.getlist("language")
+        items = request.form.getlist("item")
+        goldcontainer = request.form.get("goldcontainer")
+        startinggold = request.form.get("gold")
+        text = request.form.get("text")
+        featurenames = request.form.getlist("featurename")
+        featuretexts = request.form.getlist("featuretext")
+        if(len("name") < 1 or not name):
+            flash("You must specify a background name.", "red")
+            return(redirect(url_for("epchar.createBackground")))
+        elif(len("name") > 127):
+            flash("Background name must be fewer than 128 characters.", "red")
+            return(redirect(url_for("epchar.createBackground")))
+        elif(len("text") > 16383):
+            flash("Text must be fewer than 16384 characters.", "red")
+            return(redirect(url_for("epchar.createBackground")))
+        elif("-" in "name"):
+            flash("Dashes (\"-\") are not allowed in the background name.", "red")
+            return(redirect(url_for("epchar.createBackground")))
+        elif("<" in "text"):
+            flash("Open angle brackets(\"<\") are not allowed.", "red")
+            return(redirect(url_for("epchar.createBackground")))
+        elif("javascript" in "text"):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+            return(redirect(url_for("epchar.createBackground")))
+        elif(len(goldcontainer) > 127):
+            flash("Starting gold container name must be fewer than 128 characters.")
+            return(redirect(url_for("epchar.createBackground")))
+        else:
+            for index, feature in enumerate(featurenames):
+                if(len(feature) < 1):
+                    flash("You must specify a feature name.", "red")
+                    return(redirect(url_for("epchar.createBackground")))
+                elif(len(feature) > 127):
+                    flash("Feature name must be fewer than 128 characters.", "red")
+                    return(redirect(url_for("epchar.createBackground")))
+                elif(len(featuretexts[index]) > 16383):
+                    flash("Text must be fewer than 16383 characters.", "red")
+                    return(redirect(url_for("epchar.createBackground")))
+                elif("<" in featuretexts[index]):
+                    flash("Open angle brackets(\"<\") are not allowed.", "red")
+                    return(redirect(url_for("epchar.createBackground")))
+                elif("javascript" in featuretexts[index]):
+                    flash("Cross-site scripting attacks are not allowed.", "red")
+                    return(redirect(url_for("epchar.createBackground")))
+            if(instruction == "create"):
+                new_background = Background(
+                    rulesetid = cruleset.id,
+                    name = name,
+                    skills = skills,
+                    tools = tools,
+                    lang_num = lang_num,
+                    languages = languages,
+                    equipment = items,
+                    gold_container = goldcontainer,
+                    starting_gold = startinggold,
+                    text = text
+                )
+                db.session.add(new_background)
+                db.session.commit()
+
+                new_background = Background.query.filter_by(
+                    name = name,
+                    rulesetid = cruleset.id
+                ).first()
+                for index, feature in enumerate(featurenames):
+                    new_feature = BackgroundFeature(
+                        backgroundid = new_background.id,
+                        name = feature,
+                        text = featuretexts[index]
+                    )
+                    db.session.add(new_feature)
+                db.session.commit()
+                flash("Background created!", "green")
+            else:
+                background.name = name
+                background.skills = skills
+                background.tools = tools
+                background.lang_num = lang_num
+                background.languages = languages
+                background.equipment = equipment
+                background.text = text
+                featurenum = 0
+                for index, feature in enumerate(background.features):
+                    feature.name = featurenames[index]
+                    feature.text = featuretexts[index]
+                    featurenum += 1
+                db.session.commit()
+                if(len(featurenames) > featurenum):
+                    for index, feature in enumerate(featurenames):
+                        if(index + 1 > featurenum):
+                            new_background_feature = BackgroundFeature(
+                                backgroundid = background.id,
+                                name = feature,
+                                text = featuretexts[index]
+                            )
+                            db.session.add(new_background_feature)
+                    db.session.commit()
+                flash("Changes saved!", "green")
+
+    return(redirect(url_for("epchar.backgrounds")))
+
+def makefeat(request, cruleset, tfeat, instruction):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot create backgrounds in rulesets that are not your own.", "red")
+    elif(instruction == "duplicate"):
+        new_feat = Feat(
+            rulesetid = cruleset.id,
+            name = f"{tfeat.name} Duplicate",
+            prerequisite = tfeat.prerequisite,
+            text = tfeat.text
+        )
+        db.session.add(new_feat)
+        db.session.commit()
+        flash("Feat duplicated!", "green")
+    else:
+        name = request.form.get("name")
+        text = request.form.get("text")
+        prereq = request.form.get("prereq")
+        if(len(name) < 1):
+            flash("You must specify a feat name.", "red")
+        elif(len(name) > 127):
+            flash("Feat name must be fewer than 128 characters.", "red")
+        elif(len(prereq) > 255):
+            flash("Feat Prerequisite must be fewer than 256 characters.", "red")
+        elif(len(text) > 16383):
+            flash("Feat description must be fewer than 16384 characters.", "red")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+        else:
+            if(instruction == "create"):
+                new_feat = Feat(
+                    rulesetid = cruleset.id,
+                    name = name,
+                    prerequisite = prereq,
+                    text = text
+                )
+                db.session.add(new_feat)
+                db.session.commit()
+                flash("Feat created!", "green")
+            else:
+                tfeat.name = name
+                tfeat.prerequisite = prereq
+                tfeat.text = text
+                db.session.commit()
+                flash("Changes saved!", "green")
+    return(redirect(url_for("epchar.feats")))

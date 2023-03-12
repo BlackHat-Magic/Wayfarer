@@ -13,8 +13,9 @@
         {% endif %}
         <div class="usercontent" x-html="convert(`{{ feat.text }}`)"></div>
         {% if cruleset.userid == current_user.id %}
-            <a href="/Character/Feat/{{ feat.name.replace(' ', '-') }}/Delete"><button type="button" class="danger">Delete {{ feat.name }}</button></a>
-            <a href="/Character/Feat/{{ feat.name.replace(' ', '-') }}/Duplicate"><button type="button">Duplicate {{ feat.name }}</button></a>
+            <a href="/Character/Feats/Duplicate/{{ feat.name.replace(' ', '-') }}"><button type="button">Duplicate {{ feat.name }}</button></a>
+            <a href="/Character/Feats/Edit/{{ feat.name.replace(' ', '-') }}"><button type=button>Edit {{ feat.name }}</button></a>
+            <a href="/Character/Feats/Delete/{{ feat.name.replace(' ', '-') }}"><button type="button" class="mild danger">Delete {{ feat.name }}</button></a>
         {% endif %}
     </div>
 </div>

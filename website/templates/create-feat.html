@@ -7,12 +7,20 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Create a Feat</h1>
+		{% if tfeat %}
+			<h1>Edit {{ tfeat.name }}</h1>
+		{% else %}
+			<h1>Create a Feat</h1>
+		{% endif %}
 		<form class="interior flex vertical start" method="post">
-			<input id="name" name="name" x-model="name" placeholder="Feat Name">
-			<input id="prereq" name="prereq" x-model="prereq" placeholder="Feat Prerequisite">
-			<textarea id="text" name="text" x-model="text" placeholder="Feat Description"></textarea>
-			<a><button type="submit">Create Feat</button></a>
+			<input id="name" name="name" x-model="name" placeholder="Feat Name" {% if tfeat %} x-init="name=`{{ tfeat.name }}`" {% endif %}>
+			<input id="prereq" name="prereq" x-model="prereq" placeholder="Feat Prerequisite" {% if tfeat %} x-init="prereq=`{{ tfeat.prerequisite }}`" {% endif %}>
+			<textarea id="text" name="text" x-model="text" placeholder="Feat Description" {% if tfeat %} x-init="text=`{{ tfeat.text }}`" {% endif %}></textarea>
+			{% if tfeat %}
+				<a><button type="submit">Submit Changes</button></a>
+			{% else %}
+				<a><button type="submit">Create Feat</button></a>
+			{% endif %}
 		</form>
 		<div class="usercontent">
 			<h1 x-text="name"></h1>
