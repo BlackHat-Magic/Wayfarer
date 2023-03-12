@@ -29,6 +29,7 @@
             {% endfor %}
         {% endif %}
         {% if cruleset.userid == current_user.id %}
+        <a href="/Character/Races/Edit/{{ race.name.replace(' ', '-') }}"><button type="button">Edit {{ race.name }}</button></a>
         <a href="/Character/Races/Duplicate/{{ race.name.replace(' ', '-') }}"><button type="button">Duplicate {{ race.name }}</button></a>
         <a href="/Character/Races/Delete/{{ race.name.replace(' ', '-') }}"><button type="button" class="mild danger">Delete {{ race.name }}</button></a>
         {% endif %}

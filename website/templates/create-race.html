@@ -32,7 +32,7 @@
 					id="asi" 
 					x-model="asis.{{ score.abbr }}"
 					value="0"
-					{% if race %} x-init="asis.{{ score.abbr }} = {{ race.asis[loop.index] }}" {% endif %}
+					{% if race %} x-init="asis.{{ score.abbr }} = {{ race.asis[loop.index - 1] }}" {% endif %}
 				>
 				{% endfor %}
 			</div>
@@ -177,7 +177,7 @@
 			<textarea 
 				placeholder="Flavor Text (You can use markdown syntax! A preview of what it will look like is shown below.)" 
 				x-model="text"
-				{% if race %} x-init="text={{ race.text }}" {% endif %}>
+				{% if race %} x-init="text=`{{ race.flavor }}`;" {% endif %}>
 			</textarea>
 			<input type="hidden" name="text" id="text" x-model="text">
 			<!-- Features -->
@@ -318,7 +318,11 @@
 					</template>
 				</div>
 			</template>
-			<a><button type="submit">Create Race!</button></a>
+			{% if not race %}
+				<a><button type="submit">Create Race!</button></a>
+			{% else %}
+				<a><button type="submit">Submit Changes</button></a>
+			{% endif %}
 		</form>
 	</div>
 </div>

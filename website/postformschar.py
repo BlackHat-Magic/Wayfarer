@@ -82,7 +82,7 @@ def makerace(request, cruleset, race, instruction):
             new_feature = RaceFeature(
                 raceid = new_race.id,
                 name = feature.name,
-                text = feature.name
+                text = feature.text
             )
             db.session.add(new_feature)
         for subrace in race.subraces:
@@ -103,7 +103,7 @@ def makerace(request, cruleset, race, instruction):
                 db.session.add(new_subrace_feature)
         db.session.commit()
         flash("Race duplicated!", "green")
-        retunr(redirect(urld_for("epchar.races")))
+        return(redirect(url_for("epchar.races")))
     else:
         name = request.form.get("name")
         asis = request.form.getlist("asi")
