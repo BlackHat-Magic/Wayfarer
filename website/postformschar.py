@@ -508,7 +508,6 @@ def makeclass(request, cruleset, tclass, instruction):
             subclass_name = tclass.subclass_name,
             subclass_level = tclass.subclass_level,
             levels = tclass.levels,
-            text = tclass.text,
             skills = tclass.skills
         )
         db.session.add(new_class)
@@ -706,7 +705,7 @@ def makeclass(request, cruleset, tclass, instruction):
                             flash("Each subclass' custom column values must be fewer than 128 characters.", "red")
 
             if(not bad):
-                if(instruction == "create")
+                if(instruction == "create"):
                     new_class = Playerclass(
                         rulesetid = cruleset.id,
                         name = name,
@@ -771,11 +770,10 @@ def makeclass(request, cruleset, tclass, instruction):
                                     name = column,
                                     data = request.form.getlist(f"subclass{i}column{j}value")
                                 )
-                                db.session.add(new_subclass_column)
+                            db.session.add(new_subclass_column)
                         db.session.commit()
                         flash("Class Created!", "green")
                 else:
-                    tclass.rulesetid = cruleset.id
                     tclass.name = name
                     tclass.hitdie = hitdie
                     tclass.proficiencies = proficiencies
@@ -791,7 +789,55 @@ def makeclass(request, cruleset, tclass, instruction):
                     tclass.levels = levels
                     tclass.text = text
                     tclass.skills = skills
+                    columnnum = 0
+                    for i, column in enumerate(tclass.columns):
+                        column.name = request.form.getlist("columnname")[i]
+                        column.data = request.form.getlist(f"column{i}value")
+                        columnnum += 1
+                    for i in range(columnnum, len(request.form.getlist("columnname"))):
+                        new_class_column = ClassColumn(
+                            tclass.id,
+                            name = request.form.getlist("columnname")[i],
+                            data = request.form.getlist(f"column{i}value")
+                        )
+                        db.session.add(new_class_column)
+                    featurenum = 0
+                    for i, feature in enumerate(tclass.class_features):
+                        feature.name = request.form.getlist("class_feature_name")[i]
+                        feature.level_obtained = request.form.getlist("level")[i]
+                        feature.text = request.form.getlist("class_feature_text")[i]
+                        featurenum += 1
+                    for i in range(featurenum, len(request.form.getlist("class_feature_name"))):
+                        new_class_feature = ClassFeature(
+                            classid = tclass.id,
+                            name = request.form.getlist("class_feature_name")[i],
+                            level_obtained = request.form.getlist("level")[i],
+                            text = request.form.getlist("class_feature_text")[i]
+                        )
+                        db.session.add(new_class_feature)
                     subclassnum = 0
+                    subclasscolnum, subclassfeatnum = []
                     for i, subclass in enumerate(tclass.subclasses):
-                        pass
+                        subclass.name = request.form.getlist("subclass_name")[i]
+                        subclass.text = request.form.getlist("subclass_text")[i]
+                        subclass.caster_type = request.form.getlist("castertype")[i]
+                        subclassnum += 1
+                        subclasscolnum, subclassfeatnum += 0
+                        for j, column in enumerate(subclass.columns):
+                            column.name = request.form.getlist(f"subclass{i}columnname")[j]
+                            column.data = request.form.getlist(f"subclass{i}column{j}value")
+                            subclasscolnum[i] += 1
+                        for j in range(subclasscolnum[i], len(request.form.getlist(f"subclass{i}columnname"))):
+                            new_subclass_column = SubclassColumn(
+                                classid = tclass.id,
+                                name = request.form.getlist(f"subclass{i}columnname")[j]
+                                data = request.form.getlist(f"subclass{i}column{j}value")
+                            )
+                            db.session.add(new_subclass_column)
+                        for j, feature in enumerate(subclass.subclass_features):
+                            feature.name = request.form.getlist(f"subclass_{i}_feature_name")[j]
+                            feature.level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j]
+                            feature.text = request.form.getlist(f"subclass_{f}_feature_text")[j]
+                        for j in range(subclassfeatnum[i], len(request.form.getlist(f"subclass{i}_feature_name"))):
+                            new_subclass_feature
     return(redirect(url_for("epchar.classes")))

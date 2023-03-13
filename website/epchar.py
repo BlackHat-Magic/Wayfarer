@@ -465,7 +465,7 @@ def createClass():
         if(current_user.id != cruleset.userid):
             flash("You cannot create classes for rulesets that are not yours.", "red")
         else:
-            pass
+            return(makeclass(request, cruleset, None, "create"))
     return(
         render_template(
             "create-class.html", 
