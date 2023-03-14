@@ -370,9 +370,7 @@ def createStat():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method=="POST"):
-        result = abilityScore(request, cruleset, None)
-        if(result != False):
-            return(result)
+        return(abilityScore(request, cruleset, None, "create"))
     return(
         render_template(
             "create-stat.html",
@@ -464,6 +462,7 @@ def createClass():
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create classes for rulesets that are not yours.", "red")
+            return(redirect(url_for("epchar.classes")))
         else:
             return(makeclass(request, cruleset, None, "create"))
     return(
@@ -474,6 +473,41 @@ def createClass():
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Create a Class"
+        )
+    )
+
+@epchar.route("/Classes/Duplicate/<string:tclass>")
+@login_required
+def duplicateClass(tclass):
+    cruleset = getCurrentRuleset(current_user)
+    tclass = Class.query.filter_by(rulesetid=cruleset.id, name=tclass.replace("-", " ")).first()
+    if(not tclass):
+        flash("Class does not exist", "red")
+    else:
+        return(makeclass(None, cruleset, tclass, "duplicate"))
+
+@epchar.route("/Classes/Edit/<string:tclass>", methods=["GET", "POST"])
+@login_required
+def editClass(tclass):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    tclass = Playerclass.query.filter_by(rulesetid=cruleset.id, name=tclass.replace("-", " ")).first()
+    if(request.method == "POST"):
+        if(not tclass):
+            flash("Class does not exist", "red")
+            return(redirect(url_for("epchar.classes")))
+        else:
+            return(makeclass(request, cruleset, tclass, "duplicate"))
+    return(
+        render_template(
+            "create-class.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Create a Class",
+            tclass=tclass
         )
     )
 

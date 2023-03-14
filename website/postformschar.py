@@ -4,6 +4,10 @@ from . import db
 from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore, ClassColumn, SubclassColumn, ClassFeature, Playerclass, Subclass, SubclassFeature
 
 def abilityScore(request, cruleset, ability_score, instruction):
+    name = request.form.get("name")
+    abbr = request.form.get("abbr")
+    order = request.form.get("order")
+    text = request.form.get("text")
     bad = False
     if(ability_score and current_user.id != cruleset.userid):
         flash("You cannot edit Ability Scores for rulesets that are not your own.", "red")
@@ -19,30 +23,32 @@ def abilityScore(request, cruleset, ability_score, instruction):
         db.session.commit()
         flash("Ability Score Duplicated!")
         return(redirect(url_for("epchar.stats")))
-    elif(order):
+    if(order):
         try:
             order = int(order)
         except:
             flash("Ability Score Order must be a number.")
             bad = True
-    elif(len(name) < 1):
+    if(len(name) < 1):
         flash("You must specify an Ability Score name.", "red")
+        bad = True
     elif(len(name) > 127):
         flash("Ability Score name must be fewer than 128 characters.", "red")
+        bad = True
     elif(len(abbr) != 3):
         flash("Ability Score abbreviation must be 3 characters.", "red")
+        bad = True
     elif(len(text) > 16383):
         flash("Ability Score description must be fewer than 16384 characters.", "red")
+        bad = True
     elif("<" in text):
         flash("Open angle brackets (\"<\") are not allowed.", "red")
+        bad = True
     elif("javascript" in text):
         flash("Cross-site scripting attacks are not allowed.", "red")
-    elif(not bad):
-        name = request.form.get("name")
-        abbr = request.form.get("abbr")
-        order = request.form.get("order")
-        text = request.form.get("text")
-        if(not ability_score):
+        bad = True
+    if(not bad):
+        if(instruction == "create"):
             new_ability_score = AbilityScore(
                 rulesetid = cruleset.id,
                 name = name,
@@ -61,7 +67,10 @@ def abilityScore(request, cruleset, ability_score, instruction):
             db.session.commit()
             flash("Changes saved!", "green")
         return(redirect(url_for("epchar.stats")))
-    return(False)
+    elif(instruction=="create"):
+        return(redirect(url_for("epchar.createStat")))
+    else:
+        return(redirect(url_for("epchar.editStat", score=ability_score.name.replace(" ", "-"))))
 
 def makerace(request, cruleset, race, instruction):
     if(current_user.id != cruleset.userid):
@@ -556,6 +565,7 @@ def makeclass(request, cruleset, tclass, instruction):
         db.session.commit()
         flash("Class duplicated!", "green")
     else:
+        bad = False
         name = request.form.get("name")
         text = request.form.get("text")
         hitdie = request.form.get("hitdie")
@@ -574,12 +584,14 @@ def makeclass(request, cruleset, tclass, instruction):
             gold_nums = int(gold_nums)
         except:
             flash("Number of dice rolled for starting gold must be a number.", "red")
+            bad = True
         gold_dice = request.form.get("gold_dice")
         gold_mult = request.form.get("gold_mult")
         try:
             gold_mult = int(gold_mult)
         except:
             flash("Starting gold multiplier must be a number.", "red")
+            bad = True
         multiclass_prereq = request.form.get("prereq")
         multiclass_profic = request.form.getlist("multiprofic")
         subclass_name = request.form.get("subclassname")
@@ -589,28 +601,38 @@ def makeclass(request, cruleset, tclass, instruction):
             levels = int(levels)
         except:
             flash("Max level must be a number.", "red")
+            bad = True
         if(len(name) < 1):
             flash("You must specify a class name.", "red")
+            bad = True
         elif(len(name) > 127):
             flash("Class name must be fewer than 128 characters.", "red")
+            bad = True
         elif(len(text) > 16383):
             flash("Class description must be fewer than 16383 characters.", "red")
+            bad = True
         elif("<" in text):
             flash("Open angle brackets (\"<\") are not allowed.", "red")
+            bad = True
         elif("javascript" in text):
             flash("Cross-site scripting attacks are not allowed.", "red")
+            bad = True
         elif(len(equipment) > 1023):
             flash("Class equipment must be fewer than 1024 characters.", "red")
+            bad = True
         elif(len(multiclass_prereq) > 1023):
             flash("Multiclassing prerequisites must be fewer than 1024 characters.", "red")
+            bad = True
         elif("<" in multiclass_prereq):
             flash("Open angle brackets (\"<\") are not allowed.", "red")
+            bad = True
         elif("javascript" in multiclass_prereq):
             flash("Cross-site scripting attacks are not allowed.", "red")
+            bad = True
         elif(len(subclass_name) > 127):
             flash("Subclass title must be fewer than 128 characters.", "red")
+            bad = True
         else:
-            bad = False
             for i, column in enumerate(request.form.getlist("columnname")):
                 if(bad):
                     break
@@ -772,7 +794,7 @@ def makeclass(request, cruleset, tclass, instruction):
                                 )
                             db.session.add(new_subclass_column)
                         db.session.commit()
-                        flash("Class Created!", "green")
+                    flash("Class Created!", "green")
                 else:
                     tclass.name = name
                     tclass.hitdie = hitdie
@@ -789,55 +811,59 @@ def makeclass(request, cruleset, tclass, instruction):
                     tclass.levels = levels
                     tclass.text = text
                     tclass.skills = skills
-                    columnnum = 0
-                    for i, column in enumerate(tclass.columns):
-                        column.name = request.form.getlist("columnname")[i]
-                        column.data = request.form.getlist(f"column{i}value")
-                        columnnum += 1
-                    for i in range(columnnum, len(request.form.getlist("columnname"))):
+                    for column in tclass.columns:
+                        db.session.delete(column)
+                    for i, column in request.form.getlist("columnname"):
                         new_class_column = ClassColumn(
-                            tclass.id,
-                            name = request.form.getlist("columnname")[i],
+                            classid = tclass.id,
+                            name = column,
                             data = request.form.getlist(f"column{i}value")
                         )
                         db.session.add(new_class_column)
-                    featurenum = 0
-                    for i, feature in enumerate(tclass.class_features):
-                        feature.name = request.form.getlist("class_feature_name")[i]
-                        feature.level_obtained = request.form.getlist("level")[i]
-                        feature.text = request.form.getlist("class_feature_text")[i]
-                        featurenum += 1
-                    for i in range(featurenum, len(request.form.getlist("class_feature_name"))):
+
+                    for feature in tclass.class_features:
+                        db.session.delete(feature)
+                    for i, feature in request.form.getlist("class_feature_name"):
                         new_class_feature = ClassFeature(
                             classid = tclass.id,
-                            name = request.form.getlist("class_feature_name")[i],
+                            name = feature,
                             level_obtained = request.form.getlist("level")[i],
                             text = request.form.getlist("class_feature_text")[i]
                         )
                         db.session.add(new_class_feature)
-                    subclassnum = 0
-                    subclasscolnum, subclassfeatnum = []
-                    for i, subclass in enumerate(tclass.subclasses):
-                        subclass.name = request.form.getlist("subclass_name")[i]
-                        subclass.text = request.form.getlist("subclass_text")[i]
-                        subclass.caster_type = request.form.getlist("castertype")[i]
-                        subclassnum += 1
-                        subclasscolnum, subclassfeatnum += 0
-                        for j, column in enumerate(subclass.columns):
-                            column.name = request.form.getlist(f"subclass{i}columnname")[j]
-                            column.data = request.form.getlist(f"subclass{i}column{j}value")
-                            subclasscolnum[i] += 1
-                        for j in range(subclasscolnum[i], len(request.form.getlist(f"subclass{i}columnname"))):
+
+                    for subclass in tclass.subclasses:
+                        for column in subclass.columns:
+                            db.session.delete(column)
+                        for feature in subclass.subclass_features:
+                            db.session.delete(feature)
+                    for i, subclass in enumerate(request.form.getlist("subclass_name")):
+                        new_subclass = Subclass(
+                            classid = tclass.id,
+                            name = subclass,
+                            text = request.form.getlist("subclass_text")[i],
+                            caster_type = request.form.getlist("castertype")[i],
+                        )
+                        db.session.add(new_subclass)
+                        for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
                             new_subclass_column = SubclassColumn(
-                                classid = tclass.id,
-                                name = request.form.getlist(f"subclass{i}columnname")[j]
+                                subclassid = new_subclass.id,
+                                name = column,
                                 data = request.form.getlist(f"subclass{i}column{j}value")
                             )
                             db.session.add(new_subclass_column)
-                        for j, feature in enumerate(subclass.subclass_features):
-                            feature.name = request.form.getlist(f"subclass_{i}_feature_name")[j]
-                            feature.level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j]
-                            feature.text = request.form.getlist(f"subclass_{f}_feature_text")[j]
-                        for j in range(subclassfeatnum[i], len(request.form.getlist(f"subclass{i}_feature_name"))):
-                            new_subclass_feature
+                        for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
+                            new_subclass_feature = SubclassFeature(
+                                subclassid = new_subclass.id,
+                                name = feature,
+                                level_obtained = request.form.getlist(f"subclass_{i}_feature_level"),
+                                text = request.form.getlist(f"subclass_{i}_feature_text")
+                            )
+                            db.session.add(new_subclass_feature)
+                    db.session.commit()
+                    flash("Changes saved!")
+            elif(instruction == "edit"):
+                return(redirect(url_for("epchar.editClass", tclass=tclass.name.replace(" ", "-"))))
+            else:
+                return(redirect(url_for("epchar.createClass")))
     return(redirect(url_for("epchar.classes")))

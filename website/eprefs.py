@@ -363,7 +363,7 @@ def editTag(item):
         flash("Tag does not exist", "red")
         return(redirect(url_for("eprefs.tags")))
     elif(request.method == "POST"):
-        return(itemTag(request, cruleset, None, "edit"))
+        return(itemTag(request, cruleset, tag, "edit"))
     return(
         render_template(
             "create-tag.html", 
