@@ -8,18 +8,22 @@
 <div  x-data="main">
 <div class="flex">
 	<div class="flex vertical start">
-		<h1>Create a Class</h1>
+		{% if tclass %}
+			<h1>Edit {{ tclass.name }}</h1>
+		{% else %}
+			<h1>Create a Class</h1>
+		{% endif %}
 		<h2>Base Class Info</h2>
 		<form method="POST" class="interior flex vertical start">
 			<!-- Class name -->
-			<input type="text" name="name" id="name" placeholder="Class Name" x-model="name">
+			<input type="text" name="name" id="name" placeholder="Class Name" x-model="name" {% if tclass %} x-init="name=`{{ tclass.name }}`" {% endif %}>
 
 			<!-- Hit Dice and Gold and Additional Levels-->
 			<div class="interior flex horizontal space-between" style="width: 100%">
 				<!-- Hit Dice -->
 				<div>
 					<label for="hitdie">Hit Die: </label>
-					<select name="hitdie" id="hitdie" style="width: auto" x-model="hitdie">
+					<select name="hitdie" id="hitdie" style="width: auto" x-model="hitdie" {% if tclass %} x-init="hitdie={{ tclass.hitdie }}" {% endif %}>
 						<option value="0">d4</option>
 						<option value="1">d6</option>
 						<option value="2">d8</option>
@@ -32,8 +36,8 @@
 				<!-- Gold -->
 				<div>
 					<label for="gold_nums">Starting Gold: </label>
-					<input type="number" name="gold_nums" id="gold_nums" x-model="gold_nums" placeholder="Number of Dice" style="width: calc(100% / 4); min-width: 120px">
-					<select name="gold_dice" id="gold_dice" x-model="gold_dice" style="width: auto">
+					<input type="number" name="gold_nums" id="gold_nums" x-model="gold_nums" placeholder="Number of Dice" style="width: calc(100% / 4); min-width: 120px" {% if tclass %} x-init="gold_nums={{ tclass.gold_nums }}" {% endif %}>
+					<select name="gold_dice" id="gold_dice" x-model="gold_dice" style="width: auto" {% if tclass %} x-init="gold_dice={{ tclass.gold_dice }}" {% endif %}>
 						<option value="0">d4</option>
 						<option value="1">d6</option>
 						<option value="2">d8</option>
@@ -42,21 +46,21 @@
 						<option value="5">d20</option>
 					</select>
 					<span>&times</span>
-					<input type="number" name="gold_mult" id="gold_mult" x-model="gold_mult" placeholder="Multiplied by..." style="width: calc(100% / 4); min-width: 120px"> 
+					<input type="number" name="gold_mult" id="gold_mult" x-model="gold_mult" placeholder="Multiplied by..." style="width: calc(100% / 4); min-width: 120px" {% if tclass %} x-init="gold_mult={{ tclass.gold_mult }}" {% endif %}> 
 				</div>
 
 				<!-- Max Level -->
 				<div>
 					<label for="levels">Max Level: </label>
-					<input type="number" name="levels" id="levels" x-model="levels" style="width: auto" placeholder="Max Level">
+					<input type="number" name="levels" id="levels" x-model="levels" style="width: auto" placeholder="Max Level" {% if tclass %} x-init="levels={{ tclass.levels }}" {% endif %}>
 				</div>
 
 				<!-- Subclass Level -->
 				<div>
 					<label for="subclasslevel">Subclass Level: </label>
-					<select name="subclasslevel" id="subclasslevel" x-model="subclasslevel" style="width: auto">
+					<select name="subclasslevel" id="subclasslevel" x-model="subclasslevel" style="width: auto" {% if tclass %} x-init="subclasslevel={{ tclass.subclass_level }}" {% endif %}>
 						<template x-for="index in parseInt(levels)">
-							<option x-text="index"></option>
+							<option {% if tclass %} :selected="index == {{ tclass.subclass_level }} ? true : false" {% endif %} x-text="index"></option>
 						</template>
 					</select>
 				</div>
@@ -73,9 +77,8 @@
 				<div class="interior flex horizontal space-around" style="width: 100%">
 					{% for score in cruleset.ability_scores %}
 						<div>
-							<template x-init="save.{{ score.name }} = false"></template>
 							<label for="save">{{ score.name }} Saves</label>
-							<input type="checkbox" @change="save.{{ score.name }} = !save.{{ score.name }}">
+							<input type="checkbox" @change="save.{{ score.name }} = !save.{{ score.name }}" {% if tclass and tclass.saves[loop.index - 1] %} x-init="save.{{ score.name }} = true" checked {% else %} x-init="save.{{ score.name }} = false" {% endif %}>
 							<input type="hidden" name="save" id="save" x-model="save.{{ score.name }}">
 						</div>
 					{% endfor %}
@@ -99,6 +102,12 @@
 								<a><button type="button" @click="deleteColumn(index)" class="mild danger">Delete Column</button></a>
 							</div>
 						</template>
+						{% if tclass %}
+							{% for column in tclass.columns %}
+								<template x-init="appendColumn()"></template>
+								<template x-init="columns[{{ loop.index - 1 }}] = {name: `{{ column.name }}`, values: {{ column.data }}}"></template> <!--here here here-->
+							{% endfor %}
+						{% endif %}
 					</template>
 				</div>
 			</div>

@@ -506,7 +506,7 @@ def editClass(tclass):
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
-            title="Create a Class",
+            title=f"Edit {tclass.name}",
             tclass=tclass
         )
     )
