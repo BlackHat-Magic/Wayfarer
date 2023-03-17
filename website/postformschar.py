@@ -813,7 +813,7 @@ def makeclass(request, cruleset, tclass, instruction):
                     tclass.skills = skills
                     for column in tclass.columns:
                         db.session.delete(column)
-                    for i, column in request.form.getlist("columnname"):
+                    for i, column in enumerate(request.form.getlist("columnname")):
                         new_class_column = ClassColumn(
                             classid = tclass.id,
                             name = column,
@@ -823,7 +823,8 @@ def makeclass(request, cruleset, tclass, instruction):
 
                     for feature in tclass.class_features:
                         db.session.delete(feature)
-                    for i, feature in request.form.getlist("class_feature_name"):
+                    print(request.form.get("class_feature_name"))
+                    for i, feature in enumerate(request.form.getlist("class_feature_name")):
                         new_class_feature = ClassFeature(
                             classid = tclass.id,
                             name = feature,
@@ -837,6 +838,7 @@ def makeclass(request, cruleset, tclass, instruction):
                             db.session.delete(column)
                         for feature in subclass.subclass_features:
                             db.session.delete(feature)
+                        db.session.delete(subclass)
                     for i, subclass in enumerate(request.form.getlist("subclass_name")):
                         new_subclass = Subclass(
                             classid = tclass.id,
@@ -861,7 +863,7 @@ def makeclass(request, cruleset, tclass, instruction):
                             )
                             db.session.add(new_subclass_feature)
                     db.session.commit()
-                    flash("Changes saved!")
+                    flash("Changes saved!", "green")
             elif(instruction == "edit"):
                 return(redirect(url_for("epchar.editClass", tclass=tclass.name.replace(" ", "-"))))
             else:
