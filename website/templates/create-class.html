@@ -102,13 +102,13 @@
 								<a><button type="button" @click="deleteColumn(index)" class="mild danger">Delete Column</button></a>
 							</div>
 						</template>
-						{% if tclass %}
-							{% for column in tclass.columns %}
-								<template x-init="appendColumn()"></template>
-								<template x-init="columns[{{ loop.index - 1 }}] = {name: `{{ column.name }}`, values: {{ column.data }}}"></template> <!--here here here-->
-							{% endfor %}
-						{% endif %}
 					</template>
+					{% if tclass %}
+						{% for column in tclass.columns %}
+							<template x-init="appendColumn()"></template>
+							<template x-init="columns[{{ loop.index - 1 }}] = {name: `{{ column.name }}`, values: {{ column.data }}}"></template> <!--here here here-->
+						{% endfor %}
+					{% endif %}
 				</div>
 			</div>
 
@@ -133,6 +133,11 @@
 							<option>{{ tag.name }}</option>
 							{% endfor %}
 						</select>
+						{% if tclass %}
+							{% for proficiency in tclass.proficiencies %}
+								<template x-init="proficiencylist.push(`{{ proficiency }}`)"></template>
+							{% endfor %}
+						{% endif %}
 					</div>
 					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
 						<template x-for="proficiency, index in proficiencylist">
@@ -161,6 +166,11 @@
 							<option>{{ skill.name }}</option>
 							{% endfor %}
 						</select>
+						{% if tclass %}
+							{% for skill in tclass.skills %}
+								<template x-init="skilllist.push(`{{ skill }}`)"></template>
+							{% endfor %}
+						{% endif %}
 					</div>
 					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
 						<template x-for="skill, index in skilllist">
@@ -174,11 +184,11 @@
 			{% endif %}
 
 			<!-- equipment -->
-			<textarea x-model="equipment" placeholder="Starting Equipment" style="height: 100px"></textarea>
+			<textarea x-model="equipment" placeholder="Starting Equipment" style="height: 100px" {% if tclass %} x-init="equipment=`{{ tclass.equipment }}`" {% endif %}></textarea>
 			<input type="hidden" name="equipment" id="equipment" x-model="equipment">
 
 			<!-- multiclass prereqs -->
-			<textarea x-model="prereq" placeholder="Multiclassing Prerequisites" style="height: 100px"></textarea>
+			<textarea x-model="prereq" placeholder="Multiclassing Prerequisites" style="height: 100px" {% if tclass %} x-init="prereq=`{{ tclass.multiclass_prereq }}`" {% endif %}></textarea>
 			<input type="hidden" name="prereq" id="prereq" x-model="prereq">
 
 			<!-- multiclass proficiencies -->
@@ -202,6 +212,11 @@
 							<option>{{ tag.name }}</option>
 							{% endfor %}
 						</select>
+						{% if tclass %}
+							{% for proficiency in tclass.multiclass_profic %}
+								<template x-init="multiproficlist.push(`{{ proficiency }}`)"></template>
+							{% endfor %}
+						{% endif %}
 					</div>
 					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
 						<template x-for="proficiency, index in multiproficlist">
@@ -215,10 +230,10 @@
 			{% endif %}
 
 			<!-- subclass name -->
-			<input type="text" id="subclassname" name="subclassname" x-model="subclassname" placeholder='Subclass Name (e.g. "Primal Path," "Divine Domain," etc.)'>
+			<input type="text" id="subclassname" name="subclassname" x-model="subclassname" placeholder='Subclass Name (e.g. "Primal Path," "Divine Domain," etc.)' {% if tclass %} x-init="subclassname=`{{ tclass.subclass_name }}`" {% endif %}>
 
 			<!-- class flavor text -->
-			<textarea id="text" name="text" x-model="text" placeholder="Class Description"></textarea>
+			<textarea id="text" name="text" x-model="text" placeholder="Class Description" {% if tclass %} x-init="text=`{{ tclass.text }}`" {% endif %}></textarea>
 
 			<!-- class features -->
 			<h3>Class Features</h3>
@@ -233,6 +248,12 @@
 					<input type="hidden" name="class_feature_text" id="class_feature_text" x-model="feature.text">
 				</div>
 			</template>
+			{% if tclass %}
+				{% for feature in tclass.class_features %}
+					<template x-init="features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`, is_subclass: false}); console.log(`{{ feature.name }}`)"></template>
+					<!-- hereherehere -->
+				{% endfor %}
+			{% endif %}
 			<a @click="features.push({name: '', level: null, text: '', is_subclass: false})"><button type="button">Add Class Feature</button></a>
 
 			<!-- subclasses -->
