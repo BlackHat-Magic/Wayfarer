@@ -1,10 +1,14 @@
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
-import uuid
+import random
+
+def shortid(length):
+    characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-_"
+    return ''.join(random.choice(characters) for _ in range(length))
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.String(32), primary_key=True, default=lambda: shortid(8))
     username = db.Column(db.String(255), unique=True)
     email = db.Column(db.String(255))
     password = db.Column(db.String(255))
@@ -14,7 +18,7 @@ class User(db.Model, UserMixin):
     characters = db.relationship("Character")
 
 class Ruleset(db.Model):
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.String(32), primary_key=True, default=lambda: shortid(8))
     is_admin = db.Column(db.Boolean)
     userid = db.Column(db.String(36), db.ForeignKey("user.id"))
     is_shareable = db.Column(db.Boolean)
