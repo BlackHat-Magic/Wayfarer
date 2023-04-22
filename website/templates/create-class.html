@@ -249,9 +249,9 @@
 				</div>
 			</template>
 			{% if tclass %}
+				<template x-init="features = []"></template>
 				{% for feature in tclass.class_features %}
 					<template x-init="features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`, is_subclass: false}); console.log(`{{ feature.name }}`)"></template>
-					<!-- hereherehere -->
 				{% endfor %}
 			{% endif %}
 			<a @click="features.push({name: '', level: null, text: '', is_subclass: false})"><button type="button">Add Class Feature</button></a>
@@ -312,6 +312,31 @@
 					<a><button type='button' @click='subclasses[index].features.push({name: null, level: null, text: null, is_subclass: true})'>Add Subclass Feature</button></a>
 				</div>
 			</template>
+			{% if tclass %}
+				<template x-init="subclasses=[]"></template>
+				{% for subclass in tclass.subclasses %}
+					<template xinit="subclasses.push({
+						name: `{{ subclass.name }}`,
+						text: `{{ subclass.text }}`,
+						castertype: {{ subclass.castertype }},
+						columns: [],
+						features: []
+					})"></template>
+					{% for column in subclass.columns %}
+						<template x-init="subclasses[{{ loop.index - 1 }}].push({
+							name: `{{ column.name }}`,
+							values: {{ column.values }}
+						})"></template>
+					{% endfor %}
+					{% for feature in subclass.subclass_features %}
+						<template x-init="subclasses[{{ loop.index - 1 }}].push({
+							name: `{{ feature.name }}`,
+							level: `{{ feature.level_obtained }}`,
+							text: `{{ feature.text }}`
+						})"></template>
+					{% endfor %}
+				{% endfor %}
+			{% endif %}
 			<a @click="subclasses.push({name: '', text: '', features: [{name: '', level: null, text: ''}]})"><button>Add Subclass</button></a>
 			<a><button type="submit">Create Class!</button></a>
 		</form>
