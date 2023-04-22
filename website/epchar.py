@@ -498,7 +498,7 @@ def editClass(tclass):
             flash("Class does not exist", "red")
             return(redirect(url_for("epchar.classes")))
         else:
-            return(makeclass(request, cruleset, tclass, "duplicate"))
+            return(makeclass(request, cruleset, tclass, "edit"))
     return(
         render_template(
             "create-class.html", 

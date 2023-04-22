@@ -314,6 +314,77 @@ def makerace(request, cruleset, race, instruction):
                                 db.session.add(new_feature)
                             db.session.commit()
                     flash("Race created!", "green")
+                else:
+                    race.namme = name
+                    race.flavor = flavor
+                    race.asis = asis
+                    race.asi_text = asi_text
+                    race.size = size
+                    race.size_text = size_text
+                    race.walk = walk
+                    race.swim = swim
+                    race.fly = fly
+                    race.burrow = burrow
+                    race.base_height = base_height
+                    race.height_num = height_num
+                    race.height_die = height_die
+                    race.base_weight = base_weight
+                    race.weight_num = weight_num
+                    race.weight_die = weight_die
+                    race.subrace_flavor = subrace_flavor
+                    for i, feature in enumerate(race.race_features):
+                        if(len(features) < i + 1):
+                            db.session.delete(feature)
+                        else:
+                            feature.name = features[i]
+                            feature.text = feature_text[i]
+                    for i in range(len(race.race_features), len(features)):
+                        new_feature = RaceFeature(
+                            raceid = race.id,
+                            name = features[i],
+                            text = feature_text[i]
+                        )
+                        db.session.add(new_feature)
+                    if(has_subraces):
+                        for i, subrace in enumerate(race.subraces):
+                            if(len(subraces) < i + 1):
+                                sb.session.delete(subrace)
+                            else:
+                                subrace.name = subraces[i]["name"]
+                                subrace.text = subraces[i]["text"]
+                                for j, feature in enumerate(subrace.subrace_features):
+                                    if(len(subrace["features"]) < j + 1):
+                                        db.session.delete(feature)
+                                    else:
+                                        feature.name = feature["name"]
+                                        feature.text = feature["text"]
+                                for j in range(len(subrace.race_features), len(features)):
+                                    new_feature = SubraceFeature(
+                                        subraceid = subrace.id,
+                                        name = subrace["features"][j]["name"],
+                                        text = subrace["features"][j]["text"]
+                                    )
+                        for i in range(len(race.subraces), len(subraces)):
+                            new_subrace = Subrace(
+                                raceid = race.id,
+                                name = subraces[i]["name"],
+                                text = subraces[i]["text"]
+                            )
+                            db.session.add(new_subrace)
+                            for feature in subraces[i]["features"]:
+                                new_feature = SubraceFeature(
+                                    subraceid = new_subrace.id,
+                                    name = feature["name"],
+                                    text = feature["text"]
+                                )
+                                db.session.add(new_feature)
+                    else:
+                        for subrace in race.subraces:
+                            for feature in subrace.subrace_features:
+                                db.session.delete(feature)
+                            db.session.delete(subrace)
+                    db.session.commit()
+                    flash("Changes saved!", "green")
                 return(redirect(url_for("epchar.races")))
     return(False)
 
