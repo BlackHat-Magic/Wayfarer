@@ -76,12 +76,14 @@ document.addEventListener ("alpine:init", () => {
                     }
                 }
             }
-            for (let i = 0; i < this.subclasses[this.currentsubclass].features.length; i++) {
-                if (this.subclasses[this.currentsubclass].features[i].level == level) {
-                    if (output.length < 1) {
-                        output += this.subclasses[this.currentsubclass].name + " Feature: " + this.subclasses[this.currentsubclass].features[i].name;
-                    } else {
-                        output += ", " + this.subclasses[this.currentsubclass].name + " Feature: " + this.subclasses[this.currentsubclass].features[i].name;
+            if (this.subclasses.length > 0) {
+                for (let i = 0; i < this.subclasses[this.currentsubclass].features.length; i++) {
+                    if (this.subclasses[this.currentsubclass].features[i].level == level) {
+                        if (output.length < 1) {
+                            output += this.subclasses[this.currentsubclass].name + " Feature: " + this.subclasses[this.currentsubclass].features[i].name;
+                        } else {
+                            output += ", " + this.subclasses[this.currentsubclass].name + " Feature: " + this.subclasses[this.currentsubclass].features[i].name;
+                        }
                     }
                 }
             }
@@ -124,8 +126,11 @@ document.addEventListener ("alpine:init", () => {
             for (let i = 0; i < this.features.length; i++) {
                 concatenated.push(this.features[i]);
             }
-            for (let i = 0; i < this.subclasses[this.currentsubclass].features.length; i++) {
-                concatenated.push(this.subclasses[this.currentsubclass].features[i]);
+            if (this.subclasses.length > 0) {
+                console.log(this.subclasses.length);
+                for (let i = 0; i < this.subclasses[this.currentsubclass].features.length; i++) {
+                    concatenated.push(this.subclasses[this.currentsubclass].features[i]);
+                }
             }
 
             sorted = concatenated.sort((a, b) => (parseInt(a.level) > parseInt(b.level)) ? 1 : -1);

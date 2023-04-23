@@ -168,7 +168,6 @@ def makerace(request, cruleset, race, instruction):
         if(has_subraces):
             subraces = []
             subrace_flavor = request.form.get("subrace_flavor")
-            print(request.form.getlist("subrace_text"))
             for i, subrace in enumerate(request.form.getlist("subrace_name")):
                 subraces.append({
                     "name": subrace,
@@ -648,7 +647,6 @@ def makeclass(request, cruleset, tclass, instruction):
                 saves[i] = True
             else:
                 saves[i] = False
-        print(saves)
         equipment = request.form.get("equipment")
         gold_nums = request.form.get("gold_nums")
         try:
@@ -883,9 +881,7 @@ def makeclass(request, cruleset, tclass, instruction):
                     tclass.text = text
                     tclass.skills = skills
                     for i, column in enumerate(tclass.columns):
-                        print(i)
                         if(len(request.form.getlist("columnname")) < i + 1):
-                            print("fuck")
                             db.session.delete(column)
                         else:
                             column.name = request.form.getlist("columnname")[i]
@@ -961,7 +957,6 @@ def makeclass(request, cruleset, tclass, instruction):
                             text = request.form.getlist("subclass_text")[i],
                             caster_type = request.form.getlist("castertype")[i]
                         )
-                        db.session.add(new_subclass)
                         for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
                             new_subclass_column = SubclassColumn(
                                 subclassid = new_subclass.id,
@@ -977,7 +972,11 @@ def makeclass(request, cruleset, tclass, instruction):
                                 text = request.form.getlist(f"subclass_{i}_feature_text")[j]
                             )
                             db.session.add(new_subclass_feature)
-                    db.session.commit()
+                        db.session.add(new_subclass)
+                        print("subclass added")
+                    print(len(tclass.subclasses))
+                    print(len(request.form.getlist("subclass_name")))
+                    db.session.commit() 
                     flash("Changes saved!", "green")
             elif(instruction == "edit"):
                 return(redirect(url_for("epchar.editClass", tclass=tclass.name.replace(" ", "-"))))

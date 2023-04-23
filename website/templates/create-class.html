@@ -337,7 +337,7 @@
 					{% endfor %}
 				{% endfor %}
 			{% endif %}
-			<a @click="subclasses.push({name: '', text: '', features: [{name: '', level: null, text: ''}]})"><button>Add Subclass</button></a>
+			<a @click="subclasses.push({name: '', text: '', castertype: '', columns: [], features: [{name: '', level: null, text: ''}]})"><button type="button">Add Subclass</button></a>
 			<a><button type="submit">Create Class!</button></a>
 		</form>
 	</div>
@@ -394,7 +394,7 @@
 				<template x-for="column in columns">
 					<th x-text="column.name" rowspan="2"></th>
 				</template>
-				<template x-if="subclasses[currentsubclass].castertype != 0">
+				<template x-if="subclasses[currentsubclass].castertype != 0 && subclasses[currentsubclass].castertype != null">
 					<th :colspan="spelllist[subclasses[currentsubclass].castertype].length">Spell Slots Per Level</th>
 				</template>
 			</tr>
