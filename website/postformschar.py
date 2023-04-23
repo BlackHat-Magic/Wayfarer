@@ -883,10 +883,12 @@ def makeclass(request, cruleset, tclass, instruction):
                     tclass.text = text
                     tclass.skills = skills
                     for i, column in enumerate(tclass.columns):
+                        print(i)
                         if(len(request.form.getlist("columnname")) < i + 1):
+                            print("fuck")
                             db.session.delete(column)
                         else:
-                            column.name = request.form.getlist("columname")[i]
+                            column.name = request.form.getlist("columnname")[i]
                             column.data = request.form.getlist(f"column{i}value")
                     for i in range(len(tclass.columns), len(request.form.getlist("columnname"))):
                         new_class_column = ClassColumn(
@@ -896,14 +898,14 @@ def makeclass(request, cruleset, tclass, instruction):
                         )
                         db.session.add(new_class_column)
 
-                    for i, feature in enumerate(tclass.features):
-                        if(len(request.form.getlist("class_feature_name") < i + 1)):
+                    for i, feature in enumerate(tclass.class_features):
+                        if(len(request.form.getlist("class_feature_name")) < i + 1):
                             db.session.delete(feature)
                         else:
                             feature.name = request.form.getlist("class_feature_name")[i]     
                             feature.level_obtained = request.form.getlist("level")[i]
                             feature.text = request.form.getlist("class_feature_text")[i]
-                    for i in range(len(tclass.class_features), len(request.form.get("class_feature_name"))):
+                    for i in range(len(tclass.class_features), len(request.form.getlist("class_feature_name"))):
                         new_class_feature = ClassFeature(
                             classid = tclass.id,
                             name = request.form.getlist("class_feature_name")[i],
@@ -912,7 +914,7 @@ def makeclass(request, cruleset, tclass, instruction):
                         )
                         db.session.add(new_class_feature)
                     
-                    for i, subclass in tclass.subclasses:
+                    for i, subclass in enumerate(tclass.subclasses):
                         if(len(request.form.getlist("subclass_name")) < i + 1):
                             for column in subclass.columns:
                                 db.session.delete(column)

@@ -133,8 +133,8 @@
 			</div>
 		</template>
         {% if current_user.id == cruleset.userid %}
-            <a style="width: auto" href="/Character/Classes/Edit/Barbarian"><button>Edit {{ playerclass.name }}</button></a>
-            <a style="width: auto" href="/Character/Classes/Delete/Barbarian"><button class="mild danger">Delete {{ playerclass.name }}</button></a>
+            <a style="width: auto" href="/Character/Classes/Edit/{{ playerclass.name.replace(' ', '-') }}"><button>Edit {{ playerclass.name }}</button></a>
+            <a style="width: auto" href="/Character/Classes/Delete/{{ playerclass.name.replace(' ', '-') }}"><button class="mild danger">Delete {{ playerclass.name }}</button></a>
         {% endif %}
     </div>
 </div>
