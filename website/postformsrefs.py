@@ -248,7 +248,7 @@ def makeItem(request, cruleset, item, instruction):
             return(redirect(url_for("eprefs.items")))
     return(False)
 
-def language(request, cruleset, language, instruction):
+def makeLanguage(request, cruleset, language, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create languages for rulesets that are not your own.", "red")
     elif(instruction == "duplicate"):
@@ -280,8 +280,8 @@ def language(request, cruleset, language, instruction):
         else:
             if(instruction == "edit"):
                 language.name = name
-                language.ability_score = ability_score
-                language.description = description
+                language.text = text
+                db.session.commit()
                 flash("Changes Saved!", "green")
             else:
                 new_language = Language(

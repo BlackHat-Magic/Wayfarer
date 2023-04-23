@@ -418,7 +418,7 @@ def makebackground(request, cruleset, background, instruction):
         name = request.form.get("name")
         skills = request.form.getlist("skill")
         tools = request.form.getlist("tool")
-        lang_num = reuqest.form.get("lang_num")
+        lang_num = request.form.get("lang_num")
         languages = request.form.getlist("language")
         items = request.form.getlist("item")
         goldcontainer = request.form.get("goldcontainer")
@@ -499,10 +499,10 @@ def makebackground(request, cruleset, background, instruction):
                 background.tools = tools
                 background.lang_num = lang_num
                 background.languages = languages
-                background.equipment = equipment
+                background.equipment = items
                 background.text = text
                 featurenum = 0
-                for index, feature in enumerate(background.features):
+                for index, feature in enumerate(background.background_features):
                     feature.name = featurenames[index]
                     feature.text = featuretexts[index]
                     featurenum += 1

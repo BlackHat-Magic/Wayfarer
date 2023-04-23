@@ -163,7 +163,11 @@
 				{% endfor %}
 			{% endif %}
 			<a @click="addFeature()"><button type="button">Add a Background Feature</button></a>
-			<a><button type="submit">Create Background</button></a>
+			{% if background %}
+				<a><button type="submit">Create Background</button></a>
+			{% else %}
+				<a><button type="submit">Submit Changes</button></a>
+			{% endif %}
 		</form>
 		<div class="usercontent">
 			<h1 x-text="name"></h1>

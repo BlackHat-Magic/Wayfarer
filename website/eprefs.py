@@ -231,7 +231,7 @@ def editItem(item):
         )
     )
 
-@eprefs.route("/Item/Delete/<string:item>")
+@eprefs.route("/Items/Delete/<string:item>")
 @login_required
 def deleteItem(item):
     cruleset = getCurrentRuleset(current_user)
@@ -457,7 +457,7 @@ def createLanguage():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        return(language(request, cruleset, None, "create"))
+        return(makeLanguage(request, cruleset, None, "create"))
     return(
         render_template(
             "create-language.html", 
@@ -479,10 +479,10 @@ def duplicateLanguage(tlanguage):
     elif(not tlanguage):
         flash("Language does not exist.")
     else:
-        return(language(None, cruleset, tlanguage, "duplicate"))
+        return(makeLanguage(None, cruleset, tlanguage, "duplicate"))
     return(redirect(url_for("eprefs.refsLang")))
 
-@eprefs.route("/Languages/Edit/<string:tlanguage>")
+@eprefs.route("/Languages/Edit/<string:tlanguage>", methods=["GET", "POST"])
 @login_required
 def editLanguage(tlanguage):
     cruleset = getCurrentRuleset(current_user)
@@ -493,7 +493,7 @@ def editLanguage(tlanguage):
         flash("Language does not exist.", "red")
         return(redirect(url_for("eprefs.refsLang")))
     elif(request.method == "POST"):
-        return(language(request, cruleset, tlanguage, "edit"))
+        return(makeLanguage(request, cruleset, tlanguage, "edit"))
     return(
         render_template(
             "create-language.html",

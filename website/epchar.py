@@ -196,7 +196,7 @@ def editBackground(tbackground):
         flash("Background does not exist.")
         return(redirect(url_for("epchar.backgrounds")))
     elif(request.method == "POST"):
-        return(makebackground(request, cruleset, None, "create"))
+        return(makebackground(request, cruleset, tbackground, "edit"))
     return(
         render_template(
             "create-background.html",
