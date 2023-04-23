@@ -250,7 +250,7 @@ def item(item):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    item = Item.query.filter_by(rulesetid = cruleset.id, name=item.replace("-", " ")).first()
+    item = Item.query.filter_by(rulesetid = cruleset.id, name=item).first()
     return(
         render_template(
             "item.html", 
@@ -304,7 +304,7 @@ def createTag():
 @login_required
 def duplicateTag(item):
     cruleset = getCurrentRuleset(current_user)
-    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first()
     if(not tag):
         flash("Tag does not exist", "red")
     return(itemTag(None, cruleset, tag, "duplicate"))
@@ -315,7 +315,7 @@ def editTag(item):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first()
     if(not tag):
         flash("Tag does not exist", "red")
         return(redirect(url_for("eprefs.tags")))
@@ -337,7 +337,7 @@ def editTag(item):
 @login_required
 def deleteTag(item):
     cruleset = getCurrentRuleset(current_user)
-    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete item tags in rulesets that are not your own.", "red")
     elif(not tag):
@@ -389,7 +389,7 @@ def createProperty():
 @login_required
 def duplicateProperty(item):
     cruleset = getCurrentRuleset(current_user)
-    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first()
     if(not tproperty):
         flash("Item property does not exist", "red")
         return(redirect(url_for("eprefs.properties")))
@@ -401,7 +401,7 @@ def editProperty(item):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first()
     if(not tproperty):
         flash("Item property does not exist", "red")
         return(redirect(url_for("eprefs.refslang")))
@@ -423,7 +423,7 @@ def editProperty(item):
 @login_required
 def deleteProperty(item):
     cruleset = getCurrentRuleset(current_user)
-    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item.replace("-", " ")).first()
+    tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first()
     if(not tproperty):
         flash("Item property does not exist.", "red")
     elif(current_user.id != cruleset.userid):
@@ -473,7 +473,7 @@ def createLanguage():
 @login_required
 def duplicateLanguage(tlanguage):
     cruleset = getCurrentRuleset(current_user)
-    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage.replace("-", " ")).first()
+    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first()
     if(cruleset.userid != current_user.id):
         flash("You cannot create languages for rulesets that are not your own.", "red")
     elif(not tlanguage):
@@ -488,7 +488,7 @@ def editLanguage(tlanguage):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage.replace("-", " ")).first()
+    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first()
     if(not tlanguage):
         flash("Language does not exist.", "red")
         return(redirect(url_for("eprefs.refsLang")))
@@ -510,7 +510,7 @@ def editLanguage(tlanguage):
 @login_required
 def deleteLanguage(tlanguage):
     cruleset = getCurrentRuleset(current_user)
-    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage.replace("-", " ")).first()
+    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first()
     if(not language):
         flash("Language does not exist.", "red")
     elif(current_user.id != cruleset.userid):
@@ -626,7 +626,7 @@ def spell(spell):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    spell = Spell.query.filter_by(rulesetid = cruleset.id, name = spell.replace("-", " ")).first()
+    spell = Spell.query.filter_by(rulesetid = cruleset.id, name = spell).first()
     return(
         render_template(
             "spell.html", 

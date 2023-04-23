@@ -13,9 +13,9 @@
             <h2>{{ skill.name }}</h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
-					<a href="/Reference/Skills/Edit/{{ skill.name.replace(' ', '-') }}"><button style="width: auto">Edit {{ skill.name }}</button></a>
-					<a href="/Reference/Skills/Duplicate/{{ skill.name.replace(' ', '-') }}"><button style="width: auto">Duplicate {{ skill.name }}</button></a>
-					<a href="/Reference/Skills/Delete/{{ skill.name.replace(' ', '-') }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
+					<a href="/Reference/Skills/Edit/{{ skill.name }}"><button style="width: auto">Edit {{ skill.name }}</button></a>
+					<a href="/Reference/Skills/Duplicate/{{ skill.name }}"><button style="width: auto">Duplicate {{ skill.name }}</button></a>
+					<a href="/Reference/Skills/Delete/{{ skill.name }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
 				</div>
 			{% endif %}
             <hr>

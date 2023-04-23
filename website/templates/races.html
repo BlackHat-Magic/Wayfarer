@@ -45,7 +45,7 @@
 			</tr>
 			<template x-for="race, index in filterQuery()">
 				<tr>
-					<td><a @click="window.location.href = '/Character/Race/' + race.name.split(' ').join('-')" x-text="race.name"></a></td>
+					<td><a @click="window.location.href = '/Character/Race/' + race.name" x-text="race.name"></a></td>
 					<td x-text="race.asi"></td>
 					<td x-text="race.size"></td>
 				</tr>

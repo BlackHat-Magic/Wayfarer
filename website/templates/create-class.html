@@ -251,7 +251,7 @@
 			{% if tclass %}
 				<template x-init="features = []"></template>
 				{% for feature in tclass.class_features %}
-					<template x-init="features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`, is_subclass: false}); console.log(`{{ feature.name }}`)"></template>
+					<template x-init="features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`, is_subclass: false})"></template>
 				{% endfor %}
 			{% endif %}
 			<a @click="features.push({name: '', level: null, text: '', is_subclass: false})"><button type="button">Add Class Feature</button></a>
@@ -315,30 +315,36 @@
 			{% if tclass %}
 				<template x-init="subclasses=[]"></template>
 				{% for subclass in tclass.subclasses %}
-					<template xinit="subclasses.push({
+					<template x-init="subclasses.push({
 						name: `{{ subclass.name }}`,
 						text: `{{ subclass.text }}`,
-						castertype: {{ subclass.castertype }},
+						castertype: {% if castertype %} {{ castertype }} {% else %} 0 {% endif %},
 						columns: [],
 						features: []
 					})"></template>
+					{% set bigindex = loop.index - 1 %}
 					{% for column in subclass.columns %}
-						<template x-init="subclasses[{{ loop.index - 1 }}].push({
+						<template x-init="subclasses[{{ bigindex }}].columns.push({
 							name: `{{ column.name }}`,
-							values: {{ column.values }}
+							values: {{ column.data }}
 						})"></template>
 					{% endfor %}
 					{% for feature in subclass.subclass_features %}
-						<template x-init="subclasses[{{ loop.index - 1 }}].push({
+						<template x-init="subclasses[{{ bigindex }}].features.push({
 							name: `{{ feature.name }}`,
 							level: `{{ feature.level_obtained }}`,
-							text: `{{ feature.text }}`
+							text: `{{ feature.text }}`,
+							is_subclass: true
 						})"></template>
 					{% endfor %}
 				{% endfor %}
 			{% endif %}
 			<a @click="subclasses.push({name: '', text: '', castertype: '', columns: [], features: [{name: '', level: null, text: ''}]})"><button type="button">Add Subclass</button></a>
-			<a><button type="submit">Create Class!</button></a>
+			{% if tclass %}
+				<a><button type="submit">Submit Changes</button></a>
+			{% else %}
+				<a><button type="submit">Create Class!</button></a>
+			{% endif %}
 		</form>
 	</div>
 </div>
@@ -394,6 +400,9 @@
 				<template x-for="column in columns">
 					<th x-text="column.name" rowspan="2"></th>
 				</template>
+				<template x-for="column in subclasses[currentsubclass].columns">
+					<th x-text="column.name" rowspan="2"></th>
+				</template>
 				<template x-if="subclasses[currentsubclass].castertype != 0 && subclasses[currentsubclass].castertype != null">
 					<th :colspan="spelllist[subclasses[currentsubclass].castertype].length">Spell Slots Per Level</th>
 				</template>
@@ -409,6 +418,9 @@
 					<td x-text="parseFeatures(level)"></td>
 					<template x-for="column, index in columns">
 						<td x-text="columns[index].values[level - 1]"></td>
+					</template>
+					<template x-for="column, index in subclasses[currentsubclass].columns">
+						<td x-text="subclasses[currentsubclass].columns[index].values[level - 1]"></td>
 					</template>
 					<template x-for="spelllevel, index in spelllist[subclasses[currentsubclass].castertype]">
 						<td x-text="spelllevel[level - 1]"></td>

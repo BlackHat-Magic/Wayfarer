@@ -27,7 +27,7 @@
 			</tr>
 			<template x-for="feat, index in filterQuery()">
 				<tr>
-					<td><a @click="window.location.href = '/Character/Feat/' + feat.name.split(' ').join('-')" x-text="feat.name"></a></td>
+					<td><a @click="window.location.href = '/Character/Feat/' + feat.name" x-text="feat.name"></a></td>
 					<td x-text="feat.prerequisite"></td>
 					<td x-text="truncate(feat.text)"></td>
 				</tr>

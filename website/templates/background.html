@@ -7,9 +7,9 @@
 {% block body %}
 <div class="flex" x-data="main">
     <div class="flex vertical start">
-        <h1>{{ background.name.replace(" ", "-") }}</h1>
+        <h1>{{ background.name }}</h1>
         {% if user.id == cruleset.userid %}
-        <a href="/Character/Background/{{ background.name.replace(' ', '-') }}/Duplicate"><button type="button">Duplicate {{ background.name }}</button></a>
+        <a href="/Character/Background/{{ background.name }}/Duplicate"><button type="button">Duplicate {{ background.name }}</button></a>
         {% endif %}
         <div class="usercontent" x-html="convert(`{{ background.text }}`)"></div>
         {% for feature in background.background_features %}
@@ -17,9 +17,9 @@
         <div class="usercontent" x-html="convert(`{{ feature.text }}`)"></div>
         {% endfor %}
         {% if cruleset.userid == current_user.id %}
-        <a href="/Character/Backgrounds/Duplicate/{{ background.name.replace(' ', '-') }}"><button type="button">Duplicate {{ background.name }}</button></a>
-        <a href="/Character/Backgrounds/Edit/{{ background.name.replace(' ', '-') }}"><button type="button">Edit {{ background.name }}</button></a>
-        <a href="/Character/Backgrounds/Delete/{{ background.name.replace(' ', '-') }}"><button type="button" class="mild danger">Delete {{ background.name }}</button></a>
+        <a href="/Character/Backgrounds/Duplicate/{{ background.name }}"><button type="button">Duplicate {{ background.name }}</button></a>
+        <a href="/Character/Backgrounds/Edit/{{ background.name }}"><button type="button">Edit {{ background.name }}</button></a>
+        <a href="/Character/Backgrounds/Delete/{{ background.name }}"><button type="button" class="mild danger">Delete {{ background.name }}</button></a>
         {% endif %}
     </div>
 </div>

@@ -28,7 +28,7 @@
 		<a href="#" class="dropbtn">Rules</a>
 		<div class="dropdown-content">
 			{% for category in cruleset.categories %}
-			<a href="/Rules/{{ category.name.replace(' ', '-') }}">{{ category.name }}</a>
+			<a href="/Rules/{{ category.name }}">{{ category.name }}</a>
 			{% endfor %}
 		</div>
 	</li>

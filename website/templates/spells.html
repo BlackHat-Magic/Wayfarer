@@ -75,7 +75,7 @@
 			</tr>
 			<template x-for="spell, index in filterQuery()">
 				<tr>
-					<td><a @click="window.location.href = '/Reference/Spell/' + spell.name.split(' ').join('-')" x-text="spell.name"></a></td>
+					<td><a @click="window.location.href = '/Reference/Spell/' + spell.name" x-text="spell.name"></a></td>
 					<td x-text="spell.school"></td>
 					<td x-text="levellist[spell.level]"></td>
 					<td x-text="timelist[spell.casting_time]"></td>

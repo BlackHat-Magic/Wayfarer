@@ -2,7 +2,7 @@
     width: 100%;
     margin: 6px 0;
 }
-.usercontent table, .usercontent table * {
+.usercontent table, .usercontent table *, .usercontent img {
     width: auto;
 }
 .usercontent blockquote * {

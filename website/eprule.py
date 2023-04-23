@@ -120,7 +120,7 @@ def CategoryRoute(categoryname):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    categoryname = categoryname.replace("-", " ")
+    categoryname = categoryname
     rules = Category.query.filter_by(name=categoryname, rulesetid=cruleset.id).first().rules
     return(
         render_template(

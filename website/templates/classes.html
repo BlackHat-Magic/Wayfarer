@@ -26,7 +26,7 @@
 			</tr>
 			<template x-for="playerclass, index in filterQuery()">
 				<tr>
-					<td><a :href="'/Character/Class/' + playerclass.name.split(' ').join('-')" x-text="playerclass.name"></a></td>
+					<td><a :href="'/Character/Class/' + playerclass.name" x-text="playerclass.name"></a></td>
 					<td x-html="convert(playerclass.multiclass_prereq)"></td>
 					<td x-text="truncate(playerclass.text)"></td>
 				</tr>

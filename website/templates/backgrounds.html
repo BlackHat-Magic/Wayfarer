@@ -53,7 +53,7 @@
 			</tr>
 			<template x-for="background, index in filterQuery()">
 				<tr>
-					<td><a @click="window.location.href = '/Character/Background/' + background.name.split(' ').join('-')" x-text="background.name"></a></td>
+					<td><a @click="window.location.href = '/Character/Background/' + background.name" x-text="background.name"></a></td>
 					<td x-text="background.skills"></td>
 					<td x-text="background.tools"></td>
 					<td x-text="background.languages"></td>

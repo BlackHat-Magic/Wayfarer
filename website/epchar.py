@@ -58,7 +58,7 @@ def duplicateRace(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    race = Race.query.filter_by(rulesetid=cruleset.id, name=race.replace("-", " ")).first()
+    race = Race.query.filter_by(rulesetid=cruleset.id, name=race).first()
     if(not race):
         flash("Race does not exist.", "red")
         return(redirect(url_for("epchar.races")))
@@ -71,7 +71,7 @@ def editRace(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    target_race = Race.query.filter_by(name=race.replace("-", " "), rulesetid=cruleset.id).first()
+    target_race = Race.query.filter_by(name=race, rulesetid=cruleset.id).first()
     if(not target_race):
         flash("Race does not exist.", "red")
     elif(request.method == "POST"):
@@ -96,7 +96,7 @@ def deleteRace(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    race = Race.query.filter_by(rulesetid=cruleset.id, name=race.replace("-", " ")).first()
+    race = Race.query.filter_by(rulesetid=cruleset.id, name=race).first()
     if(not race):
         flash("Race does not exist.", "red")
     elif(current_user.id != cruleset.userid):
@@ -118,7 +118,7 @@ def race(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    display = Race.query.filter_by(rulesetid=cruleset.id, name=race.replace("-", " ")).first()
+    display = Race.query.filter_by(rulesetid=cruleset.id, name=race).first()
     return(
         render_template(
             "race.html", 
@@ -176,7 +176,7 @@ def duplicateBackground(tbackground):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground.replace("-", " ")).first()
+    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground).first()
     if(not tbackground):
         flash("Background does not exist.")
         return(redirect(url_for("epchar.backgrounds")))
@@ -188,7 +188,7 @@ def editBackground(tbackground):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground.replace("-", " ")).first()
+    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground).first()
     tools = []
     for tool in Item.query.filter_by(rulesetid = cruleset.id, proficiency = True):
         tools.append(tool)
@@ -214,7 +214,7 @@ def editBackground(tbackground):
 @login_required
 def deleteBackground(tbackground):
     cruleset = getCurrentRuleset(current_user)
-    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground.replace("-", " ")).first()
+    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground).first()
     if(not tbackground):
         flash("Background does not exist.", "red")
     elif(current_user.id != cruleset.userid):
@@ -230,7 +230,7 @@ def background(background):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    background = Background.query.filter_by(rulesetid = cruleset.id, name = background.replace("-", " ")).first()
+    background = Background.query.filter_by(rulesetid = cruleset.id, name = background).first()
     return(
         render_template(
             "background.html", 
@@ -282,7 +282,7 @@ def createFeat():
 @login_required
 def duplicateFeat(tfeat):
     cruleset = getCurrentRuleset(current_user)
-    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat.replace("-", " ")).first()
+    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat).first()
     if(not tfeat):
         flash("Feat does not exist.", "red")
     else:
@@ -295,7 +295,7 @@ def editFeat(tfeat):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat.replace("-", " ")).first()
+    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat).first()
     if(not tfeat):
         flash("Feat does not exist.", "red")
     elif(request.method == "POST"):
@@ -316,7 +316,7 @@ def editFeat(tfeat):
 @login_required
 def deleteFeat(tfeat):
     cruleset = getCurrentRuleset(current_user)
-    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat.replace("-", " ")).first()
+    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat).first()
     if(not tfeat):
         flash("Feat does not exist.", "red")
     elif(current_user.id != cruleset.userid):
@@ -332,7 +332,7 @@ def feat(feat):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    feat = Feat.query.filter_by(rulesetid = cruleset.id, name = feat.replace("-", " ")).first()
+    feat = Feat.query.filter_by(rulesetid = cruleset.id, name = feat).first()
     return(
         render_template(
             "feat.html", 
@@ -388,7 +388,7 @@ def editStat(score):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score.replace("-", " ")).first()
+    ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score).first()
     if(not ability_score):
         flash("Ability Score does not exist.", "red")
         return(redirect(url_for("epchar.stats")))
@@ -414,7 +414,7 @@ def duplicateStat(score):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score.replace("-", " ")).first()
+    ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score).first()
     if(not ability_score):
         flash("Ability Score does not exist.", "red")
     else:
@@ -428,7 +428,7 @@ def deleteStat(score):
     if(current_user.id != cruleset.userid):
         flash("You cannot delete Ability Scores in rulesets that are not your own.", "red")
     else:
-        ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score.replace("-", " ")).first()
+        ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score).first()
         if(not ability_score):
             flash("Ability Score does not exist.", "red")
         else:
@@ -480,7 +480,7 @@ def createClass():
 @login_required
 def duplicateClass(tclass):
     cruleset = getCurrentRuleset(current_user)
-    tclass = Class.query.filter_by(rulesetid=cruleset.id, name=tclass.replace("-", " ")).first()
+    tclass = Class.query.filter_by(rulesetid=cruleset.id, name=tclass).first()
     if(not tclass):
         flash("Class does not exist", "red")
     else:
@@ -492,7 +492,7 @@ def editClass(tclass):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    tclass = Playerclass.query.filter_by(rulesetid=cruleset.id, name=tclass.replace("-", " ")).first()
+    tclass = Playerclass.query.filter_by(rulesetid=cruleset.id, name=tclass).first()
     if(request.method == "POST"):
         if(not tclass):
             flash("Class does not exist", "red")
@@ -516,7 +516,7 @@ def classPage(selectedclass):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    selectedclass = Playerclass.query.filter_by(name=selectedclass.replace("-", " ")).first()
+    selectedclass = Playerclass.query.filter_by(name=selectedclass).first()
     return(
         render_template(
             "class.html",

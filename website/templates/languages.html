@@ -13,9 +13,9 @@
 			<h2 x-text="`{{ language.name }}`"></h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
-					<a href="/Reference/Languages/Edit/{{ language.name.replace(' ', '-') }}"><button style="width: auto">Edit {{ language.name }}</button></a>
-					<a href="/Reference/Languages/Duplicate/{{ language.name.replace(' ', '-') }}"><button style="width: auto">Duplicate {{ language.name }}</button></a>
-					<a href="/Reference/Languages/Delete/{{ language.name.replace(' ', '-') }}"><button class="mild danger" style="width: auto">Delete {{ language.name }}</button></a>
+					<a href="/Reference/Languages/Edit/{{ language.name }}"><button style="width: auto">Edit {{ language.name }}</button></a>
+					<a href="/Reference/Languages/Duplicate/{{ language.name }}"><button style="width: auto">Duplicate {{ language.name }}</button></a>
+					<a href="/Reference/Languages/Delete/{{ language.name }}"><button class="mild danger" style="width: auto">Delete {{ language.name }}</button></a>
 				</div>
 			{% endif %}
 			<hr>
