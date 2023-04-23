@@ -14,7 +14,7 @@
 		{% endif %}
 		<form class="interior flex vertical start" method="post">
 			<input name="name" id="name" x-model="name" placeholder="Item Type Name" {% if tag %} x-init="name=`{{ tag.name }}`" {% endif %}>
-			<textarea name="text" id="text" x-model="text" placeholder="Item Type Description Description" {% if tag %} x-init="name=`{{ tag.name }}`" {% endif %}></textarea>
+			<textarea name="text" id="text" x-model="text" placeholder="Item Type Description Description" {% if tag %} x-init="text=`{{ tag.text }}`" {% endif %}></textarea>
 			{% if tag %}
 				<a><button type="submit">Submit Changes</button></a>
 			{% else %}

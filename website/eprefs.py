@@ -166,103 +166,9 @@ def createItem():
         if(current_user.id != cruleset.userid):
             flash("You cannot create items for rulesets that are not yours.", "red")
         else:
-            name = request.form.get("name")
-            is_magical = request.form.get("ismagical")
-            if(is_magical):
-                is_magical = True
-                tier = request.form.get("tier")
-                rarity = request.form.get("rarity")
-                attunement = request.form.get("attunement")
-                if(attunement):
-                    attunement = True
-                else:
-                    attunement = False
-            else:
-                is_magical = False
-                tier = None
-                rarity = None
-                attunement = None
-            tags = request.form.getlist("tag")
-            proficiency = request.form.get("proficiency")
-            if(proficiency):
-                proficiency = True
-            else:
-                proficiency = False
-            cost = request.form.get("cost")
-            weight = request.form.get("weight")
-            text = request.form.get("text")
-            is_armor = request.form.get("isarmorr")
-            if(is_armor):
-                is_armor = True
-                armor_class = request.form.get("armorclass")
-                add_dex = request.form.get("adddex")
-                if(add_dex):
-                    add_dex = True
-                    max_dex = request.form.get("maxdex")
-                else:
-                    add_dex = False
-                    max_dex = None
-            else:
-                is_armor = False
-                armor_class = None
-                add_dex = None
-                max_dex = None
-            is_weapon = request.form.get("isweapon")
-            if(is_weapon):
-                is_weapon = True
-                die_num = request.form.get("dienum")
-                damage_die = request.form.get("damagedie")
-                damage_type = request.form.get("damagetype")
-                weapon_properties = request.form.getlist("property")
-            else:
-                is_weapon = False
-                die_num = None
-                damage_die = None
-                damage_type = None
-                weapon_properties = []
-            if(len(name) < 1):
-                flash("You must specify an item name.", "red")
-            elif(len(name) > 127):
-                flash("Item name must be fewer than 128 characters.", "red")
-            elif(len(cost) > 31):
-                flash("Item cost must be fewer than 32 characters.", "red")
-            elif(len(tags) > 127):
-                flash("Too many item tags specified (sorry).", "red")
-            elif(len(text) > 16383):
-                flash("Item text must be fewer than 16384 characters.", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            elif(len(weapon_properties) > 255):
-                flash("Weapon Properties must be fewer than 256 characters.", "red")
-            else:
-                new_item = Item(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    is_magical = is_magical,
-                    rarity = rarity,
-                    tier = tier,
-                    attunement = attunement,
-                    tags = tags,
-                    proficiency = proficiency,
-                    cost = cost,
-                    weight = weight,
-                    text = text,
-                    is_armor = is_armor,
-                    armor_class = armor_class,
-                    add_dex = add_dex,
-                    max_dex = max_dex,
-                    is_weapon = is_weapon,
-                    die_num = die_num,
-                    damage_die = damage_die,
-                    damage_type = damage_type,
-                    weapon_properties = weapon_properties
-                )
-                db.session.add(new_item)
-                db.session.commit()
-                flash("Item created.", "green")
-                return(redirect(url_for("eprefs.items")))
+            result = makeItem(request, cruleset, None, "create")
+            if(result):
+                return(result)
     return(
         render_template(
             "create-item.html", 
@@ -273,6 +179,71 @@ def createItem():
             title="Create an Item"
         )
     )
+
+@eprefs.route("/Items/Duplicate/<string:item>")
+@login_required
+def duplicateItem(item):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    item = Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot duplicate items in rulesets that are not yours.", "red")
+    else:
+        result = makeItem(request, cruleset, item, "duplicate")
+        if(result):
+            return(result)
+    return(
+        render_template(
+            "create-item.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create an Item",
+            item=item
+        )
+    )
+
+@eprefs.route("/Items/Edit/<string:item>", methods=["GET", "POST"])
+@login_required
+def editItem(item):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    item = Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first()
+    if(request.method == "POST"):
+        if(current_user.id != cruleset.userid):
+            flash("You cannot edit items in rulesets that are not yours.", "red")
+        else:
+            result = makeItem(request, cruleset, item, "edit")
+            if(result):
+                return(result)
+    return(
+        render_template(
+            "create-item.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create an Item",
+            item=item
+        )
+    )
+
+@eprefs.route("/Item/Delete/<string:item>")
+@login_required
+def deleteItem(item):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete items from rulesets that are not yours.", "red")
+    else:
+        db.session.delete(Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first())
+        db.session.commit()
+        flash("Item deleted.", "orange")
+    return(redirect(url_for("eprefs.items")))
 
 @eprefs.route("/Item/<string:item>")
 def item(item):
@@ -291,20 +262,6 @@ def item(item):
             title=item.name
         )
     )
-
-@eprefs.route("/Item/<string:item>/Delete")
-@login_required
-def deleteItem(item):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    if(current_user.id != cruleset.userid):
-        flash("You cannot delete items from rulesets that are not yours.", "red")
-    else:
-        db.session.delete(Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first())
-        db.session.commit()
-        flash("Item deleted.", "orange")
-    return(redirect(url_for("eprefs.items")))
 
 @eprefs.route("/Items/Tags")
 def tags():

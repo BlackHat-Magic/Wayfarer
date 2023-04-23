@@ -7,30 +7,34 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Create an Item</h1>
+		{% if not item %}
+			<h1>Create an Item</h1>
+		{% else %}
+			<h1>{{ item.name }}</h1>
+		{% endif %}
 		<form class="interior flex vertical start" method="post">
-			<input type="text" name="name" id="name" x-model="name" placeholder="Item Name">
+			<input type="text" name="name" id="name" x-model="name" placeholder="Item Name" {% if item %} x-init="name=`{{ item.name }}`" {% endif %}>
 			<div class="interior flex horizontal space-around" style="width: 100%">
-				<div class="interior flex horizontal start">
+				<div class="interior flex horizontal start" {% if item and item.proficiency %} x-init="proficiency=true" {% endif %}>
 					<label for="proficiency">Can be Proficient?</label>
 					<input id="proficiency" name="proficiency" type="checkbox" x-model="proficiency" style="width: auto">
 				</div>
-				<div class="interior flex horizontal start">
+				<div class="interior flex horizontal start" {% if item and item.is_weapon %} x-init="isweapon=true" {% endif %}>
 					<label for="isweapon">Is Weapon?</label>
 					<input id="isweapon" name="isweapon" type="checkbox" x-model="isweapon" style="width: auto">
 				</div>
 				<div class="interior flex vertical start">
-					<div class="interior flex horizontal start">
+					<div class="interior flex horizontal start" {% if item and item.is_armor %} x-init="isarmor=true" {% endif %}>
 						<label for="isarmor">Is Armor?</label>
 						<input id="isarmor" name="isarmor" type="checkbox" x-model="isarmor" style="width: auto">
 					</div>
-					<div class="interior flex horizontal start" x-show="isarmor">
+					<div class="interior flex horizontal start" x-show="isarmor" {% if item and item.add_dex %} x-init="adddex=true" {% endif %}>
 						<label for="adddex">Add Dex?</label>
 						<input id="adddex" name="adddex" type="checkbox" x-model="adddex" style="width: auto">
 					</div>
 				</div>
 				<div class="interior flex vertical start">
-					<div class="interior flex horizontal start">
+					<div class="interior flex horizontal start"{% if item and item.is_magical %} x-init="ismagical=true" {% endif %}>
 						<label for="ismagical">Is Magical?</label>
 						<input type="checkbox" name="ismagical" id="ismagical" x-model="ismagical" style="width: auto">
 					</div>
@@ -51,7 +55,7 @@
 							<option>{{ tag.name }}</option>
 							{% endfor %}
 						</select>
-						<input type="hidden" x-model="tags" id="tags" name="tags">
+						<input type="hidden" x-model="tags" id="tags" name="tags" {% if item %} x-init="tags={{ item.tags }}" {% endif %}>
 					</div>
 					<template x-for="tag, index in taglist">
 						<span @click="removeTag(index)" class="chip"><span x-text="tag"></span><span class="remove">&times</span></span>
@@ -75,7 +79,7 @@
 							<option>{{ property.name }}</option>
 							{% endfor %}
 						</select>
-						<input type="hidden" x-model="properties" id="properties" name="properties">
+						<input type="hidden" x-model="properties" id="properties" name="properties" {% if item %} x-init="properties={{ item.properties }}" {% endif %}>
 					</div>
 					<template x-for="property, index in propertylist">
 						<span @click="removeProperty(index)" class="chip"><span x-text="property"></span><span class="remove">&times</span></span>
@@ -86,14 +90,14 @@
 				</div>
 			{% endif %}
 			<div class="interior flex horizontal space-around" style="width: 100%">
-				<input name="cost" id="cost" type="text" x-model="cost" style="width: auto" placeholder="Cost">
-				<input name="weight" id="weight" type="number" x-model="weight" style="width: auto" placeholder="Weight (lbs)">
-				<input name="armorclass" id="armorclass" type="number" x-model="armorclass" style="width: auto" placeholder="Armor Class" x-show="isarmor">
-				<input name="maxdex" id="maxdex" type="number" x-model="maxdex" style="width: auto" placeholder="Max Dex (0 for None)" x-show="adddex">
+				<input name="cost" id="cost" type="text" x-model="cost" style="width: auto" placeholder="Cost" {% if item and item.cost %} x-init="cost={{ item.cost }}" {% endif %}>
+				<input name="weight" id="weight" type="number" x-model="weight" style="width: auto" placeholder="Weight (lbs)" {% if item and item.weight%} x-init="weight={{ item.weight }}" {% endif %}>
+				<input name="armorclass" id="armorclass" type="number" x-model="armorclass" style="width: auto" placeholder="Armor Class" x-show="isarmor" {% if item and item.armor_class %} x-init="armorclass={{ item.armor_class }}" {% endif %}>
+				<input name="maxdex" id="maxdex" type="number" x-model="maxdex" style="width: auto" placeholder="Max Dex (0 for None)" x-show="adddex" {% if item and item.add_dex and item.max_dex %} x-init="maxdex={{ item.max_dex }}" {% endif %}>
 				<div class="interior flex horizontal start" x-show="isweapon">
 					<label for="dienum">Damage Dice:</label>
-					<input name="dienum" id="dienum" type="number" x-model="dienum" style="width: auto" placeholder="Damage Die Number">
-					<select x-model="damagedie" style="width: auto">
+					<input name="dienum" id="dienum" type="number" x-model="dienum" style="width: auto" placeholder="Damage Die Number" {% if item and item.is_weapon %} x-init="dienum={{ die_num }}" {% endif %}>
+					<select x-model="damagedie" style="width: auto" {% if item and item.is_weapon %} x-init="damagedie=item.damage_die" {% endif %}>
 						<option value="4">d4</option>
 						<option value="6">d6</option>
 						<option value="8">d8</option>
@@ -101,12 +105,16 @@
 						<option value="12">d12</option>
 						<option value="20">d20</option>
 					</select>
-					<input name="damagetype" id="damagetype" type="text" x-model="damagetype" style="width: auto" placeholder="Damage Type">
+					<input name="damagetype" id="damagetype" type="text" x-model="damagetype" style="width: auto" placeholder="Damage Type" {% if item and item.is_weapon %} x-init="damagetype=item.damage_type" {% endif %}>
 				</div>
 			</div>
 			<textarea x-model="text" placeholder="Item Description"></textarea>
-			<input type="hidden" name="text" id="text" x-model="text">
-			<a><button type="submit">Create Item!</button></a>
+			<input type="hidden" name="text" id="text" x-model="text" {% if item %} x-init="text=`{{ item.text }}`" {% endif %}>
+			{% if item %}
+				<a><button type="submit">Submit Changes</button></a>
+			{% else %}
+				<a><button type="submit">Create Item!</button></a>
+			{% endif %}
 		</form>
 		<div class="usercontent">
 			<h1 x-text="name"></h1>
