@@ -8,7 +8,7 @@
 <div class="flex">
     <div class="flex vertical start" x-data="main">
         <h1>Skills</h1>
-        {% for skill in cruleset.skills %}
+        {% for skill in skills %}
         <div class="usercontent">
             <h2>{{ skill.name }}</h2>
 			{% if cruleset.userid == current_user.id %}

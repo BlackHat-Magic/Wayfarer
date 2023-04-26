@@ -51,16 +51,15 @@
 					<div style="width: 100%">
 						<label for="tagselect">Add Tag: </label>
 						<select name="tagselect" id="tagselect" x-model="tagselect" style="width: auto" @change="appendTag()" x-init="updateTags()">
-							{% for tag in cruleset.item_tags %}
+							{% for tag in tags %}
 							<option>{{ tag.name }}</option>
 							{% endfor %}
 						</select>
-						<input type="hidden" x-model="tags" id="tags" name="tags" {% if item %} x-init="tags={{ item.tags }}" {% endif %}>
 					</div>
 					<template x-for="tag, index in taglist">
 						<span @click="removeTag(index)" class="chip"><span x-text="tag"></span><span class="remove">&times</span></span>
 					</template>
-					<template x-for="tag, index in taglist">
+					<template x-for="tag, index in taglist" {% if item %} x-init="taglist={{ item.tags }}" {% endif %}>
 						<input type="hidden" name="tag" id="tag" x-model="taglist[index]">
 					</template>
 				</div>
@@ -75,13 +74,12 @@
 					<div style="width: 100%">
 						<label for="propertyselect">Add Weapon Property: </label>
 						<select name="propertyselect" id="propertyselect" x-model="propertyselect" style="width: auto" @change="appendProperty()" x-init="updateProperties()">
-							{% for property in cruleset.item_properties %}
+							{% for property in properties %}
 							<option>{{ property.name }}</option>
 							{% endfor %}
 						</select>
-						<input type="hidden" x-model="properties" id="properties" name="properties" {% if item %} x-init="properties={{ item.properties }}" {% endif %}>
 					</div>
-					<template x-for="property, index in propertylist">
+					<template x-for="property, index in propertylist" {% if item %} x-init="propertylist={{ item.weapon_properties }}" {% endif %}>
 						<span @click="removeProperty(index)" class="chip"><span x-text="property"></span><span class="remove">&times</span></span>
 					</template>
 					<template x-for="property, index in propertylist">
@@ -90,14 +88,14 @@
 				</div>
 			{% endif %}
 			<div class="interior flex horizontal space-around" style="width: 100%">
-				<input name="cost" id="cost" type="text" x-model="cost" style="width: auto" placeholder="Cost" {% if item and item.cost %} x-init="cost={{ item.cost }}" {% endif %}>
+				<input name="cost" id="cost" type="text" x-model="cost" style="width: auto" placeholder="Cost" {% if item and item.cost %} x-init="cost=`{{ item.cost }}`" {% endif %}>
 				<input name="weight" id="weight" type="number" x-model="weight" style="width: auto" placeholder="Weight (lbs)" {% if item and item.weight%} x-init="weight={{ item.weight }}" {% endif %}>
 				<input name="armorclass" id="armorclass" type="number" x-model="armorclass" style="width: auto" placeholder="Armor Class" x-show="isarmor" {% if item and item.armor_class %} x-init="armorclass={{ item.armor_class }}" {% endif %}>
 				<input name="maxdex" id="maxdex" type="number" x-model="maxdex" style="width: auto" placeholder="Max Dex (0 for None)" x-show="adddex" {% if item and item.add_dex and item.max_dex %} x-init="maxdex={{ item.max_dex }}" {% endif %}>
 				<div class="interior flex horizontal start" x-show="isweapon">
 					<label for="dienum">Damage Dice:</label>
-					<input name="dienum" id="dienum" type="number" x-model="dienum" style="width: auto" placeholder="Damage Die Number" {% if item and item.is_weapon %} x-init="dienum={{ die_num }}" {% endif %}>
-					<select x-model="damagedie" style="width: auto" {% if item and item.is_weapon %} x-init="damagedie=item.damage_die" {% endif %}>
+					<input name="dienum" id="dienum" type="number" x-model="dienum" style="width: auto" placeholder="Damage Die Number" {% if item and item.is_weapon %} x-init="dienum={{ item.die_num }}" {% endif %}>
+					<select name="damagedie" id="damagedie" x-model="damagedie" style="width: auto" {% if item and item.is_weapon %} x-init="damagedie={{ item.damage_die }}" {% endif %}>
 						<option value="4">d4</option>
 						<option value="6">d6</option>
 						<option value="8">d8</option>
@@ -105,7 +103,7 @@
 						<option value="12">d12</option>
 						<option value="20">d20</option>
 					</select>
-					<input name="damagetype" id="damagetype" type="text" x-model="damagetype" style="width: auto" placeholder="Damage Type" {% if item and item.is_weapon %} x-init="damagetype=item.damage_type" {% endif %}>
+					<input name="damagetype" id="damagetype" type="text" x-model="damagetype" style="width: auto" placeholder="Damage Type" {% if item and item.is_weapon %} x-init="damagetype=`{{ item.damage_type }}`	" {% endif %}>
 				</div>
 			</div>
 			<textarea x-model="text" placeholder="Item Description"></textarea>

@@ -145,6 +145,7 @@ def items():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    items = Item.query.filter_by(rulesetid = cruleset.id).order_by(Item.name)
     return(
         render_template(
             "items.html", 
@@ -152,7 +153,8 @@ def items():
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
-            title="Items"
+            title="Items",
+            items = items
         )
     )
 
@@ -169,6 +171,8 @@ def createItem():
             result = makeItem(request, cruleset, None, "create")
             if(result):
                 return(result)
+    tags = ItemTag.query.filter_by(rulesetid = cruleset.id).order_by(ItemTag.name)
+    properties = Property.query.filter_by(rulesetid = cruleset.id).order_by(Property.name)
     return(
         render_template(
             "create-item.html", 
@@ -176,7 +180,9 @@ def createItem():
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
-            title="Create an Item"
+            title="Create an Item",
+            tags = tags,
+            properties = properties
         )
     )
 
@@ -219,6 +225,8 @@ def editItem(item):
             result = makeItem(request, cruleset, item, "edit")
             if(result):
                 return(result)
+    tags = ItemTag.query.filter_by(rulesetid = cruleset.id).order_by(ItemTag.name)
+    properties = Property.query.filter_by(rulesetid = cruleset.id).order_by(Property.name)
     return(
         render_template(
             "create-item.html", 
@@ -227,7 +235,9 @@ def editItem(item):
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create an Item",
-            item=item
+            item=item,
+            tags = tags,
+            properties = properties
         )
     )
 
@@ -704,6 +714,7 @@ def skills():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    skills = Skill.query.filter_by(rulesetid = cruleset.id).order_by(Skill.name)
     return(
         render_template(
             "skills.html", 
@@ -711,7 +722,8 @@ def skills():
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
-            title="Skills"
+            title="Skills",
+            skills = skills
         )
     )
 

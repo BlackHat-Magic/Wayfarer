@@ -1,0 +1,18 @@
+
+{% extends "master.html" %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/import-race.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<form class="flex vertical start" method="post" x-data="main">
+		<h1 @click="console.log(parsed_races)">Import a Race</h1>
+        <input type="file" id="race-file" name="race-file" x-model="race_file" accept=".json" @change="parse()">
+        <input type="hidden" id="parsed_races" name="parsed_races" x-model="parsed_races">
+		<a href="/Reference/Actions/Create"><button type="submit">Import Race!</button></a>
+	</form>
+</div>
+
+{% endblock %}

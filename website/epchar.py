@@ -113,6 +113,26 @@ def deleteRace(race):
         flash("Race deleted.", "orange")
     return(redirect(url_for("epchar.races")))
 
+@epchar.route("/Races/Import", methods=["GET", "POST"])
+def importRace():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        races = json.loads(request.form.get("parsed_races"))
+        return(importRaces(races, cruleset))
+    return(
+        render_template(
+            "import-race.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            ability='', 
+            adminrulesets=adminrulesets, 
+            title="Races",
+        )
+    )
+
 @epchar.route("/Race/<string:race>")
 def race(race):
     cruleset = getCurrentRuleset(current_user)

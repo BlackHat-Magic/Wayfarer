@@ -44,6 +44,11 @@ input[type=checkbox] {
     width: auto;
 }
 
+input[type=file] {
+    text-align: center;
+    padding: 50px 50px;
+}
+
 textarea {
     font-size: 16px;
     max-width: calc(100% - 24px);

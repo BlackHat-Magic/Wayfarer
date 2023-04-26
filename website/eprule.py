@@ -96,8 +96,6 @@ def createCategory():
             flash("Opening angle brackets (\"<\") are not allowed.", "red")
         elif("javascript" in name):
             flash("Cross-site scripting attacks are not allowed.", "red")
-        elif("-" in name):
-            flash("Dashes (\"-\") are not allowed in category name.", "red")
         else:
             new_category = Category(name=request.form.get("name"), rulesetid=cruleset.id, pinned=False)
             db.session.add(new_category)

@@ -28,7 +28,7 @@
 					{% if item.add_dex %}
 					<span> + Dex</span>
 					{% endif %}
-					{% if item.max_dex or item.max_dex != 0 %}
+					{% if item.max_dex and item.max_dex != 0 %}
 					<span> (Max {{ item.max_dex }})</span>
 					{% endif %}
 				{% elif item.is_weapon %}

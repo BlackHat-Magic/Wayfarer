@@ -68,6 +68,9 @@ template, template.vertical, template.horizontal {
 .green {
     background-color: var(--nord-green)!important;
 }
+.bar {
+    max-width: 100%!important;
+}
 .red.text, .orange.text, .green.text {
     border-radius: 5px;
     padding: 5px;

@@ -7,11 +7,11 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		{% for item in cruleset.items %}
+		{% for item in items %}
 		<template x-init="itemROM.push(
 			{
 				name: `{{ item.name }}`,
-				type: `{{ item.tags }}`,
+				type: {{ item.tags }},
 				cost: `{{ item.cost }}`,
 				weight: `{{ item.weight }}`
 			}

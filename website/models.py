@@ -132,6 +132,7 @@ class Race(db.Model):
     size = db.Column(db.Integer)
     size_text = db.Column(db.String(255))
     walk = db.Column(db.Integer)
+    climb = db.Column(db.Integer)
     fly = db.Column(db.Integer)
     swim = db.Column(db.Integer)
     burrow = db.Column(db.Integer)
@@ -142,8 +143,8 @@ class Race(db.Model):
     weight_num = db.Column(db.Integer)
     weight_die = db.Column(db.Integer)
     subrace_flavor = db.Column(db.String(16383))
-    race_features = db.relationship("RaceFeature")
-    subraces = db.relationship("Subrace")
+    race_features = db.relationship("RaceFeature", backref="race")
+    subraces = db.relationship("Subrace", backref="race")
 
 class RaceFeature(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -156,7 +157,7 @@ class Subrace(db.Model):
     raceid = db.Column(db.Integer, db.ForeignKey("race.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
-    subrace_features = db.relationship("SubraceFeature")
+    subrace_features = db.relationship("SubraceFeature", backref="subrace")
 
 class SubraceFeature(db.Model):
     id = db.Column(db.Integer, primary_key = True)

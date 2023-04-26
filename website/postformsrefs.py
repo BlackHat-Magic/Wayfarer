@@ -152,7 +152,7 @@ def makeItem(request, cruleset, item, instruction):
         cost = request.form.get("cost")
         weight = request.form.get("weight")
         text = request.form.get("text")
-        is_armor = request.form.get("isarmorr")
+        is_armor = request.form.get("isarmor")
         if(is_armor):
             is_armor = True
             armor_class = request.form.get("armorclass")

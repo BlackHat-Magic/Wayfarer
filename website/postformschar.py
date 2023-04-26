@@ -5,7 +5,7 @@ from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Backgro
 
 def abilityScore(request, cruleset, ability_score, instruction):
     name = request.form.get("name")
-    abbr = request.form.get("abbr")
+    abbr = request.form.get("abbr").casefold()
     order = request.form.get("order")
     text = request.form.get("text")
     bad = False
@@ -192,8 +192,6 @@ def makerace(request, cruleset, race, instruction):
             flash("Open angle brackets (\"<\") are not allowed.", "red")
         elif("javascript" in flavor):
             flash("Cross-site scripting attacks are not allowed.", "red")
-        elif("-" in name):
-            flash("Dashes (\"-\") are not allowed in race name.", "red")
         else:
             bad = False
             for feature in features:
@@ -314,7 +312,7 @@ def makerace(request, cruleset, race, instruction):
                             db.session.commit()
                     flash("Race created!", "green")
                 else:
-                    race.namme = name
+                    race.name = name
                     race.flavor = flavor
                     race.asis = asis
                     race.asi_text = asi_text
@@ -387,6 +385,210 @@ def makerace(request, cruleset, race, instruction):
                 return(redirect(url_for("epchar.races")))
     return(False)
 
+def importRaces(races, cruleset):
+    if(cruleset.userid != current_user.id):
+        flash("You cannot import races into rulesets that are not your own", "red")
+        return(redirect(url_for("epchar.importRace")))
+    try:
+        for i, race in enumerate(races["race"]):
+            #print(race)
+            name = f"{race['name']} ({race['source']})"
+            if(len(name) > 127):
+                flash(f"All race names must be fewer than 128 characters. Offender: {race['name']}", "red")
+            
+            sizedict = {
+                "T": 0,
+                "S": 1,
+                "M": 2,
+                "L": 3,
+                "H": 4,
+                "G": 5
+            }
+            if("size" in race.keys()):
+                if(race["size"][0] in sizedict.keys()):
+                    size = sizedict[race["size"][0]]
+                    size_text = None
+                else:
+                    size = None
+                    size_text = race["size"][0]
+            else:
+                size = 2
+            
+            walk = 30
+            fly = swim = burrow = climb = 0
+
+            if("speed" in race.keys()):
+                if(type(race["speed"]) == int):
+                    walk = race["speed"]
+                elif(type(race["speed"]) == dict):
+                    if("walk" in race["speed"].keys()):
+                        walk = race["speed"]["walk"]
+                    if("fly" in race["speed"].keys()):
+                        fly = race["speed"]["fly"]
+                    if("swim" in race["speed"].keys()):
+                        swim = race["speed"]["swim"]
+                    if("burrow" in race["speed"].keys()):
+                        burrow = race["speed"]["burrow"]
+                    if("climb" in race["speed"].keys()):
+                        climb = race["speed"]["climb"]
+
+            base_height = height_num = height_die = base_weight = weight_num = weight_die = None
+            if("heightAndWeight" in race.keys() and race["heightAndWeight"]):
+                if("baseHeight" in race["heightAndWeight"].keys()):
+                    base_height = race["heightAndWeight"]["baseHeight"]
+                    height_num = int(race["heightAndWeight"]["heightMod"].split("d")[0])
+                    height_die = int(race["heightAndWeight"]["heightMod"].split("d")[-1])
+                if("baseWeight" in race["heightAndWeight"].keys()):
+                    base_weight = race["heightAndWeight"]["baseWeight"]
+                    if("weightMod" in race["heightAndWeight"].keys()):
+                        weight_num = int(race["heightAndWeight"]["weightMod"].split("d")[0])
+                        weight_die = int(race["heightAndWeight"]["weightMod"].split("d")[-1])
+                    else:
+                        height_num = weight_num = 1
+
+            asis = {}
+            asi_text = ""
+            if("ability" in race.keys()):
+                if("choose" not in race["ability"][0].keys()):
+                    for score in AbilityScore.query.filter_by(rulesetid = cruleset.id).order_by(AbilityScore.order):
+                        asis.update({score.abbr: 0})
+                    for score in race["ability"][0].keys():
+                        asis[score] = race["ability"][0][score]
+                else:
+                    for score in race["ability"][0].keys():
+                        if(len(asi_text) > 0):
+                            asi_text += ", "
+                        if(score != "choose"):
+                            asi_text += score.capitalize() + " "
+                            if(race["ability"][0][score] > 0):
+                                asi_text += "+"
+                            asi_text += str(race["ability"][0][score])
+                        else:
+                            if("count" in race["ability"][0]["choose"].keys()):
+                                asi_text += "+1 to any " + str(race["ability"][0]["choose"]["count"]) + " of your choice from:"
+                                for thingy in race["ability"][0]["choose"]["from"]:
+                                    asi_text += f" {thingy},"
+                            else:
+                                asi_text += f"+{race['ability'][0]['choose']['amount']} to any one ability score of your choice"
+            new_asis = []
+            for asi in asis.values():
+                new_asis.append(asi)
+            
+            if(asi_text != None and len(asi_text) > 255):
+                asi_text = f"{asi_text[:252]}..."
+                flash(f"{race['name']} Ability Score Improvement text had to be shortened to fit 256 character limit.", "orange")
+            
+            if(size_text != None and len(size_text) > 255):
+                flash(f"Size text must be fewer than 256 characters. Offender: {race['name']}", "red")
+                return(redirect(url_for("epchar.importRace")))
+
+            new_race = Race(
+                rulesetid = cruleset.id,
+                name = name,
+                flavor = "",
+                asis = new_asis,
+                asi_text = asi_text,
+                size = size,
+                size_text = size_text,
+                walk = walk,
+                climb = climb,
+                fly = fly,
+                swim = swim,
+                burrow = burrow,
+                base_height = base_height,
+                base_weight = base_weight,
+                height_num = height_num,
+                height_die = height_die,
+                weight_num = weight_num,
+                weight_die = weight_die,
+                subrace_flavor = None
+            )
+            db.session.add(new_race)
+
+            if("speed" in race.keys() and type(race["speed"]) != int and type(race["speed"]) != dict):
+                new_race_feature = RaceFeature(
+                    race = new_race,
+                    name = "Speed",
+                    text = str(race["speed"])
+                )
+                db.session.add(new_race_feature)
+
+            if("entries" in race.keys()):
+                for feature in race["entries"]:
+                    if(type(feature) == dict and "name" in feature.keys()):
+                        if(feature["type"] != "entries"):
+                            flash(f"Non-plaintext feature detected in {race['name']}; likely a table. Importing non-plaintext features is not yet supported. Skipping...", "orange")
+                            continue
+                        if("<" in feature["entries"][0]):
+                            flash(f"Open angle brackets (\"<\") are not allowed. Offender: {race['name']} feature '{feature['name']}'", "red")
+                            return(redirect(url_for("epchar.importRace")))
+                        elif("javascript" in feature["entries"][0]):
+                            flash(f"Cross-site scripting attacks are not allowed. Offender: {race['name']} feature '{feature['name']}'", "red")
+                            return(redirect(url_for("epchar.importRace")))
+                        elif(len(feature["name"]) > 127):
+                            flash(f"Race feature names must be fewer than 128 characters. Offender: {race['name']} feature '{feature['name']}", "red")
+                            return(redirect(url_for("epchar.importRace")))
+                        elif(len(feature["entries"][0]) > 16383):
+                            flash(f"Race feature descriptions must be fewer than 16384 characters. Offender: {race['name']} feature '{feature['name']}'", "red")
+                            return(redirect(url_for("epchar.importRace")))
+                        new_race_feature = RaceFeature(
+                            race = new_race,
+                            name = feature["name"],
+                            text = feature["entries"][0]
+                        )
+                        db.session.add(new_race_feature)
+                    else:
+                        if(len(new_race.flavor) > 0):
+                            new_race.flavor += "\n\n"
+                        new_race.flavor += str(feature)
+            
+            for subrace in races["subrace"]:
+                if("name" in subrace.keys() and subrace["raceName"] == race["name"]):
+                    name = subrace["name"]
+                    if(len(name) > 127):
+                        flash(f"Subrace names must be fewer than 128 characters. Offender: {race['name']} subrace '{subrace['name']}'")
+                        return(redirect(url_for("epchar.importRace")))
+                    new_subrace = Subrace(
+                        race = new_race,
+                        name = subrace["name"],
+                        text = "",
+                    )
+                    db.session.add(new_subrace)
+                    if("entries" in subrace.keys()):
+                        for feature in subrace["entries"]:
+                            if(type(feature) == dict):
+                                if(feature["type"] != "entries"):
+                                    flash(f"{race['name']} subrace '{subrace['name']}' feature '{feature['name']}' is not plaintext; likely a table. Importing non-plaintext features is not yet supported. Skipping...", "orange")
+                                    continue
+                                if("<" in feature["entries"][0]):
+                                    flash(f"Open angle brackets (\"<\") are not allowed. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
+                                    return(redirect(url_for("epchar.importRace")))
+                                elif("javascript" in feature["entries"][0]):
+                                    flash(f"Cross-site scripting attacks are not allowed. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
+                                    return(redirect(url_for("epchar.importRace")))
+                                elif(len(feature["name"]) > 127):
+                                    flash(f"Subrace feature names must be fewer than 128 characters. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}", "red")
+                                    return(redirect(url_for("epchar.importRace")))
+                                elif(len(feature["entries"][0]) > 16383):
+                                    flash(f"Subrace feature descriptions must be fewer than 16384 characters. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
+                                    return(redirect(url_for("epchar.importRace")))
+                                new_subrace_feature = SubraceFeature(
+                                    subrace = new_subrace,
+                                    name = feature["name"],
+                                    text = feature["entries"][0]
+                                )
+                                db.session.add(new_subrace_feature)
+                            else:
+                                if(len(new_subrace.text) > 0):
+                                    new_subrace.text += "\n\n"
+                                new_subrace.text += str(feature)
+        db.session.commit()
+        flash("Races imported!", "green")
+        return(redirect(url_for("epchar.races")))
+    except:
+        flash("Improperly formatted JSON; could not import.", "red")
+        return(redirect(url_for("epchar.importRace")))
+
 def makebackground(request, cruleset, background, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create backgrounds in rulesets that are not your own.", "red")
@@ -433,9 +635,6 @@ def makebackground(request, cruleset, background, instruction):
             return(redirect(url_for("epchar.createBackground")))
         elif(len("text") > 16383):
             flash("Text must be fewer than 16384 characters.", "red")
-            return(redirect(url_for("epchar.createBackground")))
-        elif("-" in "name"):
-            flash("Dashes (\"-\") are not allowed in the background name.", "red")
             return(redirect(url_for("epchar.createBackground")))
         elif("<" in "text"):
             flash("Open angle brackets(\"<\") are not allowed.", "red")
