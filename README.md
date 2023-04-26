@@ -20,7 +20,18 @@ In no particular order...
  - [x] ~~make background filters more useful~~
  - [ ] Add 5e.tools import/export functionality
      - [ ] Export Functionality
-     - [ ] Import flavor text
+     - [X] ~~Import race features~~
+     - [ ] Import race flavor text
+     - [ ] Import background features
+     - [ ] Import background flavor text
+     - [ ] Import feats
+     - [ ] Import classes
+     - [ ] Import actions
+     - [ ] Import items
+     - [ ] Import languages
+     - [ ] Import spells
+     - [ ] Import recipes
+     - [ ] Import skills
      - [ ] Import tables
      - [ ] Import Entire Rulesets
  - [x] ~~Add support for multiple administrator rulesets~~

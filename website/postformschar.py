@@ -541,6 +541,28 @@ def importRaces(races, cruleset):
                         if(len(new_race.flavor) > 0):
                             new_race.flavor += "\n\n"
                         new_race.flavor += str(feature)
+
+            if("languageProficiencies" in race.keys()):
+                langtext = ""
+                for language in race["languageProficiencies"].keys():
+                    if(language != "other" and language != "anyStandard"):
+                        if(len(langtext) > 0):
+                            langtext += ", "
+                        langtext += language.capitalize()
+                if("other" in race["languageProficiencies"].keys()):
+                    if(len(langtext) > 0):
+                        langtext += f", plus one extra language of your choice"
+                    else:
+                        langtext += "one language of your choice"
+                if("anyStandard" in race["languageProficiencies"].keys()):
+                    if(len(langtext) > 0):
+                        langtext += f", and {['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][race['languageProficiencies'][anyStandard]]} of your choice"
+                langtext = "You can speak, read, and write " + langtext + "."
+                new_race_feature = RaceFeature(
+                    race = new_race,
+                    name = "Languages",
+                    text = langtext
+                )
             
             for subrace in races["subrace"]:
                 if("name" in subrace.keys() and subrace["raceName"] == race["name"]):
