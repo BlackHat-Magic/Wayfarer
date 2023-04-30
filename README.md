@@ -21,7 +21,7 @@ In no particular order...
  - [ ] Add 5e.tools import/export functionality
      - [ ] Export Functionality
      - [X] ~~Import race features~~
-     - [ ] Import race flavor text
+     - [X] ~~Import race flavor text~~
      - [ ] Import background features
      - [ ] Import background flavor text
      - [ ] Import feats
@@ -32,11 +32,15 @@ In no particular order...
      - [ ] Import spells
      - [ ] Import recipes
      - [ ] Import skills
-     - [ ] Import tables
+     - [ ] Import tables and other non-plaintext features/flavor
      - [ ] Import Entire Rulesets
+ - [ ] Make races page work with custom ability scores
+ - [ ] Improve race ASI filtering
  - [x] ~~Add support for multiple administrator rulesets~~
  - [ ] Add armor stealth disadvantage
  - [ ] Add armor strength minimum
+ - [ ] Idiotproofing
+ - [ ] Make flash messages dismissable
 
 ## Usage
 

@@ -2,7 +2,7 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
         query: "",
-        namearray: [],
+        namearray: [" Str", " Dex", " Con", " Int", " Wis", " Cha"],
         filterQuery() {
             sizes = [
                 "Tiny",
@@ -18,7 +18,7 @@ document.addEventListener ("alpine:init", () => {
                     parsedrace = {};
                     parsedrace.name = this.raceROM[i].name;
                     parsedrace.url = this.raceROM[i].name.split(' ').join('-');
-                    if (this.raceROM[i].asitext != "None") {
+                    if (this.raceROM[i].asitext != "None" && this.raceROM[i].asitext != "") {
                         parsedrace.asi = this.raceROM[i].asitext;
                     } else {
                         parsedrace.asi = ""
@@ -32,7 +32,7 @@ document.addEventListener ("alpine:init", () => {
                             }
                         }
                     }
-                    if (this.raceROM[i].sizetext != null) {
+                    if (this.raceROM[i].sizetext != null && this.raceROM[i].sizetext != "None") {
                         parsedrace.size = this.raceROM[i].sizetext;
                     } else {
                         parsedrace.size = sizes[this.raceROM[i].size];
@@ -72,45 +72,12 @@ document.addEventListener ("alpine:init", () => {
             }
         },
         populateASI() {
-            asis = [
-                [],
-                [],
-                [],
-                [],
-                [],
-                [],
-                [" Str", " Dex", " Con", " Int", " Wis", " Cha"]
-            ]
             output = [];
-            for(let i = 0; i < this.raceROM.length; i++) {
-                str = this.raceROM[i].strasi;
-                dex = this.raceROM[i].dexasi;
-                con = this.raceROM[i].conasi;
-                int = this.raceROM[i].intasi;
-                wis = this.raceROM[i].wisasi;
-                cha = this.raceROM[i].chaasi;
-                if(str != null && !asis[0].includes(str)) {
-                    asis[0].push(str)
-                }
-                if (dex != null && !asis[1].includes(dex)) {
-                    asis[1].push(dex);
-                }
-                if (con != null && !asis[2].includes(con)) {
-                    asis[2].push(con);
-                }
-                if (int != null && !asis[3].includes(int)) {
-                    asis[3].push(int);
-                }
-                if (wis != null && !asis[4].includes(wis)) {
-                    asis[4].push(wis);
-                }
-                if (cha != null && !asis[5].includes(cha)) {
-                    asis[5].push(cha);
-                }
-            }
-            for (let i = 0; i < asis.length - 1; i++) {
-                for (let j = 0; j < asis[i].length; j++) {
-                    output.push(this.parseNum(asis[i][j]) + asis[6][i]);
+            for (let i = 0; i < this.raceROM.length; i++) {
+                for (let j = 0; j < this.raceROM[i].asis.length; j++) {
+                    if (this.raceROM[i].asis[j] != 0 && !output.includes(this.namearray[j])) {
+                        output.push(this.namearray[j]);
+                    }
                 }
             }
             for (let i = 0; i < output.length; i++) {

@@ -120,14 +120,14 @@ def importRace():
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         races = json.loads(request.form.get("parsed_races"))
-        return(importRaces(races, cruleset))
+        flavor = json.loads(request.form.get("parsed_flavor"))
+        return(importRaces(races, flavor, cruleset))
     return(
         render_template(
             "import-race.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
-            ability='', 
             adminrulesets=adminrulesets, 
             title="Races",
         )
@@ -244,6 +244,25 @@ def deleteBackground(tbackground):
         db.session.commit()
         flash("Background deleted.", "orange")
     return(redirect(url_for("epchar.backgrounds")))
+
+@epchar.route("/Backgrounds/Import", methods=["GET", "POST"])
+def importBackground():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        backgrounds = json.loads(request.form.get("parsed_backgrounds"))
+        return(importRaces(races, cruleset))
+    return(
+        render_template(
+            "import-background.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Import a Background",
+        )
+    )
 
 @epchar.route("/Background/<string:background>")
 def background(background):

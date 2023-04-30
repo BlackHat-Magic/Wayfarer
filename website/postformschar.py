@@ -385,13 +385,12 @@ def makerace(request, cruleset, race, instruction):
                 return(redirect(url_for("epchar.races")))
     return(False)
 
-def importRaces(races, cruleset):
+def importRaces(races, flavor, cruleset):
     if(cruleset.userid != current_user.id):
         flash("You cannot import races into rulesets that are not your own", "red")
         return(redirect(url_for("epchar.importRace")))
     try:
         for i, race in enumerate(races["race"]):
-            #print(race)
             name = f"{race['name']} ({race['source']})"
             if(len(name) > 127):
                 flash(f"All race names must be fewer than 128 characters. Offender: {race['name']}", "red")
@@ -482,10 +481,38 @@ def importRaces(races, cruleset):
                 flash(f"Size text must be fewer than 256 characters. Offender: {race['name']}", "red")
                 return(redirect(url_for("epchar.importRace")))
 
+            flavortext = ""
+
+            if(bool(flavor)):
+                for srace in flavor["raceFluff"]:
+                    if(srace["name"] == race["name"] and srace["source"] == race["source"] and "entries" in srace.keys()):
+                        for entry in srace["entries"]:
+                            if(type(entry) == str):
+                                flavortext += f"{entry}\n\n"
+                            elif(type(entry) == dict and entry["type"] == "entries"):
+                                for text in entry["entries"]:
+                                    if(type(text) == str):
+                                        flavortext += f"{text}\n\n"
+                                    elif(type(text) == dict and text["type"] == "entries"):
+                                        for paragraph in text["entries"]:
+                                            if(type(paragraph) == str):
+                                                flavortext += f"{paragraph}\n\n"
+                                            elif(type(paragraph) == dict and paragraph['type'] == "entries"):
+                                                flavortext += f"## {paragraph['name']}\n\n---\n\n"
+                                                for line in paragraph['entries']:
+                                                    flavortext += f"{line}\n\n"
+                                            else:
+                                                flash(f"Non-plaintext race flavor in {name}. Non-plaintext flavor imports not yet supported; skipping...", "orange")
+                                    else:
+                                        flash(f"Non-plaintext race flavor in {name}. Non-plaintext flavor imports not yet supported; skipping...", "orange")
+                            else:
+                                flash(f"Non-plaintext race flavor in {name}. Non-plaintext flavor imports not yet supported; skipping...", "orange")
+            flavortext += f"## {race['name']} Traits\n\n---"
+
             new_race = Race(
                 rulesetid = cruleset.id,
                 name = name,
-                flavor = "",
+                flavor = flavortext,
                 asis = new_asis,
                 asi_text = asi_text,
                 size = size,
@@ -512,6 +539,8 @@ def importRaces(races, cruleset):
                     text = str(race["speed"])
                 )
                 db.session.add(new_race_feature)
+            
+            featurenames = []
 
             if("entries" in race.keys()):
                 for feature in race["entries"]:
@@ -537,32 +566,34 @@ def importRaces(races, cruleset):
                             text = feature["entries"][0]
                         )
                         db.session.add(new_race_feature)
+                        featurenames.append(feature["name"])
                     else:
                         if(len(new_race.flavor) > 0):
                             new_race.flavor += "\n\n"
                         new_race.flavor += str(feature)
 
-            if("languageProficiencies" in race.keys()):
+            if("languageProficiencies" in race.keys() and "Languages" not in featurenames and "Language" not in featurenames):
                 langtext = ""
-                for language in race["languageProficiencies"].keys():
+                for language in race["languageProficiencies"][0].keys():
                     if(language != "other" and language != "anyStandard"):
                         if(len(langtext) > 0):
                             langtext += ", "
                         langtext += language.capitalize()
-                if("other" in race["languageProficiencies"].keys()):
+                if("other" in race["languageProficiencies"][0].keys()):
                     if(len(langtext) > 0):
                         langtext += f", plus one extra language of your choice"
                     else:
                         langtext += "one language of your choice"
-                if("anyStandard" in race["languageProficiencies"].keys()):
+                if("anyStandard" in race["languageProficiencies"][0].keys()):
                     if(len(langtext) > 0):
-                        langtext += f", and {['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][race['languageProficiencies'][anyStandard]]} of your choice"
+                        langtext += f", and {['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][race['languageProficiencies'][0]['anyStandard'] - 1]} of your choice"
                 langtext = "You can speak, read, and write " + langtext + "."
                 new_race_feature = RaceFeature(
                     race = new_race,
                     name = "Languages",
                     text = langtext
                 )
+                db.session.add(new_race_feature)
             
             for subrace in races["subrace"]:
                 if("name" in subrace.keys() and subrace["raceName"] == race["name"]):
