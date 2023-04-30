@@ -249,304 +249,305 @@ def makeItem(request, cruleset, item, instruction):
     return(False)
 
 def itemImporter(items, base, cruleset):
-    # try:
-    for properties in base["itemProperty"]:
-        if("entries" in properties.keys()):
+    try:
+        for properties in base["itemProperty"]:
+            if("entries" in properties.keys()):
+                description = ""
+                for entry in properties["entries"][0]["entries"]:
+                    description += f"{entry}\n\n"
+                new_property = Property(
+                    rulesetid = cruleset.id,
+                    name = properties["entries"][0]["name"].casefold().capitalize(),
+                    text = description
+                )
+            else:
+                new_property = Property(
+                    rulesetid = cruleset.id,
+                    name = properties["name"].casefold().capitalize(),
+                    text = None
+                )
+            db.session.add(new_property)
+        for types in base["itemType"]:
             description = ""
-            for entry in properties["entries"][0]["entries"]:
-                description += f"{entry}\n\n"
-            new_property = Property(
+            if("name" in types.keys()):
+                name = types["name"]
+                for entry in types["entries"]:
+                    if(type(entry) == str):
+                        description += f"{entry}\n\n"
+                    else:
+                        description += f"## {entry['name']}\n\n---\n\n"
+                        for paragraph in entry:
+                            description += f"{paragraph}\n\n"
+            else:
+                name = types["entries"][0]["name"]
+                for entry in types["entries"][0]["entries"]:
+                    if(type(entry) == str):
+                        description += f"{entry}\n\n"
+                    else:
+                        for paragraph in entries:
+                            description += f"## {paragraph['name']}\n\n---\n\n"
+                            for line in paragraph["entries"]:
+                                description += f"{line}\n\n"
+            new_property = ItemTag(
                 rulesetid = cruleset.id,
-                name = properties["entries"][0]["name"].casefold().capitalize(),
+                name = name,
                 text = description
             )
-        else:
-            new_property = Property(
-                rulesetid = cruleset.id,
-                name = properties["name"].casefold().capitalize(),
-                text = None
-            )
-        db.session.add(new_property)
-    for types in base["itemType"]:
-        description = ""
-        if("name" in types.keys()):
-            name = types["name"]
-            for entry in types["entries"]:
-                if(type(entry) == str):
-                    description += f"{entry}\n\n"
-                else:
-                    description += f"## {entry['name']}\n\n---\n\n"
-                    for paragraph in entry:
-                        description += f"{paragraph}\n\n"
-        else:
-            name = types["entries"][0]["name"]
-            for entry in types["entries"][0]["entries"]:
-                if(type(entry) == str):
-                    description += f"{entry}\n\n"
-                else:
-                    for paragraph in entries:
-                        description += f"## {paragraph['name']}\n\n---\n\n"
-                        for line in paragraph["entries"]:
-                            description += f"{line}\n\n"
-        new_property = ItemTag(
-            rulesetid = cruleset.id,
-            name = name,
-            text = description
-        )
-        db.session.add(new_property)
-    for item in base["baseitem"]:
-        proficiency = False
-        if(item["rarity"] != "none"):
-            is_magical = True
-            rarity = item["rarity"].casefold().capitalize()
-        else:
-            is_magical = False
-            rarity = None
-        tags = []
-        if("type" in item.keys()):
-            for types in base["itemType"]:
-                if(types["abbreviation"] == item["type"] or (type(item["type"] == list) and types["abbreviation"] in item["type"])):
-                    if("name" in types.keys()):
-                        tags.append(types["name"].casefold().capitalize())
-                    else:
-                        tags.append(types["entries"][0]["name"])
-        if("weaponCategory" in item.keys()):
-            tags.append(item["weaponCategory"].casefold().capitalize())
-        if("weapon" in item.keys() or "armor" in item.keys()):
-            proficiency = is_weapon = True
-        else:
-            is_weapon = False
-        if("value" in item.keys()):
-            cost = item["value"]
-        else:
-            cost = None
-        text = ""
-        if("entries" in item.keys()):
-            for entry in item["entries"]:
-                if(type(entry) == str):
-                    text += f"{entry}\n\n"
-                else:
-                    for paragraph in entry["entries"]:
-                        text += f"***{entry['name']}.*** {paragraph}\n\n"
-        if("armor" in item.keys()):
-            is_armor = True
-            armor_class = item["ac"]
-            proficiency = True
-            if(item["type"] == "LA"):
-                tags.append("Light Armor")
-                add_dex = True
-                max_dex = 0
-            elif(item["type"] == "MA"):
-                tags.append("Medium Armor")
-                add_dex = True
-                max_dex = 2
+            db.session.add(new_property)
+        for item in base["baseitem"]:
+            proficiency = False
+            if(item["rarity"] != "none"):
+                is_magical = True
+                rarity = item["rarity"].casefold().capitalize()
             else:
-                tags.append("Heavy Armor")
-                add_dex = False
-                max_dex = None
-        else:
-            is_armor = False
-            armor_class = None
-            add_dex = None
-            max_dex = None
-        dmg_dict = {
-            "N": "Necrotic",
-            "S": "Slashing",
-            "B": "Bludgeoning",
-            "A": "Acid",
-            "C": "Cold",
-            "R": "Radiant",
-            "L": "Lightning",
-            "T": "Thunder",
-            "P": "Piercing"
-        }
-        # Piercing, Poison, Psychic, Fire, Force
-        die_num = damage_die = damage_type = None
-        if("weapon" in item.keys()):
-            is_weapon = True
-            if("dmg1" in item.keys()):
-                die_num, damage_die = item["dmg1"].split("d")[0], item["dmg1"].split("d")[-1]
-                damage_type = dmg_dict[item["dmgType"]]
-        else:
-            is_weapon = False
-        weapon_properties = []
-        if("property" in item.keys()):
-            for properties in base["itemProperty"]:
-                if(properties["abbreviation"] == item["property"] or (type(item["property"] == list) and properties["abbreviation"] in item["property"])):
-                    if("name" in properties.keys()):
-                        weapon_properties.append(properties["name"].casefold().capitalize())
-                    else:
-                        weapon_properties.append(properties["entries"][0]["name"].casefold().capitalize())
-        if("weight" in item.keys()):
-            weight = item["weight"]
-        else:
-            weight = None
-        new_item = Item(
-            rulesetid = cruleset.id,
-            name = item["name"],
-            is_magical = is_magical,
-            rarity = rarity,
-            tier = None,
-            attunement = None,
-            tags = tags,
-            proficiency = proficiency,
-            cost = cost,
-            weight = weight,
-            text = text,
-            is_armor = is_armor,
-            armor_class = armor_class,
-            add_dex = add_dex,
-            max_dex = max_dex,
-            is_weapon = is_weapon,
-            die_num = die_num,
-            damage_die = damage_die,
-            damage_type = damage_type,
-            weapon_properties = weapon_properties
-        )
-    for item in items["item"]:
-        is_magical = False
-        rarity = tier = None
-        attunement = False
-        text = ""
-        if("rarity" in item.keys()):
-            is_magical = True
-            rarity = item["rarity"].casefold().capitalize()
-        if("tier" in item.keys()):
-            is_magical = True
-            tier = item["tier"].casefold().capitalize()
-        if("reqAttune" in item.keys()):
-            attunement = True
-            if(item["reqAttune"] != "true" and type(item["reqAttune"]) != bool):
-                text += f"Requires attunement {item['reqAttune']}\n\n" 
-        tags = []
-        if("type" in item.keys()):
-            for types in base["itemType"]:
-                if(types["abbreviation"] == item["type"] or (type(item["type"] == list) and types["abbreviation"] in item["type"])):
-                    if("name" in types.keys()):
-                        tags.append(types["name"])
-                    else:
-                        tags.append(types["entries"][0]["name"])
-        proficiency = False
-        if("value" in item.keys()):
-            cost = item["value"]
-        else:
-            cost = None
-        is_armor = False
-        armor_class = add_dex = max_dex = None
-        is_weapon = False
-        die_num = damage_die = damage_type = weapon_properties = None
-        if("weight" in item.keys()):
-            weight = item["weight"]
-        elif("baseItem" in item.keys()):
-            for sitem in base["baseitem"]:
-                if(sitem["name"] == item["baseItem"] and "weight" in sitem.keys()):
-                    weight = sitem["weight"]
-                    if("ac" in sitem.keys()):
-                        is_armor = True
-                        armor_class = sitem["ac"]
-                        if(sitem["type"] == "LA"):
-                            add_dex = True
-                            max_dex = 0
-                        elif(sitem["type"] == "MA"):
-                            add_dex = True
-                            max_dex = 2
+                is_magical = False
+                rarity = None
+            tags = []
+            if("type" in item.keys()):
+                for types in base["itemType"]:
+                    if(types["abbreviation"] == item["type"] or (type(item["type"] == list) and types["abbreviation"] in item["type"])):
+                        if("name" in types.keys()):
+                            tags.append(types["name"].casefold().capitalize())
                         else:
-                            add_dex = False
-                    elif("weapon" in sitem.keys()):
-                        is_weapon = True
-                        die_num, damage_die = sitem["dmg1"].split("d")
-                        weapon_properties = []
-                        if("property" in sitem.keys()):
-                            for properties in base["itemProperty"]:
-                                if(properties["abbreviation"] == sitem["property"] or (type(sitem["property"] == list) and properties["abbreviation"] in sitem["property"])):
-                                    weapon_properties.append(properties["name"].casefold().capitalize())
-        else:
-            weight = None
-        if("entries" in item.keys()):
-            for entry in item["entries"]:
-                if(type(entry) == str):
-                    if("#itemEntry" in entry):
-                        newtext = ""
-                        for group in items["itemGroup"]:
-                            if(group["name"] == entry.split(" ")[1].split("|")[0]):
-                                for section in group["entries"]:
-                                    if(type(section) == str):
-                                        newtext += f"{section}\n\n"
-                                    elif(type(section) == dict):
-                                        if(section["type"] == "table"):
-                                            newtext += f"###### {section['caption']}\n\n"
-                                            newtext += "| "
-                                            for label in section["colLabels"]:
-                                                newtext += f"{label} | "
-                                            newtext += "\n| "
-                                            for style in section["colStyles"]:
-                                                if("center" or "left" in style):
-                                                    newtext += ":"
-                                                for i in range(style.split(" ")[0].split("-")[1]):
-                                                    newtext += "-"
-                                                if("center" or "right" in style):
-                                                    newtext += ":"
-                                                newtext += " | "
-                                            for row in section["rows"]:
-                                                newtext += "\n| "
-                                                for column in row:
-                                                    newtext += str(column)
-                                                    newtext += " | "
-                                                newtext += "\n"
-                        text = f"{newtext}\n\n{text}"
-                    else:
+                            tags.append(types["entries"][0]["name"])
+            if("weaponCategory" in item.keys()):
+                tags.append(item["weaponCategory"].casefold().capitalize())
+            if("weapon" in item.keys() or "armor" in item.keys()):
+                proficiency = is_weapon = True
+            else:
+                is_weapon = False
+            if("value" in item.keys()):
+                cost = item["value"]
+            else:
+                cost = None
+            text = ""
+            if("entries" in item.keys()):
+                for entry in item["entries"]:
+                    if(type(entry) == str):
                         text += f"{entry}\n\n"
-                elif(type(entry) == dict):
-                    if(entry["type"] == "table"):
-                        if("caption" in entry.keys()):
-                            text += f"###### {entry['caption']}\n\n"
-                        text += "| "
-                        for label in entry["colLabels"]:
-                            text += f"{label} | "
-                        text += "\n| "
-                        for style in entry["colStyles"]:
-                            if("center" or "left" in style):
-                                text += ":"
-                            text += "---"
-                            if("center" or "right" in style):
-                                text += ":"
-                            text += " | "
-                        for row in entry["rows"]:
+                    else:
+                        for paragraph in entry["entries"]:
+                            text += f"***{entry['name']}.*** {paragraph}\n\n"
+            if("armor" in item.keys()):
+                is_armor = True
+                armor_class = item["ac"]
+                proficiency = True
+                if(item["type"] == "LA"):
+                    tags.append("Light Armor")
+                    add_dex = True
+                    max_dex = 0
+                elif(item["type"] == "MA"):
+                    tags.append("Medium Armor")
+                    add_dex = True
+                    max_dex = 2
+                else:
+                    tags.append("Heavy Armor")
+                    add_dex = False
+                    max_dex = None
+            else:
+                is_armor = False
+                armor_class = None
+                add_dex = None
+                max_dex = None
+            dmg_dict = {
+                "N": "Necrotic",
+                "S": "Slashing",
+                "B": "Bludgeoning",
+                "A": "Acid",
+                "C": "Cold",
+                "R": "Radiant",
+                "L": "Lightning",
+                "T": "Thunder",
+                "P": "Piercing"
+            }
+            # Piercing, Poison, Psychic, Fire, Force
+            die_num = damage_die = damage_type = None
+            if("weapon" in item.keys()):
+                is_weapon = True
+                if("dmg1" in item.keys()):
+                    die_num, damage_die = item["dmg1"].split("d")[0], item["dmg1"].split("d")[-1]
+                    damage_type = dmg_dict[item["dmgType"]]
+            else:
+                is_weapon = False
+            weapon_properties = []
+            if("property" in item.keys()):
+                for properties in base["itemProperty"]:
+                    if(properties["abbreviation"] == item["property"] or (type(item["property"] == list) and properties["abbreviation"] in item["property"])):
+                        if("name" in properties.keys()):
+                            weapon_properties.append(properties["name"].casefold().capitalize())
+                        else:
+                            weapon_properties.append(properties["entries"][0]["name"].casefold().capitalize())
+            if("weight" in item.keys()):
+                weight = item["weight"]
+            else:
+                weight = None
+            new_item = Item(
+                rulesetid = cruleset.id,
+                name = item["name"],
+                is_magical = is_magical,
+                rarity = rarity,
+                tier = None,
+                attunement = None,
+                tags = tags,
+                proficiency = proficiency,
+                cost = cost,
+                weight = weight,
+                text = text,
+                is_armor = is_armor,
+                armor_class = armor_class,
+                add_dex = add_dex,
+                max_dex = max_dex,
+                is_weapon = is_weapon,
+                die_num = die_num,
+                damage_die = damage_die,
+                damage_type = damage_type,
+                weapon_properties = weapon_properties
+            )
+            db.session.add(new_item)
+        for item in items["item"]:
+            is_magical = False
+            rarity = tier = None
+            attunement = False
+            text = ""
+            if("rarity" in item.keys()):
+                is_magical = True
+                rarity = item["rarity"].casefold().capitalize()
+            if("tier" in item.keys()):
+                is_magical = True
+                tier = item["tier"].casefold().capitalize()
+            if("reqAttune" in item.keys()):
+                attunement = True
+                if(item["reqAttune"] != "true" and type(item["reqAttune"]) != bool):
+                    text += f"Requires attunement {item['reqAttune']}\n\n" 
+            tags = []
+            if("type" in item.keys()):
+                for types in base["itemType"]:
+                    if(types["abbreviation"] == item["type"] or (type(item["type"] == list) and types["abbreviation"] in item["type"])):
+                        if("name" in types.keys()):
+                            tags.append(types["name"])
+                        else:
+                            tags.append(types["entries"][0]["name"])
+            proficiency = False
+            if("value" in item.keys()):
+                cost = item["value"]
+            else:
+                cost = None
+            is_armor = False
+            armor_class = add_dex = max_dex = None
+            is_weapon = False
+            die_num = damage_die = damage_type = weapon_properties = None
+            if("weight" in item.keys()):
+                weight = item["weight"]
+            elif("baseItem" in item.keys()):
+                for sitem in base["baseitem"]:
+                    if(sitem["name"] == item["baseItem"] and "weight" in sitem.keys()):
+                        weight = sitem["weight"]
+                        if("ac" in sitem.keys()):
+                            is_armor = True
+                            armor_class = sitem["ac"]
+                            if(sitem["type"] == "LA"):
+                                add_dex = True
+                                max_dex = 0
+                            elif(sitem["type"] == "MA"):
+                                add_dex = True
+                                max_dex = 2
+                            else:
+                                add_dex = False
+                        elif("weapon" in sitem.keys()):
+                            is_weapon = True
+                            die_num, damage_die = sitem["dmg1"].split("d")
+                            weapon_properties = []
+                            if("property" in sitem.keys()):
+                                for properties in base["itemProperty"]:
+                                    if(properties["abbreviation"] == sitem["property"] or (type(sitem["property"] == list) and properties["abbreviation"] in sitem["property"])):
+                                        weapon_properties.append(properties["name"].casefold().capitalize())
+            else:
+                weight = None
+            if("entries" in item.keys()):
+                for entry in item["entries"]:
+                    if(type(entry) == str):
+                        if("#itemEntry" in entry):
+                            newtext = ""
+                            for group in items["itemGroup"]:
+                                if(group["name"] == entry.split(" ")[1].split("|")[0]):
+                                    for section in group["entries"]:
+                                        if(type(section) == str):
+                                            newtext += f"{section}\n\n"
+                                        elif(type(section) == dict):
+                                            if(section["type"] == "table"):
+                                                newtext += f"###### {section['caption']}\n\n"
+                                                newtext += "| "
+                                                for label in section["colLabels"]:
+                                                    newtext += f"{label} | "
+                                                newtext += "\n| "
+                                                for style in section["colStyles"]:
+                                                    if("center" or "left" in style):
+                                                        newtext += ":"
+                                                    for i in range(style.split(" ")[0].split("-")[1]):
+                                                        newtext += "-"
+                                                    if("center" or "right" in style):
+                                                        newtext += ":"
+                                                    newtext += " | "
+                                                for row in section["rows"]:
+                                                    newtext += "\n| "
+                                                    for column in row:
+                                                        newtext += str(column)
+                                                        newtext += " | "
+                                                    newtext += "\n"
+                            text = f"{newtext}\n\n{text}"
+                        else:
+                            text += f"{entry}\n\n"
+                    elif(type(entry) == dict):
+                        if(entry["type"] == "table"):
+                            if("caption" in entry.keys()):
+                                text += f"###### {entry['caption']}\n\n"
+                            text += "| "
+                            for label in entry["colLabels"]:
+                                text += f"{label} | "
                             text += "\n| "
-                            for column in row:
-                                text += str(column)
+                            for style in entry["colStyles"]:
+                                if("center" or "left" in style):
+                                    text += ":"
+                                text += "---"
+                                if("center" or "right" in style):
+                                    text += ":"
                                 text += " | "
-                    text += "\n"
+                            for row in entry["rows"]:
+                                text += "\n| "
+                                for column in row:
+                                    text += str(column)
+                                    text += " | "
+                        text += "\n"
 
-        new_item = Item(
-            rulesetid = cruleset.id,
-            name = item["name"],
-            is_magical = is_magical,
-            rarity = rarity,
-            tier = tier,
-            attunement = attunement,
-            tags = tags,
-            proficiency = proficiency,
-            cost = cost,
-            weight = weight,
-            text = text,
-            is_armor = is_armor,
-            armor_class = armor_class,
-            add_dex = add_dex,
-            max_dex = max_dex,
-            is_weapon = is_weapon,
-            die_num = die_num,
-            damage_die = damage_die,
-            damage_type = damage_type,
-            weapon_properties = weapon_properties
-        )
-        db.session.add(new_item)
-    db.session.commit()
-    flash("Items Imported!", "green")
-    return(redirect(url_for("eprefs.items")))
-    # except:
-    #     flash("Improperly formatted JSON; could not import.", "red")
-    #     return(redirect(url_for("eprefs.importItems")))
+            new_item = Item(
+                rulesetid = cruleset.id,
+                name = item["name"],
+                is_magical = is_magical,
+                rarity = rarity,
+                tier = tier,
+                attunement = attunement,
+                tags = tags,
+                proficiency = proficiency,
+                cost = cost,
+                weight = weight,
+                text = text,
+                is_armor = is_armor,
+                armor_class = armor_class,
+                add_dex = add_dex,
+                max_dex = max_dex,
+                is_weapon = is_weapon,
+                die_num = die_num,
+                damage_die = damage_die,
+                damage_type = damage_type,
+                weapon_properties = weapon_properties
+            )
+            db.session.add(new_item)
+        db.session.commit()
+        flash("Items Imported!", "green")
+        return(redirect(url_for("eprefs.items")))
+    except:
+        flash("Improperly formatted JSON; could not import.", "red")
+        return(redirect(url_for("eprefs.importItems")))
 
 def makeLanguage(request, cruleset, language, instruction):
     if(current_user.id != cruleset.userid):
@@ -593,6 +594,43 @@ def makeLanguage(request, cruleset, language, instruction):
                 db.session.commit()
                 flash("Language created!", "green")
     return(redirect(url_for("eprefs.refsLang")))
+
+def languageImporter(languages, cruleset):
+    # try:
+    for language in languages["language"]:
+        print(language['name'])
+        text = ""
+        if("type" in language.keys()):
+            text += f"***Type.*** {language['type'].casefold().capitalize()}\n\n"
+        if("typicalSpeakers" in language.keys()):
+            speakers = ""
+            for speaker in language['typicalSpeakers']:
+                if(len(speakers) > 0):
+                    speakers += ", "
+                speakers += speaker.casefold().capitalize()
+            text += f"***Typical Speakers.*** {speakers}\n\n"
+        if("script" in language.keys()):
+            text += f"***Script.*** {language['script'].casefold().capitalize()}\n\n"
+        if("entries" in language.keys()):
+            for entry in language["entries"]:
+                if(type(entry) == str):
+                    text += f"{entry}\n\n"
+                elif(type(entry) == dict):
+                    text += f"### {entry['name']}\n\n"
+                    for paragraph in entry["entries"]:
+                        text += f"{paragraph}\n\n"
+        new_language = Language(
+            rulesetid = cruleset.id,
+            name = language["name"],
+            text = text
+        )
+        db.session.add(new_language)
+    db.session.commit()
+    flash("Languages Imported!", "green")
+    return(redirect(url_for("eprefs.languages")))
+    # except:
+    #     flash("Improperly formatted JSON.; unable to import.", "red")
+    #     return(redirect(url_for("eprefs.importLanguages")))
 
 def skill(request, cruleset, skill, instruction):
     if(current_user.id != cruleset.userid):

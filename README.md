@@ -28,7 +28,9 @@ In no particular order...
      - [ ] Import classes
      - [ ] Import actions
      - [ ] Import items
-     - [ ] Import languages
+         - [X] ~~Import item details~~
+         - [ ] More comprehensive item type importing
+     - [X] ~~Import languages~~
      - [ ] Import spells
      - [ ] Import recipes
      - [X] ~~Import skills~~
@@ -45,6 +47,7 @@ In no particular order...
  - [ ] Make flash messages dismissable
  - [ ] Item property and type templates
  - [ ] Hyperlinks
+ - [ ] Filter URLs
 
 ## Usage
 

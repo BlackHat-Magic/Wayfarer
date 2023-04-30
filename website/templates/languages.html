@@ -22,7 +22,10 @@
 			<div x-html="convert(`{{ language.text }}`)"></div>
 		</div>
 		{% endfor %}
-		<a href="/Reference/Languages/Create"><button>Create Language</button></a>
+		<div class="interior flex horizontal center">
+			<a href="/Reference/Languages/Create"><button>Create Language</button></a>
+			<a href="{{ url_for('eprefs.importLanguages') }}"><button>Import From JSON</button></a>
+		</div>
 	</div>
 </div>
 

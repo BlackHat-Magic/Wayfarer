@@ -554,7 +554,25 @@ def deleteLanguage(tlanguage):
         db.session.commit()
         flash("Language deleted.", "orange")
     return(redirect(url_for("eprefs.refsLang")))
-    
+
+@eprefs.route("/Languages/Import", methods=["GET", "POST"])
+@login_required
+def importLanguages():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        return(languageImporter(json.loads(request.form.get("parsed")), cruleset))
+    return(
+        render_template(
+            "import-generic.html",
+            user=current_user, 
+            cruleset=cruleset, 
+            frulesets=frulesets, 
+            adminrulesets=adminrulesets,
+            title="Import Languages",
+        )
+    )
 
 @eprefs.route("/Spells")
 def spells():
