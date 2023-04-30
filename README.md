@@ -22,8 +22,8 @@ In no particular order...
      - [ ] Export Functionality
      - [X] ~~Import race features~~
      - [X] ~~Import race flavor text~~
-     - [ ] Import background features
-     - [ ] Import background flavor text
+     - [X] ~~Import background features~~
+     - [X] ~~Import background flavor text~~
      - [ ] Import feats
      - [ ] Import classes
      - [ ] Import actions

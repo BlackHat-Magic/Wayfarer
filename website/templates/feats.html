@@ -34,7 +34,10 @@
 			</template>
 		</table>
 		{% if cruleset.userid == user.id %}
-		<a href="/Character/Feats/Create"><button>Create A Feat</button></a>
+		<div class="interior flex horizontal center">
+			<a href="/Character/Feats/Create"><button>Create A Feat</button></a>
+			<a href="{{ url_for('epchar.importFeats') }}"><button>Import from JSON</button></a>
+		</div>
 		{% endif %}
 	</div>
 </div>

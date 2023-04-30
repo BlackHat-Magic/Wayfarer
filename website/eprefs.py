@@ -565,7 +565,7 @@ def importLanguages():
         return(languageImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
         render_template(
-            "import-generic.html",
+            "import-one.html",
             user=current_user, 
             cruleset=cruleset, 
             frulesets=frulesets, 
@@ -846,7 +846,7 @@ def importSkills():
         return(skillImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
         render_template(
-            "import-generic.html",
+            "import-one.html",
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 

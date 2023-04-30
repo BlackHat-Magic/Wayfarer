@@ -366,6 +366,25 @@ def deleteFeat(tfeat):
         flash("Feat deleted.", "orange")
     return(redirect(url_for("epchar.feats")))
 
+@epchar.route("/Feats/Import", methods=["GET", "POST"])
+@login_required
+def importFeats():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method=="POST"):
+        return(featImporter(json.loads(request.form.get("parsed")), cruleset))
+    return(
+        render_template(
+            "import-one.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Import Feats"
+        )
+    )
+
 @epchar.route("/Feat/<string:feat>")
 def feat(feat):
     cruleset = getCurrentRuleset(current_user)

@@ -776,133 +776,133 @@ def backgroundImporter(backgrounds, flavor, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import backgrounds into rulesets that are not your own.", "red")
         return(redirect(url_for("epchar.backgrounds")))
-    # try:
-    for background in backgrounds["background"]:
-        name = background["name"]
-        print(name)
-        skills = []
-        if("skillProficiencies" in background.keys()):
-            for skill in background["skillProficiencies"][0].keys():
-                skills.append(skill.casefold().capitalize())
-        tools = []
-        # something something tools
-        lang_num = 0
-        if("languageProficiencies" in background.keys()):
-            if("anyStandard" in background["languageProficiencies"][0].keys()):
-                lang_num = background["languageProficiencies"][0]["anyStandard"]
-        languages = []
-        equipment = []
-        gold_container = starting_gold = None
-        if("startingEquipment" in background.keys()):
-            for i, group in enumerate(background["startingEquipment"]):
-                if("_" in group.keys()):
-                    for item in background["startingEquipment"][i]["_"]:
-                        if(type(item) == str):
-                            equipment.append(item)
-                        elif("item" in item.keys()):
-                            if("displayName" in item.keys()):
-                                equipment.append(item["displayName"])
-                            elif("containsValue" in item.keys()):
-                                gold_container = item['item'].split('|')[0]
-                                starting_gold = item["containsValue"] / 100
-                        elif("special" in item.keys()):
-                            if("quantity" in item.keys()):
-                                equipment.append(f"{str(item['quantity'])} {item['special']}")
-                            else:
-                                equipment.append(item["special"])
-                else:
-                    thingy = "("
-                    for key in group.keys():
-                        if(len(thingy) > 1):
-                            thingy += " or "
-                        if(type(group[key][0]) == str):
-                            thingy += group[key][0]
-                        elif("displayName" in group[key][0].keys()):
-                            thingy += group[key][0]["displayName"].split("|")[0]
-                        elif("special" in group[key][0].keys()):
-                            thingy += group[key][0]["special"]
-                    thingy += ")"
-                    equipment.append(thingy)
-        text = ""
-        if("hasFluff" in background.keys()):
-            for fluff in flavor["backgroundFluff"]:
-                if(fluff["name"] == background["name"] and fluff["source"] == background["source"]):
-                    if("_copy" in fluff.keys()):
-                        flash("Variant background detected; variants not yet supported. Skipping...", "orange")
-                    elif(type(fluff["entries"][0]) == dict):
-                        for entry in fluff["entries"][0]["entries"][0]["entries"]:
-                            text += f"{entry}\n\n"
+    try:
+        for background in backgrounds["background"]:
+            name = background["name"]
+            print(name)
+            skills = []
+            if("skillProficiencies" in background.keys()):
+                for skill in background["skillProficiencies"][0].keys():
+                    skills.append(skill.casefold().capitalize())
+            tools = []
+            # something something tools
+            lang_num = 0
+            if("languageProficiencies" in background.keys()):
+                if("anyStandard" in background["languageProficiencies"][0].keys()):
+                    lang_num = background["languageProficiencies"][0]["anyStandard"]
+            languages = []
+            equipment = []
+            gold_container = starting_gold = None
+            if("startingEquipment" in background.keys()):
+                for i, group in enumerate(background["startingEquipment"]):
+                    if("_" in group.keys()):
+                        for item in background["startingEquipment"][i]["_"]:
+                            if(type(item) == str):
+                                equipment.append(item)
+                            elif("item" in item.keys()):
+                                if("displayName" in item.keys()):
+                                    equipment.append(item["displayName"])
+                                elif("containsValue" in item.keys()):
+                                    gold_container = item['item'].split('|')[0]
+                                    starting_gold = item["containsValue"] / 100
+                            elif("special" in item.keys()):
+                                if("quantity" in item.keys()):
+                                    equipment.append(f"{str(item['quantity'])} {item['special']}")
+                                else:
+                                    equipment.append(item["special"])
                     else:
-                        for entry in fluff["entries"]:
-                            text += f"{entry}\n\n"
-        new_background = Background(
-            rulesetid = cruleset.id,
-            name = name,
-            skills = skills,
-            tools = tools,
-            lang_num = lang_num,
-            languages = languages,
-            equipment = equipment,
-            text = text,
-            gold_container = gold_container,
-            starting_gold = starting_gold
-        )
-        db.session.add(new_background)
+                        thingy = "("
+                        for key in group.keys():
+                            if(len(thingy) > 1):
+                                thingy += " or "
+                            if(type(group[key][0]) == str):
+                                thingy += group[key][0]
+                            elif("displayName" in group[key][0].keys()):
+                                thingy += group[key][0]["displayName"].split("|")[0]
+                            elif("special" in group[key][0].keys()):
+                                thingy += group[key][0]["special"]
+                        thingy += ")"
+                        equipment.append(thingy)
+            text = ""
+            if("hasFluff" in background.keys()):
+                for fluff in flavor["backgroundFluff"]:
+                    if(fluff["name"] == background["name"] and fluff["source"] == background["source"]):
+                        if("_copy" in fluff.keys()):
+                            flash("Variant background detected; variants not yet supported. Skipping...", "orange")
+                        elif(type(fluff["entries"][0]) == dict):
+                            for entry in fluff["entries"][0]["entries"][0]["entries"]:
+                                text += f"{entry}\n\n"
+                        else:
+                            for entry in fluff["entries"]:
+                                text += f"{entry}\n\n"
+            new_background = Background(
+                rulesetid = cruleset.id,
+                name = name,
+                skills = skills,
+                tools = tools,
+                lang_num = lang_num,
+                languages = languages,
+                equipment = equipment,
+                text = text,
+                gold_container = gold_container,
+                starting_gold = starting_gold
+            )
+            db.session.add(new_background)
 
-        if("entries" in background.keys()):
-            for entry in background["entries"]:
-                if(entry["type"] == "entries"):
-                    name = entry['name'].casefold().capitalize()
-                    text = ""
-                    for section in entry["entries"]:
-                        if(type(section) == str):
-                            text += f"{section}"
-                        elif(type(section) == dict and "type" in section.keys() and section["type"] == "table"):
-                            text += "| "
-                            for label in section["colLabels"]:
-                                text += f"{label} | "
-                            text += "\n| "
-                            for style in section["colStyles"]:
-                                if("left" in style or "center" in style):
-                                    text += ":"
-                                text += "---"
-                                if("right" in style or "center" in style):
-                                    text += ":"
-                                text += " | "
-                            for row in section["rows"]:
+            if("entries" in background.keys()):
+                for entry in background["entries"]:
+                    if(entry["type"] == "entries"):
+                        name = entry['name'].casefold().capitalize()
+                        text = ""
+                        for section in entry["entries"]:
+                            if(type(section) == str):
+                                text += f"{section}"
+                            elif(type(section) == dict and "type" in section.keys() and section["type"] == "table"):
+                                text += "| "
+                                for label in section["colLabels"]:
+                                    text += f"{label} | "
                                 text += "\n| "
-                                for column in row:
-                                    text += f"{column} | "
-                        text += "\n\n"
-                elif(entry["type"] == "table"):
-                    name = entry["caption"]
-                    text = ""
-                    for label in section["colLabels"]:
-                        text += f"{label} | "
-                    text += "\n| "
-                    for style in section["colStyles"]:
-                        if("left" in style or "center" in style):
-                            text += ":"
-                        text += "---"
-                        if("right" in style or "center" in style):
-                            text += ":"
-                        text += " | "
-                    for row in section["rows"]:
+                                for style in section["colStyles"]:
+                                    if("left" in style or "center" in style):
+                                        text += ":"
+                                    text += "---"
+                                    if("right" in style or "center" in style):
+                                        text += ":"
+                                    text += " | "
+                                for row in section["rows"]:
+                                    text += "\n| "
+                                    for column in row:
+                                        text += f"{column} | "
+                            text += "\n\n"
+                    elif(entry["type"] == "table"):
+                        name = entry["caption"]
+                        text = ""
+                        for label in section["colLabels"]:
+                            text += f"{label} | "
                         text += "\n| "
-                        for column in row:
-                            text += f"{column} | "
-                new_background_feature = BackgroundFeature(
-                    background=new_background,
-                    name = name,
-                    text = text
-                )
-                db.session.add(new_background_feature)
-    db.session.commit()
-    flash("Backgrounds Imported!", "green")
-    return(redirect(url_for('epchar.backgrounds')))
-    # except:
-    #     flash("Improperly formatted JSON; unable to import.", "red")
-    #     return(redirect(url_for("epchar.importBackgrounds")))
+                        for style in section["colStyles"]:
+                            if("left" in style or "center" in style):
+                                text += ":"
+                            text += "---"
+                            if("right" in style or "center" in style):
+                                text += ":"
+                            text += " | "
+                        for row in section["rows"]:
+                            text += "\n| "
+                            for column in row:
+                                text += f"{column} | "
+                    new_background_feature = BackgroundFeature(
+                        background=new_background,
+                        name = name,
+                        text = text
+                    )
+                    db.session.add(new_background_feature)
+        db.session.commit()
+        flash("Backgrounds Imported!", "green")
+        return(redirect(url_for('epchar.backgrounds')))
+    except:
+        flash("Improperly formatted JSON; unable to import.", "red")
+        return(redirect(url_for("epchar.importBackgrounds")))
 
 def makefeat(request, cruleset, tfeat, instruction):
     if(current_user.id != cruleset.userid):
@@ -951,6 +951,81 @@ def makefeat(request, cruleset, tfeat, instruction):
                 db.session.commit()
                 flash("Changes saved!", "green")
     return(redirect(url_for("epchar.feats")))
+
+def featImporter(feats, cruleset):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot import feats into rulesets that are not your own.", "red")
+        return(redirect(url_for("epchar.feats")))
+    try:
+        for feat in feats["feat"]:
+            name = feat["name"]
+            prerequisites = ""
+            if("prerequisite" in feat.keys()):
+                for key in feat["prerequisite"][0].keys():
+                    if(len(prerequisites) > 0):
+                        prerequisites += ", "
+                    prerequisites += f"{key.casefold().capitalize()}: {feat['prerequisite'][0][key]}"
+            text = ""
+            if("ability" in feat.keys()):
+                # text += "***Ability Score Improvement.*** "
+                for i, key in enumerate(feat["ability"][0].keys()):
+                    scorename = AbilityScore.query.filter_by(rulesetid = cruleset.id, abbr = key).first()
+                    if(not scorename):
+                        scorename = "{Unknown Score}"
+                    else:
+                        scorename = scorename.name.casefold().capitalize()
+                    if(len(text) > 1):
+                        if(i == len(feat["ability"][0].keys) - 1):
+                            text += f", and your {scorename} increases by {feat['ability'][0][key]}."
+                        else:
+                            f", and your {scorename} increases by {feat['ability'][0][key]}."
+                    else:
+                        f"Your {scorename} increases by {feat['ability'][0][key]}."
+                text = "***Ability Score Improvement.*** " + text
+            if("entries" in feat.keys()):
+                for entry in feat["entries"]:
+                    if(type(entry) == str):
+                        text += f"{entry}\n\n"
+                    elif(type(entry) == dict and "type" in entry.keys() and entry["type"] == "list"):
+                        for item in entry["items"]:
+                            text += f" - {item}\n"
+                        text += "\n"
+                    elif(type(entry) == dict and "type" in entry.keys() and entry["type"] == "table"):
+                        text += "| "
+                        for label in entry["colLabels"]:
+                            text += f"{label} | "
+                        text += "\n| "
+                        for style in entry["colStyles"]:
+                            if("left" in style or "center" in style):
+                                text += ":"
+                            text += "---"
+                            if("right" in style or "center" in style):
+                                text += ":"
+                            text += " | "
+                        for row in entry["rows"]:
+                            text += "\n| "
+                            for column in row:
+                                text += f"{column} | "
+                        text += "\n\n"
+                    elif(type(entry) == dict and "type" in entry.keys() and entry["type"] == "section"):
+                        for section in entry["entries"][0]["entries"]:
+                            text += f"## {section['name']}\n\n---\n\n"
+                            for paragraph in section["entries"]:
+                                text += f"{paragraph}\n\n"
+            new_feat = Feat(
+                rulesetid = cruleset.id,
+                name = name,
+                prerequisite = prerequisites,
+                text = text
+            )
+            db.session.add(new_feat)
+        db.session.commit()
+        flash("Feats imported!", "green")
+        return(redirect(url_for("epchar.feats")))
+
+    except:
+        flash("Improperly formatted JSON; unable to import.", "red")
+        return(redirect(url_for("epchar.importFeats")))
 
 def makeclass(request, cruleset, tclass, instruction):
     if(current_user.id != cruleset.userid):
