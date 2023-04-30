@@ -60,7 +60,10 @@
 			</template>
 		</table>
 		{% if cruleset.userid == user.id %}
-		<a href="/Reference/Items/Create"><button>Create An Item</button></a>
+		<div class="interior flex horizontal center">
+			<a href="/Reference/Items/Create"><button>Create An Item</button></a>
+			<a href="{{ url_for('eprefs.importItems') }}"><button>Import from JSON</button></a>
+		</div>
 		{% endif %}
 	</div>
 </div>

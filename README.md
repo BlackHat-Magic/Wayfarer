@@ -41,7 +41,10 @@ In no particular order...
  - [ ] Add armor stealth disadvantage
  - [ ] Add armor strength minimum
  - [ ] Idiotproofing
+     - [ ] Add instructions
  - [ ] Make flash messages dismissable
+ - [ ] Item property and type templates
+ - [ ] Hyperlinks
 
 ## Usage
 

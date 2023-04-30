@@ -89,7 +89,7 @@ class Item(db.Model):
     attunement = db.Column(db.Boolean)
     tags = db.Column(db.PickleType)
     proficiency = db.Column(db.Boolean)
-    cost = db.Column(db.String(31))
+    cost = db.Column(db.Integer)
     weight = db.Column(db.Integer)
     text = db.Column(db.String(16383))
     is_armor = db.Column(db.Boolean)

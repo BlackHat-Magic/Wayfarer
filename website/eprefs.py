@@ -255,6 +255,30 @@ def deleteItem(item):
         flash("Item deleted.", "orange")
     return(redirect(url_for("eprefs.items")))
 
+@eprefs.route("/Items/Import", methods=["GET", "POST"])
+@login_required
+def importItems():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method=="POST"):
+        # try:
+        items = json.loads(request.form.get("parsed_item"))
+        base = json.loads(request.form.get("parsed_base"))
+        return(itemImporter(items, base, cruleset))
+        # except:
+        #     flash("Both JSON files are required", "red")
+    return(
+        render_template(
+            "import-items.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Import Items"
+        )
+    )
+
 @eprefs.route("/Item/<string:item>")
 def item(item):
     cruleset = getCurrentRuleset(current_user)
