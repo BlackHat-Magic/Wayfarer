@@ -2,9 +2,6 @@ function makeX(request, cruleset, X, instruction) {
     if current_user.id != cruleset.userid:
         flash "You cannot create {X} in rulesets that are not your own"
         return redirect(X)
-    elif (instruction = edit or duplicate) and not X:
-        flash "X does not exist"
-        return(redirect(X))
     elif instruction = duplicate:
         new_X = X(
             rulesetid = cruleset.id,

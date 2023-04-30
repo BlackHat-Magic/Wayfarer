@@ -437,6 +437,7 @@ def itemProperty(request, cruleset, tproperty, instruction):
 def makeItem(request, cruleset, item, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot ceeate skills for rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.items")))
     elif(instruction == "duplicate"):
         new_item = Item(
             rulesetid = cruleset.id,
@@ -535,56 +536,57 @@ def makeItem(request, cruleset, item, instruction):
             flash("Cross-site scripting attacks are not allowed.", "red")
         elif(len(weapon_properties) > 255):
             flash("Weapon Properties must be fewer than 256 characters.", "red")
-        else:
-            if(instruction=="create"):
-                new_item = Item(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    is_magical = is_magical,
-                    rarity = rarity,
-                    tier = tier,
-                    attunement = attunement,
-                    tags = tags,
-                    proficiency = proficiency,
-                    cost = cost,
-                    weight = weight,
-                    text = text,
-                    is_armor = is_armor,
-                    armor_class = armor_class,
-                    add_dex = add_dex,
-                    max_dex = max_dex,
-                    is_weapon = is_weapon,
-                    die_num = die_num,
-                    damage_die = damage_die,
-                    damage_type = damage_type,
-                    weapon_properties = weapon_properties
-                )
-                db.session.add(new_item)
-                flash("Item created.", "green")
-            else:
-                item.name = name
-                item.is_magical = is_magical
-                item.rarity = rarity
-                item.tier = tier
-                item.attunement = attunement
-                item.tags = tags
-                item.proficiency = proficiency
-                item.cost = cost
-                item.weight = weight
-                item.text = text
-                item.is_armor = is_armor
-                item.armor_class = armor_class
-                item.add_dex = add_dex
-                item.max_dex = max_dex
-                item.is_weapon = is_weapon
-                item.die_num = die_num
-                item.damage_die = damage_die
-                item.damage_type = damage_type
-                item.weapon_properties = weapon_properties
-                flash("Changes saved!", "green")
+        elif(instruction=="create"):
+            new_item = Item(
+                rulesetid = cruleset.id,
+                name = name,
+                is_magical = is_magical,
+                rarity = rarity,
+                tier = tier,
+                attunement = attunement,
+                tags = tags,
+                proficiency = proficiency,
+                cost = cost,
+                weight = weight,
+                text = text,
+                is_armor = is_armor,
+                armor_class = armor_class,
+                add_dex = add_dex,
+                max_dex = max_dex,
+                is_weapon = is_weapon,
+                die_num = die_num,
+                damage_die = damage_die,
+                damage_type = damage_type,
+                weapon_properties = weapon_properties
+            )
+            db.session.add(new_item)
             db.session.commit()
+            flash("Item created!", "green")
             return(redirect(url_for("eprefs.items")))
-    return(False)
+        else:
+            item.name = name
+            item.is_magical = is_magical
+            item.rarity = rarity
+            item.tier = tier
+            item.attunement = attunement
+            item.tags = tags
+            item.proficiency = proficiency
+            item.cost = cost
+            item.weight = weight
+            item.text = text
+            item.is_armor = is_armor
+            item.armor_class = armor_class
+            item.add_dex = add_dex
+            item.max_dex = max_dex
+            item.is_weapon = is_weapon
+            item.die_num = die_num
+            item.damage_die = damage_die
+            item.damage_type = damage_type
+            item.weapon_properties = weapon_properties
+            db.session.commit()
+            flash("Changes saved!", "green")
+            return(redirect(url_for("eprefs.items")))
+        return(redirect(url_for("eprefs.createItem")))
 
 def itemImporter(items, base, cruleset):
     if(current_user.id != cruleset.userid):
@@ -893,6 +895,7 @@ def itemImporter(items, base, cruleset):
 def makeLanguage(request, cruleset, language, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create languages for rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.languages")))
     elif(instruction == "duplicate"):
         new_language = Language(
             rulesetid=cruleset.id,
@@ -901,40 +904,38 @@ def makeLanguage(request, cruleset, language, instruction):
         )
         db.session.add(new_language)
         db.session.commit()
+        flash("Language duplicated!", "green")
+        return(redirect(url_for("eprefs.languages")))
     else:
         name = request.form.get("name")
         text = request.form.get("text")
         if(len(name) < 1):
             flash("You must specify a language name.", "red")
-            return(redirect(url_for("eprefs.createLanguage")))
         elif(len(name) > 127):
             flash("Language name must be fewer than 128 characters.", "red")
-            return(redirect(url_for("eprefs.createLanguage")))
         elif(len(text) > 16383):
             flash("Language description must be fewer than 16384 characters.", "red")
-            return(redirect(url_for("eprefs.createLanguage")))
         elif("javascript" in text):
             flash("Cross-site scripting attacks are not allowed.", "red")
-            return(redirect(url_for("eprefs.createLanguage")))
         elif("<" in text):
             flash("Open angle brackets(\"<\") are not allowed.", "red")
-            return(redirect(url_for("eprefs.createLanguage")))
+        elif(instruction == "edit"):
+            language.name = name
+            language.text = text
+            db.session.commit()
+            flash("Changes Saved!", "green")
+            return(redirect(url_for("eprefs.languages")))
         else:
-            if(instruction == "edit"):
-                language.name = name
-                language.text = text
-                db.session.commit()
-                flash("Changes Saved!", "green")
-            else:
-                new_language = Language(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    text = text
-                )
-                db.session.add(new_language)
-                db.session.commit()
-                flash("Language created!", "green")
-    return(redirect(url_for("eprefs.refsLang")))
+            new_language = Language(
+                rulesetid = cruleset.id,
+                name = name,
+                text = text
+            )
+            db.session.add(new_language)
+            db.session.commit()
+            flash("Language created!", "green")
+            return(redirect(url_for("eprefs.languages")))
+        return(redirect(url_for("eprefs.createLanguage")))
 
 def languageImporter(languages, cruleset):
     if(current_user.id != cruleset.userid):

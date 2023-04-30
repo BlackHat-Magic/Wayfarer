@@ -61,7 +61,7 @@ Clone the repository.
 
 Install dependencies.
 
-```pip install requirements.txt```
+```pip install -r requirements.txt```
 
 Deploy website.
 
