@@ -37,35 +37,7 @@ def createAction():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create actions for rulesets that are not yours.")
-        else:
-            name = request.form.get("name")
-            text = request.form.get("text")
-            time = request.form.get("time")
-            if(len(name) < 1):
-                flash("You must specify an action name.", "red")
-            elif(len(name) > 127):
-                flash("Action name must be fewer than 128 characters.", "red")
-            elif(len(time) > 127):
-                flash("Action time must be fewer than 128 characters.", "red")
-            elif(len(text) > 16383):
-                flash("Action text must be fewer than 16383 characters", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                new_action = Action(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    time = time,
-                    text = text
-                )
-                db.session.add(new_action)
-                db.session.commit()
-                flash("Action created!", "green")
-                return(redirect(url_for("eprefs.actions")))
+        return(makeAction(request, cruleset, None, "create"))
     return(
         render_template(
             "create-action.html", 
@@ -81,22 +53,42 @@ def createAction():
 @login_required
 def duplicateAction(action):
     cruleset = getCurrentRuleset(current_user)
+    action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
+    return(makeAction(None, cruleset, action, "duplicate"))
+
+@eprefs.route("/Actions/Edit/<string:action>", methods=["GET", "POST"])
+@login_required
+def editAction(action):
+    cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    if(current_user.id != cruleset.id):
-        pass
-    action = Action.query.filter_by(rulesetid = cruleset.id, name = action).first()
-    new_action
+    action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
+    if(request.method == "POST"):
+        return(makeAction(request, cruleset, action, "edit"))
     return(
         render_template(
-            "import-one.html", 
+            "create-action.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
-            adminrulesets=adminrulesets, 
-            title="Import Actions"
+            adminrulesets=adminrulesets,
+            title="Create an Action",
+            action=action
         )
     )
+
+@eprefs.route("/Actions/Delete/<string:action>")
+@login_required
+def deleteAction(action):
+    cruleset = getCurrentRuleset(current_user)
+    action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete actions in rulesets that are not your own.", "red")
+    else:
+        db.session.delete(action)
+        db.session.commit()
+        flash("Action deleted", "orange")
+    return(redirect(url_for("eprefs.actions")))
 
 @eprefs.route("/Actions/Import", methods=["GET", "POST"])
 @login_required
@@ -122,18 +114,16 @@ def conditions():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    conditions = []
-    for condition in Condition.query.filter_by(rulesetid = cruleset.id):
-        conditions.append(condition)
     return(
         render_template(
             "conditions.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
-            conditions=conditions, 
+            conditions=cruleset.conditions, 
             adminrulesets=adminrulesets,
-            title="Conditions"
+            title="Conditions",
+            button="Condition"
         )
     )
 
@@ -144,31 +134,7 @@ def createCondition():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create conditions for rulesets that are not yours.")
-        else:
-            name = request.form.get("name")
-            text = request.form.get("text")
-            if(len(name) < 1):
-                flash("You must specify an action name.", "red")
-            elif(len(name) > 127):
-                flash("Action name must be fewer than 128 characters.", "red")
-            elif(len(text) > 16383):
-                flash("Action text must be fewer than 16383 characters", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                new_action = Condition(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    text = text
-                )
-                db.session.add(new_action)
-                db.session.commit()
-                flash("Condition created!", "green")
-                return(redirect(url_for("eprefs.conditions")))
+        return(makeCondition(request, cruleset, None, "create"))
     return(
         render_template(
             "create-condition.html", 
@@ -179,6 +145,222 @@ def createCondition():
             title="Create a Condition"
         )
     )
+
+@eprefs.route("/Conditions/Duplicate/<string:condition>")
+@login_required
+def duplicateCondition(condition):
+    cruleset = getCurrentRuleset(current_user)
+    condition = Condition.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
+    return(makeCondition(None, cruleset, condition, "duplicate"))
+
+@eprefs.route("/Conditions/Edit/<string:condition>", methods=["GET", "POST"])
+@login_required
+def editCondition(condition):
+    cruleset = getCurrentRuleset(current_user)
+    condition = Condition.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        return(makeCondition(request, cruleset, condition, "edit"))
+    return(
+        render_template(
+            "create-condition.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title=f"Edit {condition.name}",
+            condition = condition
+        )
+    )
+    
+@eprefs.route("/Conditions/Delete/<string:condition>")
+@login_required
+def deleteCondition(condition):
+    cruleset = getCurrentRuleset(current_user)
+    condition = Condition.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete conditions in rulesets that are not your own", "red")
+    else:
+        db.session.delete(condition)
+        db.session.commit()
+    return(redirect(url_for("eprefs.conditions")))
+
+@eprefs.route("/Conditions/Import", methods=["GET", "POST"])
+@login_required
+def importConditions():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        return(conditionImporter(json.loads(request.form.get("parsed")), cruleset))
+    return(
+        render_template(
+            "import-one.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            conditions=conditions, 
+            adminrulesets=adminrulesets,
+            title="Import Conditions, Diseases, and Statuses"
+        )
+    )
+
+@eprefs.route("/Diseases")
+def diseases():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(
+        render_template(
+            "conditions.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            conditions = cruleset.diseases,
+            adminrulesets=adminrulesets,
+            title="Diseases",
+            button="Disease"
+        )
+    )
+
+@eprefs.route("/Diseases/Create")
+@login_required
+def createDisease():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        return(makeDisease(request, cruleset, None, "create"))
+    return(
+        render_template(
+            "create-condition.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Disease"
+        )
+    )
+
+@eprefs.route("/Diseases/Duplicate/<string:disease>")
+@login_required
+def duplicateDisease(disease):
+    cruleset = getCurrentRuleset(current_user)
+    disease = Disease.query.filter_by(rulesetid = cruleset.id, name = disease).first_or_404()
+    return(makeDisease(None, cruleset, disease, "duplicate"))
+
+@eprefs.route("/Diseases/Edit/<string:disease>")
+@login_required
+def editDisease(disease):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    disease = Disease.query.filter_by(rulesetid = cruleset.id, name = disease).first_or_404()
+    if(request.method == "POST"):
+        return(makeDisease(request, cruleset, disease, "edit"))
+    return(
+        render_template(
+            "create-condition.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title=f"Edit {disease.name}",
+            condition = disease
+        )
+    )
+
+@eprefs.route("/Diseases/Delete/<string:disease>")
+@login_required
+def deleteDisease(disease):
+    cruleset = getCurrentRuleset(current_user)
+    disease = Disease.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete diseases in rulesets that are not your own.", "red")
+    else:
+        db.session.delete(disease)
+        db.session.commit()
+        flash("Disease deleted.", "orange")
+    return(redirect(url_for("eprefs.diseases")))
+
+@eprefs.route("/Statuses")
+def statuses():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    return(
+        render_template(
+            "conditions.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            conditions=cruleset.statuses, 
+            adminrulesets=adminrulesets,
+            title="Statuses",
+            button="Status"
+        )
+    )
+
+@eprefs.route("/Statuses/Create")
+@login_required
+def createStatus():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        return(makeStatus(request, cruleset, None, "create"))
+    return(
+        render_template(
+            "create-condition.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Create a Status"
+        )
+    )
+
+@eprefs.route("/Statuses/Duplicate/<string:status>")
+@login_required
+def duplicateStatus(status):
+    cruleset = getCurrentRuleset(current_user)
+    status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
+    return(makeStatus(None, cruleset, status, "duplicate"))
+
+@eprefs.route("/Statuses/Edit/<string:status>")
+@login_required
+def editStatus(status):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
+    if(request.method == "POST"):
+        return(makeStatus(request, cruleset, status, "edit"))
+    return(
+        render_template(
+            "create-condition.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title=f"Edit {status.name}",
+            condition = status
+        )
+    )
+
+@eprefs.route("/Statuses/Delete/<string:status>")
+@login_required
+def deleteStatus(status):
+    cruleset = getCurrentRuleset(current_user)
+    status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete statuses in rulesets that are not your own.", "red")
+    else:
+        db.session.delete(status)
+        db.session.commit()
+        flash("Status deleted.", "orange")
+    return(redirect(url_for("eprefs.statuses")))
 
 @eprefs.route("/Items")
 def items():

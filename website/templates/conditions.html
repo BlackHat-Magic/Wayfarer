@@ -7,7 +7,7 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Conditions</h1>
+		<h1>{{ title }}</h1>
 		{% for condition in conditions %}
 		<div class="usercontent">
 			<h2 x-text="'{{ condition.name }}'"></h2>
@@ -15,7 +15,10 @@
 			<div x-html="convert(`{{ condition.text }}`)"></div>
 		</div>
 		{% endfor %}
-		<a href="/Reference/Conditions/Create"><button>Create Condition</button></a>
+		<div class="interior flex horizontal center">
+			<a href="{{ url_for('eprefs.create' + button) }}"><button>Create {{ button }}</button></a>
+			<a href="{{ url_for('eprefs.importConditions') }}"><button>Import from JSON</button></a>
+		</div>
 	</div>
 </div>
 

@@ -15,7 +15,7 @@ In no particular order...
  - [ ] add CSS animations
  - [x] ~~clean up CSS file~~
  - [X] ~~add edit functionality~~
-     - [ ] edit actions (apparently I forgot??)
+     - [X] ~~edit actions (apparently I forgot??)~~
  - [X] ~~add duplication functionality~~
  - [x] ~~fix Races page~~
  - [x] ~~make background filters more useful~~
@@ -27,26 +27,26 @@ In no particular order...
      - [X] ~~Import background flavor text~~
      - [X] ~~Import feats~~
      - [ ] Import classes
-     - [ ] Import actions
+     - [X] ~~Import actions~~
      - [ ] Import items
          - [X] ~~Import item details~~
          - [ ] More comprehensive item type importing
      - [X] ~~Import languages~~
      - [ ] Import spells
      - [ ] Import recipes
+     - [X] ~~Import conditions, diseases, and statuses~~
      - [X] ~~Import skills~~
      - [ ] Import tables and other non-plaintext features/flavor
      - [ ] Import Entire Rulesets
      - [ ] Correctly parse and reformat 5e tools markup
-     - [ ] Communicate unsupported data
-     - [ ] Input validation for imported text
  - [ ] Make races page work with custom ability scores
- - [ ] Improve race ASI filtering
  - [x] ~~Add support for multiple administrator rulesets~~
  - [ ] Add armor stealth disadvantage
  - [ ] Add armor strength minimum
  - [ ] Idiotproofing
      - [ ] Add instructions
+     - [ ] Communicate unsupported data
+     - [ ] Input validation for imported text
  - [ ] Make flash messages dismissable
  - [ ] Item property and type templates
  - [ ] Hyperlinks

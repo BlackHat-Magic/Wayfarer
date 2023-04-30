@@ -31,6 +31,8 @@ class Ruleset(db.Model):
     item_properties = db.relationship("Property")
     items = db.relationship("Item")
     conditions = db.relationship("Condition")
+    diseases = db.relationship("Disease")
+    statuses = db.relationship("Status")
     skills = db.relationship("Skill")
     actions = db.relationship("Action")
     races = db.relationship("Race")
@@ -103,6 +105,18 @@ class Item(db.Model):
     weapon_properties = db.Column(db.PickleType)
 
 class Condition(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
+
+class Disease(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
+
+class Status(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))

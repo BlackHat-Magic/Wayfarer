@@ -58,7 +58,7 @@ def duplicateRace(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    race = Race.query.filter_by(rulesetid=cruleset.id, name=race).first()
+    race = Race.query.filter_by(rulesetid=cruleset.id, name=race).first_or_404()
     if(not race):
         flash("Race does not exist.", "red")
         return(redirect(url_for("epchar.races")))
@@ -71,7 +71,7 @@ def editRace(race):
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    target_race = Race.query.filter_by(name=race, rulesetid=cruleset.id).first()
+    target_race = Race.query.filter_by(name=race, rulesetid=cruleset.id).first_or_404()
     if(not target_race):
         flash("Race does not exist.", "red")
     elif(request.method == "POST"):

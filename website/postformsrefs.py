@@ -1,7 +1,345 @@
 from flask import render_template, redirect, url_for, request, session, flash, jsonify
 from flask_login import current_user
 from . import db
-from .models import Skill, ItemTag, Property, Language, Item, Action
+from .models import Skill, ItemTag, Property, Language, Item, Action, Condition, Disease, Status
+
+def makeAction(request, cruleset, action, instruction):
+    if(current_user.id != cruleset.userid):
+        flash(f"You cannot {instruction} actions in rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.actions")))
+    elif(instruction == "duplicate"):
+        new_action = Action(
+            rulesetid = cruleset.id,
+            name = f"{action.name} Duplicate",
+            time = action.time,
+            text = action.text
+        )
+        db.session.add(new_action)
+        db.session.commit()
+        flash("Action duplicated!")
+    else:
+        name = request.form.get("name")
+        time = request.form.get("time")
+        text = request.form.get("text")
+        if(len(name) < 1):
+            flash("You must specify an action name.", "red")
+        elif(len(name) > 127):
+            flash("Action name must be fewer than 128 characters.", "red")
+        elif(len(time) > 127):
+            flash("Action time must be fewer than 128 characters.", "red")
+        elif(len(text) > 16383):
+            flash("Action text must be fewer than 16383 characters", "red")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+        elif(instruction == "create"):
+            new_action = Action(
+                rulesetid = cruleset.id,
+                name = name,
+                time = time,
+                text = text
+            )
+            db.session.add(new_action)
+            db.session.commit()
+            flash("Action created!", "green")
+            return(redirect(url_for("eprefs.actions")))
+        else:
+            action.name = name
+            action.time = time
+            action.text = text
+            db.session.commit()
+            flash("Changes saved!", "green")
+            return(redirect(url_for("eprefs.actions")))
+        return(redirect(url_for("eprefs.createAction")))
+
+def actionImporter(actions, cruleset):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot import actions into rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.actions")))
+    try:
+        for action in actions["action"]:
+            name = action["name"]
+            print(name)
+            if("time" in action.keys()):
+                if(type(action["time"][0]) == dict):
+                    time = f"{str(action['time'][0]['number'])} {action['time'][0]['unit'].casefold().capitalize()}"
+                elif(type(action["time"][0]) == str):
+                    time = action["time"][0]
+            else:
+                time = "Other"
+            text = ""
+            for entry in action["entries"]:
+                if(type(entry) == str):
+                    text += f"{entry}\n\n"
+                else:
+                    text += f"### {entry['name']}\n\n"
+                    for section in entry["entries"]:
+                        text += f"{section}\n\n"
+            new_action = Action(
+                rulesetid = cruleset.id,
+                name = name,
+                time = time,
+                text = text
+            )
+            db.session.add(new_action)
+        db.session.commit()
+        flash("Actions imported!", "green")
+        return(redirect(url_for("eprefs.actions")))
+    except:
+        flash("Improperly formatted JSON; could not import.", "red")
+        return(redirect(url_for("eprefs.importActions")))
+
+def makeCondition(request, cruleset, condition, instruction):
+    if(current_user.id != cruleset.userid):
+        flash(f"You cannot {instruction} conditions in rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.conditions")))
+    elif(instruction == "duplicate"):
+        new_condition = Condition(
+            rulesetid = cruleset.id,
+            name = f"{condition.name} Duplicate",
+            text = condition.text
+        )
+        db.session.add(new_condition)
+        db.session.commit()
+        flash("Condition duplicated!", "green")
+        return(redirect(url_for("eprefs.conditions")))
+    else:
+        name = request.form.get("name")
+        text = request.form.get("text")
+        if(len(name) < 1):
+            flash("You must specify a condition name.", "red")
+        elif(len(name) > 127):
+            flash("Condition name must be fewer than 128 characters.", "red")
+        elif(len(text) > 16383):
+            flash("Condition description must be fewer than 16384 characters", "red")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+        elif(instruction == "create"):
+            new_condition = Condition(
+                rulesetid = cruleset.id,
+                name = name,
+                text = text
+            )
+            db.session.add(new_condition)
+            db.session.commit()
+            flash("Condition created!")
+            return(redirect(url_for("eprefs.conditions")))
+        else:
+            condition.name = name
+            condition.text = text
+            db.session.commit()
+            flash("Changes saved!")
+            return(redirect(url_for("eprefs.conditions")))
+        return(redirect(url_for("eprefs.createCondition")))
+
+def makeDisease(request, cruleset, disease, instruction):
+    if(current_user.id != cruleset.userid):
+        flash(f"You cannot {instruction} diseases in rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.diseases")))
+    elif(instruction == "duplicate"):
+        new_disease = Disease(
+            rulesetid = cruleset.id,
+            name = f"{disease.name} Duplicate",
+            text = disease.text
+        )
+        db.session.add(new_disease)
+        db.session.commit()
+        flash("Disease duplicated!", "green")
+        return(redirect(url_for("eprefs.diseases")))
+    else:
+        name = request.form.get("name")
+        text = request.form.get("text")
+        if(len(name) < 1):
+            flash("You must specify a disease name.", "red")
+        elif(len(name) > 127):
+            flash("Disease name must be fewer than 128 characters.", "red")
+        elif(len(text) > 16383):
+            flash("Disease description must be fewer than 16384 characters", "red")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+        elif(instruction == "create"):
+            new_disease = Disease(
+                rulesetid = cruleset.id,
+                name = name,
+                text = text
+            )
+            db.session.add(new_disease)
+            db.session.commit()
+            flash("Disease created!")
+            return(redirect(url_for("eprefs.diseases")))
+        else:
+            disease.name = name
+            disease.text = text
+            db.session.commit()
+            flash("Changes saved!")
+            return(redirect(url_for("eprefs.diseases")))
+        return(redirect(url_for("eprefs.createdisease")))
+
+def makeStatus(request, cruleset, status, instruction):
+    if(current_user.id != cruleset.userid):
+        flash(f"You cannot {instruction} statuses in rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.statuses")))
+    elif(instruction == "duplicate"):
+        new_status = Status(
+            rulesetid = cruleset.id,
+            name = f"{status.name} Duplicate",
+            text = status.text
+        )
+        db.session.add(new_status)
+        db.session.commit()
+        flash("Status duplicated!", "green")
+        return(redirect(url_for("eprefs.statuses")))
+    else:
+        name = request.form.get("name")
+        text = request.form.get("text")
+        if(len(name) < 1):
+            flash("You must specify a status name.", "red")
+        elif(len(name) > 127):
+            flash("Status name must be fewer than 128 characters.", "red")
+        elif(len(text) > 16383):
+            flash("Status description must be fewer than 16384 characters", "red")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+        elif(instruction == "create"):
+            new_status = Status(
+                rulesetid = cruleset.id,
+                name = name,
+                text = text
+            )
+            db.session.add(new_status)
+            db.session.commit()
+            flash("Status created!")
+            return(redirect(url_for("eprefs.statuses")))
+        else:
+            status.name = name
+            status.text = text
+            db.session.commit()
+            flash("Changes saved!")
+            return(redirect(url_for("eprefs.statuses")))
+        return(redirect(url_for("eprefs.createStatus")))
+
+def conditionImporter(conditions, cruleset):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot import import conditions into rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.conditions")))
+    # try:
+    if("condition" in conditions.keys()):
+        for condition in conditions["condition"]:
+            text = ""
+            for entry in condition["entries"]:
+                if(type(entry) == str):
+                    text += f"{entry}\n\n"
+                elif(entry["type"] == "list"):
+                    for item in entry["items"]:
+                        text += f" - {item}\n"
+                    text += "\n"
+                elif(entry["type"] == "table"):
+                    text += "| "
+                    for label in entry["colLabels"]:
+                        text += f"{label} | "
+                    text += "\n| "
+                    for style in entry["colStyles"]:
+                        if("center" or "left" in style):
+                            text += ":"
+                        text += "---"
+                        if("center" or "right" in style):
+                            text += ":"
+                        text += " | "
+                    for row in entry["rows"]:
+                        text += "\n| "
+                        for column in row:
+                            text += str(column)
+                            text += " | "
+
+            new_condition = Condition(
+                rulesetid = cruleset.id,
+                name = condition["name"],
+                text = text
+            )
+            db.session.add(new_condition)
+    if("disease" in conditions.keys()):
+        for disease in conditions["disease"]:
+            text = ""
+            for entry in disease["entries"]:
+                if(type(entry) == str):
+                    text += f"{entry}\n\n"
+                elif(entry["type"] == "list"):
+                    for item in entry["items"]:
+                        text += f" - {item}\n"
+                    text += "\n"
+                elif(entry["type"] == "table"):
+                    text += "| "
+                    for label in entry["colLabels"]:
+                        text += f"{label} | "
+                    text += "\n| "
+                    for style in entry["colStyles"]:
+                        if("center" or "left" in style):
+                            text += ":"
+                        text += "---"
+                        if("center" or "right" in style):
+                            text += ":"
+                        text += " | "
+                    for row in entry["rows"]:
+                        text += "\n| "
+                        for column in row:
+                            text += str(column)
+                            text += " | "
+                        text += "\n"
+
+            new_disease = Disease(
+                rulesetid = cruleset.id,
+                name = disease["name"],
+                text = text
+            )
+            db.session.add(new_disease)
+    if("status" in conditions.keys()):
+        for status in conditions["status"]:
+            text = ""
+            for entry in status["entries"]:
+                if(type(entry) == str):
+                    text += f"{entry}\n\n"
+                elif(entry["type"] == "list"):
+                    for item in entry["items"]:
+                        text += f" - {item}\n"
+                    text += "\n"
+                elif(entry["type"] == "table"):
+                    text += "| "
+                    for label in entry["colLabels"]:
+                        text += f"{label} | "
+                    text += "\n| "
+                    for style in entry["colStyles"]:
+                        if("center" or "left" in style):
+                            text += ":"
+                        text += "---"
+                        if("center" or "right" in style):
+                            text += ":"
+                        text += " | "
+                    for row in entry["rows"]:
+                        text += "\n| "
+                        for column in row:
+                            text += str(column)
+                            text += " | "
+                        text += "\n"
+
+            new_status = Status(
+                rulesetid = cruleset.id,
+                name = status["name"],
+                text = text
+            )
+            db.session.add(new_status)
+    db.session.commit()
+    flash("Conditions imported!", "green")
+    return(redirect(url_for("eprefs.conditions")))
+    # except:
+    #     flash("Improperly formatted JSON; could not import.", "red")
+    #     return(redirect(url_for("eprefs.importConditions")))
 
 def itemTag(request, cruleset, tag, instruction):
     if(current_user.id != cruleset.userid):
@@ -95,93 +433,6 @@ def itemProperty(request, cruleset, tproperty, instruction):
                 tproperty.text = text
                 db.session.commit()
     return(redirect(url_for("eprefs.properties")))
-
-def makeAction(request, cruleset, action, instruction):
-    if(current_user.id != cruleset.userid):
-        flash(f"You cannot {instruction} actions in rulesets that are not your own", "red")
-        return(redirect(url_for("eprefs.actions")))
-    elif(instruction == "duplicate"):
-        new_action = Action(
-            rulesetid = cruleset.id,
-            name = f"{action.name} Duplicate",
-            time = action.time,
-            text = action.text
-        )
-        db.session.add(new_action)
-        db.session.commit()
-        return(redirect(url_for("eprefs.actions")))
-    else:
-        name = request.form.get("name")
-        time = request.form.get("time")
-        text = request.form.get("text")
-        if(len(name) < 1):
-            flash("You must specify an action name.", "red")
-        elif(len(name) > 127):
-            flash("Action name must be fewer than 128 characters.", "red")
-        elif(len(time) > 127):
-            flash("Action time must be fewer than 128 characters.", "red")
-        elif(len(text) > 16383):
-            flash("Action text must be fewer than 16383 characters", "red")
-        elif("<" in text):
-            flash("Open angle brackets (\"<\") are not allowed.", "red")
-        elif("javascript" in text):
-            flash("Cross-site scripting attacks are not allowed.", "red")
-        elif(instruction == "create"):
-            new_action = Action(
-                rulesetid = cruleset.id,
-                name = name,
-                time = time,
-                text = text
-            )
-            db.session.add(new_action)
-            db.session.commit()
-            flash("Action created!", "green")
-            return(redirect(url_for("eprefs.actions")))
-        else:
-            action.name = name
-            action.time = time
-            action.text = text
-            db.session.commit()
-            flash("Changes saved!", "green")
-            return(redirect(url_for("eprefs.actions")))
-        return(redirect(url_for("eprefs.createAction")))
-
-def actionImporter(actions, cruleset):
-    if(current_user.id != cruleset.userid):
-        flash("You cannot import actions into rulesets that are not your own.", "red")
-        return(redirect(url_for("epchar.actions")))
-    try:
-        for action in actions["action"]:
-            name = action["name"]
-            print(name)
-            if("time" in action.keys()):
-                if(type(action["time"][0]) == dict):
-                    time = f"{str(action['time'][0]['number'])} {action['time'][0]['unit'].casefold().capitalize()}"
-                elif(type(action["time"][0]) == str):
-                    time = action["time"][0]
-            else:
-                time = "Other"
-            text = ""
-            for entry in action["entries"]:
-                if(type(entry) == str):
-                    text += f"{entry}\n\n"
-                else:
-                    text += f"### {entry['name']}\n\n"
-                    for section in entry["entries"]:
-                        text += f"{section}\n\n"
-            new_action = Action(
-                rulesetid = cruleset.id,
-                name = name,
-                time = time,
-                text = text
-            )
-            db.session.add(new_action)
-        db.session.commit()
-        flash("Actions imported!", "green")
-        return(redirect(url_for("eprefs.actions")))
-    except:
-        flash("Improperly formatted JSON; could not import.", "red")
-        return(redirect(url_for("epchar.importActions")))
 
 def makeItem(request, cruleset, item, instruction):
     if(current_user.id != cruleset.userid):

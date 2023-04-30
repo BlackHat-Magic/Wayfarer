@@ -1,0 +1,64 @@
+function makeX(request, cruleset, X, instruction) {
+    if current_user.id != cruleset.userid:
+        flash "You cannot create {X} in rulesets that are not your own"
+        return redirect(X)
+    elif (instruction = edit or duplicate) and not X:
+        flash "X does not exist"
+        return(redirect(X))
+    elif instruction = duplicate:
+        new_X = X(
+            rulesetid = cruleset.id,
+            name = "{X.name} Duplicate",
+            properties = X.properties
+        )
+        db.session.add(new_action)
+        for submodel in X.submodels:
+            new_X_submodel = XSubModel(
+                X = new_X,
+                name = X.submodels[loop.index].name,
+                properties = X.submodels[loop.index].properties
+            )
+            db.session.add(new_X_submodel)
+        db.session.commit()
+        flash "X Duplicated!"
+        return redirect(X)
+    else:
+        name = request.form.get(name)
+        properties = request.form.get(properties)
+        if name not valid:
+            flash "name invalid"
+        elif properties not valid:
+            flash properties not valid
+        elif instruction = create:
+            new_X = X(
+                rulesetid = cruleset.id,
+                name = name,
+                properties = properties
+            )
+            db.session.add(new_X)
+            for submodel in request.form.getlist(submodelname):
+                if submodelname[loop.index] not valid:
+                    flash "submodel name not valid"
+                    return redirect(createX)
+                elif submodelproperties[loop.index] not valid:
+                    flash "submodel properties not valid"
+                    return(redirect(createX))
+                else:
+                    new_X_submodel = XSubModel(
+                        X = new_X,
+                        name = submodelname[loop.index],
+                        properties = submodelproperties[loop.index]
+                    )
+                    db.session.add(new_X_submodel)
+            db.session.commit()
+            flash "X created!"
+            return redirect(X)
+        else:
+            X = X.query.filter_by(rulesetid = cruleset.id, name = X.name).first()
+            X.name = request.form.get(name)
+            X.properties = request.form.get(properties)
+            db.session.commit()
+            flash "changes saved!"
+            return redirect(X)
+        return redirect(createX)
+}
