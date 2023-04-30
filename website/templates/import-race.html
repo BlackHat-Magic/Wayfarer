@@ -8,7 +8,7 @@
 {% block body %}
 <div class="flex">
 	<form class="flex vertical start" method="post" x-data="main">
-		<h1 @click="console.log(parsed_races)">Import a Race</h1>
+		<h1 @click="console.log(parsed_races)">Import Races</h1>
 
 		<label for="race-file"><h3>Race Features</h3></label>
         <input 
@@ -32,7 +32,7 @@
 			@change="parseFlavor()">
 		<input type="hidden" id="parsed_flavor" name="parsed_flavor" x-model="parsed_flavor">
 
-		<a href="/Reference/Actions/Create"><button type="submit">Import Race!</button></a>
+		<a><button type="submit">Import Races!</button></a>
 	</form>
 </div>
 

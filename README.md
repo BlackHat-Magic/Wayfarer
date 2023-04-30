@@ -31,9 +31,10 @@ In no particular order...
      - [ ] Import languages
      - [ ] Import spells
      - [ ] Import recipes
-     - [ ] Import skills
+     - [X] ~~Import skills~~
      - [ ] Import tables and other non-plaintext features/flavor
      - [ ] Import Entire Rulesets
+     - [ ] Correctly parse and reformat 5e tools markup
  - [ ] Make races page work with custom ability scores
  - [ ] Improve race ASI filtering
  - [x] ~~Add support for multiple administrator rulesets~~

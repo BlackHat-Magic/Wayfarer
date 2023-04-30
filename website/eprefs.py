@@ -793,3 +793,22 @@ def deleteSkill(tskill):
         db.session.commit()
         flash("Skill deleted.", "orange")
     return(redirect(url_for("eprefs.skills")))
+
+@eprefs.route("/Skills/Import", methods=["GET", "POST"])
+@login_required
+def importSkills():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        return(skillImporter(json.loads(request.form.get("parsed")), cruleset))
+    return(
+        render_template(
+            "import-generic.html",
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title="Import Skills",
+        )
+    )

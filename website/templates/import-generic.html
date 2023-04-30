@@ -1,0 +1,25 @@
+
+{% extends "master.html" %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/import-generic.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<form class="flex vertical start" method="post" x-data="main">
+		<h1 @click="console.log(parsed)">{{ title }}</h1>
+        <input 
+			type="file" 
+			id="file" 
+			name="file" 
+			x-model="file" 
+			accept=".json" 
+			@change="parse()">
+        <input type="hidden" id="parsed" name="parsed" x-model="parsed">
+
+		<a><button type="submit">{{ title }}!</button></a>
+	</form>
+</div>
+
+{% endblock %}

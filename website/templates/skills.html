@@ -24,7 +24,10 @@
         <div x-html="convert(`{{ skill.description }}`)" style="width: 100%; margin-bottom: 48px"></div>
         {% endfor %}
         {% if cruleset.userid == current_user.id %}
-        <a href="/Reference/Skills/Create"><button>Create a Skill</button></a>
+        <div class="interior flex horizontal center">
+            <a href="/Reference/Skills/Create"><button>Create a Skill</button></a>
+            <a href="/Reference/Skills/Import"><button>Import from JSON</button></a>
+        </div>
         {% endif %}
     </div>
 </div>

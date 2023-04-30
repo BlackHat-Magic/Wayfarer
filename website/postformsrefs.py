@@ -345,3 +345,53 @@ def skill(request, cruleset, skill, instruction):
                 flash("Skill created!", "green")
             db.session.commit()
     return(redirect(url_for("eprefs.skills")))
+
+def skillImporter(skills, cruleset):
+    asidict = {
+        "Acrobatics": "dex",
+        "Animal Handling": "wis",
+        "Arcana": "int",
+        "Athletics": "str",
+        "Deception": "cha",
+        "History": "int",
+        "Insight": "wis",
+        "Intimidation": "cha",
+        "Investigation": "int",
+        "Medicine": "wis",
+        "Nature": "int",
+        "Perception": "wis",
+        "Performance": "cha",
+        "Persuasion": "cha",
+        "Religion": "int",
+        "Sleight of Hand": "dex",
+        "Stealth": "dex",
+        "Survival": "wis"
+    }
+    try:
+        for skill in skills["skill"]:
+            if(skill["name"] in asidict.keys()):
+                ability_score = asidict[skill["name"]]
+            else:
+                ability_score = None
+            description = ""
+            for entry in skill["entries"]:
+                if(type(entry) == str):
+                    description += f"{entry}\n\n"
+                elif(type(entry) == dict and entry["type"] == "list"):
+                    for item in entry["items"]:
+                        description += f" - {item}\n"
+                else:
+                    flash(f"Unrecognized element of {skill['name']}'s description; skipping...", "orange")
+            new_skill = Skill(
+                rulesetid = cruleset.id,
+                name = skill["name"],
+                ability_score = ability_score,
+                description = description
+            )
+            db.session.add(new_skill)
+        db.session.commit()
+        flash("Skills imported!", "green")
+        return(redirect(url_for("eprefs.skills")))
+    except:
+        flash("Improperly formatted JSON; could not import.", "red")
+        return(redirect(url_for("eprefs.importSkills")))
