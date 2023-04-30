@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, session, flash, jsonify
 from flask_login import current_user
 from . import db
-from .models import Skill, ItemTag, Property, Language, Item
+from .models import Skill, ItemTag, Property, Language, Item, Action
 
 def itemTag(request, cruleset, tag, instruction):
     if(current_user.id != cruleset.userid):
@@ -95,6 +95,93 @@ def itemProperty(request, cruleset, tproperty, instruction):
                 tproperty.text = text
                 db.session.commit()
     return(redirect(url_for("eprefs.properties")))
+
+def makeAction(request, cruleset, action, instruction):
+    if(current_user.id != cruleset.userid):
+        flash(f"You cannot {instruction} actions in rulesets that are not your own", "red")
+        return(redirect(url_for("eprefs.actions")))
+    elif(instruction == "duplicate"):
+        new_action = Action(
+            rulesetid = cruleset.id,
+            name = f"{action.name} Duplicate",
+            time = action.time,
+            text = action.text
+        )
+        db.session.add(new_action)
+        db.session.commit()
+        return(redirect(url_for("eprefs.actions")))
+    else:
+        name = request.form.get("name")
+        time = request.form.get("time")
+        text = request.form.get("text")
+        if(len(name) < 1):
+            flash("You must specify an action name.", "red")
+        elif(len(name) > 127):
+            flash("Action name must be fewer than 128 characters.", "red")
+        elif(len(time) > 127):
+            flash("Action time must be fewer than 128 characters.", "red")
+        elif(len(text) > 16383):
+            flash("Action text must be fewer than 16383 characters", "red")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+        elif(instruction == "create"):
+            new_action = Action(
+                rulesetid = cruleset.id,
+                name = name,
+                time = time,
+                text = text
+            )
+            db.session.add(new_action)
+            db.session.commit()
+            flash("Action created!", "green")
+            return(redirect(url_for("eprefs.actions")))
+        else:
+            action.name = name
+            action.time = time
+            action.text = text
+            db.session.commit()
+            flash("Changes saved!", "green")
+            return(redirect(url_for("eprefs.actions")))
+        return(redirect(url_for("eprefs.createAction")))
+
+def actionImporter(actions, cruleset):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot import actions into rulesets that are not your own.", "red")
+        return(redirect(url_for("epchar.actions")))
+    try:
+        for action in actions["action"]:
+            name = action["name"]
+            print(name)
+            if("time" in action.keys()):
+                if(type(action["time"][0]) == dict):
+                    time = f"{str(action['time'][0]['number'])} {action['time'][0]['unit'].casefold().capitalize()}"
+                elif(type(action["time"][0]) == str):
+                    time = action["time"][0]
+            else:
+                time = "Other"
+            text = ""
+            for entry in action["entries"]:
+                if(type(entry) == str):
+                    text += f"{entry}\n\n"
+                else:
+                    text += f"### {entry['name']}\n\n"
+                    for section in entry["entries"]:
+                        text += f"{section}\n\n"
+            new_action = Action(
+                rulesetid = cruleset.id,
+                name = name,
+                time = time,
+                text = text
+            )
+            db.session.add(new_action)
+        db.session.commit()
+        flash("Actions imported!", "green")
+        return(redirect(url_for("eprefs.actions")))
+    except:
+        flash("Improperly formatted JSON; could not import.", "red")
+        return(redirect(url_for("epchar.importActions")))
 
 def makeItem(request, cruleset, item, instruction):
     if(current_user.id != cruleset.userid):

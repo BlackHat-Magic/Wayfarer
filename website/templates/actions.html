@@ -17,7 +17,10 @@
 			<div x-html="convert(`{{ action.text }}`)"></div>
 		</div>
 		{% endfor %}
-		<a href="/Reference/Actions/Create"><button>Create Action</button></a>
+		<div class="interior flex horizontal center">
+			<a href="/Reference/Actions/Create"><button>Create Action</button></a>
+			<a href="{{ url_for('eprefs.importActions') }}"><button>Import from JSON</button></a>
+		</div>
 	</div>
 </div>
 

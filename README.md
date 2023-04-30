@@ -15,6 +15,7 @@ In no particular order...
  - [ ] add CSS animations
  - [x] ~~clean up CSS file~~
  - [X] ~~add edit functionality~~
+     - [ ] edit actions (apparently I forgot??)
  - [X] ~~add duplication functionality~~
  - [x] ~~fix Races page~~
  - [x] ~~make background filters more useful~~
@@ -24,7 +25,7 @@ In no particular order...
      - [X] ~~Import race flavor text~~
      - [X] ~~Import background features~~
      - [X] ~~Import background flavor text~~
-     - [ ] Import feats
+     - [X] ~~Import feats~~
      - [ ] Import classes
      - [ ] Import actions
      - [ ] Import items
@@ -38,6 +39,7 @@ In no particular order...
      - [ ] Import Entire Rulesets
      - [ ] Correctly parse and reformat 5e tools markup
      - [ ] Communicate unsupported data
+     - [ ] Input validation for imported text
  - [ ] Make races page work with custom ability scores
  - [ ] Improve race ASI filtering
  - [x] ~~Add support for multiple administrator rulesets~~
@@ -49,6 +51,7 @@ In no particular order...
  - [ ] Item property and type templates
  - [ ] Hyperlinks
  - [ ] Filter URLs
+ - [ ] Cache unsaved database entries if user input is invalid
 
 ## Usage
 

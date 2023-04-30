@@ -77,6 +77,46 @@ def createAction():
         )
     )
 
+@eprefs.route("/Actions/Duplicate/<string:action>")
+@login_required
+def duplicateAction(action):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(current_user.id != cruleset.id):
+        pass
+    action = Action.query.filter_by(rulesetid = cruleset.id, name = action).first()
+    new_action
+    return(
+        render_template(
+            "import-one.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Import Actions"
+        )
+    )
+
+@eprefs.route("/Actions/Import", methods=["GET", "POST"])
+@login_required
+def importActions():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method=="POST"):
+        return(actionImporter(json.loads(request.form.get("parsed")), cruleset))
+    return(
+        render_template(
+            "import-one.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets, 
+            title="Import Actions"
+        )
+    )
+
 @eprefs.route("/Conditions")
 def conditions():
     cruleset = getCurrentRuleset(current_user)
