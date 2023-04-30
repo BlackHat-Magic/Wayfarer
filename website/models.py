@@ -209,7 +209,7 @@ class Background(db.Model):
     gold_container = db.Column(db.String(127))
     starting_gold = db.Column(db.Integer)
     text = db.Column(db.String(16383))
-    background_features = db.relationship("BackgroundFeature")
+    background_features = db.relationship("BackgroundFeature", backref="background")
 
 class BackgroundFeature(db.Model):
     id = db.Column(db.Integer, primary_key = True)

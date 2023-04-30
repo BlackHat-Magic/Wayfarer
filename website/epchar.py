@@ -114,22 +114,22 @@ def deleteRace(race):
     return(redirect(url_for("epchar.races")))
 
 @epchar.route("/Races/Import", methods=["GET", "POST"])
-def importRace():
+def importRaces():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        races = json.loads(request.form.get("parsed_races"))
+        races = json.loads(request.form.get("parsed_features"))
         flavor = json.loads(request.form.get("parsed_flavor"))
-        return(importRaces(races, flavor, cruleset))
+        return(raceImporter(races, flavor, cruleset))
     return(
         render_template(
-            "import-race.html", 
+            "import-two.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
-            title="Races",
+            title="Import Races",
         )
     )
 
@@ -246,21 +246,21 @@ def deleteBackground(tbackground):
     return(redirect(url_for("epchar.backgrounds")))
 
 @epchar.route("/Backgrounds/Import", methods=["GET", "POST"])
-def importBackground():
+@login_required
+def importBackgrounds():
     cruleset = getCurrentRuleset(current_user)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    if(request.method == "POST"):
-        backgrounds = json.loads(request.form.get("parsed_backgrounds"))
-        return(importRaces(races, cruleset))
+    if(request.method=="POST"):
+        return(backgroundImporter(json.loads(request.form.get("parsed_features")), json.loads(request.form.get("parsed_flavor")), cruleset))
     return(
         render_template(
-            "import-background.html", 
+            "import-two.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
-            title="Import a Background",
+            title="Import Backgrounds"
         )
     )
 

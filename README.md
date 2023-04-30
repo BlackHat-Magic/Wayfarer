@@ -37,6 +37,7 @@ In no particular order...
      - [ ] Import tables and other non-plaintext features/flavor
      - [ ] Import Entire Rulesets
      - [ ] Correctly parse and reformat 5e tools markup
+     - [ ] Communicate unsupported data
  - [ ] Make races page work with custom ability scores
  - [ ] Improve race ASI filtering
  - [x] ~~Add support for multiple administrator rulesets~~

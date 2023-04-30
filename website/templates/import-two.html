@@ -1,0 +1,39 @@
+
+{% extends "master.html" %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/import-two.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="flex">
+	<form class="flex vertical start" method="post" x-data="main">
+		<h1 @click="console.log(parsed_flavor)">{{ title }}</h1>
+
+		<label for="feature_file"><h3>{{ title.split(" ")[1] + " Features" }}</h3></label>
+        <input 
+			type="file" 
+			id="feature_file" 
+			name="feature_file" 
+			x-model="feature_file" 
+			accept=".json" 
+			@change="parseFeatures()">
+        <input type="hidden" id="parsed_features" name="parsed_features" x-model="parsed_features">
+
+		<hr>
+
+		<label for="flavor_file"><h3>{{ title.split(" ")[1] + " Flavor Text" }}</h3></label>
+		<input
+			type="file"
+			id="flavor_file"
+			name="flavor_file"
+			x-model="flavor_file"
+			accept=".json"
+			@change="parseFlavor()">
+		<input type="hidden" id="parsed_flavor" name="parsed_flavor" x-model="parsed_flavor">
+
+		<a><button type="submit">{{ title }}!</button></a>
+	</form>
+</div>
+
+{% endblock %}

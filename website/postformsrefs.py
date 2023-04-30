@@ -249,6 +249,9 @@ def makeItem(request, cruleset, item, instruction):
     return(False)
 
 def itemImporter(items, base, cruleset):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot import items into rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.items")))
     try:
         for properties in base["itemProperty"]:
             if("entries" in properties.keys()):
@@ -596,41 +599,44 @@ def makeLanguage(request, cruleset, language, instruction):
     return(redirect(url_for("eprefs.refsLang")))
 
 def languageImporter(languages, cruleset):
-    # try:
-    for language in languages["language"]:
-        print(language['name'])
-        text = ""
-        if("type" in language.keys()):
-            text += f"***Type.*** {language['type'].casefold().capitalize()}\n\n"
-        if("typicalSpeakers" in language.keys()):
-            speakers = ""
-            for speaker in language['typicalSpeakers']:
-                if(len(speakers) > 0):
-                    speakers += ", "
-                speakers += speaker.casefold().capitalize()
-            text += f"***Typical Speakers.*** {speakers}\n\n"
-        if("script" in language.keys()):
-            text += f"***Script.*** {language['script'].casefold().capitalize()}\n\n"
-        if("entries" in language.keys()):
-            for entry in language["entries"]:
-                if(type(entry) == str):
-                    text += f"{entry}\n\n"
-                elif(type(entry) == dict):
-                    text += f"### {entry['name']}\n\n"
-                    for paragraph in entry["entries"]:
-                        text += f"{paragraph}\n\n"
-        new_language = Language(
-            rulesetid = cruleset.id,
-            name = language["name"],
-            text = text
-        )
-        db.session.add(new_language)
-    db.session.commit()
-    flash("Languages Imported!", "green")
-    return(redirect(url_for("eprefs.languages")))
-    # except:
-    #     flash("Improperly formatted JSON.; unable to import.", "red")
-    #     return(redirect(url_for("eprefs.importLanguages")))
+    if(current_user.id != cruleset.userid):
+        flash("You cannot import languages into rulesets that are not your own.", "red")
+        return(redirect(url_for('eprefs.languages')))
+    try:
+        for language in languages["language"]:
+            print(language['name'])
+            text = ""
+            if("type" in language.keys()):
+                text += f"***Type.*** {language['type'].casefold().capitalize()}\n\n"
+            if("typicalSpeakers" in language.keys()):
+                speakers = ""
+                for speaker in language['typicalSpeakers']:
+                    if(len(speakers) > 0):
+                        speakers += ", "
+                    speakers += speaker.casefold().capitalize()
+                text += f"***Typical Speakers.*** {speakers}\n\n"
+            if("script" in language.keys()):
+                text += f"***Script.*** {language['script'].casefold().capitalize()}\n\n"
+            if("entries" in language.keys()):
+                for entry in language["entries"]:
+                    if(type(entry) == str):
+                        text += f"{entry}\n\n"
+                    elif(type(entry) == dict):
+                        text += f"### {entry['name']}\n\n"
+                        for paragraph in entry["entries"]:
+                            text += f"{paragraph}\n\n"
+            new_language = Language(
+                rulesetid = cruleset.id,
+                name = language["name"],
+                text = text
+            )
+            db.session.add(new_language)
+        db.session.commit()
+        flash("Languages Imported!", "green")
+        return(redirect(url_for("eprefs.languages")))
+    except:
+        flash("Improperly formatted JSON.; unable to import.", "red")
+        return(redirect(url_for("eprefs.importLanguages")))
 
 def skill(request, cruleset, skill, instruction):
     if(current_user.id != cruleset.userid):
@@ -685,6 +691,9 @@ def skill(request, cruleset, skill, instruction):
     return(redirect(url_for("eprefs.skills")))
 
 def skillImporter(skills, cruleset):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot import skills into rulests that are not your own.", "red")
+        return(redirect(url_for("eprefs.skills")))
     asidict = {
         "Acrobatics": "dex",
         "Animal Handling": "wis",

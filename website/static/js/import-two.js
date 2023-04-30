@@ -1,19 +1,19 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
-        race_file: null,
-        parseRace () {
+        feature_file: null,
+        parseFeatures () {
             file = event.target.files[0];
             reader = new FileReader();
 
             reader.onload = () => {
                 const contents = reader.result;
                 const data = JSON.parse(contents);
-                this.parsed_races = JSON.stringify(data);
+                this.parsed_features = JSON.stringify(data);
             };
 
             reader.readAsText(file);
         },
-        parsed_races: null,
+        parsed_features: null,
 
         flavor_file: null,
         parseFlavor () {
