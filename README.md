@@ -33,7 +33,8 @@ In no particular order...
          - [ ] More comprehensive item type importing
      - [X] ~~Import languages~~
      - [ ] Import spells
-     - [ ] Import recipes
+         - [X] ~~PHB Spells~~
+         - [ ] Test Non-PHB spells
      - [X] ~~Import conditions, diseases, and statuses~~
      - [X] ~~Import skills~~
      - [ ] Import tables and other non-plaintext features/flavor
@@ -65,7 +66,7 @@ Install dependencies.
 
 Deploy website.
 
-```I actually forgot how to deploy a production flask application. Just google it.```
+```I forgor how to deploy a production flask application. Just google it.```
 
 Wayfinder assumes that the the first user is the administrator. **All rulesets created by the administrator account are public.** It is preferable that you be the only one who can access the site at this stage, to prevent someone else from potentially creating the administrator account. From here, you can add the rules and such for the default ruleset and begin using the site. Once the default ruleset and administrator account are set up, you can allow external connections to the site.
 

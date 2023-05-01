@@ -28,6 +28,7 @@ document.addEventListener ("alpine:init", () => {
             "10 Minutes",
             "1 Hour",
             "8 Hours",
+            "12 Hours",
             "24 Hours",
             "Special",
         ],

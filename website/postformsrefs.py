@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, session, flash, jsonify
 from flask_login import current_user
 from . import db
-from .models import Skill, ItemTag, Property, Language, Item, Action, Condition, Disease, Status
+from .models import Skill, ItemTag, Property, Language, Item, Action, Condition, Disease, Status, Spell
 
 def makeAction(request, cruleset, action, instruction):
     if(current_user.id != cruleset.userid):
@@ -257,6 +257,7 @@ def conditionImporter(conditions, cruleset):
                         for column in row:
                             text += str(column)
                             text += " | "
+                    text += "\n"
 
             new_condition = Condition(
                 rulesetid = cruleset.id,
@@ -977,6 +978,352 @@ def languageImporter(languages, cruleset):
         flash("Improperly formatted JSON.; unable to import.", "red")
         return(redirect(url_for("eprefs.importLanguages")))
 
+def makeSpell(request, cruleset, spell, instruction):
+    if(current_user.id != cruleset.userid):
+        flash(f"You cannot {instruction} spells in rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.spells")))
+    elif(instruction == "duplicate"):
+        new_spell = Spell(
+            rulesetid = cruleset.userid,
+            name = f"{spell.name} Duplicate",
+            school = spell.school,
+            level = spell.level,
+            casting_time = spell.casting_time,
+            spell_range = spell.spell_range,
+            vebal = spell.verbal,
+            somatic = spell.somatic,
+            material = spell.material,
+            material_specific = spell.material_specific,
+            consumes_material = spell.consumes_material,
+            concentration = spell.concentration,
+            duration = spell.duration,
+            text = spell.text
+        )
+        db.session.add(new_spell)
+        db.session.commit()
+        flash("Spell duplicated!", "green")
+        return(redirect(url_for("eprefs.spells")))
+    else:
+        name = request.form.get("name")
+        school = request.form.get("school")
+        level = request.form.get("level")
+        casting_time = request.form.get("time")
+        spell_range = request.form.get("range")
+        if(request.form.get("verbal")):
+            verbal = True
+        else:
+            verbal = False
+        if(request.form.get("somatic")):
+            somatic = True
+        else:
+            somatic = False
+        if(request.form.get("material")):
+            material = True
+            material_specific = request.form.get("material_specific")
+            if(request.form.get("consumes_material")):
+                consumes_material = True
+            else:
+                consumes_material = False
+        else:
+            material = False
+            material_specific = None
+            consumes_material = None
+        concentration = request.form.get("concentration")
+        duration = request.form.get("duration")
+        text = request.form.get("text")
+        if(len(name) > 127):
+            flash("Spell name must be fewer than 127 characters.", "red")
+        elif(len(name) < 1):
+            flash("You must specify a spell name.", "red")
+        elif(len(text) > 16383):
+            flash("Spell description must be fewer than 16383 characters.", "red")
+        elif(material):
+            if(len(material_specific) > 255):
+                flash("Spell material components must be fewer than 256 characters.", "red")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+        elif(instruction == "create"):
+            new_spell = Spell(
+                rulesetid = cruleset.id,
+                name = name,
+                school = school,
+                level = level,
+                casting_time = casting_time,
+                spell_range = spell_range,
+                verbal = verbal,
+                somatic = somatic,
+                material = material,
+                material_specific = material_specific,
+                consumes_material = consumes_material,
+                concentration = concentration,
+                duration = duration,
+                text = text
+            )
+            db.session.add(new_spell)
+            db.session.commit()
+            flash("Spell created!", "green")
+            return(redirect(url_for("eprefs.spells")))
+        else:
+            spell.name = name
+            spell.school = school
+            spell.level = level
+            spell.casting_time = casting_time
+            spell.spell_range = spell_range
+            spell.verbal = verbal
+            spell.somatic = somatic
+            spell.material = material
+            spell.material_specific = material_specific
+            spell.consumes_material = consumes_material
+            spell.concentration = concentration
+            spell.duration = duration
+            spell.text = text
+            db.session.commit()
+            flash("Changes saved!", "green")
+            return(redirect(url_for("eprefs.spells")))
+        return(redirect(url_for("eprefs.createSpell")))
+
+def spellImporter(spells, cruleset):
+    try:
+        for spell in spells["spell"]:
+            name = spell["name"]
+            print(name)
+            schooldict = {
+                "A": "Abjuration",
+                "C": "Conjuration",
+                "D": "Divination",
+                "E": "Enchantment",
+                "V": "Evocation",
+                "I": "Illusion",
+                "T": "Transmutation",
+                "N": "Necromancy"
+            }
+            school = schooldict[spell["school"]]
+            level = spell["level"]
+            if(spell["time"][0]["unit"] == "action"):
+                casting_time = 2
+            elif(spell["time"][0]["unit"] == "reaction"):
+                casting_time = 0
+            elif(spell["time"][0]["unit"] == "bonus"):
+                casting_time = 1
+            elif(spell["time"][0]["unit"] == "minute"):
+                if(spell["time"][0]["number"] == 1):
+                    casting_time = 4
+                elif(spell["time"][0]["number"] == 10):
+                    casting_time = 5
+            elif(spell["time"][0]["unit"] == "hour"):
+                if(spell["time"][0]["number"] == 1):
+                    casting_time = 6
+                elif(spell["time"][0]["number"] == 8):
+                    casting_time = 7
+                elif(spell["time"][0]["number"] == 12):
+                    casting_time = 8
+                elif(spell["time"][0]["number"] == 24):
+                    casting_time = 9
+            else:
+                flash(f"Abnormal casting time in {name}; setting to 'special'...", "orange")
+                casting_time = 10
+            if(spell["range"]["type"] == "point"):
+                if(spell["range"]["distance"]["type"] == "self"):
+                    spell_range = 0
+                elif(spell["range"]["distance"]["type"] == "touch"):
+                    spell_range = 1
+                elif(spell["range"]["distance"]["type"] == "feet"):
+                    if(spell["range"]["distance"]["amount"] == 5):
+                        spell_range = 2
+                    elif(spell["range"]["distance"]["amount"] == 10):
+                        spell_range = 3
+                    elif(spell["range"]["distance"]["amount"] == 15):
+                        spell_range = 4
+                    elif(spell["range"]["distance"]["amount"] == 20):
+                        spell_range = 5
+                    elif(spell["range"]["distance"]["amount"] == 25):
+                        spell_range = 6
+                    elif(spell["range"]["distance"]["amount"] == 30):
+                        spell_range = 7
+                    elif(spell["range"]["distance"]["amount"] == 40):
+                        spell_range = 8
+                    elif(spell["range"]["distance"]["amount"] == 60):
+                        spell_range = 9
+                    elif(spell["range"]["distance"]["amount"] == 90):
+                        spell_range = 10
+                    elif(spell["range"]["distance"]["amount"] == 100):
+                        spell_range = 11
+                    elif(spell["range"]["distance"]["amount"] == 120):
+                        spell_range = 12
+                    elif(spell["range"]["distance"]["amount"] == 150):
+                        spell_range = 13
+                    elif(spell["range"]["distance"]["amount"] == 240):
+                        spell_range = 14
+                    elif(spell["range"]["distance"]["amount"] == 300):
+                        spell_range = 15
+                    elif(spell["range"]["distance"]["amount"] == 500):
+                        spell_range = 16
+                    elif(spell["range"]["distance"]["amount"] == 1000):
+                        spell_range = 17
+                elif(spell["range"]["distance"]["type"] == "miles"):
+                    if(spell["range"]["distance"]["amount"] == 1):
+                        spell_range = 18
+                    elif(spell["range"]["distance"]["amount"] == 5):
+                        spell_range = 19
+                    elif(spell["range"]["distance"]["amount"] == 500):
+                        spell_range = 20
+                elif(spell["range"]["distance"]["type"] == "sight"):
+                    spell_range = 21
+                elif(spell["range"]["distance"]["type"] == "unlimited"):
+                    spell_range = 22
+                else:
+                    flash(f"Abnormal spell range in {name}; setting to 'special'...", "orange")
+                    spell_range = 23
+            else:
+                spell_range = 0
+            verbal = somatic = material = consumes_material = False
+            material_specific = None
+            if("v" in spell["components"].keys()):
+                verbal = True
+            if("s" in spell["components"].keys()):
+                somatic = True
+            if("m" in spell["components"].keys()):
+                material = True
+                if(type(spell["components"]["m"]) == str):
+                    material_specific = spell["components"]["m"]
+                else:
+                    material_specific = spell["components"]["m"]["text"]
+                    if("consume" in spell["components"]["m"].keys()):
+                        consumes_material = True
+            if("concentration" in spell["duration"][0].keys()):
+                concentration = True
+            else:
+                concentration = False
+            if(spell["duration"][0]["type"] == "instant"):
+                duration = 0
+            elif(spell["duration"][0]["type"] == "timed"):
+                if(spell["duration"][0]["duration"]["type"] == "round"):
+                    duration = 1
+                elif(spell["duration"][0]["duration"]["type"] == "minute"):
+                    if(spell["duration"][0]["duration"]["amount"] == 1):
+                        duration = 2
+                    elif(spell["duration"][0]["duration"]["amount"] == 10):
+                        duration = 3
+                elif(spell["duration"][0]["duration"]["type"] == "hour"):
+                    if(spell["duration"][0]["duration"]["amount"] == 1):
+                        duration = 4
+                    elif(spell["duration"][0]["duration"]["amount"] == 8):
+                        duration = 5
+                    elif(spell["duration"][0]["duration"]["amount"] == 24):
+                        duration = 6
+                elif(spell["duration"][0]["duration"]["type"] == "day"):
+                    if(spell["duration"][0]["duration"]["amount"] == 1):
+                        duration = 6
+                    elif(spell["duration"][0]["duration"]["amount"] == 10):
+                        duration = 7
+                    elif(spell["duration"][0]["duration"]["amount"] == 30):
+                        duration = 8
+            elif(spell["duration"][0]["type"] == "permanent"):
+                duration = 10
+            else:
+                flash(f"Abnormal spell duration in {name}; setting to 'special'...", "orange")
+            text = ""
+            for entry in spell["entries"]:
+                if(type(entry) == str):
+                    text += f"{entry}\n\n"
+                elif(entry["type"] == "list"):
+                    for item in entry["items"]:
+                        text += f" - {item}\n"
+                    text += "\n"
+                elif(entry["type"] == "table"):
+                    text += "| "
+                    for label in entry["colLabels"]:
+                        text += f"{label} | "
+                    text += "\n| "
+                    for style in entry["colStyles"]:
+                        if("center" or "left" in style):
+                            text += ":"
+                        text += "---"
+                        if("center" or "right" in style):
+                            text += ":"
+                        text += " | "
+                    for row in entry["rows"]:
+                        text += "\n| "
+                        for column in row:
+                            text += str(column)
+                            text += " | "
+                    text += "\n"
+            if("entriesHigherLevel" in spell.keys()):
+                higherlevels = ""
+                for entry in spell["entriesHigherLevel"][0]["entries"]:
+                    higherlevels += f"{entry}\n\n"
+                text += f"***At Higher Levels.*** {higherlevels}"
+            new_spell = Spell(
+                rulesetid = cruleset.id,
+                name = name,
+                school = school,
+                level = level,
+                casting_time = casting_time,
+                spell_range = spell_range,
+                verbal = verbal,
+                somatic = somatic,
+                material = material,
+                material_specific = material_specific,
+                consumes_material = consumes_material,
+                concentration = concentration,
+                duration = duration,
+                text = text
+            )
+            db.session.add(new_spell)
+        db.session.commit()
+        flash("Spells imported!", "green")
+        return(redirect(url_for("eprefs.spells")))
+    except:
+        flash("Improperly formatted JSON; could not import. Note: only `spells-phb.json` has been tested and is officially supported for import from 5e.tools; others may not work.", "red")
+        return(redirect(url_for("eprefs.importSpells")))
+
+def makeRecipe(request, cruleset, recipe, instruction):
+    if(current_user.id != cruleset.id):
+        flash(f"You cannot {instruction} recipes in rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.recipes")))
+    elif(instruction == "duplicate"):
+        new_recipe = Recipe(
+            rulesetid = cruleset.id,
+            name = recipe.name,
+            text = recipe.text
+        )
+        db.session.add(new_recipe)
+        db.session.commit()
+        flash("Recipe duplicated!", "green")
+        return(redirect(url_for("eprefs.recipes")))
+    else:
+        name = request.form.get("name")
+        text = request.form.get("text")
+        if(len(name) < 1):
+            flash("You must specify a recipe name.", "red")
+        elif(len(name) > 127):
+            flash("Recipe name must be fewer than 127 characters.", "red")
+        elif(len(text) > 16383):
+            flash("Recipe text must be fewer than 16384 characters.", "red")
+        elif("<" in text):
+            flash("Open angle brackets (\"<\") are not allowed.", "red")
+        elif("javascript" in text):
+            flash("Cross-site scripting attacks are not allowed.", "red")
+        elif(instruction == "create"):
+            new_recipe = Recipe(
+                rulesetid = cruleset.id,
+                name = name,
+                text = text
+            )
+            db.session.add(new_recipe)
+            db.session.commit()
+            flash("Recipe created!", "green")
+            return(redirect(url_for("eprefs.recipes")))
+        else:
+            recipe.name = name
+            recipe.text = text
+            db.session.commit()
+            flash("Changes saved!", "green")
+            return(redirect(url_for("eprefs.recipes")))
+        return(redirect(url_for("eprefs.createRecipe")))
+ 
 def skill(request, cruleset, skill, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create skills for rulesets that are not your own.", "red")

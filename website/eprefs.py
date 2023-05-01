@@ -758,71 +758,7 @@ def createSpell():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create spells for rulesets that are not yours.", "red")
-        else:
-            rulesetid = cruleset.id
-            name = request.form.get("name")
-            school = request.form.get("school")
-            level = request.form.get("level")
-            casting_time = request.form.get("time")
-            spell_range = request.form.get("range")
-            if(request.form.get("verbal")):
-                verbal = True
-            else:
-                verbal = False
-            if(request.form.get("somatic")):
-                somatic = True
-            else:
-                verbal = False
-            if(request.form.get("material")):
-                material = True
-                material_specific = request.form.get("material_specific")
-                if(request.form.get("consumes_material")):
-                    consumes_material = True
-                else:
-                    consumes_material = False
-            else:
-                material = False
-                material_specific = None
-                consumes_material = None
-            concentration = request.form.get("concentration")
-            duration = request.form.get("duration")
-            text = request.form.get("text")
-            if(len(name) > 127):
-                flash("Spell name must be fewer than 127 characters.", "red")
-            elif(len(name) < 1):
-                flash("You must specify a spell name.", "red")
-            elif(len(text) > 16383):
-                flash("Spell description must be fewer than 16383 characters.", "red")
-            elif(material):
-                if(len(material_specific) > 255):
-                    flash("Spell material components must be fewer than 256 characters.", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                new_spell = Spell(
-                    rulesetid = rulesetid,
-                    name = name,
-                    school = school,
-                    level = level,
-                    casting_time = casting_time,
-                    spell_range = spell_range,
-                    verbal = verbal,
-                    somatic = somatic,
-                    material = material,
-                    material_specific = material_specific,
-                    consumes_material = consumes_material,
-                    concentration = concentration,
-                    duration = duration,
-                    text = text
-                )
-                db.session.add(new_spell)
-                db.session.commit()
-                flash("Spell created.", "green")
-                return(redirect(url_for("eprefs.spells")))
+        return(makeSpell(request, cruleset, None, "create"))
     return(
         render_template(
             "create-spell.html", 
@@ -831,6 +767,66 @@ def createSpell():
             frulesets=frulesets, 
             adminrulesets=adminrulesets,
             title="Create a Spell"
+        )
+    )
+
+@eprefs.route("/Spells/Duplicte/<string:spell>")
+@login_required
+def duplicateSpell(spell):
+    cruleset = getCurrentRuleset(current_user)
+    spell = cruleset.spells.filter_by(name = spell).first_or_404()
+    return(makeSpell(None, cruleset, spell, "duplicate"))
+
+@eprefs.route("/Spells/Edit/<string:spell>")
+@login_required
+def editSpell(spell):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    spell = cruleset.spells.filter_by(name = spell).first_or_404()
+    if(request.method == "POST"):
+        return(makeSpell(request, cruleset, spell, "edit"))
+    return(
+        render_template(
+            "create-spell.html", 
+            user=current_user, 
+            cruleset=cruleset, 
+            frulesets=frulesets, 
+            adminrulesets=adminrulesets,
+            title=f"Edit {spell.name}",
+            spell = spell
+        )
+    )
+
+@eprefs.route("/Spells/Delete/<string:spell>")
+@login_required
+def deleteSpell(spell):
+    cruleset = getCurrentRuleset(current_user)
+    spell = cruleset.spells.filter_by(name = spell).first_or_404()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete spells in rulesets that are not your own.", "red")
+    else:
+        db.session.delete(spell)
+        db.session.commit()
+        flash("Spell deleted.", "orange")
+    return(redirect(url_for("eprefs.spells")))
+
+@eprefs.route("/Spells/Import", methods=["GET", "POST"])
+@login_required
+def importSpells():
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    if(request.method == "POST"):
+        return(spellImporter(json.loads(request.form.get("parsed")), cruleset))
+    return(
+        render_template(
+            "import-one.html", 
+            user=current_user, 
+            cruleset=cruleset, 
+            frulesets=frulesets, 
+            adminrulesets=adminrulesets,
+            title="Import Spells"
         )
     )
 
@@ -851,7 +847,6 @@ def spell(spell):
             title=spell.name
         )
     )
-
 
 @eprefs.route("/Recipes")
 def recipes():
@@ -876,31 +871,7 @@ def createRecipe():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        if(current_user.id != cruleset.userid):
-            flash("You cannot create recipes for rulesets that are not yours.", "red")
-        else:
-            name = request.form.get("name")
-            text = request.form.get("text")
-            if(len(name) < 1):
-                flash("You must specify a recipe name.", "red")
-            elif(len(name) > 127):
-                flash("Recipe name must be fewer than 127 characters.", "red")
-            elif(len(text) > 16383):
-                flash("Recipe text must be fewer than 16384 characters.", "red")
-            elif("<" in text):
-                flash("Open angle brackets (\"<\") are not allowed.", "red")
-            elif("javascript" in text):
-                flash("Cross-site scripting attacks are not allowed.", "red")
-            else:
-                new_recipe = Recipe(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    text = text
-                )
-                db.session.add(new_recipe)
-                db.session.commit()
-                flash("Recipe created!", "green")
-                return(redirect(url_for("eprefs.recipes")))
+        return(makeRecipe(request, cruleset, None, "create"))
     return(
         render_template(
             "create-recipe.html", 
@@ -909,6 +880,34 @@ def createRecipe():
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create a Recipe"
+        )
+    )
+
+@eprefs.route("/Recipes/Duplicate/<string:recipe>")
+@login_required
+def duplicateRecipe(recipe):
+    cruleset = getCurrentRuleset(current_user)
+    recipe = cruleset.recipes.filter_by(name = recipe).first_or_404()
+    return(makeRecipe(request, cruleset, recipe, "duplicate"))
+
+@eprefs.route("/Recipes/Edit/<string:recipe>", methods=["GET", "POST"])
+@login_required
+def editRecipe(recipe):
+    cruleset = getCurrentRuleset(current_user)
+    frulesets = getForeignRulesets(current_user)
+    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    recipe = cruleset.recipes.filter_by(name = recipe).first_or_404()
+    if(request.method == "POST"):
+        return(makeRecipe(request, cruleset, recipe, "edit"))
+    return(
+        render_template(
+            "create-recipe.html", 
+            user=current_user, 
+            frulesets=frulesets, 
+            cruleset=cruleset, 
+            adminrulesets=adminrulesets,
+            title=f"Edit {recipe.name}",
+            recipe = recipe
         )
     )
 
