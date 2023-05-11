@@ -21,7 +21,56 @@ def convertTable(table):
         for datum in row:
             text += f"| {datum}"
         text += "|\n"
-    print(text)
+    return(text)
+
+def parseEntries(entries, depth, name):
+    text = ""
+    if(depth > 6):
+        depth = 6
+    for entry in entries:
+        if(type(entry) == str):
+            text += f"{entry}\n"
+        elif(type(entry) == dict and entry["type"] == "list"):
+            for item in entry["items"]:
+                if(type(item) == str):
+                    text += f" - {item}\n"
+                elif("entry" in item.keys()):
+                    text += f" - ***{item['name']}.*** {item['entry']}\n"
+                else:
+                    text += f" - ***{item['name']}.*** {item['entries'][0]}\n"
+            text += "\n"
+        elif(type(entry) == dict and entry["type"] == "table"):
+            if("caption" in entry.keys()):
+                text += f"##### {entry['caption']}\n\n"
+            text += convertTable(entry)
+        elif(type(entry) == dict and entry["type"] == "inset"):
+            if("name" in entry.keys()):
+                text += f"> ###### {entry['name']}\n\n"
+            for paragraph in entry["entries"]:
+                if(type(paragraph) == str):
+                    text += f"> {paragraph}\n"
+                else:
+                    text += f"> ***{paragraph['name']}.*** {paragraph['entries'][0]}\n"
+                text += "\n"
+        elif(type(entry) == dict and entry["type"] == "quote"):
+            for paragraph in entry["entries"]:
+                text += f"> {paragraph}\n"
+            text += "\n"
+        elif(type(entry) == dict and entry["type"] == "entries"):
+            if("name" in entry.keys()):
+                for i in range(depth):
+                    text += "#"
+                text += f" {entry['name']}\n\n"
+            text += parseEntries(entry["entries"], depth + 1, name)
+        elif(type(entry) == dict and entry["type"] == "section"):
+            if("name" in entry.keys()):
+                for i in range(depth):
+                    text += "#"
+                text += f" {entry['name']}\n\n"
+            text += parseEntries(entry["entries"], depth + 1, name)
+        else:
+            flash(f"Unrecognized entry type in {name}; skipping...", "orange")
+        text += "\n"
     return(text)
 
 def abilityScore(request, cruleset, ability_score, instruction):
@@ -404,7 +453,6 @@ def raceImporter(races, flavor, cruleset):
         return(redirect(url_for("epchar.importRace")))
     for i, race in enumerate(races["race"]):
         name = f"{race['name']} ({race['source']})"
-        print(name)
         if(len(name) > 127):
             flash(f"All race names must be fewer than 128 characters. Offender: {race['name']}", "red")
         
@@ -498,78 +546,7 @@ def raceImporter(races, flavor, cruleset):
 
         for flavors in flavor["raceFluff"]:
             if(flavors["name"] == race["name"] and flavors["source"] == race["source"] and "entries" in flavors.keys()):
-                for entry in flavors["entries"]:
-                    if(type(entry) == str):
-                        flavortext += f"{entry}\n\n"
-                    elif(type(entry) == dict and entry["type"] == "list"):
-                        for item in entry["items"]:
-                            flavortext += f" - {item}\n"
-                        flavortext += "\n"
-                    elif(type(entry) == dict and entry["type"] == "table"):
-                        if("caption" in entry.keys()):
-                            flavortext += f"###### {entry['caption']}\n\n"
-                        flavortext += convertTable(entry)
-                    elif(type(entry) == dict and entry["type"] == "inset"):
-                        for section in entry["entries"]:
-                            flavortext += f"> {section}\n"
-                        flavortext += "\n"
-                    elif(type(entry)== dict and entry["type"] == "entries"):
-                        for section in entry["entries"]:
-                            if(type(section) == str):
-                                flavortext += f"{section}\n\n"
-                            elif(type(section) == dict and section["type"] == "list"):
-                                for item in section["items"]:
-                                    flavortext += f" - {item}\n"
-                                flavortext += "\n"
-                            elif(type(section) == dict and section["type"] == "table"):
-                                if("caption" in section.keys()):
-                                    flavortext += f"###### {section['caption']}\n\n"
-                                flavortext += convertTable(section)
-                            elif(type(section) == dict and section["type"] == "inset"):
-                                for paragraph in section["entries"]:
-                                    flavortext += f"> {paragraph}\n"
-                                flavortext += "\n"
-                            elif(type(section) == dict and section["type"] == "entries"):
-                                for paragraph in section["entries"]:
-                                    if(type(paragraph) == str):
-                                        flavortext += f"{paragraph}\n\n"
-                                    elif(type(paragraph) == dict and paragraph["type"] == "list"):
-                                        for item in paragraph["items"]:
-                                            flavortext += f" - {item}\n"
-                                        flavortext += "\n"
-                                    elif(type(paragraph) == dict and paragraph["type"] == "table"):
-                                        if("caption" in paragraph.keys()):
-                                            flavortext += f"###### {paragraph['caption']}\n\n"
-                                        flavortext += convertTable(paragraph)
-                                    elif(type(paragraph) == dict and paragraph["type"] == "inset"):
-                                        for line in paragraph["entries"]:
-                                            flavortext += f"> {line}\n"
-                                        flavortext += "\n"
-                                    elif(type(paragraph) == dict and paragraph["type"] == "entries"):
-                                        flavortext += f"## {paragraph['name']}\n\n---\n\n"
-                                        for line in paragraph["entries"]:
-                                            if(type(line) == str):
-                                                flavortext += f"{line}\n\n"
-                                            elif(type(line) == dict and line["type"] == "list"):
-                                                for item in line["items"]:
-                                                    flavortext += f" - {item}\n"
-                                                flavortext += "\n"
-                                            elif(type(line) == dict and line["type"] == "table"):
-                                                if("caption" in line.keys()):
-                                                    flavortext += f"###### {line['caption']}\n\n"
-                                                flavortext += convertTable(line)
-                                            elif(type(line) == dict and line["type"] == "inset"):
-                                                for word in line["entries"]:
-                                                    flavortext += f"> {word}\n"
-                                                flavortext += "\n"
-                                            else:
-                                                flash(f"Unrecognized flavor text type in {name}; skipping...1\n{line}", "orange")
-                                    else:
-                                        flash(f"Unrecognized flavor text type in {name}; skipping...2\n{paragraph}", "orange")
-                            else:
-                                flash(f"Unrecognized flavor text type in {name}; skipping...3\n{section}", "orange")
-                    else:
-                        flash(f"Unrecognized flavor text type in {name}; skipping...4\n{entry}", "orange")
+                flavortext += parseEntries(flavors["entries"], 3, name)
 
         flavortext += f"## {race['name']} Traits\n\n---"
 
@@ -609,25 +586,23 @@ def raceImporter(races, flavor, cruleset):
         if("entries" in race.keys()):
             for feature in race["entries"]:
                 if(type(feature) == dict and "name" in feature.keys()):
-                    if(feature["type"] != "entries"):
-                        flash(f"Non-plaintext feature detected in {race['name']}; likely a table. Importing non-plaintext features is not yet supported. Skipping...", "orange")
-                        continue
-                    if("<" in feature["entries"][0]):
+                    text = parseEntries(feature["entries"], 4, f"{name}")
+                    if("<" in text):
                         flash(f"Open angle brackets (\"<\") are not allowed. Offender: {race['name']} feature '{feature['name']}'", "red")
                         return(redirect(url_for("epchar.importRace")))
-                    elif("javascript" in feature["entries"][0]):
+                    elif("javascript" in text):
                         flash(f"Cross-site scripting attacks are not allowed. Offender: {race['name']} feature '{feature['name']}'", "red")
                         return(redirect(url_for("epchar.importRace")))
                     elif(len(feature["name"]) > 127):
                         flash(f"Race feature names must be fewer than 128 characters. Offender: {race['name']} feature '{feature['name']}", "red")
                         return(redirect(url_for("epchar.importRace")))
-                    elif(len(feature["entries"][0]) > 16383):
+                    elif(len(text) > 16383):
                         flash(f"Race feature descriptions must be fewer than 16384 characters. Offender: {race['name']} feature '{feature['name']}'", "red")
                         return(redirect(url_for("epchar.importRace")))
                     new_race_feature = RaceFeature(
                         race = new_race,
                         name = feature["name"],
-                        text = feature["entries"][0]
+                        text = text
                     )
                     db.session.add(new_race_feature)
                     featurenames.append(feature["name"])
@@ -674,31 +649,39 @@ def raceImporter(races, flavor, cruleset):
                 if("entries" in subrace.keys()):
                     for feature in subrace["entries"]:
                         if(type(feature) == dict):
-                            if(feature["type"] != "entries"):
-                                flash(f"{race['name']} subrace '{subrace['name']}' feature '{feature['name']}' is not plaintext; likely a table. Importing non-plaintext features is not yet supported. Skipping...", "orange")
-                                continue
-                            if("<" in feature["entries"][0]):
+                            text = parseEntries(feature["entries"], 3, feature["name"])
+                            if("<" in text):
                                 flash(f"Open angle brackets (\"<\") are not allowed. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
                                 return(redirect(url_for("epchar.importRace")))
-                            elif("javascript" in feature["entries"][0]):
+                            elif("javascript" in text):
                                 flash(f"Cross-site scripting attacks are not allowed. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
                                 return(redirect(url_for("epchar.importRace")))
                             elif(len(feature["name"]) > 127):
                                 flash(f"Subrace feature names must be fewer than 128 characters. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}", "red")
                                 return(redirect(url_for("epchar.importRace")))
-                            elif(len(feature["entries"][0]) > 16383):
+                            elif(len(text) > 16383):
                                 flash(f"Subrace feature descriptions must be fewer than 16384 characters. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
                                 return(redirect(url_for("epchar.importRace")))
                             new_subrace_feature = SubraceFeature(
                                 subrace = new_subrace,
                                 name = feature["name"],
-                                text = feature["entries"][0]
+                                text = text
                             )
                             db.session.add(new_subrace_feature)
                         else:
                             if(len(new_subrace.text) > 0):
                                 new_subrace.text += "\n\n"
                             new_subrace.text += str(feature)
+                for flavors in flavor["raceFluff"]:
+                    if(race["name"] in flavors["name"] and subrace["name"] in flavors["name"]):
+                        print(f"{race['name']}; {subrace['name']}")
+                        if("entries" in flavors.keys()):
+                            new_subrace.text += parseEntries(flavors["entries"], 3, flavors["name"])
+                        if("_copy" in flavors.keys() and "_mod" in flavors["_copy"].keys()):
+                            if(type(flavors["_copy"]["_mod"]["entries"]["items"]) == str):
+                                new_subrace.text += flavors["_copy"]["_mod"]["entries"]["items"]
+                            else:
+                                new_subrace.text += parseEntries(flavors["_copy"]["_mod"]["entries"]["items"]["entries"], 3, subrace["name"])
     db.session.commit()
     flash("Races imported!", "green")
     return(redirect(url_for("epchar.races")))
@@ -843,7 +826,6 @@ def backgroundImporter(backgrounds, flavor, cruleset):
     try:
         for background in backgrounds["background"]:
             name = background["name"]
-            print(name)
             skills = []
             if("skillProficiencies" in background.keys()):
                 for skill in background["skillProficiencies"][0].keys():
@@ -1453,9 +1435,6 @@ def makeclass(request, cruleset, tclass, instruction):
                             )
                             db.session.add(new_subclass_feature)
                         db.session.add(new_subclass)
-                        print("subclass added")
-                    print(len(tclass.subclasses))
-                    print(len(request.form.getlist("subclass_name")))
                     db.session.commit() 
                     flash("Changes saved!", "green")
             elif(instruction == "edit"):

@@ -21,7 +21,7 @@
             {% for subrace in race.subraces %}
             <div class="usercontent">
                 <h3>{{subrace.name}}</h3>
-                <div x-html="convert(`{{ subrace.flavor }}`)"></div>
+                <div x-html="convert(`{{ subrace.text }}`)"></div>
                 {% for feature in subrace.subrace_features %}
                 <div x-html="convert('***{{feature.name}}.*** ' + `{{ feature.text }}`)"></div>
                 {% endfor %}

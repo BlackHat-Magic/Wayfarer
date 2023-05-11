@@ -250,9 +250,9 @@ class Playerclass(db.Model):
     subclass_level = db.Column(db.Integer)
     levels = db.Column(db.Integer)
     text = db.Column(db.String(16383))
-    class_features = db.relationship("ClassFeature", backref = "class")
-    subclasses = db.relationship("Subclass", backref = "class")
-    columns = db.relationship("ClassColumn", backref = "class")
+    class_features = db.relationship("ClassFeature", backref = "playerclass")
+    subclasses = db.relationship("Subclass", backref = "playerclass")
+    columns = db.relationship("ClassColumn", backref = "playerclass")
 
 class ClassFeature(db.Model):
     id = db.Column(db.Integer, primary_key = True)
