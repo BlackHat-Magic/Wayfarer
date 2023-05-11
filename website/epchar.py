@@ -38,9 +38,7 @@ def createRace():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
-        result = makerace(request, cruleset, None, "create")
-        if(result != False):
-            return(result)
+        return(makeRace(request, cruleset, None, "create"))
     return(
         render_template(
             "create-race.html", 

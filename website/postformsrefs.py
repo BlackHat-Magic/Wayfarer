@@ -1276,7 +1276,7 @@ def spellImporter(spells, cruleset):
         flash("Spells imported!", "green")
         return(redirect(url_for("eprefs.spells")))
     except:
-        flash("Improperly formatted JSON; could not import. Note: only `spells-phb.json` has been tested and is officially supported for import from 5e.tools; others may not work.", "red")
+        flash("Improperly formatted JSON; could not import.", "red")
         return(redirect(url_for("eprefs.importSpells")))
 
 def makeRecipe(request, cruleset, recipe, instruction):

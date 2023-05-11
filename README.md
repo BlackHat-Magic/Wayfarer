@@ -15,7 +15,6 @@ In no particular order...
  - [ ] add CSS animations
  - [x] ~~clean up CSS file~~
  - [X] ~~add edit functionality~~
-     - [X] ~~edit actions (apparently I forgot??)~~
  - [X] ~~add duplication functionality~~
  - [x] ~~fix Races page~~
  - [x] ~~make background filters more useful~~
@@ -25,21 +24,19 @@ In no particular order...
      - [X] ~~Import race flavor text~~
      - [X] ~~Import background features~~
      - [X] ~~Import background flavor text~~
+     - [ ] Import variant backgrounds
      - [X] ~~Import feats~~
-     - [ ] Import classes
+     - [X] ~~Decide that importing classes will likely never be fully supported~~
      - [X] ~~Import actions~~
      - [ ] Import items
          - [X] ~~Import item details~~
          - [ ] More comprehensive item type importing
      - [X] ~~Import languages~~
-     - [ ] Import spells
-         - [X] ~~PHB Spells~~
-         - [ ] Test Non-PHB spells
+     - [X] ~~Import spells~~
      - [X] ~~Import conditions, diseases, and statuses~~
      - [X] ~~Import skills~~
-     - [ ] Import tables and other non-plaintext features/flavor
+     - [X] ~~Import tables and other non-plaintext features/flavor~~
      - [ ] Import Entire Rulesets
-     - [ ] Correctly parse and reformat 5e tools markup
  - [ ] Make races page work with custom ability scores
  - [x] ~~Add support for multiple administrator rulesets~~
  - [ ] Add armor stealth disadvantage
@@ -51,8 +48,10 @@ In no particular order...
  - [ ] Make flash messages dismissable
  - [ ] Item property and type templates
  - [ ] Hyperlinks
+     - [ ] Correctly parse and reformat 5e tools markup
  - [ ] Filter URLs
  - [ ] Cache unsaved database entries if user input is invalid
+ - [ ] GM Tools (tables, traps, etc)
 
 ## Usage
 
