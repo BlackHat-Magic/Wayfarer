@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, request, session, flash, jsonify
 from flask_login import current_user
 from . import db
+from .jsonparsers import *
 from .models import Skill, ItemTag, Property, Language, Item, Action, Condition, Disease, Status, Spell
 
 def makeAction(request, cruleset, action, instruction):
@@ -68,14 +69,7 @@ def actionImporter(actions, cruleset):
                     time = action["time"][0]
             else:
                 time = "Other"
-            text = ""
-            for entry in action["entries"]:
-                if(type(entry) == str):
-                    text += f"{entry}\n\n"
-                else:
-                    text += f"### {entry['name']}\n\n"
-                    for section in entry["entries"]:
-                        text += f"{section}\n\n"
+            text = parseEntries(action["entries"], 3, name)
             new_action = Action(
                 rulesetid = cruleset.id,
                 name = name,
@@ -232,33 +226,7 @@ def conditionImporter(conditions, cruleset):
     # try:
     if("condition" in conditions.keys()):
         for condition in conditions["condition"]:
-            text = ""
-            for entry in condition["entries"]:
-                if(type(entry) == str):
-                    text += f"{entry}\n\n"
-                elif(entry["type"] == "list"):
-                    for item in entry["items"]:
-                        text += f" - {item}\n"
-                    text += "\n"
-                elif(entry["type"] == "table"):
-                    text += "| "
-                    for label in entry["colLabels"]:
-                        text += f"{label} | "
-                    text += "\n| "
-                    for style in entry["colStyles"]:
-                        if("center" or "left" in style):
-                            text += ":"
-                        text += "---"
-                        if("center" or "right" in style):
-                            text += ":"
-                        text += " | "
-                    for row in entry["rows"]:
-                        text += "\n| "
-                        for column in row:
-                            text += str(column)
-                            text += " | "
-                    text += "\n"
-
+            text = parseEntries(condition["entries"], 3, condition["name"])
             new_condition = Condition(
                 rulesetid = cruleset.id,
                 name = condition["name"],
@@ -267,68 +235,17 @@ def conditionImporter(conditions, cruleset):
             db.session.add(new_condition)
     if("disease" in conditions.keys()):
         for disease in conditions["disease"]:
-            text = ""
-            for entry in disease["entries"]:
-                if(type(entry) == str):
-                    text += f"{entry}\n\n"
-                elif(entry["type"] == "list"):
-                    for item in entry["items"]:
-                        text += f" - {item}\n"
-                    text += "\n"
-                elif(entry["type"] == "table"):
-                    text += "| "
-                    for label in entry["colLabels"]:
-                        text += f"{label} | "
-                    text += "\n| "
-                    for style in entry["colStyles"]:
-                        if("center" or "left" in style):
-                            text += ":"
-                        text += "---"
-                        if("center" or "right" in style):
-                            text += ":"
-                        text += " | "
-                    for row in entry["rows"]:
-                        text += "\n| "
-                        for column in row:
-                            text += str(column)
-                            text += " | "
-                        text += "\n"
-
+            text = parseEntries(disease["entries"], 3, disease["name"])
             new_disease = Disease(
                 rulesetid = cruleset.id,
                 name = disease["name"],
                 text = text
             )
             db.session.add(new_disease)
+
     if("status" in conditions.keys()):
         for status in conditions["status"]:
-            text = ""
-            for entry in status["entries"]:
-                if(type(entry) == str):
-                    text += f"{entry}\n\n"
-                elif(entry["type"] == "list"):
-                    for item in entry["items"]:
-                        text += f" - {item}\n"
-                    text += "\n"
-                elif(entry["type"] == "table"):
-                    text += "| "
-                    for label in entry["colLabels"]:
-                        text += f"{label} | "
-                    text += "\n| "
-                    for style in entry["colStyles"]:
-                        if("center" or "left" in style):
-                            text += ":"
-                        text += "---"
-                        if("center" or "right" in style):
-                            text += ":"
-                        text += " | "
-                    for row in entry["rows"]:
-                        text += "\n| "
-                        for column in row:
-                            text += str(column)
-                            text += " | "
-                        text += "\n"
-
+            text = parseEntries(status["entries"], 3, status["name"])
             new_status = Status(
                 rulesetid = cruleset.id,
                 name = status["name"],
@@ -612,26 +529,11 @@ def itemImporter(items, base, cruleset):
                 )
             db.session.add(new_property)
         for types in base["itemType"]:
-            description = ""
             if("name" in types.keys()):
                 name = types["name"]
-                for entry in types["entries"]:
-                    if(type(entry) == str):
-                        description += f"{entry}\n\n"
-                    else:
-                        description += f"## {entry['name']}\n\n---\n\n"
-                        for paragraph in entry:
-                            description += f"{paragraph}\n\n"
             else:
                 name = types["entries"][0]["name"]
-                for entry in types["entries"][0]["entries"]:
-                    if(type(entry) == str):
-                        description += f"{entry}\n\n"
-                    else:
-                        for paragraph in entries:
-                            description += f"## {paragraph['name']}\n\n---\n\n"
-                            for line in paragraph["entries"]:
-                                description += f"{line}\n\n"
+            description = parseEntries(types["entries"], 3, name)
             new_property = ItemTag(
                 rulesetid = cruleset.id,
                 name = name,
@@ -808,60 +710,10 @@ def itemImporter(items, base, cruleset):
             else:
                 weight = None
             if("entries" in item.keys()):
-                for entry in item["entries"]:
-                    if(type(entry) == str):
-                        if("#itemEntry" in entry):
-                            newtext = ""
-                            for group in items["itemGroup"]:
-                                if(group["name"] == entry.split(" ")[1].split("|")[0]):
-                                    for section in group["entries"]:
-                                        if(type(section) == str):
-                                            newtext += f"{section}\n\n"
-                                        elif(type(section) == dict):
-                                            if(section["type"] == "table"):
-                                                newtext += f"###### {section['caption']}\n\n"
-                                                newtext += "| "
-                                                for label in section["colLabels"]:
-                                                    newtext += f"{label} | "
-                                                newtext += "\n| "
-                                                for style in section["colStyles"]:
-                                                    if("center" or "left" in style):
-                                                        newtext += ":"
-                                                    for i in range(style.split(" ")[0].split("-")[1]):
-                                                        newtext += "-"
-                                                    if("center" or "right" in style):
-                                                        newtext += ":"
-                                                    newtext += " | "
-                                                for row in section["rows"]:
-                                                    newtext += "\n| "
-                                                    for column in row:
-                                                        newtext += str(column)
-                                                        newtext += " | "
-                                                    newtext += "\n"
-                            text = f"{newtext}\n\n{text}"
-                        else:
-                            text += f"{entry}\n\n"
-                    elif(type(entry) == dict):
-                        if(entry["type"] == "table"):
-                            if("caption" in entry.keys()):
-                                text += f"###### {entry['caption']}\n\n"
-                            text += "| "
-                            for label in entry["colLabels"]:
-                                text += f"{label} | "
-                            text += "\n| "
-                            for style in entry["colStyles"]:
-                                if("center" or "left" in style):
-                                    text += ":"
-                                text += "---"
-                                if("center" or "right" in style):
-                                    text += ":"
-                                text += " | "
-                            for row in entry["rows"]:
-                                text += "\n| "
-                                for column in row:
-                                    text += str(column)
-                                    text += " | "
-                        text += "\n"
+                print(item["name"])
+                text = parseEntries(item["entries"], 3, item["name"])
+            else:
+                text = None
 
             new_item = Item(
                 rulesetid = cruleset.id,
@@ -1224,6 +1076,7 @@ def spellImporter(spells, cruleset):
                 duration = 10
             else:
                 flash(f"Abnormal spell duration in {name}; setting to 'special'...", "orange")
+                duration = 11
             text = ""
             for entry in spell["entries"]:
                 if(type(entry) == str):

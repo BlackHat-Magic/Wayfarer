@@ -7,7 +7,7 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		{% for ability_score in cruleset.ability_scores %}
+		{% for ability_score in ability_scores %}
 		<template x-init="namearray.push(`{{ ability_score.name }}`)"></template>
 		{% endfor %}
 		{% for race in races %}

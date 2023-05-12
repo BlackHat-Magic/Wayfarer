@@ -22,7 +22,7 @@ document.addEventListener ("alpine:init", () => {
             "12th",
             "Any"
         ],
-        time: 10,
+        time: 11,
         timelist: [
             "1 Reaction",
             "1 Bonus Action",
@@ -99,12 +99,7 @@ document.addEventListener ("alpine:init", () => {
                 } else {
                     output += ", M";
                 }
-
-                if(spell.consumes_material == "True") {
-                    output += " (" + this.material_specific + ", which the spell consumes)";
-                } else {
-                    output += " (" + this.material_specific +")";
-                }
+                output += " (" + spell.material_specific + ")"
             }
             return(output)
         },
@@ -139,7 +134,7 @@ document.addEventListener ("alpine:init", () => {
             }
 
             //time
-            if(this.time != 10){
+            if(this.time != 11){
                 console.log("time")
                 newmatch = [];
                 for (let i = 0; i < match.length; i++) {

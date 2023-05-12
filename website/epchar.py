@@ -18,6 +18,7 @@ def races():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     races = Race.query.filter_by(rulesetid=cruleset.id).order_by(Race.name)
+    ability_scores = AbilityScore.query.filter_by(rulesetid = cruleset.id).order_by(AbilityScore.order)
     return(
         render_template(
             "races.html", 
@@ -27,7 +28,8 @@ def races():
             ability='', 
             adminrulesets=adminrulesets, 
             title="Races",
-            races=races
+            races=races,
+            ability_scores = ability_scores
         )
     )
 
@@ -60,7 +62,7 @@ def duplicateRace(race):
     if(not race):
         flash("Race does not exist.", "red")
         return(redirect(url_for("epchar.races")))
-    result = makerace(request, cruleset, race, "duplicate")
+    result = makeRace(request, cruleset, race, "duplicate")
     return(result)
 
 @epchar.route("/Races/Edit/<string:race>", methods=["GET", "POST"])
@@ -73,7 +75,7 @@ def editRace(race):
     if(not target_race):
         flash("Race does not exist.", "red")
     elif(request.method == "POST"):
-        result = makerace(request, cruleset, target_race, "edit")
+        result = makeRace(request, cruleset, target_race, "edit")
         if(result != False):
             return(result)
     return(

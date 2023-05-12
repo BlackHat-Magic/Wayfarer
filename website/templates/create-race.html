@@ -32,7 +32,7 @@
 					id="asi" 
 					x-model="asis.{{ score.abbr }}"
 					value="0"
-					{% if race %} x-init="asis.{{ score.abbr }} = {{ race.asis[loop.index - 1] }}" {% endif %}
+					{% if race and race.asis[loop.index - 1] != '' %} x-init="asis.{{ score.abbr }} = {{ race.asis[loop.index - 1] }}" {% endif %}
 				>
 				{% endfor %}
 			</div>
@@ -114,24 +114,26 @@
 							id="base_weight" 
 							name="base_weight" 
 							x-model="base_weight"
-							{% if race %} x-init="base_weight={{ race.base_weight }}" {% endif %}>
+							{% if race and race.base_weight %} x-init="base_weight={{ race.base_weight }}" {% endif %}>
 					</div>
 					<div style="width: 50%; min-width: 180px" class="interior flex vertical start">
-						<label for="weight_num">Race Height Dice</label>
+						<label for="weight_num">Race Weight Dice</label>
 						<div class="interior flex horizontal center" style="max-width: 250px">
 							<input 
 								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
 								type="number" 
 								id="weight_num" 
 								name="weight_num"
-								{% if race %} x-init="weight_num={{ race.weight_num }}" {% endif %}>
+								x-model="weight_die"
+								{% if race and race.weight_num %} x-init="weight_num={{ race.weight_num }}" {% endif %}>
 							<h6>d</h6>
 							<input 
 								style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
 								type="number" 
 								id="weight_die" 
 								name="weight_die"
-								{% if race %} x-init="weight_die={{ race.weight_die }}" {% endif %}>
+								x-model="weight_die"
+								{% if race and race.weight_die %} x-init="weight_die={{ race.weight_die }}" {% endif %}>
 						</div>
 					</div>
 				</div>
@@ -144,35 +146,35 @@
 					name="walk" 
 					id="walk" 
 					x-model="walk"
-					{% if race %} x-init="walk={{ race.walk }}" {% endif %}>
+					{% if race and race.walk %} x-init="walk={{ race.walk }}" {% endif %}>
 				<input 
 					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
 					placeholder="Swim Speed" 
 					name="swim" 
 					id="swim" 
 					x-model="swim"
-					{% if race %} xinit="swim={{ race.swim }}" {% endif %}>
+					{% if race and race.swim %} xinit="swim={{ race.swim }}" {% endif %}>
 				<input 
 					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
 					placeholder="Climb Speed" 
 					name="climb" 
 					id="climb" 
 					x-model="climb"
-					{% if race %} x-init="climb={{ race.climb }}" {% endif %}>
+					{% if race and race.climb %} x-init="climb={{ race.climb }}" {% endif %}>
 				<input 
 					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
 					placeholder="Fly Speed" 
 					name="fly" 
 					id="fly" 
 					x-model="fly"
-					{% if race %} x-init="fly={{ race.fly }}" {% endif %}>
+					{% if race and race.fly %} x-init="fly={{ race.fly }}" {% endif %}>
 				<input 
 					style="width: calc(100% / 5 - 24px); min-width: 120px; font-size: 16px" 
 					placeholder="Burrow Speed" 
 					name="burrow" 
 					id="burrow" 
 					x-model="burrow"
-					{% if race %} x-init="burrow={{ race.burrow }}" {% endif %}>
+					{% if race and race.burrow %} x-init="burrow={{ race.burrow }}" {% endif %}>
 			</div>
 			<textarea 
 				placeholder="Flavor Text (You can use markdown syntax! A preview of what it will look like is shown below.)" 
@@ -218,9 +220,9 @@
 			<!-- Display Subraces -->
 			{% if race %}
 			{% for subrace in race.subraces %}
-				{% set subrace_num = loop.index %}
+				{% set subrace_num = loop.index - 1 %}
 				<template x-init="subraces.push({name: `{{ subrace.name }}`, text: `{{ subrace.text }}`, features: []})"></template>
-				{% for feature in subrace.features %}
+				{% for feature in subrace.subrace_features %}
 					<template x-init="subraces[{{subrace_num}}].features.push({name: `{{ feature.name }}`, text: `{{ feature.text }}`})"></template>
 				{% endfor %}
 			{% endfor %}

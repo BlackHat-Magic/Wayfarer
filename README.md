@@ -20,27 +20,14 @@ In no particular order...
  - [x] ~~make background filters more useful~~
  - [ ] Add 5e.tools import/export functionality
      - [ ] Export Functionality
-     - [X] ~~Import race features~~
-     - [X] ~~Import race flavor text~~
-     - [X] ~~Import background features~~
-     - [X] ~~Import background flavor text~~
      - [ ] Import variant backgrounds
-     - [X] ~~Import feats~~
-     - [X] ~~Decide that importing classes will likely never be fully supported~~
-     - [X] ~~Import actions~~
      - [ ] Import items
          - [X] ~~Import item details~~
          - [ ] More comprehensive item type importing
-     - [X] ~~Import languages~~
-     - [X] ~~Import spells~~
-     - [X] ~~Import conditions, diseases, and statuses~~
-     - [X] ~~Import skills~~
-     - [X] ~~Import tables and other non-plaintext features/flavor~~
+     - [ ] Import classes (will likely never be fully supported)
      - [ ] Import Entire Rulesets
- - [ ] Make races page work with custom ability scores
+ - [x] Make races page work with custom ability scores
  - [x] ~~Add support for multiple administrator rulesets~~
- - [ ] Add armor stealth disadvantage
- - [ ] Add armor strength minimum
  - [ ] Idiotproofing
      - [ ] Add instructions
      - [ ] Communicate unsupported data
@@ -54,18 +41,6 @@ In no particular order...
  - [ ] GM Tools (tables, traps, etc)
 
 ## Usage
-
-Clone the repository.
-
-```git clone https://github.com/BlackHat-Magic/Wayfinder```
-
-Install dependencies.
-
-```pip install -r requirements.txt```
-
-Deploy website.
-
-```I forgor how to deploy a production flask application. Just google it.```
 
 Wayfinder assumes that the the first user is the administrator. **All rulesets created by the administrator account are public.** It is preferable that you be the only one who can access the site at this stage, to prevent someone else from potentially creating the administrator account. From here, you can add the rules and such for the default ruleset and begin using the site. Once the default ruleset and administrator account are set up, you can allow external connections to the site.
 

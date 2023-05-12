@@ -2,7 +2,7 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
         query: "",
-        namearray: [" Str", " Dex", " Con", " Int", " Wis", " Cha"],
+        namearray: [],
         filterQuery() {
             sizes = [
                 "Tiny",

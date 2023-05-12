@@ -18,7 +18,7 @@
 				verbal: `{{ spell.verbal }}`,
 				somatic: `{{ spell.somatic }}`,
 				material: `{{ spell.material }}`,
-				consumes_material: `{{ spell.consumes_material }}`,
+				material_specific: `{{ spell.material_specific }}`,
 				duration: `{{ spell.duration }}`,
 				text: `{{ spell.text }}`
 			}
@@ -54,7 +54,7 @@
 			<input type="range" style="width: 30%; margin: 0" min="0" max="13" name="level" id="level" x-model="level">
 			<span style="width: 25%" x-text="levellist[level]"></span>
 			<label for="time" style="width: 25%">Casting Time: </label>
-			<input type="range" style="width: 30%; margin: 0" min="0" max="10" vname="time" id="time" x-model="time">
+			<input type="range" style="width: 30%; margin: 0" min="0" max="11" vname="time" id="time" x-model="time">
 			<span style="width: 25%" x-text="timelist[time]"></span>
 			<label for="range" style="width: 25%">Spell Range: </label>
 			<input type="range" style="width: 30%; margin: 0" min="0" max="24" name="range" id="range" x-model="range">

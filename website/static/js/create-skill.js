@@ -4,13 +4,6 @@ document.addEventListener ("alpine:init", () => {
         ability: "",
         text: "",
         abilitydict: {
-            "STR": "Strength",
-            "DEX": "Dexterity",
-            "CON": "Constitution",
-            "INT": "Intelligence",
-            "WIS": "Wisdom",
-            "CHA": "Charisma",
-            "": "N/A"
         },
 
         converter: new showdown.Converter({tables: true}),

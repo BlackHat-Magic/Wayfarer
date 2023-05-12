@@ -95,6 +95,8 @@ class Item(db.Model):
     weight = db.Column(db.Integer)
     text = db.Column(db.String(16383))
     is_armor = db.Column(db.Boolean)
+    stealth = db.Column(db.Boolean)
+    strength = db.Column(db.Integer)
     armor_class = db.Column(db.Integer)
     add_dex = db.Column(db.Boolean)
     max_dex = db.Column(db.Integer)

@@ -396,8 +396,8 @@ def createItem():
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create an Item",
-            tags = ruleset.item_tags.order_by(Tag.name),
-            properties = ruleset.item_properties.order_by(Property.name)
+            tags = ItemTag.query.filter_by(rulesetid=cruleset.id).order_by(ItemTag.name),
+            properties = Property.query.filter_by(rulesetid=cruleset.id).order_by(Property.name)
         )
     )
 
@@ -497,7 +497,7 @@ def tags():
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
-            tags=cruleset.item_tags.order_by(ItemTag.name), 
+            tags=ItemTag.query.filter_by(rulesetid=cruleset.id).order_by(ItemTag.name), 
             adminrulesets=adminrulesets,
             title="Item Types"
         )
@@ -574,7 +574,7 @@ def properties():
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
-            properties=cruleset.item_properties.order_by(Property.name), 
+            properties=Property.query.filter_by(rulesetid=cruleset.id).order_by(Property.name), 
             adminrulesets=adminrulesets,
             title="Weapon Properties"
         )
