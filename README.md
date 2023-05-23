@@ -20,11 +20,19 @@ In no particular order...
  - [x] ~~make background filters more useful~~
  - [ ] Add JSON import/export functionality
      - [ ] Export Functionality
-     - [ ] Import variant backgrounds
+     - [X] ~~Import races~~
+     - [ ] Import backgrounds
+         - [ ] Import variant backgrounds
+     - [X] ~~Import feats~~
+     - [ ] Import classes (will likely never be fully supported; partial support is planned)
+     - [X] ~~Import actions~~
+     - [X] ~~Import conditions, diseases, and statuses~~
      - [ ] Import items
          - [X] ~~Import item details~~
          - [ ] More comprehensive item type importing
-     - [ ] Import classes (will likely never be fully supported)
+     - [X] ~~Import languages~~
+     - [X] ~~Import spells~~
+     - [X] ~~Import skills~~
      - [ ] Import Entire Rulesets
      - [ ] Filter imported sources
  - [x] ~~Make races page work with custom ability scores~~
@@ -32,10 +40,8 @@ In no particular order...
  - [ ] Idiotproofing
      - [ ] Add instructions
      - [ ] Communicate unsupported data
-     - [ ] Input validation for imported text
+     - [X] ~~Input validation for imported text~~
  - [ ] Make flash messages dismissable
- - [ ] Item property and type templates
-     - I don't remember what I meant by this lol
  - [ ] Hyperlinks
      - [ ] Correctly parse and reformat 5e tools markup
  - [ ] Filter URLs
@@ -55,11 +61,12 @@ In no particular order...
  - [ ] Legal/Privacy Mumbo Jumbo
      - [ ] DMCA stuff
      - [ ] Privacy Policy
+     - [ ] CCPA/GDPR Right to be Forgotten
      - [ ] EULA
      - [ ] LibreJS support
      - [ ] Footer
  - [ ] Comment Code
- - [ ] Move the submit button on create/edit classes page to the bottom
+ - [ ] Move the submit button on create/edit classes page to the bottom (this is less trivial than it sounds I swear)
  - [ ] Header Links
  - [ ] "Cantrip-level x"
 
