@@ -6,13 +6,13 @@
 
 {% block body %}
 <div class="flex" x-data="main">
-	<div class="flex vertical start">
+	<form class="flex vertical start" method="post">
 		{% if tbackground %}
 			<h1>Edit {{ tbackground.name }}</h1>
 		{% else %}
 			<h1>Create a Background</h1>
 		{% endif %}
-		<form class="interior flex vertical start" method="post">
+		<div class="interior flex vertical start">
 			<input name="name" id="name" x-model="name" placeholder="Background Name" {% if tbackground %} x-init="name=`{{ tbackground.name }}`" {% endif %}>
 			{% if not cruleset.skills %}
 				<div class="mild danger">
@@ -101,7 +101,7 @@
 						</template>
 					</div>
 					{% if tbackground %}
-						<template x-init="langnum={{ tbackground.langnum }}"></template>
+						<template x-init="langnum={{ tbackground.lang_num }}"></template>
 						{% for language in tbackground.languages %}
 							<template x-init="languageselect={{ language }}; appendLanguage()"></template>
 						{% endfor %}
@@ -152,7 +152,7 @@
 			<template x-for="feature, index, in features">
 				<div class="interior flex horizontal center space-between" style="width: 100%">
 					<input x-model="features[index].name" placeholder="Feature Name" style="width: calc(50% - 24px)" id="featurename" name="featurename">
-					<a @click="deleteFeature(index)" style="width: calc(50% - 24px); text-align: right"><button class="danger" type="button">Delete Feature</button></a>
+					<a @click="deleteFeature(index)" style="width: calc(50% - 24px); text-align: right"><button class="mild danger" type="button">Delete Feature</button></a>
 					<textarea style="height: 200px" x-model="features[index].text" placeholder="Background Feature Description" id="featuretext" name="featuretext"></textarea>
 				</div>
 			</template>
@@ -163,12 +163,7 @@
 				{% endfor %}
 			{% endif %}
 			<a @click="addFeature()"><button type="button">Add a Background Feature</button></a>
-			{% if background %}
-				<a><button type="submit">Create Background</button></a>
-			{% else %}
-				<a><button type="submit">Submit Changes</button></a>
-			{% endif %}
-		</form>
+		</div>
 		<div class="usercontent">
 			<h1 x-text="name"></h1>
 			<template x-if="skills.length != 0">
@@ -192,7 +187,12 @@
 				</div>
 			</template>
 		</div>
-	</div>
+		{% if background %}
+			<a><button type="submit">Create Background!</button></a>
+		{% else %}
+			<a><button type="submit">Submit Changes</button></a>
+		{% endif %}
+	</form>
 
 	<div class="modal" x-show="modal" @click="modal = !modal"></div>
 	<div class="modal-alert flex vertical start" x-show="modal">

@@ -4,6 +4,13 @@ document.addEventListener ("alpine:init", () => {
         convert (text) {
             return(this.converter.makeHtml(text));
         },
-        text: ""
+        text: "",
+        base: "None",
+        checkBase() {
+            if (this.base == "" || this.base == "None") {
+                return(true);
+            }
+            return(false);
+        }
     }))
 })

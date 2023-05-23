@@ -116,14 +116,12 @@ document.addEventListener ("alpine:init", () => {
             for (let i = 0; i < match.length; i++) {
                 if(this.schools.includes(match[i].school)) {
                     newmatch.push(match[i]);
-                    console.log(match[i].name + "name")
                 }
             }
             match = newmatch;
 
             //level
             if(this.level != 13){
-                console.log("level")
                 newmatch = [];
                 for (let i = 0; i < match.length; i++) {
                     if(match[i].level == this.level) {
@@ -135,7 +133,6 @@ document.addEventListener ("alpine:init", () => {
 
             //time
             if(this.time != 11){
-                console.log("time")
                 newmatch = [];
                 for (let i = 0; i < match.length; i++) {
                     if(match[i].casting_time == this.time) {
@@ -147,7 +144,6 @@ document.addEventListener ("alpine:init", () => {
 
             //range
             if(this.range != 24) {
-                console.log("range")
                 newmatch = [];
                 for (let i = 0; i < match.length; i++) {
                     if(match[i].spell_range == this.range) {
@@ -159,7 +155,6 @@ document.addEventListener ("alpine:init", () => {
 
             //duration
             if(this.duration != 12){
-                console.log("duration")
                 newmatch = [];
                 for (let i = 0; i < match.length; i++) {
                     if(match[i].duration == this.duration) {

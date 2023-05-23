@@ -484,66 +484,79 @@ def raceImporter(races, flavor, cruleset):
 
             flavortext += f"## {race['name']} Traits\n\n---"
 
-            new_race = Race(
-                rulesetid = cruleset.id,
-                name = name,
-                flavor = flavortext,
-                asis = new_asis,
-                asi_text = asi_text,
-                size = size,
-                size_text = size_text,
-                walk = walk,
-                climb = climb,
-                fly = fly,
-                swim = swim,
-                burrow = burrow,
-                base_height = base_height,
-                base_weight = base_weight,
-                height_num = height_num,
-                height_die = height_die,
-                weight_num = weight_num,
-                weight_die = weight_die,
-                subrace_flavor = None
-            )
-            db.session.add(new_race)
-
-            if("speed" in race.keys() and type(race["speed"]) != int and type(race["speed"]) != dict):
-                new_race_feature = RaceFeature(
-                    race = new_race,
-                    name = "Speed",
-                    text = str(race["speed"])
+            if(len(name) > 127):
+                flash(f"{name} name is too long (max 127 characters); skipping race...", "orange")
+            elif(len(flavor) > 16383):
+                flash(f"{name} flavor text is too long (max 16383 characters); skipping race...", "orange")
+            elif("<" in flavor):
+                flash(f"{name} flavor text contains disallowed character open angle bracket (\"<\"); skipping race...", "orange")
+            elif("javascript" in flavor):
+                flash(f"{name} flavor text contains disallowed substring \"javascript\" (potential XSS attack); skipping...", "orange")
+            elif(len(asi_text) > 255):
+                flash(f"{name} ASI text too long (max 255 characters); skipping race...", "orange")
+            elif(len(size_text) > 255):
+                flash(f"{name} Size text too long (max 255 characters); skipping race...", "orange")
+            else:
+                new_race = Race(
+                    rulesetid = cruleset.id,
+                    name = name,
+                    flavor = flavortext,
+                    asis = new_asis,
+                    asi_text = asi_text,
+                    size = size,
+                    size_text = size_text,
+                    walk = walk,
+                    climb = climb,
+                    fly = fly,
+                    swim = swim,
+                    burrow = burrow,
+                    base_height = base_height,
+                    base_weight = base_weight,
+                    height_num = height_num,
+                    height_die = height_die,
+                    weight_num = weight_num,
+                    weight_die = weight_die,
+                    subrace_flavor = None
                 )
-                db.session.add(new_race_feature)
+                db.session.add(new_race)
+
+                if("speed" in race.keys() and type(race["speed"]) != int and type(race["speed"]) != dict):
+                    new_race_feature = RaceFeature(
+                        race = new_race,
+                        name = "Speed",
+                        text = str(race["speed"])
+                    )
+                    db.session.add(new_race_feature)
             
             featurenames = []
 
             if("entries" in race.keys()):
                 for feature in race["entries"]:
                     if(type(feature) == dict and "name" in feature.keys()):
-                        text = parseEntries(feature["entries"], 4, f"{name}")
-                        if("<" in text):
-                            flash(f"Open angle brackets (\"<\") are not allowed. Offender: {race['name']} feature '{feature['name']}'", "red")
-                            return(redirect(url_for("epchar.importRace")))
-                        elif("javascript" in text):
-                            flash(f"Cross-site scripting attacks are not allowed. Offender: {race['name']} feature '{feature['name']}'", "red")
-                            return(redirect(url_for("epchar.importRace")))
-                        elif(len(feature["name"]) > 127):
-                            flash(f"Race feature names must be fewer than 128 characters. Offender: {race['name']} feature '{feature['name']}", "red")
-                            return(redirect(url_for("epchar.importRace")))
-                        elif(len(text) > 16383):
-                            flash(f"Race feature descriptions must be fewer than 16384 characters. Offender: {race['name']} feature '{feature['name']}'", "red")
-                            return(redirect(url_for("epchar.importRace")))
-                        new_race_feature = RaceFeature(
-                            race = new_race,
-                            name = feature["name"],
-                            text = text
-                        )
-                        db.session.add(new_race_feature)
-                        featurenames.append(feature["name"])
-                    else:
+                        fname = feature["name"]
+                        ftext = parseEntries(feature["entries"], 4, f"{name}")
+                        if(len(fname) > 127):
+                            flash(f"{name} race feature {fname} name is too long (max 127 characters); skipping feature...", "orange")
+                        elif(len(ftext) > 16383):
+                            flash(f"{name} race feature {fname} description is too long (max 16383 characters); skipping feature...", "orange")
+                        elif("<" in ftext):
+                            flash(f"{name} race feature {fname} contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
+                        elif("javascript" in ftext):
+                            flash(f"{name} race feature {fname} contains disallowed substring \"javascript\" (porential XSS attack); skipping feature...", "orange")
+                        else:
+                            new_race_feature = RaceFeature(
+                                race = new_race,
+                                name = fname,
+                                text = ftext
+                            )
+                            db.session.add(new_race_feature)
+                            featurenames.append(feature["name"])
+                    elif(len(new_race.flavor + str(feature)) + 4 < 16383):
                         if(len(new_race.flavor) > 0):
                             new_race.flavor += "\n\n"
                         new_race.flavor += str(feature)
+                    else:
+                        flash(f"Too many entries in {name} flavor text (exceeds 16383 character limit); truncating...", "orange")
 
             if("_copy" in race.keys()):
                 copied = Race.query.filter_by(rulesetid = cruleset.id, name = f"{race['_copy']['name']} ({race['_copy']['source']})").first()
@@ -551,23 +564,44 @@ def raceImporter(races, flavor, cruleset):
                 if(copied == None):
                     flash(f"{name} Copies abilities from {race['_copy']['name']} ({race['_copy']['source']}), which comes later in the JSON file and cannot be accessed yet; abilities must be copied manually.", "orange")
                 else:
-                    print(name)
                     if(type(race["_copy"]["_mod"]["entries"]) == list):
                         for feature in race["_copy"]["_mod"]["entries"]:
                             if("replace" in feature.keys()):
                                 alter.append(feature["replace"])
+                            fname = feature["items"]["name"]
+                            ftext = parseEntries(feature["items"]["entries"], 3, name)
+                            if(len(fname) > 127):
+                                flash(f"{name} race feature {fname} name too long (max 127 characters); skipping feature...", "orange")
+                            elif(len(ftext) > 16383):
+                                flash(f"{name} race feature {fname} description too long (max 16383 characters); skipping feature...", "orange")
+                            elif("<" in ftext):
+                                flash(f"{name} race feature {fname} contains disallowed character open angle brakcet (\"<\"); skipping feature...", "orange")
+                            elif("javascript" in ftext):
+                                flash(f"{name} race feature {fname} contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
+                            else:
+                                new_feature = RaceFeature(
+                                    race = new_race,
+                                    name = fname,
+                                    text = ftext
+                                )
+                                db.session.add(new_feature)
+                    else:
+                        fname = race["_copy"]["_mod"]["entries"]["items"]["name"]
+                        ftext = parseEntries(race["_copy"]["_mod"]["entries"]["items"]["entries"], 3, name)
+                        if(len(fname) > 127):
+                            flash(f"{name} race feature {fname} name too long (max 127 characters); skipping feature...", "orange")
+                        elif(len(ftext) > 16383):
+                            flash(f"{name} race feature {fname} description too long (max 16383 characters); skipping feature...", "orange")
+                        elif("<" in ftext):
+                            flash(f"{name} race feature {fname} contains disallowed character open angle brakcet (\"<\"); skipping feature...", "orange")
+                        elif("javascript" in ftext):
+                            flash(f"{name} race feature {fname} contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
+                        else:
                             new_feature = RaceFeature(
                                 race = new_race,
-                                name = feature["items"]["name"],
-                                text = parseEntries(feature["items"]["entries"], 3, name)
+                                name = race["_copy"]["_mod"]["entries"]["items"]["name"],
+                                text = parseEntries(race["_copy"]["_mod"]["entries"]["items"]["entries"], 3, name)
                             )
-                            db.session.add(new_feature)
-                    else:
-                        new_feature = RaceFeature(
-                            race = new_race,
-                            name = race["_copy"]["_mod"]["entries"]["items"]["name"],
-                            text = parseEntries(race["_copy"]["_mod"]["entries"]["items"]["entries"], 3, name)
-                        )
                     for feature in copied.race_features:
                         if(feature.name not in alter):
                             new_feature = RaceFeature(
@@ -601,52 +635,59 @@ def raceImporter(races, flavor, cruleset):
             
             for subrace in races["subrace"]:
                 if("name" in subrace.keys() and subrace["raceName"] == race["name"]):
-                    name = subrace["name"]
-                    if(len(name) > 127):
-                        flash(f"Subrace names must be fewer than 128 characters. Offender: {race['name']} subrace '{subrace['name']}'")
-                        return(redirect(url_for("epchar.importRace")))
-                    new_subrace = Subrace(
-                        race = new_race,
-                        name = subrace["name"],
-                        text = "",
-                    )
-                    db.session.add(new_subrace)
-                    if("entries" in subrace.keys()):
-                        for feature in subrace["entries"]:
-                            if(type(feature) == dict):
-                                text = parseEntries(feature["entries"], 3, feature["name"])
-                                if("<" in text):
-                                    flash(f"Open angle brackets (\"<\") are not allowed. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
-                                    return(redirect(url_for("epchar.importRace")))
-                                elif("javascript" in text):
-                                    flash(f"Cross-site scripting attacks are not allowed. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
-                                    return(redirect(url_for("epchar.importRace")))
-                                elif(len(feature["name"]) > 127):
-                                    flash(f"Subrace feature names must be fewer than 128 characters. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}", "red")
-                                    return(redirect(url_for("epchar.importRace")))
-                                elif(len(text) > 16383):
-                                    flash(f"Subrace feature descriptions must be fewer than 16384 characters. Offender: {race['name']} subrace '{subrace['name']}' feature '{feature['name']}'", "red")
-                                    return(redirect(url_for("epchar.importRace")))
-                                new_subrace_feature = SubraceFeature(
-                                    subrace = new_subrace,
-                                    name = feature["name"],
-                                    text = text
-                                )
-                                db.session.add(new_subrace_feature)
-                            else:
-                                if(len(new_subrace.text) > 0):
-                                    new_subrace.text += "\n\n"
-                                new_subrace.text += str(feature)
-                    for flavors in flavor["raceFluff"]:
-                        if(race["name"] in flavors["name"] and subrace["name"] in flavors["name"]):
-                            print(f"{race['name']}; {subrace['name']}")
-                            if("entries" in flavors.keys()):
-                                new_subrace.text += parseEntries(flavors["entries"], 3, flavors["name"])
-                            if("_copy" in flavors.keys() and "_mod" in flavors["_copy"].keys()):
-                                if(type(flavors["_copy"]["_mod"]["entries"]["items"]) == str):
-                                    new_subrace.text += flavors["_copy"]["_mod"]["entries"]["items"]
+                    sname = subrace["name"]
+                    if(len(sname) > 127):
+                        flash(f"{name} subrace {sname} name too long (max 127 characters); skipping subrace...", "orange")
+                    else:
+                        new_subrace = Subrace(
+                            race = new_race,
+                            name = subrace["name"],
+                            text = "",
+                        )
+                        db.session.add(new_subrace)
+                        if("entries" in subrace.keys()):
+                            for feature in subrace["entries"]:
+                                if(type(feature) == dict):
+                                    sfname = feature["name"]
+                                    sftext = parseEntries(feature["entries"], 3, feature["name"])
+                                    if(len(sfname) > 127):
+                                        flash(f"{name} subrace {sname} subrace feature {sfname} name too long (max 127 characters); skipping subrace feature...", "orange")
+                                    elif("<" in sftext):
+                                        flash(f"{name} subrace {sname} subrace feature {sfname} contains disallowed character open angle bracket (\"<\"); skipping subrace feature...", "orange")
+                                    elif("javascript" in sftext):
+                                        flash(f"{name} subrace {sname} subrace feature {sfname} contains disallowed substring \"javascript\" (potential XSS attack); skipping subrace feature...", "orange")
+                                    elif(len(sftext) > 16383):
+                                        flash(f"{name} subrace {sname} subrace feature {sfname} description too long (max 16383 characters); skipping subrace feature...", "orange")
+                                    else:
+                                        new_subrace_feature = SubraceFeature(
+                                            subrace = new_subrace,
+                                            name = sfname,
+                                            text = sftext
+                                        )
+                                        db.session.add(new_subrace_feature)
+                                elif(len(new_subrace.text + str(feature)) + 4 < 16383):
+                                    if(len(new_subrace.text) > 0):
+                                        new_subrace.text += "\n\n"
+                                    new_subrace.text += str(feature)
                                 else:
-                                    new_subrace.text += parseEntries(flavors["_copy"]["_mod"]["entries"]["items"]["entries"], 3, subrace["name"])
+                                    flash(f"Too many entries in {name} subrace {sfname} flavor text (exceeds 16383 character limit); truncating...", "orange")
+                        for flavors in flavor["raceFluff"]:
+                            if(race["name"] in flavors["name"] and subrace["name"] in flavors["name"]):
+                                if("entries" in flavors.keys()):
+                                    textappend = parseEntries(flavors["entries"], 3, flavors["name"])
+                                    if(len(new_subrace.text + textappend) < 16383):
+                                        new_subrace.text += textappend
+                                    else:
+                                        flash(f"Too many entries in {name} subrace {sname} flavor text (exceeds 16383 character limit); truncating...", "orange")
+                                if("_copy" in flavors.keys() and "_mod" in flavors["_copy"].keys()):
+                                    if(type(flavors["_copy"]["_mod"]["entries"]["items"]) == str):
+                                        textappend = flavors["_copy"]["_mod"]["entries"]["items"]
+                                    else:
+                                        textappend = parseEntries(flavors["_copy"]["_mod"]["entries"]["items"]["entries"], 3, subrace["name"])
+                                    if(len(new_subrace.text + textappend) < 16383):
+                                        new_subrace.text += textappend
+                                    else:
+                                        flash(f"Too many entries in {name} subrace {sname} flavor text (exceeds 16383 character limit); truncating...", "orange")
         db.session.commit()
         flash("Races imported!", "green")
         return(redirect(url_for("epchar.races")))
@@ -685,6 +726,8 @@ def makebackground(request, cruleset, background, instruction):
         skills = request.form.getlist("skill")
         tools = request.form.getlist("tool")
         lang_num = request.form.get("lang_num")
+        if(not lang_num):
+            lang_num = 0
         languages = request.form.getlist("language")
         items = request.form.getlist("item")
         goldcontainer = request.form.get("goldcontainer")
@@ -859,7 +902,7 @@ def backgroundImporter(backgrounds, flavor, cruleset):
             if("entries" in background.keys()):
                 for entry in background["entries"]:
                     if("name" in entry.keys()):
-                        text = parseEntries([entry], 3, name)
+                        text = parseEntries([entry], 0, "")
                         new_background_feature = BackgroundFeature(
                             background=new_background,
                             name = entry["name"],
@@ -868,6 +911,7 @@ def backgroundImporter(backgrounds, flavor, cruleset):
                         db.session.add(new_background_feature)
         db.session.commit()
         flash("Backgrounds Imported!", "green")
+        flash("Tool Proficiencies were not imported; they are not supported yet", "orange")
         return(redirect(url_for('epchar.backgrounds')))
     except:
         flash("Improperly formatted JSON; unable to import.", "red")

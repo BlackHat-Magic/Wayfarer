@@ -158,7 +158,6 @@ document.addEventListener ("alpine:init", () => {
             if (result != "") {
                 result = '<strong>Equipment: </strong>' + result;
             }
-            console.log(this.parsedgold);
             return(result);
         },
         appendItem() {

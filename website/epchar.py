@@ -124,7 +124,7 @@ def importRaces():
         return(raceImporter(races, flavor, cruleset))
     return(
         render_template(
-            "import-two.html", 
+            "import-race.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
@@ -255,12 +255,14 @@ def importBackgrounds():
         return(backgroundImporter(json.loads(request.form.get("parsed_features")), json.loads(request.form.get("parsed_flavor")), cruleset))
     return(
         render_template(
-            "import-two.html", 
+            "import-background.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
-            title="Import Backgrounds"
+            title="Import Backgrounds",
+            textone="Background Features (backgrounds.js)",
+            texttwo="Background Flavor Text (fluff-backgrounds.js)"
         )
     )
 
@@ -376,12 +378,13 @@ def importFeats():
         return(featImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
         render_template(
-            "import-one.html", 
+            "import-feat.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
-            title="Import Feats"
+            title="Import Feats",
+            text="Feats (feats.json)"
         )
     )
 

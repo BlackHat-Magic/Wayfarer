@@ -19,6 +19,22 @@
 					<option value="False">No</option>
 				</select>
 			</div>
+			<div class="interior flex horizontal center">
+				<label for="base"><h3 style="width: auto">Template Ruleset:</h3></label>
+				<select name="base" id="base" style="width: auto" x-model="base" @change="console.log(checkBase())" x-init="console.log(base)">
+					<option value="">N/A</option>
+					{% for ruleset in adminrulesets %}
+					<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
+					{% endfor %}
+					{% for ruleset in frulesets %}
+					<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="flex vertical start mild danger" x-show="checkBase()">
+				<h2>Warning</h2>
+				<p>Creating a ruleset with no template ruleset is not recommended. Without a template ruleset, there will be <em>no information</em> in the ruleset to start with. This can make it very difficult to create a usable set of rules, since there will be no ability scores, skills, items, item types, weapon properties, et cetera to mention in homebrew races, backgrounds, classes, and the like.</p>
+			</div>
 			<a><button type="submit">Create Ruleset</button></a>
 		</form>
 		<h2>Ruleset Description:</h2>

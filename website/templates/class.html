@@ -133,8 +133,11 @@
 			</div>
 		</template>
         {% if current_user.id == cruleset.userid %}
+        <div class="interior flex horizontal center">
+            <a style="width: auto" href="{{ url_for('epchar.duplicateClass', tclass=playerclass.name) }}"><button>Duplicate {{ placyerclass.name }}</button></a>
             <a style="width: auto" href="/Character/Classes/Edit/{{ playerclass.name }}"><button>Edit {{ playerclass.name }}</button></a>
             <a style="width: auto" href="/Character/Classes/Delete/{{ playerclass.name }}"><button class="mild danger">Delete {{ playerclass.name }}</button></a>
+        </div>
         {% endif %}
     </div>
 </div>

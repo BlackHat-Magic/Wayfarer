@@ -9,6 +9,10 @@
 <div class="flex">
 	<form class="flex vertical start" method="post" x-data="main">
 		<h1 @click="console.log(parsed)">{{ title }}</h1>
+		{% block warnings %}
+		{% endblock %}
+		{% block instructions %}
+		{% endblock %}
         <input 
 			type="file" 
 			id="file" 
@@ -19,6 +23,13 @@
         <input type="hidden" id="parsed" name="parsed" x-model="parsed">
 
 		<a><button type="submit">{{ title }}!</button></a>
+
+		<div class="modal" x-show="modal" @click="modal = !modal"></div>
+		<div class="modal-alert flex vertical start" x-show="modal">
+			<h1>Your Files Too Powerful!</h1>
+			<p>The maximum file size for importing is 2 MiB.</p>
+			<a><button @click="modal = !modal" type="button">Gotcha!</button></a>
+		</div>
 	</form>
 </div>
 

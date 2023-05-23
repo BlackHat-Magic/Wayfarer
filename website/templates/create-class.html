@@ -242,7 +242,7 @@
 					<div class="interior flex horizontal center" style="width: 100%">
 						<input type="text" name="class_feature_name" x-model="feature.name" placeholder="Class Feature Name" style="width: calc(50% - 24px); min-width: 240px"></input>
 						<input type="number" name="level" x-model="feature.level" placeholder="Level Obtained" style="width: calc(25% - 24px); min-width: 120px">
-						<a @click="deleteFeature(index)" style="width: calc(25% - 24px); min-width: 120px"><button type="button" class="danger">Delete Feature</button></a>
+						<a @click="deleteFeature(index)" style="width: calc(25% - 24px); min-width: 120px"><button type="button" class="mild danger">Delete Feature</button></a>
 					</div>
 					<textarea name="class_feature_text" x-model="feature.text" placeholder="Class Feature Description"></textarea>
 					<input type="hidden" name="class_feature_text" id="class_feature_text" x-model="feature.text">
@@ -271,7 +271,7 @@
 								<option value="3">Full Caster</option>
 							</select>
 						</div>
-						<a @click="deleteSubclass(index)" style="width: calc(25% - 24px); min-width: 120px"><button class="danger">Delete Subclass</button></a>
+						<a @click="deleteSubclass(index)" style="width: calc(25% - 24px); min-width: 120px"><button class="mild danger">Delete Subclass</button></a>
 					</div>
 
 					<!-- Additional Table Columns -->
@@ -303,7 +303,7 @@
 							<div style="width: 100%" class="interior flex horizontal center">
 								<input type='text' :name='`subclass_${index}_feature_name`' :id='`subclass_${index}_feature_name`' x-model='subclasses[index].features[index1].name' :placeholder='subclass.name + ` Feature Name`' style='width: calc(50% - 24px); min-width: 240px'>
 								<input type='number' :name='`subclass_${index}_feature_level`' :id='`subclass_${index}_feature_level`' x-model='subclasses[index].features[index1].level' placeholder='Level Obtained' style='width: calc(25% - 24px); min-width: 120px'>
-								<a @click='deleteSubclassFeature(index, index1)' style='width: calc(25% - 24px); min-width: 120px'><button type='submit' class='danger'>Delete Feature</button></a>
+								<a @click='deleteSubclassFeature(index, index1)' style='width: calc(25% - 24px); min-width: 120px'><button type='submit' class='mild danger'>Delete Feature</button></a>
 							</div>
 							<textarea x-model='subclasses[index].features[index1].text' placeholder='Feature Description' style='margin: 0'></textarea>
 							<input type="hidden"  :name='`subclass_${index}_feature_text`'  :id='`subclass_${index}_feature_text`' x-model="subclasses[index].features[index1].text">

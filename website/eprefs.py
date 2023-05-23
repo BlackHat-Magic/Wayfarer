@@ -8,7 +8,6 @@ import json
 
 eprefs = Blueprint('eprefs', __name__)
 
-## QUICK REFERENCE
 @eprefs.route("/")
 def refs():
     return(redirect(url_for("epmain.home")))
@@ -100,7 +99,7 @@ def importActions():
         return(actionImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
         render_template(
-            "import-one.html", 
+            "import-action.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
@@ -196,7 +195,7 @@ def importConditions():
         return(conditionImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
         render_template(
-            "import-one.html", 
+            "import-condition.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset, 
@@ -451,15 +450,12 @@ def importItems():
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method=="POST"):
-        # try:
-        items = json.loads(request.form.get("parsed_item"))
-        base = json.loads(request.form.get("parsed_base"))
+        items = json.loads(request.form.get("feature_file"))
+        base = json.loads(request.form.get("flavor_file"))
         return(itemImporter(items, base, cruleset))
-        # except:
-        #     flash("Both JSON files are required", "red")
     return(
         render_template(
-            "import-items.html", 
+            "import-item.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
@@ -726,7 +722,7 @@ def importLanguages():
         return(languageImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
         render_template(
-            "import-one.html",
+            "import-language.html",
             user=current_user, 
             cruleset=cruleset, 
             frulesets=frulesets, 
@@ -821,7 +817,7 @@ def importSpells():
         return(spellImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
         render_template(
-            "import-one.html", 
+            "import-spell.html", 
             user=current_user, 
             cruleset=cruleset, 
             frulesets=frulesets, 

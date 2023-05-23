@@ -9,8 +9,10 @@
 <div class="flex">
 	<form class="flex vertical start" method="post" x-data="main">
 		<h1 @click="console.log(parsed_flavor)">{{ title }}</h1>
-
-		<label for="feature_file"><h3>{{ title.split(" ")[1] + " Features" }}</h3></label>
+		{% block warnings %}
+		{% endblock %}
+		{% block instructionsone %}
+		{% endblock %}
         <input 
 			type="file" 
 			id="feature_file" 
@@ -21,8 +23,8 @@
         <input type="hidden" id="parsed_features" name="parsed_features" x-model="parsed_features">
 
 		<hr>
-
-		<label for="flavor_file"><h3>{{ title.split(" ")[1] + " Flavor Text" }}</h3></label>
+		{% block instructionstwo %}
+		{% endblock %}
 		<input
 			type="file"
 			id="flavor_file"
@@ -33,6 +35,13 @@
 		<input type="hidden" id="parsed_flavor" name="parsed_flavor" x-model="parsed_flavor">
 
 		<a><button type="submit">{{ title }}!</button></a>
+
+		<div class="modal" x-show="modal" @click="modal = !modal"></div>
+		<div class="modal-alert flex vertical start" x-show="modal">
+			<h1>Your Files Too Powerful!</h1>
+			<p>The maximum file size for importing is 2 MiB.</p>
+			<a><button @click="modal = !modal" type="button">Gotcha!</button></a>
+		</div>
 	</form>
 </div>
 

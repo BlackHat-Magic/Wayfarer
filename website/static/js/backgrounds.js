@@ -6,7 +6,6 @@ document.addEventListener ("alpine:init", () => {
             for (let i = 0; i < this.bgROM.length; i++) {
                 if(this.bgROM[i].equipment.length > 40) {
                     this.bgROM[i].equipment = this.bgROM[i].equipment.substring(0, 33) + "..."
-            
                 }
             }
         },
@@ -17,55 +16,8 @@ document.addEventListener ("alpine:init", () => {
                     namematch.push(this.bgROM[i]);
                 }
             }
-
-            nameskillmatch = [];
             return(namematch);
         },
-
-        skillshow: false,
-        toggleSkills () {
-            this.skillshow = !this.skillshow;
-        },
-        skilltoggles: [
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-        ],
-        skills: [
-            "Acrobatics",
-            "Animal Handling",
-            "Arcana",
-            "Athletics",
-            "Deception",
-            "History",
-            "Insight",
-            "Intimidation",
-            "Investigation",
-            "Medicine",
-            "Nature",
-            "Perception",
-            "Performance",
-            "Persuasion",
-            "Religion",
-            "Sleight of Hand",
-            "Stealth",
-            "Survival"
-        ],
         capitalize (string) {
             words = string.split(" ");
             for (let i = 0; i < words.length; i++) {
@@ -75,5 +27,19 @@ document.addEventListener ("alpine:init", () => {
         },
 
         filtertype: true,
+        
+        lstostr(input) {
+            if(input.length < 1) {
+                return("N/A")
+            }
+            output = ""
+            for (let i = 0; i < input.length; i++) {
+                if(output.length > 0) {
+                    output += ", "
+                }
+                output += input[i];
+            }
+            return(output);
+        }
     }))
 })

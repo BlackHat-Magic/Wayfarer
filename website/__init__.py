@@ -30,7 +30,7 @@ def start():
     app.register_blueprint(eprule, url_prefix="/Rules")
     app.register_blueprint(eptool, url_prefix="/Tools")
 
-    from .models import User, Ruleset, Category, Rule, Language, ItemTag, Property, Item, Condition, Skill, Action, Race, RaceFeature, Subrace, SubraceFeature, Feat, Spell, Background, BackgroundFeature, Playerclass, ClassFeature, Subclass, SubclassFeature, Monster, MonsterAbility, Character
+    from .models import User, Ruleset, Category, Rule, Language, ItemTag, Property, Item, Condition, Skill, Action, Race, RaceFeature, Subrace, SubraceFeature, Feat, Spell, Background, BackgroundFeature, Playerclass, ClassFeature, Subclass, SubclassFeature
 
     create_database(app)
     

@@ -71,20 +71,6 @@ document.addEventListener ("alpine:init", () => {
                 return(null);
             }
         },
-        populateASI() {
-            output = [];
-            for (let i = 0; i < this.raceROM.length; i++) {
-                for (let j = 0; j < this.raceROM[i].asis.length; j++) {
-                    if (this.raceROM[i].asis[j] != 0 && !output.includes(this.namearray[j])) {
-                        output.push(this.namearray[j]);
-                    }
-                }
-            }
-            for (let i = 0; i < output.length; i++) {
-                document.querySelector("#ability-filter").innerHTML += "<option value='" + output[i] +"'>" + output[i] + "</option>";
-            }
-            document.querySelector("#ability-filter").innerHTML += "<option value='other'>Other</option>";
-        },
 
         sizefilter: "",
         populateSize () {

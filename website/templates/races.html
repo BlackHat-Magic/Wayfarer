@@ -26,8 +26,11 @@
 		<div class="interior flex horizontal center" style="width: 100%">
 			<form class="interior flex horizontal start" style="width: 50%; box-sizing: border-box; margin: 0px">
 				<label for="ability-filter" style="box-sizing: border-box; width: 33%; min-width: 64px">Ability:</label>
-				<select id="ability-filter" name="ability-filter" x-model="abilityfilter" style="width: calc(67% - 24px); min-width: 128px;" x-init="populateASI()">
+				<select id="ability-filter" name="ability-filter" x-model="abilityfilter" style="width: calc(67% - 24px); min-width: 128px;">
 					<option value="null">Select</option>
+					<template x-for="score in namearray">
+						<option x-text="score"></option>
+					</template>
 				</select>
 			</form>
 			<form class="interior flex horizontal start" style="width: 50%; box-sizing: border-box; margin: 0px">

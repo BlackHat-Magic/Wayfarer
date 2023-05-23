@@ -29,9 +29,11 @@
             {% endfor %}
         {% endif %}
         {% if cruleset.userid == current_user.id %}
-        <a href="/Character/Races/Edit/{{ race.name }}"><button type="button">Edit {{ race.name }}</button></a>
-        <a href="/Character/Races/Duplicate/{{ race.name }}"><button type="button">Duplicate {{ race.name }}</button></a>
-        <a href="/Character/Races/Delete/{{ race.name }}"><button type="button" class="mild danger">Delete {{ race.name }}</button></a>
+        <div class="interior flex horizontal center">
+            <a href="/Character/Races/Edit/{{ race.name }}"><button type="button">Edit {{ race.name }}</button></a>
+            <a href="/Character/Races/Duplicate/{{ race.name }}"><button type="button">Duplicate {{ race.name }}</button></a>
+            <a href="/Character/Races/Delete/{{ race.name }}"><button type="button" class="mild danger">Delete {{ race.name }}</button></a>
+        </div>
         {% endif %}
     </div>
 </div>

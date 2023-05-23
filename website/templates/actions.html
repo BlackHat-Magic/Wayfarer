@@ -12,6 +12,13 @@
 		{% for action in cruleset.actions %}
 		<div class="usercontent">
 			<h2 x-text="'{{ action.name }}'"></h2>
+			{% if current_user.id == cruleset.userid %}
+			<div>
+				<a href="{{ url_for('eprefs.duplicateAction', action=action.name) }}"><button style="width: auto">Duplicate {{ action.name }}</button></a>
+				<a href="{{ url_for('eprefs.editAction', action=action.name) }}"><button style="width: auto">Edit {{ action.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteAction', action=action.name) }}"><button class="mild danger" style="width: auto">Delete {{ action.name }}</button></a>
+			</div>
+			{% endif %}
 			<p><strong><em>Time: </em></strong>{{ action.time }}</p>
 			<hr>
 			<div x-html="convert(`{{ action.text }}`)"></div>

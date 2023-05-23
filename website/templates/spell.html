@@ -17,6 +17,11 @@
 			<hr>
 			<div x-html="convert(`{{ spell.text }}`)"></div>
 		</div>
+		<div class="interior flex horizontal center">
+			<a href="{{ url_for('eprefs.duplicateSpell', spell=spell.name) }}"><button style="width: auto">Duplicate {{ spell.name }}</button></a>
+			<a href="{{ url_for('eprefs.editSpell', spell=spell.name) }}"><button style="width: auto">Edit {{ spell.name }}</button></a>
+			<a href="{{ url_for('eprefs.deleteSpell', spell=spell.name) }}"><button class="mild danger" style="width: auto">Delete {{ spell.name }}</button></a>
+		</div>
 	</div>
 </div>
 {% endblock %}

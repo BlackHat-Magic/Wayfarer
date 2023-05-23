@@ -11,6 +11,23 @@
 		{% for condition in conditions %}
 		<div class="usercontent">
 			<h2 x-text="'{{ condition.name }}'"></h2>
+			{% if current_user.id == cruleset.userid %}
+			<div>
+				{% if button == "Condition" %}
+				<a href="{{ url_for('eprefs.duplicateCondition', condition=condition.name) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.editCondition', condition=condition.name) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteCondition', condition=condition.name) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
+				{% elif button == "Disease" %}
+				<a href="{{ url_for('eprefs.duplicateDisease', disease=condition.name) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.editDisease', disease=condition.name) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteDisease', disease=condition.name) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
+				{% elif button == "Status" %}
+				<a href="{{ url_for('eprefs.duplicateStatus', status=condition.name) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.editStatus', status=condition.name) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteStatus', status=condition.name) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
+				{% endif %}
+			</div>
+			{% endif %}
 			<hr>
 			<div x-html="convert(`{{ condition.text }}`)"></div>
 		</div>
