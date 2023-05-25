@@ -30,27 +30,28 @@ class Ruleset(db.Model):
     is_shareable = db.Column(db.Boolean)
     name = db.Column(db.String(127))
     description = db.Column(db.String(16383))
-    categories = db.relationship("Category")
-    languages = db.relationship("Language")
-    recipes = db.relationship("Recipe")
-    item_tags = db.relationship("ItemTag")
-    item_properties = db.relationship("Property")
-    items = db.relationship("Item")
-    conditions = db.relationship("Condition")
-    diseases = db.relationship("Disease")
-    statuses = db.relationship("Status")
-    skills = db.relationship("Skill")
-    actions = db.relationship("Action")
-    races = db.relationship("Race")
-    feats = db.relationship("Feat")
-    ability_scores = db.relationship("AbilityScore")
-    spells = db.relationship("Spell")
-    backgrounds = db.relationship("Background")
-    classes = db.relationship("Playerclass")
-    characters = db.relationship("Character")
-    monster = db.relationship("Monster")
-    monster_type = db.relationship("MonsterType")
-    damage_type = db.relationship("DamageType")
+    categories = db.relationship("Category", backref="ruleset")
+    languages = db.relationship("Language", backref="ruleset")
+    recipes = db.relationship("Recipe", backref="ruleset")
+    item_tags = db.relationship("ItemTag", backref="ruleset")
+    item_properties = db.relationship("Property", backref="ruleset")
+    items = db.relationship("Item", backref="ruleset")
+    conditions = db.relationship("Condition", backref="ruleset")
+    diseases = db.relationship("Disease", backref="ruleset")
+    statuses = db.relationship("Status", backref="ruleset")
+    skills = db.relationship("Skill", backref="ruleset")
+    actions = db.relationship("Action", backref="ruleset")
+    races = db.relationship("Race", backref="ruleset")
+    feats = db.relationship("Feat", backref="ruleset")
+    ability_scores = db.relationship("AbilityScore", backref="ruleset")
+    spells = db.relationship("Spell", backref="ruleset")
+    backgrounds = db.relationship("Background", backref="ruleset")
+    classes = db.relationship("Playerclass", backref="ruleset")
+    currencies = db.relationship("Currency", backref="ruleset")
+    characters = db.relationship("Character", backref="ruleset")
+    monster = db.relationship("Monster", backref="ruleset")
+    monster_type = db.relationship("MonsterType", backref="ruleset")
+    damage_type = db.relationship("DamageType", backref="ruleset")
     
 class Category(db.Model):
     __tablename__ = "category"
@@ -58,7 +59,7 @@ class Category(db.Model):
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     pinned = db.Column(db.Boolean)
-    rules = db.relationship("Rule")
+    rules = db.relationship("Rule", backref="category")
 
 class Rule(db.Model):
     __tablename__ = "rule"
@@ -372,7 +373,7 @@ class Character(db.Model):
     skills = db.Column(db.PickleType)
     proficiencies = db.Column(db.PickleType)
     armor_class = db.Column(db.Integer)
-    initiative = db.Column(db.Integer)
+    initiative = db.Column(db.Integer) # stored as bonus
     current_hp = db.Column(db.Integer)
     max_hp = db.Column(db.Integer)
     temp_hp = db.Column(db.Integer)
@@ -383,7 +384,7 @@ class Character(db.Model):
     features = db.relationship("CharacterFeature", backref="character")
     attacks = db.relationship("CharacterAttack", backref="character")
     items = db.relationship("CharacterItem", backref="character")
-    spells = db.Column(db.PickleType)
+    spells = db.Column(db.PickleType)# name
     spellcasting_ability = db.Column(db.Integer) # index of ability score in CHARACTEr (not database ID)
     spell_attack_misc_bonus = db.Column(db.Integer)
     spell_savedc_misc_bonus = db.Column(db.Integer)
@@ -392,8 +393,8 @@ class CharacterFeature(db.Model):
     __tablename__ = "characterfeature"
     id = db.Column(db.Integer, primary_key=True)
     characterid = db.Column(db.Integer, db.ForeignKey("character.id"))
-    comes_from = db.Column(db.String(127)) # race? class? background? etc
-    reference = db.Column(db.Integer) # id of said thing
+    comes_from = db.Column(db.String(127)) # race? class? background? etc; name
+    reference = db.Column(db.Integer) # name
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
@@ -402,12 +403,12 @@ class CharacterAttack(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     characterid = db.Column(db.Integer, db.ForeignKey("character.id"))
     name = db.Column(db.String(127))
-    abilityscore = db.Column(db.Integer) # index of ability in CHARACTER (not database ID)
+    ability_score = db.Column(db.Integer) # index of ability in CHARACTER (not database ID)
     misc_bonus = db.Column(db.Integer)
     proficient = db.Column(db.Boolean)
     attack_range = db.Column(db.Integer)
     damage_nums = db.Column(db.Integer)
-    damage_die = db.Column(db.Integer)
+    damage_dice = db.Column(db.Integer)
     crit_nums = db.Column(db.Integer)
     crit_die = db.Column(db.Integer)
     add_ability = db.Column(db.Boolean)
@@ -418,7 +419,7 @@ class CharacterItem(db.Model):
     __tablename__ = "characteritem"
     id = db.Column(db.Integer, primary_key=True)
     characterid = db.Column(db.Integer, db.ForeignKey("character.id"))
-    reference = db.Column(db.Integer) # reference item id
+    reference = db.Column(db.Integer) # reference item name
     quantity = db.Column(db.Integer)
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
@@ -430,15 +431,15 @@ class Monster(db.Model):
     name = db.Column(db.String(127))
     shortened_name = db.Column(db.String(127))
     shortened_plural = db.Column(db.String(127))
-    info = db.Column(db.String(16383))
+    text = db.Column(db.String(16383))
     images = db.Column(db.PickleType)
     size = db.Column(db.Integer)
     size_text = db.Column(db.String(127))
-    monster_type = db.Column(db.Integer) # MonsterType ID
-    monster_subtype = db.Column(db.Integer) # MonsterSubtype ID
+    monster_type = db.Column(db.Integer) # MonsterType name
+    monster_subtype = db.Column(db.Integer) # MonsterSubtype name
     type_text = db.Column(db.String(127))
     alignment = db.Column(db.String(127))
-    armor_item = db.Column(db.Integer) # Item ID
+    armor_item = db.Column(db.Integer) # Item name
     base_ac = db.Column(db.Integer)
     custom_armor = db.Column(db.String(127))
     has_shield = db.Column(db.Boolean)
@@ -453,7 +454,9 @@ class Monster(db.Model):
     burrow = db.Column(db.Integer)
     ability_scores = db.Column(db.PickleType)
     saves = db.Column(db.PickleType)  # index of ability in CHARACTER (not database ID)
-    skills = db.Column(db.PickleType)
+    versatile = db.Column(db.PickleType) # name
+    skills = db.Column(db.PickleType) # name
+    expertise = db.Column(db.PickleType) # name
     damage_immunities = db.Column(db.PickleType) # Type ID
     damage_resistances = db.Column(db.PickleType) # ^
     damage_vulnerabilities = db.Column(db.PickleType) # ^
@@ -474,6 +477,7 @@ class Monster(db.Model):
     mythic_actions_text = db.Column(db.String(16383))
     villain_actions_text = db.Column(db.String(16383))
     lair_actions_text = db.Column(db.String(16383))
+    custom_actions_text = db.Column(db.PickleType)
 
 class MonsterType(db.Model):
     __tablename__ = "monstertype"
@@ -508,8 +512,6 @@ class MonsterAction(db.Model):
     __tablename__ = "monsteraction"
     id = db.Column(db.Integer, primary_key=True)
     monsterid = db.Column(db.Integer, db.ForeignKey("monster.id"))
-    action_type = db.Column(db.Integer) # reaction, bonus, action, legendary action, mythic action, lair action, villain action
-    type_text = db.Column(db.String(127))
-    copies_from = db.Column(db.Integer) # Action ID
+    action_type = db.Column(db.String(31)) # reaction, bonus, action, legendary action, mythic action, lair action, villain action; string to allow custom
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))

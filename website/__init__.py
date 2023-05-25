@@ -66,5 +66,6 @@ def create_database(app):
                 description = "default admin ruleset"
             )
             db.session.add(admin_ruleset)
+            admin_user.current_ruleset = admin_ruleset.id
             db.session.commit()
         print("Created Database")

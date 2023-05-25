@@ -10,43 +10,25 @@ epmain = Blueprint("epmain", __name__)
 
 # MAIN DOES NOT NEED SUBDOMAINS; FIX THIS
 
-@epmain.route("/")
-def noRulesetHome():
-    if(current_user.is_authenticated):
-        return(redirect(url_for("epmain.home", ruleset=current_user.current_ruleset.identifier)))
-    else:
-        return(redirect(url_for("epmain.home", ruleset=Ruleset.query.filter_by(is_admin=True).first().identifier)))
 @epmain.route("/", subdomain="<ruleset>")
 def home(ruleset):
-    print("endpoint reached")
-    print("fsc")
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "index.html", 
-            user=current_user, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Home"
         )
     )
 
-@epmain.route("/My-Rulesets")
-def noRulesetMyRulesets():
-    if(current_user.is_authenticated):
-        return(redirect(url_for("epmain.home", ruleset=current_user.current_ruleset.identifier)))
-    else:
-        return(redirect(url_for("epmain.home", ruleset=Ruleset.query.filter_by(is_admin=True).first().identifier)))
 @epmain.route("/My-Rulesets", subdomain="<ruleset>")
 @login_required
 def myRulesets(ruleset):
-    cruleset = Ruleset.query.filter_by(identifier=ruleset)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "my-rulesets.html", 
-            user=current_user, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="My Rulesets"
@@ -56,9 +38,7 @@ def myRulesets(ruleset):
 @epmain.route("/Create-Ruleset", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createRuleset(ruleset):
-    cruleset = Ruleset.query.filter_by(identifier=ruleset)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         try:
             shareable = bool(request.form.get("shareable"))
@@ -86,7 +66,6 @@ def createRuleset(ruleset):
     return(
         render_template(
             "create-ruleset.html", 
-            user=current_user, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Create a Ruleset"
@@ -96,9 +75,7 @@ def createRuleset(ruleset):
 @epmain.route("/Manage-Ruleset/<string:rulesetid>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def manageRuleset(rulesetid, ruleset):
-    cruleset = Ruleset.query.filter_by(identifier=ruleset)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         ruleset = Ruleset.query.filter_by(id=rulesetid).first()
         print("got ruleset " + ruleset.name)
@@ -127,7 +104,6 @@ def manageRuleset(rulesetid, ruleset):
     return(
         render_template(
             "manage-ruleset.html", 
-            user=current_user, 
             ruleset=ruleset, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
@@ -138,9 +114,7 @@ def manageRuleset(rulesetid, ruleset):
 @epmain.route("/Delete-Ruleset/", methods=["POST"], subdomain="<ruleset>")
 @login_required
 def deleteRuleset(ruleset):
-    instruction = json.loads(request.data)
-    rulesetid = instruction["rulesetid"]
-    ruleset = Ruleset.query.filter_by(id = rulesetid).first()
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(current_user.id == ruleset.userid):
         db.session.delete(ruleset)
         if(current_user.current_ruleset == ruleset.id):
@@ -154,9 +128,7 @@ def deleteRuleset(ruleset):
 @epmain.route("/Add-Ruleset/", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def addRuleset(ruleset):
-    cruleset = Ruleset.query.filter_by(identifier=ruleset)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         ruleset = request.form.get("rulesetid")
         if(not Ruleset.query.filter_by(id=int(ruleset)).first()):
@@ -181,7 +153,6 @@ def addRuleset(ruleset):
     return(
         render_template(
             "add-ruleset.html",
-            user=current_user,
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Add a Friend's Ruleset"
@@ -191,9 +162,7 @@ def addRuleset(ruleset):
 @epmain.route("/Remove-Ruleset", methods=["POST"], subdomain="<ruleset>")
 @login_required
 def removeRuleset(ruleset):
-    instruction = json.loads(request.data)
-    rulesetid = instruction["rulesetid"]
-    ruleset = Ruleset.query.filter_by(id = rulesetid).first()
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(current_user.current_ruleset == rulesetid):
         current_user.current_ruleset = 1 
     if(current_user.foreign_ruleset == str(ruleset.id)):
@@ -224,9 +193,7 @@ def changeRuleset():
 @epmain.route("/My-Account", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def myAccount(ruleset):
-    cruleset = Ruleset.query.filter_by(identifier=ruleset)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         username = request.form.get("username")
         email = request.form.get("email")
@@ -265,7 +232,6 @@ def myAccount(ruleset):
     return(
         render_template(
             "my-account.html",
-            user=current_user,
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="My Account"

@@ -7,8 +7,9 @@ from .uservalidation import *
 
 epauth = Blueprint('epauth', __name__)
 
-@epauth.route("/Login", methods=["GET", "POST"])
-def login():
+@epauth.route("/Login", methods=["GET", "POST"], subdomain="<ruleset>")
+def login(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         username = request.form.get("username")
         password = request.form.get("password")
@@ -18,7 +19,7 @@ def login():
             if(check_password_hash(user.password, password)):
                 login_user(user, remember=True)
                 flash(f"Welcome back, {username}.", "green")
-                return(redirect(url_for("epmain.home")))
+                return(redirect(url_for("epmain.home", ruleset=Ruleset.query.filter_by(id=current_user.current_ruleset))))
             else:
                 flash("Incorrect password.", "red")
         else:
@@ -28,7 +29,6 @@ def login():
             "login.html", 
             user=current_user, 
             cruleset=cruleset, 
-            frulesets=frulesets, 
             adminrulesets=adminrulesets, 
             title="Log In"
         )
@@ -77,7 +77,6 @@ def signUp():
             "signup.html", 
             user=current_user, 
             cruleset=cruleset, 
-            frulesets=frulesets, 
             adminrulesets=adminrulesets, 
             title="Sign Up"
         )

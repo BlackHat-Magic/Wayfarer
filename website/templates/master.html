@@ -28,34 +28,34 @@
 		<a href="#" class="dropbtn">Rules</a>
 		<div class="dropdown-content">
 			{% for category in cruleset.categories %}
-			<a href="{{ url_for('eprule.CategoryRoute', categoryname='{{ category.name }}', ruleset='{{ cruleset.identifier }}') }}">{{ category.name }}</a>
+			<a href="{{ url_for('eprule.CategoryRoute', categoryname=category.name, ruleset=cruleset.identifier) }}">{{ category.name }}</a>
 			{% endfor %}
 		</div>
 	</li>
 	<li id="nav-char" class="dropdown nav-item">
 		<a href="#" class="dropbtn">Characters</a>
 		<div class="dropdown-content">
-			<a href="{{ url_for('epchar.races', ruleset='{{ cruleset.identifier }}') }}">Races</a>
-			<a href="{{ url_for('epchar.backgrounds', ruleset='{{ cruleset.identifier }}') }}">Backgrounds</a>
-			<a href="{{ url_for('epchar.feats', ruleset='{{ cruleset.identifier }}') }}">Feats</a>
-			<a href="{{ url_for('epchar.stats', ruleset='{{ cruleset.identifier }}') }}">Ability Scores</a>
-			<a href="{{ url_for('epchar.classes', ruleset='{{ cruleset.identifier }}') }}">Classes</a>
+			<a href="{{ url_for('epchar.races', ruleset=cruleset.identifier) }}">Races</a>
+			<a href="{{ url_for('epchar.backgrounds', ruleset=cruleset.identifier) }}">Backgrounds</a>
+			<a href="{{ url_for('epchar.feats', ruleset=cruleset.identifier) }}">Feats</a>
+			<a href="{{ url_for('epchar.stats', ruleset=cruleset.identifier) }}">Ability Scores</a>
+			<a href="{{ url_for('epchar.classes', ruleset=cruleset.identifier) }}">Classes</a>
 		</div>
 	</li>
 	<li id="nav-qref" class="dropdown nav-item">
 		<a href="#">Reference</a>
 		<div class="dropdown-content">
-			<a href="{{ url_for('eprefs.actions', ruleset='{{ cruleset.identifier }}') }}">Actions</a>
-			<a href="{{ url_for('eprefs.conditions', ruleset='{{ cruleset.identifier }}') }}">Conditions</a>
-			<a href="{{ url_for('eprefs.diseases', ruleset='{{ cruleset.identifier }}') }}">Diseases</a>
-			<a href="{{ url_for('eprefs.statuses', ruleset='{{ cruleset.identifier }}') }}">Statuses</a>
-			<a href="{{ url_for('eprefs.items', ruleset='{{ cruleset.identifier }}') }}">Items & Adventuring Gear</a>
-			<a href="{{ url_for('eprefs.tags', ruleset='{{ cruleset.identifier }}') }}">Item Types</a>
-			<a href="{{ url_for('eprefs.properties', ruleset='{{ cruleset.identifier }}') }}">Weapon Properties</a>
-			<a href="{{ url_for('eprefs.languages', ruleset='{{ cruleset.identifier }}') }}">Languages</a>
-			<a href="{{ url_for('eprefs.spells', ruleset='{{ cruleset.identifier }}') }}">Spells</a>
-			<a href="{{ url_for('eprefs.recipes', ruleset='{{ cruleset.identifier }}') }}">Recipes</a>
-			<a href="{{ url_for('eprefs.skills', ruleset='{{ cruleset.identifier }}') }}">Skills</a>
+			<a href="{{ url_for('eprefs.actions', ruleset=cruleset.identifier) }}">Actions</a>
+			<a href="{{ url_for('eprefs.conditions', ruleset=cruleset.identifier) }}">Conditions</a>
+			<a href="{{ url_for('eprefs.diseases', ruleset=cruleset.identifier) }}">Diseases</a>
+			<a href="{{ url_for('eprefs.statuses', ruleset=cruleset.identifier) }}">Statuses</a>
+			<a href="{{ url_for('eprefs.items', ruleset=cruleset.identifier) }}">Items & Adventuring Gear</a>
+			<a href="{{ url_for('eprefs.tags', ruleset=cruleset.identifier) }}">Item Types</a>
+			<a href="{{ url_for('eprefs.properties', ruleset=cruleset.identifier) }}">Weapon Properties</a>
+			<a href="{{ url_for('eprefs.languages', ruleset=cruleset.identifier) }}">Languages</a>
+			<a href="{{ url_for('eprefs.spells', ruleset=cruleset.identifier) }}">Spells</a>
+			<a href="{{ url_for('eprefs.recipes', ruleset=cruleset.identifier) }}">Recipes</a>
+			<a href="{{ url_for('eprefs.skills', ruleset=cruleset.identifier) }}">Skills</a>
 		</div>
 	</li>
 	<li id="nav-tools" class="dropdown nav-item">
@@ -70,7 +70,7 @@
 			<a href="/Tools/Stat-Gen">Stat Generator</a>
 		</div>
 	</li>
-	{% if user.is_authenticated %}
+	{% if current_user.is_authenticated %}
 		<li id="nav-account" class="dropdown nav-item nav-right">
 			<a href="/My-Account">My Account</a>
 			<div class="dropdown-content" style="right: 0px">
@@ -105,7 +105,7 @@
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}
 			{% if current_user.username != "admin" %}
-			{% for ruleset in user.rulesets %}
+			{% for ruleset in current_user.rulesets %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}
 			{% endif %}

@@ -10,10 +10,10 @@
 	<div class="flex vertical start">
 		<h1>My Rulesets</h1>
 		<div class="inactive interior flex vertical start">
-			{% for ruleset in user.rulesets %}
+			{% for ruleset in current_user.rulesets %}
 				<div class="inactive interior flex horizontal center">
 					<h3 style="grid-column: 1 / span 8; text-decoration: underline">{{ ruleset.name }}</h3>
-					<a href="{{ url_for('epmain.manageRuleset', rulesetid=ruleset.id) }}"><button>Manage</button></a>
+					<a href="{{ url_for('epmain.manageRuleset', rulesetid=ruleset.id, ruleset=ruleset.identifier) }}"><button>Manage</button></a>
 				</div>
 			<h6>Ruleset ID: {{ruleset.id}}</h6>
 			<h6 style="grid-column: 1 / span 3">
@@ -29,7 +29,7 @@
 		<a href="/Create-Ruleset"><button>Create a Ruleset</button></a>
 		<h1>Shared With Me</h1>
 		<div class="inactive interior flex vertical start">
-			{% for ruleset in user.frulesets %}
+			{% for ruleset in current_user.frulesets %}
 				<div class="inactive interior flex horizontal center">
 					<h3 style="grid-column: 1 / span 8; text-decoration: underline">{{ ruleset.name }}</h3>
 				</div>
