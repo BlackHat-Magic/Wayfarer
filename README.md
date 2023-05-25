@@ -22,7 +22,8 @@ In no particular order...
      - [ ] Export Functionality
      - [X] ~~Import races~~
      - [ ] Import backgrounds
-         - [ ] Import variant backgrounds
+         - [X] Import variant backgrounds
+         - [ ] Tool Proficiencies
      - [X] ~~Import feats~~
      - [ ] Import classes (will likely never be fully supported; partial support is planned)
      - [X] ~~Import actions~~
@@ -41,6 +42,7 @@ In no particular order...
      - [ ] Add instructions
      - [ ] Communicate unsupported data
      - [X] ~~Input validation for imported text~~
+     - [ ] Consolidate user content validation into a function
  - [ ] Make flash messages dismissable
  - [ ] Hyperlinks
      - [ ] Correctly parse and reformat 5e tools markup
@@ -52,6 +54,7 @@ In no particular order...
      - [ ] CR Calculator (Maybe)
      - [ ] Encounter Generator (Maybe)
      - [ ] Loot Generator (Maybe)
+     - [ ] Initiative Tracker (Maybe)
  - [ ] Player Tools
      - [ ] Character sheets
      - [ ] Backstory Generator
@@ -69,6 +72,10 @@ In no particular order...
  - [ ] Move the submit button on create/edit classes page to the bottom (this is less trivial than it sounds I swear)
  - [ ] Header Links
  - [ ] "Cantrip-level x"
+ - [ ] Alert administrator of high ID collision probability
+ - [ ] De-spaghettify import code (e.g. checking if item is list or dict can be more efficient)
+ - [ ] Subdomain navigation
+ - [ ] Images (find a host)
 
 ## Usage
 

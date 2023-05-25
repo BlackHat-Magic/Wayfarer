@@ -845,110 +845,271 @@ def backgroundImporter(backgrounds, flavor, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import backgrounds into rulesets that are not your own.", "red")
         return(redirect(url_for("epchar.backgrounds")))
-    try:
-        for background in backgrounds["background"]:
+    # try:
+    for background in backgrounds["background"]:
+        if("_copy" in background.keys()):
+            continue
+        name = background["name"]
+        skills = []
+        if("skillProficiencies" in background.keys()):
+            for skill in background["skillProficiencies"][0].keys():
+                skills.append(skill.casefold().capitalize())
+        tools = []
+        lang_num = 0
+        if("languageProficiencies" in background.keys()):
+            if("anyStandard" in background["languageProficiencies"][0].keys()):
+                lang_num = background["languageProficiencies"][0]["anyStandard"]
+        languages = []
+        equipment = []
+        gold_container = starting_gold = None
+        if("startingEquipment" in background.keys()):
+            for i, group in enumerate(background["startingEquipment"]):
+                if("_" in group.keys()):
+                    for item in background["startingEquipment"][i]["_"]:
+                        if(type(item) == str):
+                            equipment.append(item)
+                        elif("item" in item.keys()):
+                            if("displayName" in item.keys()):
+                                equipment.append(item["displayName"])
+                            elif("containsValue" in item.keys()):
+                                gold_container = item['item'].split('|')[0]
+                                starting_gold = item["containsValue"] / 100
+                        elif("special" in item.keys()):
+                            if("quantity" in item.keys()):
+                                equipment.append(f"{str(item['quantity'])} {item['special']}")
+                            else:
+                                equipment.append(item["special"])
+                else:
+                    item = "("
+                    for key in group.keys():
+                        if(len(item) > 1):
+                            item += " or "
+                        if(type(group[key][0]) == str):
+                            item += group[key][0]
+                        elif("displayName" in group[key][0].keys()):
+                            item += group[key][0]["displayName"].split("|")[0]
+                        elif("special" in group[key][0].keys()):
+                            item += group[key][0]["special"]
+                    item += ")"
+                    equipment.append(item)
+        text = ""
+        if("hasFluff" in background.keys()):
+            for fluff in flavor["backgroundFluff"]:
+                if(fluff["name"] == background["name"] and fluff["source"] == background["source"]):
+                    if("_copy" not in fluff.keys()):
+                        text += parseEntries(fluff["entries"], 0, name)
+        if(len(name) > 127):
+            flash(f"{name} name is too long (maximum 127 characters); skipping background...", "orange")
+            continue
+        elif(len(text) > 16383):
+            flash(f"{name} description is too long (maximum 16383 characters); skipping background...", "orange")
+            continue
+        elif("<" in text):
+            flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping background...", "orange")
+            continue
+        elif("javascript" in text):
+            flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping background...", "orange")
+            continue
+        new_background = Background(
+            rulesetid = cruleset.id,
+            name = name,
+            skills = skills,
+            tools = tools,
+            lang_num = lang_num,
+            languages = languages,
+            equipment = equipment,
+            text = text,
+            gold_container = gold_container,
+            starting_gold = starting_gold
+        )
+        db.session.add(new_background)
+
+        if("entries" in background.keys()):
+            for entry in background["entries"]:
+                if("name" in entry.keys()):
+                    fname = entry["name"]
+                    ftext = parseEntries([entry], 0, "")
+                    if(len(fname) > 127):
+                        flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
+                        continue
+                    elif(len(ftext) > 16383):
+                        flash(f"{name} background feature {ftext} description is too long (maximum 16383 characters); skipping feature...", "orange")
+                        continue
+                    new_background_feature = BackgroundFeature(
+                        background=new_background,
+                        name = entry["name"],
+                        text = text
+                    )
+                    db.session.add(new_background_feature)
+    for background in backgrounds["background"]:
+        if("_copy" in background.keys()):
             name = background["name"]
+            print("name")
+            background_to_copy = Background.query.filter_by(rulesetid = cruleset.id, name=background["_copy"]["name"]).first()
+            if(not background_to_copy):
+                flash(f"{name} is variant of {background['_copy']['name']}, but {background['_copy']['name']} doesn't exist; skipping variant background...", "orange")
+                continue
             skills = []
             if("skillProficiencies" in background.keys()):
                 for skill in background["skillProficiencies"][0].keys():
-                    skills.append(skill.casefold().capitalize())
+                    skills.append(skill.capitalize())
+            else:
+                skills = background_to_copy.skills
             tools = []
-            # something something tools
-            lang_num = 0
-            if("languageProficiencies" in background.keys()):
-                if("anyStandard" in background["languageProficiencies"][0].keys()):
-                    lang_num = background["languageProficiencies"][0]["anyStandard"]
-            languages = []
-            equipment = []
-            gold_container = starting_gold = None
-            if("startingEquipment" in background.keys()):
-                for i, group in enumerate(background["startingEquipment"]):
-                    if("_" in group.keys()):
-                        for item in background["startingEquipment"][i]["_"]:
-                            if(type(item) == str):
-                                equipment.append(item)
-                            elif("item" in item.keys()):
-                                if("displayName" in item.keys()):
-                                    equipment.append(item["displayName"])
-                                elif("containsValue" in item.keys()):
-                                    gold_container = item['item'].split('|')[0]
-                                    starting_gold = item["containsValue"] / 100
-                            elif("special" in item.keys()):
-                                if("quantity" in item.keys()):
-                                    equipment.append(f"{str(item['quantity'])} {item['special']}")
-                                else:
-                                    equipment.append(item["special"])
-                    else:
-                        thingy = "("
-                        for key in group.keys():
-                            if(len(thingy) > 1):
-                                thingy += " or "
-                            if(type(group[key][0]) == str):
-                                thingy += group[key][0]
-                            elif("displayName" in group[key][0].keys()):
-                                thingy += group[key][0]["displayName"].split("|")[0]
-                            elif("special" in group[key][0].keys()):
-                                thingy += group[key][0]["special"]
-                        thingy += ")"
-                        equipment.append(thingy)
-            text = ""
-            if("hasFluff" in background.keys()):
-                for fluff in flavor["backgroundFluff"]:
-                    if(fluff["name"] == background["name"] and fluff["source"] == background["source"]):
-                        if("_copy" in fluff.keys()):
-                            flash("Variant background detected; variants not yet supported. Skipping...", "orange")
-                        else:
-                            text += parseEntries(fluff["entries"], 0, name)
-            if(len(name) > 127):
-                flash(f"{name} name is too long (maximum 127 characters); skipping background...", "orange")
-                continue
-            elif(len(text) > 16383):
-                flash(f"{name} description is too long (maximum 16383 characters); skipping background...", "orange")
-                continue
-            elif("<" in text):
-                flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping background...", "orange")
-                continue
-            elif("javascript" in text):
-                flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping background...", "orange")
-                continue
+            if("toolProficiencies" in background.keys()):
+                for tool in background["toolProficiencies"][0].keys():
+                    tools.append(tool.capitalize())
+            else:
+                tools = background_to_copy.tools
+            lang_num = background_to_copy.lang_num
+            languages = background_to_copy.languages
+            equipment = background_to_copy.equipment
+            gold_container = background_to_copy.gold_container
+            starting_gold = background_to_copy.starting_gold
+            text = background_to_copy.text
             new_background = Background(
-                rulesetid = cruleset.id,
                 name = name,
                 skills = skills,
                 tools = tools,
                 lang_num = lang_num,
-                languages = languages,
                 equipment = equipment,
-                text = text,
                 gold_container = gold_container,
-                starting_gold = starting_gold
+                starting_gold = starting_gold,
+                text = text
             )
             db.session.add(new_background)
-
-            if("entries" in background.keys()):
-                for entry in background["entries"]:
-                    if("name" in entry.keys()):
-                        fname = entry["name"]
-                        ftext = parseEntries([entry], 0, "")
-                        if(len(fname) > 127):
-                            flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
-                            continue
-                        elif(len(ftext) > 16383):
-                            flash(f"{name} background feature {ftext} description is too long (maximum 16383 characters); skipping feature...", "orange")
-                            continue
-                        new_background_feature = BackgroundFeature(
-                            background=new_background,
-                            name = entry["name"],
-                            text = text
-                        )
-                        db.session.add(new_background_feature)
-        db.session.commit()
-        flash("Backgrounds Imported!", "green")
-        flash("Tool Proficiencies were not imported; they are not supported yet", "orange")
-        return(redirect(url_for('epchar.backgrounds')))
-    except:
-        flash("Improperly formatted JSON; unable to import.", "red")
-        return(redirect(url_for("epchar.importBackgrounds")))
+            for feature in background_to_copy.background_features:
+                new_background_feature = BackgroundFeature(
+                    background = new_background,
+                    name = feature.name,
+                    text = feature.text
+                )
+                db.session.add(new_background_feature)
+            # istg the json formatting on 5e.tools is downright arcane
+            if("_mod" in background["_copy"].keys()):
+                if(type(background["_copy"]["_mod"]["entries"]) == dict):
+                    if(background["_copy"]["_mod"]["entries"]["mode"] == "insertArr"):
+                        if(type(background["_copy"]["_mod"]["entries"]["items"]) == list):
+                            for feature in background["_copy"]["_mod"]["entries"]["items"]:
+                                fname = feature["name"]
+                                ftext = parseEntries(feature["entries"], 3, fname)
+                                if(len(name) > 127):
+                                    flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
+                                    continue
+                                elif(len(ftext) > 16383):
+                                    flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
+                                    continue
+                                elif("<" in ftext):
+                                    flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
+                                    continue
+                                elif("javascript" in ftext):
+                                    flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
+                                    continue
+                                new_background_feature = BackgroundFeature(
+                                    background = new_background,
+                                    name = fname,
+                                    text = ftext
+                                )
+                                db.session.add(new_background_feature)
+                        else:
+                            fname = background["_copy"]["_mod"]["entries"]["items"]["name"]
+                            ftext = parseEntries(background["_copy"]["_mod"]["entries"]["items"]["entries"], 3, fname)
+                            if(len(fname) > 127):
+                                flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
+                                continue
+                            elif(len(ftext) > 16383):
+                                flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
+                                continue
+                            elif("<" in ftext):
+                                flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
+                                continue
+                            elif("javascript" in ftext):
+                                flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
+                                continue
+                            new_background_feature = BackgroundFeature(
+                                background = new_background,
+                                name = fname,
+                                text = ftext
+                            )
+                            db.session.add(new_background_feature)
+                    else:
+                        for feature in new_background.background_features:
+                            if(feature.name == background["_copy"]["_mod"]["entries"]["replace"]):
+                                fname = background["_copy"]["_mod"]["entries"]["items"]["name"]
+                                if(background["_copy"]["_mod"]["entries"]["items"]["type"] == "entries"):
+                                    ftext = parseEntries(background["_copy"]["_mod"]["entries"]["items"]["entries"], 3, fname)
+                                else:
+                                    ftext = parseEntries([background["_copy"]["_mod"]["entries"]["items"]], 3, fname)
+                                if(len(fname) > 127):
+                                    flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
+                                    db.session.delete(feature)
+                                    continue
+                                elif(len(ftext) > 16383):
+                                    flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
+                                    db.session.delete(feature)
+                                    continue
+                                elif("<" in ftext):
+                                    flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
+                                    db.session.delete(feature)
+                                    continue
+                                elif("javascript" in ftext):
+                                    flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
+                                    db.session.delete(feature)
+                                    continue
+                                feature.name = fname
+                                feature.text = ftext
+                else:
+                    for entry in background["_copy"]["_mod"]["entries"]:
+                        if(entry["mode"] == "insertArr"):
+                            fname = entry["items"]["name"]
+                            ftext = parseEntries(entry["items"]["entries"], 3, fname)
+                            if(len(fname) > 127):
+                                flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
+                                continue
+                            elif(len(ftext) > 16383):
+                                flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
+                                continue
+                            elif("<" in ftext):
+                                flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
+                                continue
+                            elif("javascript" in ftext):
+                                flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
+                                continue
+                            new_background_feature = BackgroundFeature(
+                                background = new_background,
+                                name = fname,
+                                text = ftext
+                            )
+                        else:
+                            for feature in new_background.background_features:
+                                if(feature.name == entry["replace"]):
+                                    fname = entry["items"]["name"]
+                                    ftext = parseEntries(entry["items"]["entries"], 3, fname)
+                                    if(len(fname) > 127):
+                                        flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
+                                        db.session.delete(feature)
+                                        continue
+                                    elif(len(ftext) > 16383):
+                                        flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
+                                        db.session.delete(feature)
+                                        continue
+                                    elif("<" in ftext):
+                                        flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
+                                        db.session.delete(feature)
+                                        continue
+                                    elif("javascript" in ftext):
+                                        flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
+                                        db.session.delete(feature)
+                                        continue
+                                    feature.name = fname
+                                    feature.text = ftext
+    db.session.commit()
+    flash("Backgrounds Imported!", "green")
+    flash("Tool Proficiencies were not imported; they are not supported yet", "orange")
+    return(redirect(url_for('epchar.backgrounds')))
+    # except:
+    #     flash("Improperly formatted JSON; unable to import.", "red")
+    #     return(redirect(url_for("epchar.importBackgrounds")))
 
 def makefeat(request, cruleset, tfeat, instruction):
     if(current_user.id != cruleset.userid):

@@ -3,15 +3,12 @@ from .models import User, Ruleset
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
-from .check_ruleset import *
+from .uservalidation import *
 
 epauth = Blueprint('epauth', __name__)
 
 @epauth.route("/Login", methods=["GET", "POST"])
 def login():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         username = request.form.get("username")
         password = request.form.get("password")
@@ -46,9 +43,6 @@ def logout():
 
 @epauth.route("/Signup", methods=["GET", "POST"])
 def signUp():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         username = request.form.get("username")
         email = request.form.get("email")

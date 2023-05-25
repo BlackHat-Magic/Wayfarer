@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
+from werkzeug.security import generate_password_hash
 # import json
 
 db = SQLAlchemy()
@@ -46,5 +47,24 @@ def start():
 
 def create_database(app):
     if(not path.exists("website/" + DB_NAME)):
-        db.create_all(app=app)
+        with app.app_context():
+            db.create_all(app=app)
+            from .models import User, Ruleset
+            admin_user = User(
+                username = "admin",
+                password = generate_password_hash("password", method="sha256")
+            )
+            db.session.add(admin_user)
+            admin_ruleset = Ruleset(
+                identifier = "admin",
+                is_admin = True,
+                userid = admin_user.id,
+                viewers = [admin_user.id],
+                editors = [admin_user.id],
+                is_shareable = True,
+                name = "admin",
+                description = "default admin ruleset"
+            )
+            db.session.add(admin_ruleset)
+            db.session.commit()
         print("Created Database")

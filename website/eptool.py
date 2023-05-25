@@ -1,7 +1,7 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session
 from .models import Ruleset
 from flask_login import login_required, current_user
-from .check_ruleset import *
+from .uservalidation import *
 
 eptool = Blueprint('eptool', __name__)
 
@@ -12,12 +12,10 @@ def tools():
 
 @eptool.route("/VTT")
 def vtt():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
-            "vtt.html", 
+            "unfinished.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
@@ -28,12 +26,10 @@ def vtt():
 
 @eptool.route("/NPC-Gen")
 def npcGen():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
-            "npc-gen.html", 
+            "unfinished.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
@@ -44,12 +40,10 @@ def npcGen():
 
 @eptool.route("/Backstory-Gen")
 def backstoryGen():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
-            "backstory-gen.html", 
+            "unfinished.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
@@ -60,12 +54,10 @@ def backstoryGen():
 
 @eptool.route("/CR-Calc")
 def crCalc():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
-            "cr-calc.html", 
+            "unfinished.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
@@ -76,12 +68,10 @@ def crCalc():
 
 @eptool.route("/Encounter-Gen")
 def encounterGen():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
-            "encounter-gen.html", 
+            "unfinished.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
@@ -92,12 +82,10 @@ def encounterGen():
 
 @eptool.route("/Loot-Gen")
 def lootGen():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
-            "loot-gen.html", 
+            "unfinished.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,
@@ -108,28 +96,10 @@ def lootGen():
 
 @eptool.route("/Stat-Gen")
 def statGen():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
-            "stat-gen.html", 
-            user=current_user, 
-            frulesets=frulesets, 
-            cruleset=cruleset,
-            adminrulesets=adminrulesets,
-            title="Page Under Construction"
-        )
-    )
-
-@eptool.route("/Backstory")
-def backstory():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
-    return(
-        render_template(
-            "backstory.html", 
+            "unfinished.html", 
             user=current_user, 
             frulesets=frulesets, 
             cruleset=cruleset,

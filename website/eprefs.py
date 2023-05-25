@@ -1,8 +1,8 @@
 from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, jsonify, flash
 from .models import Ruleset, Skill, Action, Condition, Item, ItemTag, Property, Language, Recipe, Spell
 from flask_login import login_user, current_user, login_required
-from .check_ruleset import *
 from .postformsrefs import *
+from .uservalidation import *
 from . import db
 import json
 
@@ -14,9 +14,7 @@ def refs():
 
 @eprefs.route("/Actions")
 def actions():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "actions.html", 
@@ -32,9 +30,7 @@ def actions():
 @eprefs.route("/Actions/Create", methods=["GET", "POST"])
 @login_required
 def createAction():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(makeAction(request, cruleset, None, "create"))
     return(
@@ -51,16 +47,14 @@ def createAction():
 @eprefs.route("/Actions/Duplicate/<string:action>")
 @login_required
 def duplicateAction(action):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
     return(makeAction(None, cruleset, action, "duplicate"))
 
 @eprefs.route("/Actions/Edit/<string:action>", methods=["GET", "POST"])
 @login_required
 def editAction(action):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
     if(request.method == "POST"):
         return(makeAction(request, cruleset, action, "edit"))
@@ -79,7 +73,7 @@ def editAction(action):
 @eprefs.route("/Actions/Delete/<string:action>")
 @login_required
 def deleteAction(action):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete actions in rulesets that are not your own.", "red")
@@ -92,9 +86,7 @@ def deleteAction(action):
 @eprefs.route("/Actions/Import", methods=["GET", "POST"])
 @login_required
 def importActions():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method=="POST"):
         return(actionImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
@@ -110,9 +102,7 @@ def importActions():
 
 @eprefs.route("/Conditions")
 def conditions():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "conditions.html", 
@@ -129,9 +119,7 @@ def conditions():
 @eprefs.route("/Conditions/Create", methods=["GET", "POST"])
 @login_required
 def createCondition():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(makeCondition(request, cruleset, None, "create"))
     return(
@@ -148,17 +136,15 @@ def createCondition():
 @eprefs.route("/Conditions/Duplicate/<string:condition>")
 @login_required
 def duplicateCondition(condition):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     condition = Condition.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     return(makeCondition(None, cruleset, condition, "duplicate"))
 
 @eprefs.route("/Conditions/Edit/<string:condition>", methods=["GET", "POST"])
 @login_required
 def editCondition(condition):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     condition = Condition.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
         return(makeCondition(request, cruleset, condition, "edit"))
     return(
@@ -176,7 +162,7 @@ def editCondition(condition):
 @eprefs.route("/Conditions/Delete/<string:condition>")
 @login_required
 def deleteCondition(condition):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     condition = Condition.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete conditions in rulesets that are not your own", "red")
@@ -188,9 +174,7 @@ def deleteCondition(condition):
 @eprefs.route("/Conditions/Import", methods=["GET", "POST"])
 @login_required
 def importConditions():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(conditionImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
@@ -207,9 +191,7 @@ def importConditions():
 
 @eprefs.route("/Diseases")
 def diseases():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "conditions.html", 
@@ -226,9 +208,7 @@ def diseases():
 @eprefs.route("/Diseases/Create")
 @login_required
 def createDisease():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(makeDisease(request, cruleset, None, "create"))
     return(
@@ -245,16 +225,14 @@ def createDisease():
 @eprefs.route("/Diseases/Duplicate/<string:disease>")
 @login_required
 def duplicateDisease(disease):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     disease = Disease.query.filter_by(rulesetid = cruleset.id, name = disease).first_or_404()
     return(makeDisease(None, cruleset, disease, "duplicate"))
 
 @eprefs.route("/Diseases/Edit/<string:disease>")
 @login_required
 def editDisease(disease):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     disease = Disease.query.filter_by(rulesetid = cruleset.id, name = disease).first_or_404()
     if(request.method == "POST"):
         return(makeDisease(request, cruleset, disease, "edit"))
@@ -273,7 +251,7 @@ def editDisease(disease):
 @eprefs.route("/Diseases/Delete/<string:disease>")
 @login_required
 def deleteDisease(disease):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     disease = Disease.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete diseases in rulesets that are not your own.", "red")
@@ -285,9 +263,7 @@ def deleteDisease(disease):
 
 @eprefs.route("/Statuses")
 def statuses():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "conditions.html", 
@@ -304,9 +280,7 @@ def statuses():
 @eprefs.route("/Statuses/Create")
 @login_required
 def createStatus():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(makeStatus(request, cruleset, None, "create"))
     return(
@@ -323,16 +297,14 @@ def createStatus():
 @eprefs.route("/Statuses/Duplicate/<string:status>")
 @login_required
 def duplicateStatus(status):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
     return(makeStatus(None, cruleset, status, "duplicate"))
 
 @eprefs.route("/Statuses/Edit/<string:status>")
 @login_required
 def editStatus(status):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
     if(request.method == "POST"):
         return(makeStatus(request, cruleset, status, "edit"))
@@ -351,7 +323,7 @@ def editStatus(status):
 @eprefs.route("/Statuses/Delete/<string:status>")
 @login_required
 def deleteStatus(status):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete statuses in rulesets that are not your own.", "red")
@@ -363,9 +335,7 @@ def deleteStatus(status):
 
 @eprefs.route("/Items")
 def items():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     items = Item.query.filter_by(rulesetid = cruleset.id).order_by(Item.name)
     return(
         render_template(
@@ -382,9 +352,7 @@ def items():
 @eprefs.route("/Items/Create", methods=["GET", "POST"])
 @login_required
 def createItem():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(makeItem(request, cruleset, None, "create"))
     return(
@@ -403,16 +371,14 @@ def createItem():
 @eprefs.route("/Items/Duplicate/<string:item>")
 @login_required
 def duplicateItem(item):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     item = Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first_or_404()
     return(makeItem(None, cruleset, item, "duplicate"))
 
 @eprefs.route("/Items/Edit/<string:item>", methods=["GET", "POST"])
 @login_required
 def editItem(item):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     item = Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first_or_404()
     if(request.method == "POST"):
         makeItem(request, cruleset, item, "edit")
@@ -433,7 +399,7 @@ def editItem(item):
 @eprefs.route("/Items/Delete/<string:item>")
 @login_required
 def deleteItem(item):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     item = Item.query.filter_by(rulesetid = cruleset.id, name=item).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete items from rulesets that are not yours.", "red")
@@ -446,9 +412,7 @@ def deleteItem(item):
 @eprefs.route("/Items/Import", methods=["GET", "POST"])
 @login_required
 def importItems():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method=="POST"):
         items = json.loads(request.form.get("feature_file"))
         base = json.loads(request.form.get("flavor_file"))
@@ -466,9 +430,7 @@ def importItems():
 
 @eprefs.route("/Item/<string:item>")
 def item(item):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     item = Item.query.filter_by(rulesetid = cruleset.id, name=item).first_or_404()
     return(
         render_template(
@@ -484,9 +446,7 @@ def item(item):
 
 @eprefs.route("/Items/Tags")
 def tags():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "tags.html", 
@@ -502,9 +462,7 @@ def tags():
 @eprefs.route("/Items/Tags/Create", methods=["GET", "POST"]) 
 @login_required
 def createTag():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(itemTag(request, cruleset, None, "create"))
     return(
@@ -521,16 +479,14 @@ def createTag():
 @eprefs.route("/Items/Tags/Duplicate/<string:item>")
 @login_required
 def duplicateTag(item):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     return(itemTag(None, cruleset, tag, "duplicate"))
 
 @eprefs.route("/Items/Tags/Edit/<string:item>", methods=["GET", "POST"]) 
 @login_required
 def editTag(item):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     if(request.method == "POST"):
         return(itemTag(request, cruleset, tag, "edit"))
@@ -549,7 +505,7 @@ def editTag(item):
 @eprefs.route("/Items/Tags/Delete/<string:item>")
 @login_required
 def deleteTag(item):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete item tags in rulesets that are not your own.", "red")
@@ -561,9 +517,7 @@ def deleteTag(item):
 
 @eprefs.route("/Items/Properties")
 def properties():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "properties.html", 
@@ -579,9 +533,7 @@ def properties():
 @eprefs.route("/Items/Properties/Create", methods=["GET", "POST"])
 @login_required
 def createProperty():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(itemProperty(request, cruleset, None, "create"))
     return(
@@ -598,16 +550,14 @@ def createProperty():
 @eprefs.route("/Items/Properties/Duplicate/<string:item>")
 @login_required
 def duplicateProperty(item):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     return(itemProperty(None, cruleset, tproperty, "duplicate"))
 
 @eprefs.route("/Items/Properties/Edit/<string:item>", methods=["GET", "POST"])
 @login_required
 def editProperty(item):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     if(request.method == "POST"):
         return(itemProperty(request, cruleset, None, "create"))
@@ -626,7 +576,7 @@ def editProperty(item):
 @eprefs.route("/Items/Properties/Delete/<string:item>")
 @login_required
 def deleteProperty(item):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete item properties in rulesets that are not your own.", "red")
@@ -638,9 +588,7 @@ def deleteProperty(item):
 
 @eprefs.route("/Languages")
 def languages():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "languages.html", 
@@ -655,9 +603,7 @@ def languages():
 @eprefs.route("/Languages/Create", methods=["GET", "POST"])
 @login_required
 def createLanguage():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(makeLanguage(request, cruleset, None, "create"))
     return(
@@ -674,16 +620,14 @@ def createLanguage():
 @eprefs.route("/Languages/Duplicate/<string:tlanguage>")
 @login_required
 def duplicateLanguage(tlanguage):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first_or_404()
     return(makeLanguage(None, cruleset, tlanguage, "duplicate"))
 
 @eprefs.route("/Languages/Edit/<string:tlanguage>", methods=["GET", "POST"])
 @login_required
 def editLanguage(tlanguage):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first_or_404()
     if(request.method == "POST"):
         return(makeLanguage(request, cruleset, tlanguage, "edit"))
@@ -702,7 +646,7 @@ def editLanguage(tlanguage):
 @eprefs.route("/Languages/Delete/<string:tlanguage>")
 @login_required
 def deleteLanguage(tlanguage):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete languages in rulesets that are not your own.", "red")
@@ -715,9 +659,7 @@ def deleteLanguage(tlanguage):
 @eprefs.route("/Languages/Import", methods=["GET", "POST"])
 @login_required
 def importLanguages():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(languageImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
@@ -733,9 +675,7 @@ def importLanguages():
 
 @eprefs.route("/Spells")
 def spells():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "spells.html", 
@@ -750,9 +690,7 @@ def spells():
 @eprefs.route("/Spells/Create", methods=["GET", "POST"])
 @login_required
 def createSpell():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(makeSpell(request, cruleset, None, "create"))
     return(
@@ -776,9 +714,7 @@ def duplicateSpell(spell):
 @eprefs.route("/Spells/Edit/<string:spell>")
 @login_required
 def editSpell(spell):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     spell = cruleset.spells.filter_by(name = spell).first_or_404()
     if(request.method == "POST"):
         return(makeSpell(request, cruleset, spell, "edit"))
@@ -797,7 +733,7 @@ def editSpell(spell):
 @eprefs.route("/Spells/Delete/<string:spell>")
 @login_required
 def deleteSpell(spell):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     spell = cruleset.spells.filter_by(name = spell).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete spells in rulesets that are not your own.", "red")
@@ -810,9 +746,7 @@ def deleteSpell(spell):
 @eprefs.route("/Spells/Import", methods=["GET", "POST"])
 @login_required
 def importSpells():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(spellImporter(json.loads(request.form.get("parsed")), cruleset))
     return(
@@ -828,9 +762,7 @@ def importSpells():
 
 @eprefs.route("/Spell/<string:spell>")
 def spell(spell):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     spell = Spell.query.filter_by(rulesetid = cruleset.id, name = spell).first()
     return(
         render_template(
@@ -846,9 +778,7 @@ def spell(spell):
 
 @eprefs.route("/Recipes")
 def recipes():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "recipes.html", 
@@ -863,9 +793,7 @@ def recipes():
 @eprefs.route("/Recipes/Create", methods=["GET", "POST"])
 @login_required
 def createRecipe():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(makeRecipe(request, cruleset, None, "create"))
     return(
@@ -889,9 +817,7 @@ def duplicateRecipe(recipe):
 @eprefs.route("/Recipes/Edit/<string:recipe>", methods=["GET", "POST"])
 @login_required
 def editRecipe(recipe):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     recipe = cruleset.recipes.filter_by(name = recipe).first_or_404()
     if(request.method == "POST"):
         return(makeRecipe(request, cruleset, recipe, "edit"))
@@ -909,9 +835,7 @@ def editRecipe(recipe):
 
 @eprefs.route("/Skills")
 def skills():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     skills = Skill.query.filter_by(rulesetid = cruleset.id).order_by(Skill.name)
     return(
         render_template(
@@ -928,9 +852,7 @@ def skills():
 @eprefs.route("/Skills/Create", methods=["GET", "POST"])
 @login_required
 def createSkill():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(skill(request, cruleset, None, "create"))
     return(
@@ -947,7 +869,7 @@ def createSkill():
 @eprefs.route("/Skills/Duplicate/<string:tskill>")
 @login_required
 def duplicateSkill(tskill):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
     if(not tskill):
         flash("Skill does not exist.", "red")
@@ -957,9 +879,7 @@ def duplicateSkill(tskill):
 @eprefs.route("/Skills/Edit/<string:tskill>", methods=["GET", "POST"])
 @login_required
 def editSkill(tskill):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
     if(not tskill):
         flash("Skill does not exist.", "red")
@@ -982,7 +902,7 @@ def editSkill(tskill):
 @eprefs.route("/Skills/Delete/<string:tskill>")
 @login_required
 def deleteSkill(tskill):
-    cruleset = getCurrentRuleset(current_user)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
     if(not tskill):
         flash("Skill does not exist.", "red")
@@ -995,9 +915,7 @@ def deleteSkill(tskill):
 @eprefs.route("/Skills/Import", methods=["GET", "POST"])
 @login_required
 def importSkills():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         return(skillImporter(json.loads(request.form.get("parsed")), cruleset))
     return(

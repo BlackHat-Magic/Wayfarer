@@ -2,16 +2,14 @@ from flask import Blueprint, Flask, render_template, redirect, url_for, request,
 from .models import Ruleset, Category, Rule
 from . import db
 from flask_login import current_user, login_required
-from .check_ruleset import *
+from .uservalidation import *
 
 eprule = Blueprint('eprule', __name__)
 
 ## RULES
 @eprule.route("/")
 def rules():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     pinnedrules = []
     for category in cruleset.categories:
         for rule in category.rules:
@@ -32,9 +30,7 @@ def rules():
 @eprule.route("/Create", methods=["GET", "POST"])
 @login_required
 def createRule():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
             flash("You cannot create rules for rulesets that are not your own.", "red")
@@ -78,9 +74,7 @@ def createRule():
 @eprule.route("/Create-Category", methods=["GET", "POST"])
 @login_required
 def createCategory():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(len(current_user.rulesets) < 1):
         flash("The current ruleset must have at least one ruleset to add the category to.", "red")
         return(redirect(url_for("epmain.createRuleset")))
@@ -115,9 +109,7 @@ def createCategory():
 
 @eprule.route("/<string:categoryname>")
 def CategoryRoute(categoryname):
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = Ruleset.query.filter_by(is_admin=True)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     categoryname = categoryname
     rules = Category.query.filter_by(name=categoryname, rulesetid=cruleset.id).first().rules
     return(

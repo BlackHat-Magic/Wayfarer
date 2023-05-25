@@ -3,59 +3,60 @@ from .models import Ruleset
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import current_user, login_required
-from .check_ruleset import *
+from .uservalidation import *
 import json
 
 epmain = Blueprint("epmain", __name__)
 
+# MAIN DOES NOT NEED SUBDOMAINS; FIX THIS
+
 @epmain.route("/")
-def home():
-    cruleset = getCurrentRuleset(current_user)
-    frulesets = getForeignRulesets(current_user)
-    adminrulesets = []
-    for ruleset in Ruleset.query.filter_by(is_admin=True):
-        adminrulesets.append(ruleset)
+def noRulesetHome():
+    if(current_user.is_authenticated):
+        return(redirect(url_for("epmain.home", ruleset=current_user.current_ruleset.identifier)))
+    else:
+        return(redirect(url_for("epmain.home", ruleset=Ruleset.query.filter_by(is_admin=True).first().identifier)))
+@epmain.route("/", subdomain="<ruleset>")
+def home(ruleset):
+    print("endpoint reached")
+    print("fsc")
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "index.html", 
             user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Home"
         )
     )
 
-@epmain.route("/Get-Current-Ruleset")
-def get():
-    cruleset = getCurrentRuleset(current_user)
-    ruleset = jsonify({
-        "id": cruleset.id,
-        "name": cruleset.name
-    })
-    return(ruleset)
-
 @epmain.route("/My-Rulesets")
+def noRulesetMyRulesets():
+    if(current_user.is_authenticated):
+        return(redirect(url_for("epmain.home", ruleset=current_user.current_ruleset.identifier)))
+    else:
+        return(redirect(url_for("epmain.home", ruleset=Ruleset.query.filter_by(is_admin=True).first().identifier)))
+@epmain.route("/My-Rulesets", subdomain="<ruleset>")
 @login_required
-def myRulesets():
-    cruleset = getCurrentRuleset(current_user)
+def myRulesets(ruleset):
+    cruleset = Ruleset.query.filter_by(identifier=ruleset)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     return(
         render_template(
             "my-rulesets.html", 
             user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="My Rulesets"
         )
     )
 
-@epmain.route("/Create-Ruleset", methods=["GET", "POST"])
+@epmain.route("/Create-Ruleset", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def createRuleset():
-    cruleset = getCurrentRuleset(current_user)
+def createRuleset(ruleset):
+    cruleset = Ruleset.query.filter_by(identifier=ruleset)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
@@ -86,17 +87,16 @@ def createRuleset():
         render_template(
             "create-ruleset.html", 
             user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Create a Ruleset"
         )
     )
 
-@epmain.route("/Manage-Ruleset/<string:rulesetid>", methods=["GET", "POST"])
+@epmain.route("/Manage-Ruleset/<string:rulesetid>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def manageRuleset(rulesetid):
-    cruleset = getCurrentRuleset(current_user)
+def manageRuleset(rulesetid, ruleset):
+    cruleset = Ruleset.query.filter_by(identifier=ruleset)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
@@ -129,16 +129,15 @@ def manageRuleset(rulesetid):
             "manage-ruleset.html", 
             user=current_user, 
             ruleset=ruleset, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Manage Ruleset"
         )
     )
 
-@epmain.route("/Delete-Ruleset/", methods=["POST"])
+@epmain.route("/Delete-Ruleset/", methods=["POST"], subdomain="<ruleset>")
 @login_required
-def deleteRuleset():
+def deleteRuleset(ruleset):
     instruction = json.loads(request.data)
     rulesetid = instruction["rulesetid"]
     ruleset = Ruleset.query.filter_by(id = rulesetid).first()
@@ -152,10 +151,10 @@ def deleteRuleset():
         flash("This is not your ruleset.", "red")
     return(redirect("epmain.myRulesets"))
 
-@epmain.route("/Add-Ruleset/", methods=["GET", "POST"])
+@epmain.route("/Add-Ruleset/", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def addRuleset():
-    cruleset = getCurrentRuleset(current_user)
+def addRuleset(ruleset):
+    cruleset = Ruleset.query.filter_by(identifier=ruleset)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
@@ -183,16 +182,15 @@ def addRuleset():
         render_template(
             "add-ruleset.html",
             user=current_user,
-            frulesets=frulesets,
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Add a Friend's Ruleset"
         )
     )
 
-@epmain.route("/Remove-Ruleset", methods=["POST"])
+@epmain.route("/Remove-Ruleset", methods=["POST"], subdomain="<ruleset>")
 @login_required
-def removeRuleset():
+def removeRuleset(ruleset):
     instruction = json.loads(request.data)
     rulesetid = instruction["rulesetid"]
     ruleset = Ruleset.query.filter_by(id = rulesetid).first()
@@ -223,10 +221,10 @@ def changeRuleset():
     flash("Ruleset changed.", "green")
     return("")
 
-@epmain.route("/My-Account", methods=["GET", "POST"])
+@epmain.route("/My-Account", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def myAccount():
-    cruleset = getCurrentRuleset(current_user)
+def myAccount(ruleset):
+    cruleset = Ruleset.query.filter_by(identifier=ruleset)
     frulesets = getForeignRulesets(current_user)
     adminrulesets = Ruleset.query.filter_by(is_admin=True)
     if(request.method == "POST"):
@@ -268,7 +266,6 @@ def myAccount():
         render_template(
             "my-account.html",
             user=current_user,
-            frulesets=frulesets,
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="My Account"
