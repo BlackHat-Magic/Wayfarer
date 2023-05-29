@@ -8,7 +8,10 @@ eprule = Blueprint('eprule', __name__)
 
 ## RULES
 @eprule.route("/")
-def rules():
+def noRulesetRules():
+    return(noRuleset(current_user, "eprule.rules"))
+@eprule.route("/", subdomain="<ruleset>")
+def rules(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     pinnedrules = []
     for category in cruleset.categories:
@@ -27,9 +30,13 @@ def rules():
         )
     )
 
-@eprule.route("/Create", methods=["GET", "POST"])
+@eprule.route("/Create")
 @login_required
-def createRule():
+def noRulesetCreateRule():
+    return(noRuleset(current_user, "eprule.createRule"))
+@eprule.route("/Create", methods=["GET", "POST"], subdomain="<ruleset>")
+@login_required
+def createRule(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         if(current_user.id != cruleset.userid):
@@ -71,9 +78,13 @@ def createRule():
         )
     )
 
-@eprule.route("/Create-Category", methods=["GET", "POST"])
+@eprule.route("/Create-Category")
 @login_required
-def createCategory():
+def noRulesetCreateCategory():
+    return(noRuleset(current_user, "eprule.createCategory"))
+@eprule.route("/Create-Category", methods=["GET", "POST"], subdomain="<ruleset>")
+@login_required
+def createCategory(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(len(current_user.rulesets) < 1):
         flash("The current ruleset must have at least one ruleset to add the category to.", "red")
@@ -108,7 +119,10 @@ def createCategory():
     )
 
 @eprule.route("/<string:categoryname>")
-def CategoryRoute(categoryname):
+def noRulesetCategoryRoute(categoryname):
+    return(noRuleset(current_user, "eprule.CategoryRoute"))
+@eprule.route("/<string:categoryname>", subdomain="<ruleset>")
+def CategoryRoute(categoryname, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     categoryname = categoryname
     rules = Category.query.filter_by(name=categoryname, rulesetid=cruleset.id).first().rules
