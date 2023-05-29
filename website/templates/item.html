@@ -43,9 +43,9 @@
 		<div class="usercontent" x-html="convert(`{{ item.text }}`)"></div>
 		{% if current_user.id == cruleset.userid %}
 		<div class="interior flex horizontal center">
-			<a href="/Reference/Items/Edit/{{ item.name }}"><button>Edit {{ item.name }}</button></a>
-			<a href="/Reference/Items/Duplicate/{{ item.name }}"><button>Duplicate {{ item.name }}</button></a>
-			<a href="/Reference/Items/Delete/{{ item.name }}"><button class="mild danger">Delete {{ item.name }}</button></a>
+			<a href="{{ url_for('eprefs.editItem', item=item.name, ruleset=cruleset.identifier) }}"><button>Edit {{ item.name }}</button></a>
+			<a href="{{ url_for('eprefs.duplicateItem', item=item.name, ruleset=cruleset.identifier) }}"><button>Duplicate {{ item.name }}</button></a>
+			<a href="{{ url_for('eprefs.deleteItem', item=item.name, ruleset=cruleset.identifier) }}"><button class="mild danger">Delete {{ item.name }}</button></a>
 		</div>
 		{% endif %}
 	</div>

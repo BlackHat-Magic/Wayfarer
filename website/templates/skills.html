@@ -13,9 +13,9 @@
             <h2>{{ skill.name }}</h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
-					<a href="/Reference/Skills/Edit/{{ skill.name }}"><button style="width: auto">Edit {{ skill.name }}</button></a>
-					<a href="/Reference/Skills/Duplicate/{{ skill.name }}"><button style="width: auto">Duplicate {{ skill.name }}</button></a>
-					<a href="/Reference/Skills/Delete/{{ skill.name }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
+					<a href="{{ url_for('eprefs.createSkill', tskill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ skill.name }}</button></a>
+					<a href="{{ url_for('eprefs.duplicateSkill', tskill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ skill.name }}</button></a>
+					<a href="{{ url_for('eprefs.deleteSkill', tskill=skill.name ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
 				</div>
 			{% endif %}
             <hr>
@@ -25,8 +25,8 @@
         {% endfor %}
         {% if cruleset.userid == current_user.id %}
         <div class="interior flex horizontal center">
-            <a href="/Reference/Skills/Create"><button>Create a Skill</button></a>
-            <a href="/Reference/Skills/Import"><button>Import from JSON</button></a>
+            <a href="{{ url_for('eprefs.createSkill', ruleset=cruleset.identifier) }}"><button>Create a Skill</button></a>
+            <a href="{{ url_for('eprefs.importSkills', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
         </div>
         {% endif %}
     </div>

@@ -70,7 +70,7 @@
 			{% if not cruleset.ability_scores %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify saving throw proficiencies granted by this class. You can create ability scores <a href="{{ url_for('epchar.createStat') }}">here</a>.</p>
+					<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify saving throw proficiencies granted by this class. You can create ability scores <a href="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -116,7 +116,7 @@
 			{% if not tools and not cruleset.item_tags %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify item type or tool proficiencies granted by this class. You can create item types <a href="{{ url_for('eprefs.createTag') }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
+					<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify item type or tool proficiencies granted by this class. You can create item types <a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -154,7 +154,7 @@
 			{% if not cruleset.skills %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any skills in this ruleset! Without adding any, you won't be able to specify skills granted by this class. You can create skills <a href="{{ url_for('eprefs.createSkill') }}">here</a>.</p>
+					<p>You don't have any skills in this ruleset! Without adding any, you won't be able to specify skills granted by this class. You can create skills <a href="{{ url_for('eprefs.createSkill', ruleset=cruleset.identifier) }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -195,7 +195,7 @@
 			{% if not tools and not cruleset.item_tags %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tools granted by this class when multiclassing. You can create item types <a href="{{ url_for('eprefs.createTag') }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
+					<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tools granted by this class when multiclassing. You can create item types <a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}

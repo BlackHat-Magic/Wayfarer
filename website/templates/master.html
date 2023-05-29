@@ -62,25 +62,25 @@
 		<a href="#">Tools</a>
 		<div class="dropdown-content">
 			<!-- <a href="/Tools/VTT">Virtual Tabletop</a> -->
-			<a href="/Tools/NPC-Gen">NPC Generator</a>
-			<a href="/Tools/Backstory-Gen">Backstory Generator</a>
+			<a href="{{ url_for('eptool.npcGen', ruleset=cruleset.identifier) }}">NPC Generator</a>
+			<a href="{{ url_for('eptool.backstoryGen', ruleset=cruleset.identifier) }}">Backstory Generator</a>
 			<!-- <a href="/Tools/CR-Calc">CR Calculator</a> -->
 			<!-- <a href="/Tools/Encounter-Gen">Encounter Generator</a> -->
 			<!-- <a href="/Tools/Loot-Gen">Loot Generator</a> -->
-			<a href="/Tools/Stat-Gen">Stat Generator</a>
+			<a href="{{ url_for('eptool.statGen', ruleset=cruleset.identifier) }}">Stat Generator</a>
 		</div>
 	</li>
 	{% if current_user.is_authenticated %}
 		<li id="nav-account" class="dropdown nav-item nav-right">
-			<a href="/My-Account">My Account</a>
+			<a href="{{ url_for('epmain.myAccount', ruleset=cruleset.identifier) }}">My Account</a>
 			<div class="dropdown-content" style="right: 0px">
-				<a href="/My-Rulesets">My Rulesets</a>
-				<a href="/Logout">Log Out</a>
+				<a href="{{ url_for('epmain.myRulesets', ruleset=cruleset.identifier) }}">My Rulesets</a>
+				<a href="{{ url_for('epauth.logout', ruleset=cruleset.identifier) }}">Log Out</a>
 			</div>
 		</li>
 	{% else %}
 		<li id="nav-login" class="nav-right">
-			<a id="login-link" href="/Login">Log In</a>
+			<a id="login-link" href="{{ url_for('epauth.login', ruleset=cruleset.identifier) }}">Log In</a>
 		</li>
 	{% endif %}
 </ul>

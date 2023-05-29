@@ -14,7 +14,7 @@
 			<span :class="emailempty()" style="--color1: var(--nord-orange); --color2: var(--nord-text)">An email is strongly recommended; without one you will not be able to recover your account should you lose your password.</span>
 			<input style="width: auto" type="password" name="password1" id="password1" placeholder="Password" x-model="password1" :class="passwdmatch()[0]" x-ref="password1">
 			<input style="width: auto" type="password" name="password2" id="password2" placeholder="Confirm Password"x-model="password2" :class="passwdmatch()[0]" x-ref="password2">
-			<span class="small">Already have an account? <a href="/Login">Log in!</a></span>
+			<span class="small">Already have an account? <a href="{{ url_for('epauth.login', ruleset=cruleset.identifier) }}">Log in!</a></span>
 			<span :class="passwdmatch()[1]" style="--color1: var(--nord-red); --color2: var(--nord-text)">Passwords do not match</span>
 			<a><button type="submit">Sign Up</button></a>
 		</form>

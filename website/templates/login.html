@@ -7,7 +7,7 @@
 		<form class="interior flex vertical start" method="post">
 			<input type="text" name="username" id="username" placeholder="Username" style="width: auto">
 			<input type="password" name="password" id="password" placeholder="Passwords" style="width: auto">
-			<span class="small">Don't have an account? <a href="{{ url_for('epauth.signUp') }}">Sign Up!</a></span>
+			<span class="small">Don't have an account? <a href="{{ url_for('epauth.signUp', ruleset=cruleset.identifier) }}">Sign Up!</a></span>
 			<span id="forgotpassword" style="display: none" class="small">a</span>
 			<a><button type="submit">Log In</button></a>
 		</form>

@@ -26,7 +26,7 @@
 			</h6>
 			{% endfor %}
 		</div>
-		<a href="/Create-Ruleset"><button>Create a Ruleset</button></a>
+		<a href="{{ url_for('epmain.createRuleset', ruleset=cruleset.identifier) }}"><button>Create a Ruleset</button></a>
 		<h1>Shared With Me</h1>
 		<div class="inactive interior flex vertical start">
 			{% for ruleset in current_user.foreign_ruleset %}
@@ -44,7 +44,7 @@
 			</h6>
 			{% endfor %}
 		</div>
-		<a href="/Add-Ruleset"><button>Add a Friend's Ruleset</button></a>
+		<a href="{{ url_for('epmain.addRuleset', ruleset=cruleset.identifier) }}"><button>Add a Friend's Ruleset</button></a>
 	</div>
 </div>
 

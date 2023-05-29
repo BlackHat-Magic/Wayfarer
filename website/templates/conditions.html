@@ -14,17 +14,17 @@
 			{% if current_user.id == cruleset.userid %}
 			<div>
 				{% if button == "Condition" %}
-				<a href="{{ url_for('eprefs.duplicateCondition', condition=condition.name) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
-				<a href="{{ url_for('eprefs.editCondition', condition=condition.name) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
-				<a href="{{ url_for('eprefs.deleteCondition', condition=condition.name) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.duplicateCondition', condition=condition.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.editCondition', condition=condition.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteCondition', condition=condition.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
 				{% elif button == "Disease" %}
-				<a href="{{ url_for('eprefs.duplicateDisease', disease=condition.name) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
-				<a href="{{ url_for('eprefs.editDisease', disease=condition.name) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
-				<a href="{{ url_for('eprefs.deleteDisease', disease=condition.name) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.duplicateDisease', disease=condition.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.editDisease', disease=condition.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteDisease', disease=condition.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
 				{% elif button == "Status" %}
-				<a href="{{ url_for('eprefs.duplicateStatus', status=condition.name) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
-				<a href="{{ url_for('eprefs.editStatus', status=condition.name) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
-				<a href="{{ url_for('eprefs.deleteStatus', status=condition.name) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.duplicateStatus', status=condition.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.editStatus', status=condition.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ condition.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteStatus', status=condition.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ condition.name }}</button></a>
 				{% endif %}
 			</div>
 			{% endif %}
@@ -33,8 +33,8 @@
 		</div>
 		{% endfor %}
 		<div class="interior flex horizontal center">
-			<a href="{{ url_for('eprefs.create' + button) }}"><button>Create {{ button }}</button></a>
-			<a href="{{ url_for('eprefs.importConditions') }}"><button>Import from JSON</button></a>
+			<a href="{{ url_for('eprefs.create' + button, ruleset=cruleset.identifier) }}"><button>Create {{ button }}</button></a>
+			<a href="{{ url_for('eprefs.importConditions', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
 		</div>
 	</div>
 </div>

@@ -14,9 +14,9 @@
 			<h2 x-text="'{{ action.name }}'"></h2>
 			{% if current_user.id == cruleset.userid %}
 			<div>
-				<a href="{{ url_for('eprefs.duplicateAction', action=action.name) }}"><button style="width: auto">Duplicate {{ action.name }}</button></a>
-				<a href="{{ url_for('eprefs.editAction', action=action.name) }}"><button style="width: auto">Edit {{ action.name }}</button></a>
-				<a href="{{ url_for('eprefs.deleteAction', action=action.name) }}"><button class="mild danger" style="width: auto">Delete {{ action.name }}</button></a>
+				<a href="{{ url_for('eprefs.duplicateAction', action=action.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ action.name }}</button></a>
+				<a href="{{ url_for('eprefs.editAction', action=action.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ action.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteAction', action=action.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ action.name }}</button></a>
 			</div>
 			{% endif %}
 			<p><strong><em>Time: </em></strong>{{ action.time }}</p>
@@ -25,8 +25,8 @@
 		</div>
 		{% endfor %}
 		<div class="interior flex horizontal center">
-			<a href="/Reference/Actions/Create"><button>Create Action</button></a>
-			<a href="{{ url_for('eprefs.importActions') }}"><button>Import from JSON</button></a>
+			<a href="{{ url_for('eprefs.createAction', ruleset=cruleset.identifier) }}"><button>Create Action</button></a>
+			<a href="{{ url_for('eprefs.importActions', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
 		</div>
 	</div>
 </div>

@@ -56,8 +56,8 @@
 		</table>
 		{% if cruleset.userid == user.id %}
 		<div class="interior flex horizontal center">
-			<a href="{{ url_for('epchar.createRace') }}"><button>Create A Race</button></a>
-			<a href="{{ url_for('epchar.importRaces') }}"><button>Import from JSON</button></a>
+			<a href="{{ url_for('epchar.createRace', ruleset=cruleset.identifier) }}"><button>Create A Race</button></a>
+			<a href="{{ url_for('epchar.importRaces', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
 		</div>
 		{% endif %}
 	</div>

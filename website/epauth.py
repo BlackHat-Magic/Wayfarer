@@ -9,7 +9,7 @@ epauth = Blueprint('epauth', __name__)
 
 @epauth.route("/Login")
 def noRulesetLogin():
-    return(noRuleset(current_user, "epmain.login"))
+    return(noRuleset(current_user, "epauth.login"))
 @epauth.route("/Login", methods=["GET", "POST"], subdomain="<ruleset>")
 def login(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -41,7 +41,7 @@ def login(ruleset):
 @epauth.route("/Logout")
 @login_required
 def noRulesetLogout():
-    return(noRuleset(current_user, "epmain.logout"))
+    return(noRuleset(current_user, "epauth.logout"))
 @epauth.route("/Logout", subdomain="<ruleset>")
 @login_required
 def logout(ruleset):
@@ -51,7 +51,7 @@ def logout(ruleset):
 
 @epauth.route("/Signup")
 def noRulesetSignup():
-    return(noRuleset(current_user, "epmain.signup"))
+    return(noRuleset(current_user, "epauth.signup"))
 @epauth.route("/Signup", methods=["GET", "POST"], subdomain="<ruleset>")
 def signUp(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -82,7 +82,7 @@ def signUp(ruleset):
             db.session.commit()
             login_user(User.query.filter_by(username = username).first(), remember = True)
             flash(f"Welcome, {username}.", "green")
-            return(redirect(url_for("epmain.home", subdomain=cruleset.identifier)))
+            return(redirect(url_for("epmain.home", ruleset=cruleset.identifier)))
         
     return(
         render_template(

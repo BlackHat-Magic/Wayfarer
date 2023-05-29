@@ -13,16 +13,16 @@
 			<h2>{{ tag.name }}</h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
-					<a href="/Reference/Items/Tags/Edit/{{ tag.name }}"><button style="width: auto">Edit {{ tag.name }}</button></a>
-					<a href="/Reference/Items/Tags/Duplicate/{{ tag.name }}"><button style="width: auto">Duplicate {{ tag.name }}</button></a>
-					<a href="/Reference/Items/Tags/Delete/{{ tag.name }}"><button class="mild danger" style="width: auto">Delete {{ tag.name }}</button></a>
+					<a href="{{ url_for('eprefs.editTag', item=tag.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ tag.name }}</button></a>
+					<a href="{{ url_for('eprefs.duplicateTag', item=tag.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ tag.name }}</button></a>
+					<a href="{{ url_for('eprefs.deleteTag', item=tag.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ tag.name }}</button></a>
 				</div>
 			{% endif %}
 			<hr>
 			<div x-html="convert(`{{ tag.text }}`)"></div>
 		</div>
 		{% endfor %}
-		<a href="/Reference/Items/Tags/Create"><button>Create an Item Type</button></a>
+		<a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}"><button>Create an Item Type</button></a>
 	</div>
 </div>
 

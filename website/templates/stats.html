@@ -13,9 +13,9 @@
 			<h2>{{ score.name + ' (' + score.abbr + ')' }}</h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
-					<a href="/Character/Ability-Scores/Edit/{{ score.name }}"><button style="width: auto">Edit {{ score.name }}</button></a>
-					<a href="/Character/Ability-Scores/Duplicate/{{ score.name }}"><button style="width: auto">Duplicate {{ score.name }}</button></a>
-					<a href="/Character/Ability-Scores/Delete/{{ score.name }}"><button class="mild danger" style="width: auto">Delete {{ score.name }}</button></a>
+					<a href="{{ url_for('epchar.editStat', score=score.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ score.name }}</button></a>
+					<a href="{{ url_for('epchar.duplicateStat', score=score.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ score.name }}</button></a>
+					<a href="{{ url_for('epchar.deleteStat', score=score.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ score.name }}</button></a>
 				</div>
 			{% endif %}
 			<hr>
@@ -23,7 +23,7 @@
 		</div>
 		{% endfor %}
 		{% if cruleset.userid == current_user.id %}
-		<a href="/Character/Ability-Scores/Create"><button>Create Ability Score</button></a>
+		<a href="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}"><button>Create Ability Score</button></a>
 		{% endif %}
 	</div>
 </div>

@@ -13,16 +13,16 @@
 			<h2>{{ property.name }}</h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
-					<a href="/Reference/Items/Properties/Edit/{{ property.name }}"><button style="width: auto">Edit {{ property.name }}</button></a>
-					<a href="/Reference/Items/Properties/Duplicate/{{ property.name }}"><button style="width: auto">Duplicate {{ property.name }}</button></a>
-					<a href="/Reference/Items/Properties/Delete/{{ property.name }}"><button class="mild danger" style="width: auto">Delete {{ property.name }}</button></a>
+					<a href="{{ url_for('eprefs.editProperty', ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ property.name }}</button></a>
+					<a href="{{ url_for('eprefs.duplicateProperty', ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ property.name }}</button></a>
+					<a href="{{ url_for('eprefs.deleteProperty', ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ property.name }}</button></a>
 				</div>
 			{% endif %}
 			<hr>
 			<div x-html="convert(`{{ property.text }}`)"></div>
 		</div>
 		{% endfor %}
-		<a href="/Reference/Items/Properties/Create"><button>Create Weapon Property</button></a>
+		<a href="{{ url_for('eprefs.createProperty', ruleset=cruleset.identifier) }}"><button>Create Weapon Property</button></a>
 	</div>
 </div>
 

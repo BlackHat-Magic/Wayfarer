@@ -33,7 +33,7 @@
 			</template>
 		</table>
         {% if cruleset.userid == current_user.id %}
-        <a href="/Character/Classes/Create"><button>Create a Class</button></a>
+        <a href="{{ url_for('epchar.createClass', ruleset=cruleset.identifier) }}"><button>Create a Class</button></a>
         {% endif %}
     </div>
 </div>

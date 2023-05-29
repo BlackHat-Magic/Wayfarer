@@ -16,7 +16,6 @@ def noRulesetHome():
     return(noRuleset(current_user, "epmain.home"))
 @epmain.route("/", subdomain="<ruleset>")
 def home(ruleset):
-    print("hello")
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
