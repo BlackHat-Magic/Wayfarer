@@ -4,7 +4,12 @@ document.addEventListener ("alpine:init", () => {
         convert (text) {
             return(this.converter.makeHtml(text));
         },
+        name: "",
+        identifier: "",
         text: "",
+        visibility: null,
+        same_viewers: "False",
+        same_editors: "False",
         base: "None",
         checkBase() {
             if (this.base == "" || this.base == "None") {

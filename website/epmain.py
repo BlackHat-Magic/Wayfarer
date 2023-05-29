@@ -3,6 +3,7 @@ from .models import Ruleset
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import current_user, login_required
+from .postformsmain import *
 from .uservalidation import *
 import json
 
@@ -10,8 +11,12 @@ epmain = Blueprint("epmain", __name__)
 
 # MAIN DOES NOT NEED SUBDOMAINS; FIX THIS
 
+@epmain.route("/")
+def noRulesetHome():
+    return(noRuleset(current_user, "epmain.home"))
 @epmain.route("/", subdomain="<ruleset>")
 def home(ruleset):
+    print("hello")
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
@@ -22,6 +27,10 @@ def home(ruleset):
         )
     )
 
+@epmain.route("/My-Rulesets")
+@login_required
+def noRulesetMyRulesets():
+    return(noRuleset(current_user, "epmain.myRulesets"))
 @epmain.route("/My-Rulesets", subdomain="<ruleset>")
 @login_required
 def myRulesets(ruleset):
@@ -35,34 +44,21 @@ def myRulesets(ruleset):
         )
     )
 
+@epmain.route("/Create-Ruleset")
+@login_required
+def noRulesetCreateRuleset():
+    return(noRuleset(current_user, "epmain.createRuleset"))
 @epmain.route("/Create-Ruleset", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createRuleset(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
-        try:
-            shareable = bool(request.form.get("shareable"))
-        except:
-            shareable = False
-        name = request.form.get("name")
-        if(len(name) < 1):
-            flash("You must specify a ruleset name.", "red")
-        elif(len(name) > 127):
-            flash("Ruleset name must be fewer than 128 characters.", "red")
-        elif("<" in name):
-            flash("Opening angle brackets (\"<\") are not allowed.", "red")
-        elif("javascript" in name):
-            flash("Cross-site scripting attacks are not allowed.", "red")
+        base = request.form.get("base")
+        if(base == "" or base == "None"):
+            return(makeRuleset(request, None, "create"))
         else:
-            if(current_user.username == "admin"):
-                is_admin = True
-            else:
-                is_admin = False
-            new_ruleset = Ruleset(userid=current_user.id, is_shareable=shareable, name=name, is_admin=is_admin)
-            db.session.add(new_ruleset)
-            db.session.commit()
-            flash("Ruleset created!", "green")
-            return(redirect(url_for("epmain.myRulesets")))
+            ruleset = Ruleset.query.filter_by(id=base).first_or_404()
+            return(makeRuleset(request, ruleset, "duplicate"))
     return(
         render_template(
             "create-ruleset.html", 
@@ -72,84 +68,72 @@ def createRuleset(ruleset):
         )
     )
 
+@epmain.route("/Manage-Ruleset/<string:rulesetid>")
+@login_required
+def noRulesetManageRuleset(rulesetid):
+    return(noRuleset(current_user, "epmain.manageRuleset", rulesetid=rulesetid))
 @epmain.route("/Manage-Ruleset/<string:rulesetid>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def manageRuleset(rulesetid, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    target_ruleset = Ruleset.query.filter_by(id=rulesetid).first()
     if(request.method == "POST"):
-        ruleset = Ruleset.query.filter_by(id=rulesetid).first()
-        print("got ruleset " + ruleset.name)
-
-        name = request.form.get("name")
-        if(request.form.get("shareable").casefold() == "true"):
-            shareable = True
-        else:
-            shareable = False
-        if(len(name) < 1):
-            flash("You must specify a ruleset name.", "red")
-        elif(len(name) > 127):
-            flash("Ruleset name must be fewer than 128 characters.", "red")
-        elif("<" in name):
-            flash("Opening angle brackets (\"<\") are not allowerd.", "red")
-        elif("javascript" in name):
-            flash("Cross-site scripting attacks are not allowed.", "red")
-        else:
-            ruleset.name = name
-            ruleset.is_shareable = shareable
-            db.session.commit()
-            flash("Success", "green")
-            return(redirect(url_for("epmain.myRulesets")))
-    else:
-        ruleset = Ruleset.query.filter_by(id=rulesetid).first()
+        return(makeRuleset(request, target_ruleset, "edit"))
     return(
         render_template(
-            "manage-ruleset.html", 
-            ruleset=ruleset, 
+            "create-ruleset.html", 
+            ruleset=target_ruleset, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
-            title="Manage Ruleset"
+            title=f"Manage Ruleset: {target_ruleset.name}"
         )
     )
 
-@epmain.route("/Delete-Ruleset/", methods=["POST"], subdomain="<ruleset>")
+@epmain.route("/Delete-Ruleset/<string:rulesetid>")
 @login_required
-def deleteRuleset(ruleset):
+def noRulesetDeleteRuleset(rulesetid):
+    return(noRuleset(current_user, "epmain.deleteRuleset", rulesetid=rulesetid))
+@epmain.route("/Delete-Ruleset/<rulesetid>", subdomain="<ruleset>")
+@login_required
+def deleteRuleset(ruleset, rulesetid):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(current_user.id == ruleset.userid):
         db.session.delete(ruleset)
         if(current_user.current_ruleset == ruleset.id):
-            current_user.current_ruleset = Ruleset.query.filter_by(is_admin=True).first()
+            current_user.current_ruleset = Ruleset.query.filter_by(is_admin=True).first().id
+            cruleset = Ruleset.query.filter_by(is_admin=True).first().identifier
         db.session.commit()
         flash("Ruleset deleted.", "orange")
     else:
         flash("This is not your ruleset.", "red")
-    return(redirect("epmain.myRulesets"))
+    return(redirect("epmain.home", ruleset=cruleset))
 
-@epmain.route("/Add-Ruleset/", methods=["GET", "POST"], subdomain="<ruleset>")
+@epmain.route("/Add-Ruleset")
+@login_required
+def noRulesetAddRuleset():
+    return(noRuleset(current_user, "epmain.addRuleset"))
+@epmain.route("/Add-Ruleset", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def addRuleset(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
-        ruleset = request.form.get("rulesetid")
-        if(not Ruleset.query.filter_by(id=int(ruleset)).first()):
+        rulesetid = request.form.get("rulesetid")
+        target_ruleset = Ruleset.query.filter_by(id=rulesetid).first()
+        if(not target_ruleset):
             flash("Ruleset does not exist.", "red")
-        elif(not Ruleset.query.filter_by(id=int(ruleset)).first().is_shareable):
-            flash("Ruleset is not shareable.", "red")
-        elif(Ruleset.query.filter_by(id=int(ruleset)).first().userid == current_user.id):
+        elif(target_ruleset.visibility < 1):
+            flash("Ruleset is private.", "red")
+        elif(target_ruleset.userid == current_user.id):
             flash("You cannot add your own ruleset as a foreign ruleset.", "red")
-        elif(current_user.foreign_ruleset):
-            if(ruleset in current_user.foreign_ruleset.split(",")):
+        elif(target_ruleset.id in current_user.foreign_ruleset):
+            if(target_ruleset.id in current_user.foreign_ruleset.split(",")):
                 flash("You've already added that ruleset.", "red")
-            else:
-                current_user.foreign_ruleset.append("," + ruleset)
-                db.session.commit()
-                flash("Added ruleset.", "green")
-                return(redirect(url_for("epmain.myRulesets")))
         else:
-            current_user.foreign_ruleset = ruleset
+            current_user.foreign_ruleset += target_ruleset.id
+            target_ruleset.viewers += current_user.id
             db.session.commit()
             flash("Added ruleset.", "green")
-            return(redirect(url_for("epmain.myRulesets")))
+            return(redirect(url_for("epmain.home")))
     return(
         render_template(
             "add-ruleset.html",
@@ -159,24 +143,18 @@ def addRuleset(ruleset):
         )
     )
 
+@epmain.route("/Remove-Ruleset")
+@login_required
+def noRulesetRemoveRuleset():
+    return(noRuleset(current_user, "epmain.removeRuleset"))
 @epmain.route("/Remove-Ruleset", methods=["POST"], subdomain="<ruleset>")
 @login_required
 def removeRuleset(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(current_user.current_ruleset == rulesetid):
-        current_user.current_ruleset = 1 
-    if(current_user.foreign_ruleset == str(ruleset.id)):
-        current_user.foreign_ruleset = ""
-        db.session.commit()
+        current_user.current_ruleset = adminrulesets[0].id
     else:
-        oldforeign = current_user.foreign_ruleset.split(",")
-        oldforeign.remove(str(rulesetid))
-        newruleset = []
-        newruleset[0] = oldforeign[0]
-        index = 1
-        for i in range(len(oldforeign) - 1):
-            newruleset.append(i)
-        current_user.foreign_ruleset = newruleset
+        current_user.foreign_ruleset.remove(rulesetid)
         db.session.commit()
     flash("Removed Ruleset.", "orange")
     return(redirect(url_for("epmain.myRulesets")))
@@ -190,6 +168,10 @@ def changeRuleset():
     flash("Ruleset changed.", "green")
     return("")
 
+@epmain.route("/My-Account")
+@login_required
+def noRulesetMyAccount():
+    return(noRuleset(current_user, "epmain.myAccount"))
 @epmain.route("/My-Account", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def myAccount(ruleset):

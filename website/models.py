@@ -10,14 +10,14 @@ def shortid(length):
 class User(db.Model, UserMixin):
     __tablename__ = "user"
     id = db.Column(db.String(32), primary_key=True, default=lambda: shortid(8))
+    is_admin = db.Column(db.Boolean, default=False)
     username = db.Column(db.String(255), unique=True)
     email = db.Column(db.String(255))
     password = db.Column(db.String(255))
-    characters = db.relationship("Character")
-    rulesets = db.relationship("Ruleset")
-    foreign_ruleset = db.Column(db.PickleType)
-    can_edit = db.Column(db.PickleType)
-    current_ruleset = db.Column(db.Integer)
+    characters = db.relationship("Character", backref="user")
+    rulesets = db.relationship("Ruleset", backref="user")
+    foreign_ruleset = db.Column(db.PickleType, default=[])
+    current_ruleset = db.Column(db.String(32))
 
 class Ruleset(db.Model):
     __tablename__ = "ruleset"
@@ -27,7 +27,7 @@ class Ruleset(db.Model):
     userid = db.Column(db.String(36), db.ForeignKey("user.id"))
     viewers = db.Column(db.PickleType)
     editors = db.Column(db.PickleType)
-    is_shareable = db.Column(db.Boolean)
+    visibility = db.Column(db.Integer)
     name = db.Column(db.String(127))
     description = db.Column(db.String(16383))
     categories = db.relationship("Category", backref="ruleset")
@@ -338,7 +338,7 @@ class SubclassColumn(db.Model):
 class Currency(db.Model):
     __tablename__ = "currency"
     id = db.Column(db.Integer, primary_key = True)
-    ruleset = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
+    rulesetid = db.Column(db.Integer, db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     value = db.Column(db.Integer)
     text = db.Column(db.String(16383))

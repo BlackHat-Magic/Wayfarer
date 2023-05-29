@@ -29,7 +29,7 @@
 		<a href="/Create-Ruleset"><button>Create a Ruleset</button></a>
 		<h1>Shared With Me</h1>
 		<div class="inactive interior flex vertical start">
-			{% for ruleset in current_user.frulesets %}
+			{% for ruleset in current_user.foreign_ruleset %}
 				<div class="inactive interior flex horizontal center">
 					<h3 style="grid-column: 1 / span 8; text-decoration: underline">{{ ruleset.name }}</h3>
 				</div>

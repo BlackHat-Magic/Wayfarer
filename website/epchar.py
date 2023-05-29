@@ -9,9 +9,15 @@ import json
 epchar = Blueprint('epchar', __name__)
 
 @epchar.route("/")
-def char():
+def noRulesetChar():
+    return(noRuleset(current_user, "epmain.home"))
+@epchar.route("/", subdomain="<ruleset>")
+def char(ruleset):
     return(redirect(url_for("epmain.home")))
 
+@epchar.route("/Races")
+def noRulesetRaces():
+    return(noRuleset(current_user, "epchar.races"))
 @epchar.route("/Races", subdomain="<ruleset>")
 def races(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -31,6 +37,10 @@ def races(ruleset):
         )
     )
 
+@epchar.route("/Races/Create")
+@login_required
+def noRulesetCreateRace():
+    return(noRuleset(current_user, "epchar.createRace"))
 @epchar.route("/Races/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createRace(ruleset):
@@ -48,6 +58,10 @@ def createRace(ruleset):
         )
     )
 
+@epchar.route("/Races/Duplicate/<string:race>")
+@login_required
+def noRulesetDuplicateRace(race):
+    return(noRuleset(current_user, "epchar.duplicateRace", race=race))
 @epchar.route("/Races/Duplicate/<string:race>", subdomain="<ruleset>")
 @login_required
 def duplicateRace(race, ruleset):
@@ -59,6 +73,10 @@ def duplicateRace(race, ruleset):
     result = makeRace(request, cruleset, race, "duplicate")
     return(result)
 
+@epchar.route("/Races/Edit/<string:race>")
+@login_required
+def noRulesetEditRace(rac):
+    return(noRuleset(current_user, "epchar.editRace", race=race))
 @epchar.route("/Races/Edit/<string:race>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editRace(race, ruleset):
@@ -101,7 +119,12 @@ def deleteRace(race, ruleset):
         flash("Race deleted.", "orange")
     return(redirect(url_for("epchar.races")))
 
+@epchar.route("/Races/Import")
+@login_required
+def noRulesetImportRace():
+    return(noRuleset(current_user, "epchar.importRaces"))
 @epchar.route("/Races/Import", methods=["GET", "POST"], subdomain="<ruleset>")
+@login_required
 def importRaces(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
@@ -119,6 +142,9 @@ def importRaces(ruleset):
         )
     )
 
+@epchar.route("/Races/<string:race>")
+def noRulesetRace(race):
+    return(noRuleset(current_user, "epchar.race"))
 @epchar.route("/Race/<string:race>", subdomain="<ruleset>")
 def race(race, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -135,6 +161,9 @@ def race(race, ruleset):
         )
     )
 
+@epchar.route("/Backgrounds")
+def noRulesetBackgrounds():
+    return(noRuleset(current_user, "epchar.backgrounds"))
 @epchar.route("/Backgrounds", subdomain="<ruleset>")
 def backgrounds(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -149,6 +178,10 @@ def backgrounds(ruleset):
         )
     )
 
+@epchar.route("/Backgrounds/Create")
+@login_required
+def noRulesetCreateBackground():
+    return(noRuleset(current_user, "epchar.createBackground"))
 @epchar.route("/Backgrounds/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createBackground(ruleset):
@@ -170,6 +203,10 @@ def createBackground(ruleset):
         )
     )
 
+@epchar.route("/Backgrounds/Duplicate/<string:tbackground>")
+@login_required
+def noRulesetDuplicatebackground(tbackground):
+    return(noRuleset(current_user, "epchar.duplicateBackground", tbackground=tbackground))
 @epchar.route("/Backgrounds/Duplicate/<string:tbackground>", subdomain="<ruleset>")
 @login_required
 def duplicateBackground(tbackground, ruleset):
@@ -177,6 +214,10 @@ def duplicateBackground(tbackground, ruleset):
     tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground).first_or_404()
     return(makebackground(request, cruleset, tbackground, "duplicate"))
 
+@epchar.route("/Backgrounds/Edit/<string:tbackground>")
+@login_required
+def noRulesetEditBackground(tbackground):
+    return(noRuleset(current_user, "epchar.editBackground", tbackground=tbackground))
 @epchar.route("/Backgrounds/Edit/<string:tbackground>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editBackground(tbackground, ruleset):
@@ -213,6 +254,10 @@ def deleteBackground(tbackground, ruleset):
         flash("Background deleted.", "orange")
     return(redirect(url_for("epchar.backgrounds")))
 
+@epchar.route("/Backgrounds/Import")
+@login_required
+def noRulesetImportBackgrounds():
+    return(noRuleset(current_user, "epchar.importBackgrounds"))
 @epchar.route("/Backgrounds/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importBackgrounds(ruleset):
@@ -232,6 +277,9 @@ def importBackgrounds(ruleset):
         )
     )
 
+@epchar.route("/Background/<string:background>")
+def noRulesetBackground(background):
+    return(noRuleset(current_user, "epmain.background", background=background))
 @epchar.route("/Background/<string:background>", subdomain="<ruleset>")
 def background(background, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -248,6 +296,9 @@ def background(background, ruleset):
         )
     )
 
+@epchar.route("/Feats")
+def noRulesetFeats():
+    return(noRuleset(current_user, "epmain.feats"))
 @epchar.route("/Feats", subdomain="<ruleset>")
 def feats(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -262,6 +313,10 @@ def feats(ruleset):
         )
     )
 
+@epchar.route("/Feats/Create")
+@login_required
+def noRulesetCreateFeat():
+    return(noRuleset(current_user, "epmain.createFeat"))
 @epchar.route("/Feats/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createFeat(ruleset):
@@ -279,6 +334,10 @@ def createFeat(ruleset):
         )
     )
 
+@epchar.route("/Feats/Duplicate/<string:tfeat>")
+@login_required
+def noRulesetDuplicateFeat(tfeat):
+    return(noRuleset(current_user, "epchar.duplicateFeat"))
 @epchar.route("/Feats/Duplicate/<string:tfeat>", subdomain="<ruleset>")
 @login_required
 def duplicateFeat(tfeat, ruleset):
@@ -288,6 +347,10 @@ def duplicateFeat(tfeat, ruleset):
         return(makefeat(None, cruleset, tfeat, "duplicate"))
     return(redirect(url_for("epchar.feats")))
 
+@epchar.route("/Feats/Edit/<string:tfeat>")
+@login_required
+def noRulesetEditFeat(tfeat):
+    return(noRuleset(current_user, "epmain.editFeat", tfeat=tfeat))
 @epchar.route("/Feats/Edit/<string:tfeat>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editFeat(tfeat, ruleset):
@@ -320,6 +383,10 @@ def deleteFeat(tfeat, ruleset):
         flash("Feat deleted.", "orange")
     return(redirect(url_for("epchar.feats")))
 
+@epchar.route("/Feats/Import")
+@login_required
+def noRulesetImportFeats():
+    return(noRuleset(current_user, "epchar.importFeats"))
 @epchar.route("/Feats/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importFeats(ruleset):
@@ -338,6 +405,9 @@ def importFeats(ruleset):
         )
     )
 
+@epchar.route("/Feat/<string:feat>")
+def noRulesetFeat(feat):
+    return(noRuleset(current_user, "epchar.feat", feat=feat))
 @epchar.route("/Feat/<string:feat>", subdomain="<ruleset>")
 def feat(feat, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -354,6 +424,9 @@ def feat(feat, ruleset):
         )
     )
 
+@epchar.route("/Ability-Scores")
+def noRulesetAbilityScores():
+    return(noRuleset(current_user, "epchar.stats"))
 @epchar.route("/Ability-Scores", subdomain="<ruleset>")
 def stats(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -370,6 +443,10 @@ def stats(ruleset):
         )
     )
 
+@epchar.route("/Ability-Scores/Create")
+@login_required
+def noRulesetCreateAbilityScore():
+    return(noRuleset(current_user, "epchar.createStat"))
 @epchar.route("/Ability-Scores/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createStat(ruleset):
@@ -387,6 +464,10 @@ def createStat(ruleset):
         )
     )
 
+@epchar.route("/Ability-Scores/Edit/<string:score>")
+@login_required
+def noRulesetEditAbilityScore(score):
+    return(noRuleset(current_user, "epchar.editStat", score=score))
 @epchar.route("/Ability-Scores/Edit/<string:score>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editStat(score, ruleset):
@@ -408,6 +489,10 @@ def editStat(score, ruleset):
         )
     )
 
+@epchar.route("/Ability-Scores/Duplicate/<string:score>")
+@login_required
+def noRulesetDuplicateAbilityScore(score):
+    return(noRuleset(current_user, "epchar.duplicateStat", score=score))
 @epchar.route("/Ability-Scores/Duplicate/<string:score>", subdomain="<ruleset>")
 @login_required
 def duplicateStat(score, ruleset):
@@ -428,6 +513,9 @@ def deleteStat(score, ruleset):
         flash("Ability Score deleted.", "orange")
     return(redirect(url_for("epchar.stats")))
 
+@epchar.route("/Classes")
+def noRulesetClasses():
+    return(noRuleset(current_user, "epchar.classes"))
 @epchar.route("/Classes", subdomain="<ruleset>")
 def classes(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -442,6 +530,10 @@ def classes(ruleset):
         )
     )
 
+@epchar.route("/Classes/Create")
+@login_required
+def noRulesetCreateClass():
+    return(noRuleset(current_user, "epchar.createClass"))
 @epchar.route("/Classes/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createClass(ruleset):
@@ -459,6 +551,10 @@ def createClass(ruleset):
         )
     )
 
+@epchar.route("/Classes/Duplicate/<string:tclass>")
+@login_required
+def noRulesetDuplicateClass(tclass):
+    return(noRuleset(current_user, "epchar.duplicateClass", tclass=tclass))
 @epchar.route("/Classes/Duplicate/<string:tclass>", subdomain="<ruleset>")
 @login_required
 def duplicateClass(tclass, ruleset):
@@ -466,6 +562,10 @@ def duplicateClass(tclass, ruleset):
     tclass = Class.query.filter_by(rulesetid=cruleset.id, name=tclass).first_or_404()
     return(makeclass(None, cruleset, tclass, "duplicate"))
 
+@epchar.route("/Classes/Edit/<string:tclass>")
+@login_required
+def noRulesetEditClass(tclass):
+    return(noRuleset(current_user, "epchar.editClass", tclass=tclass))
 @epchar.route("/Classes/Edit/<string:tclass>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editClass(tclass, ruleset):
@@ -484,6 +584,9 @@ def editClass(tclass, ruleset):
         )
     )
 
+@epchar.route("/Class/<string:selectedclass>")
+def noRulesetClassPage(selectedclass):
+    return(noRuleset(current_user, "epchar.classPage", selectedclass=selectedclass))
 @epchar.route("/Class/<string:selectedclass>", subdomain="<ruleset>")
 def classPage(selectedclass, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)

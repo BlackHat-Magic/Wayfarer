@@ -52,16 +52,17 @@ def create_database(app):
             from .models import User, Ruleset
             admin_user = User(
                 username = "admin",
-                password = generate_password_hash("password", method="sha256")
+                password = generate_password_hash("password", method="sha256"),
+                is_admin = True
             )
             db.session.add(admin_user)
             admin_ruleset = Ruleset(
                 identifier = "admin",
                 is_admin = True,
-                userid = admin_user.id,
+                user = admin_user,
                 viewers = [admin_user.id],
                 editors = [admin_user.id],
-                is_shareable = True,
+                visibility = 2,
                 name = "admin",
                 description = "default admin ruleset"
             )

@@ -7,6 +7,9 @@ from .uservalidation import *
 
 epauth = Blueprint('epauth', __name__)
 
+@epauth.route("/Login")
+def noRulesetLogin():
+    return(noRuleset(current_user, "epmain.login"))
 @epauth.route("/Login", methods=["GET", "POST"], subdomain="<ruleset>")
 def login(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -19,7 +22,8 @@ def login(ruleset):
             if(check_password_hash(user.password, password)):
                 login_user(user, remember=True)
                 flash(f"Welcome back, {username}.", "green")
-                return(redirect(url_for("epmain.home", ruleset=Ruleset.query.filter_by(id=current_user.current_ruleset))))
+                adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+                return(redirect(url_for("epmain.home", ruleset=cruleset.identifier)))
             else:
                 flash("Incorrect password.", "red")
         else:
@@ -34,15 +38,23 @@ def login(ruleset):
         )
     )
     
-
 @epauth.route("/Logout")
 @login_required
-def logout():
+def noRulesetLogout():
+    return(noRuleset(current_user, "epmain.logout"))
+@epauth.route("/Logout", subdomain="<ruleset>")
+@login_required
+def logout(ruleset):
     logout_user()
-    return(redirect(url_for("epmain.home")))
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    return(redirect(url_for("epmain.home", ruleset=cruleset.identifier)))
 
-@epauth.route("/Signup", methods=["GET", "POST"])
-def signUp():
+@epauth.route("/Signup")
+def noRulesetSignup():
+    return(noRuleset(current_user, "epmain.signup"))
+@epauth.route("/Signup", methods=["GET", "POST"], subdomain="<ruleset>")
+def signUp(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
         username = request.form.get("username")
         email = request.form.get("email")
@@ -70,7 +82,7 @@ def signUp():
             db.session.commit()
             login_user(User.query.filter_by(username = username).first(), remember = True)
             flash(f"Welcome, {username}.", "green")
-            return(redirect(url_for("epmain.home")))
+            return(redirect(url_for("epmain.home", subdomain=cruleset.identifier)))
         
     return(
         render_template(

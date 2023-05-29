@@ -7,21 +7,53 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Create a Ruleset</h1>
+		<!-- title -->
+		{% if ruleset %}
+			<h1>Edit {{ ruleset.name }}</h1>
+		{% else %}
+			<h1>Create a Ruleset</h1>
+		{% endif %}
+
+		<!-- form -->
 		<form method="POST" class="interior flex vertical start">
-			<input type="text" placeholder="Ruleset Name" name="name" id="name"style="width: auto">
-			<textarea placeholder="Ruleset description" x-model="text"></textarea>
+			<!-- ruleset name -->
+			<input type="text" placeholder="Ruleset Name" name="name" id="name" x-model="name" style="width: auto">
+			{% if ruleset %}
+				<template x-init="name=`{{ ruleset.name }}`"></template>
+			{% endif %}
+
+			<!-- ruleset identifier -->
+			<input type="text" placeholder="Ruleset Identifier" name="identifier" id="identifier" x-model="identifier" style="width: auto">
+			{% if ruleset %}
+				<template x-init="identifier=`{{ ruleset.identifier }}`"></template>
+			{% endif %}
+
+			<!-- ruleset description -->
+			<textarea placeholder="Ruleset description" x-model="text">
+			</textarea>
 			<input type="hidden" name="text" id="text" x-model="text">
+			{% if ruleset %}
+				<template x-init="text=`{{ ruleset.description }}`"></template>
+			{% endif %}
+
+			<!-- is the ruleset shareable? -->
 			<div class="interior flex horizontal center">
-				<label for="shareable"><h3 style="width: auto">Make ruleset shareable?</h3></label>
-				<select name="shareable" id="shareable"style="width: auto">
-					<option value="True">Yes</option>
-					<option value="False">No</option>
+				<label for="visibility"><h3 style="width: auto">Ruleset Visibility:</h3></label>
+				<select name="visibility" id="visibility" x-model="visibility" style="width: auto">
+					<option value="0">Private</option>
+					<option value="1">Unlisted</option>
+					<option value="2">Public</option>
+					{% if ruleset %}
+					<template x-init="visibility={{ ruleset.visibility }}; console.log(visibility)"></template>
+					{% endif %}
 				</select>
 			</div>
+
+			<!-- template ruleset -->
+			{% if not ruleset %}
 			<div class="interior flex horizontal center">
 				<label for="base"><h3 style="width: auto">Template Ruleset:</h3></label>
-				<select name="base" id="base" style="width: auto" x-model="base" @change="console.log(checkBase())" x-init="console.log(base)">
+				<select name="base" id="base" style="width: auto" x-model="base">
 					<option value="">N/A</option>
 					{% for ruleset in adminrulesets %}
 					<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
@@ -35,8 +67,36 @@
 				<h2>Warning</h2>
 				<p>Creating a ruleset with no template ruleset is not recommended. Without a template ruleset, there will be <em>no information</em> in the ruleset to start with. This can make it very difficult to create a usable set of rules, since there will be no ability scores, skills, items, item types, weapon properties, et cetera to mention in homebrew races, backgrounds, classes, and the like.</p>
 			</div>
+			{% endif %}
+
+			{% if not ruleset %}
+				<template x-if="!checkBase()">
+					<!-- copy ruleset viewers? -->
+					<div class="interior flex horizontal center">
+						<label for="same_viewers"><h3 style="width: auto">Share with the same viewers?</h3></label>
+						<select name="same_viewers" id="same_viewers" x-model="same_viewers" style="width: auto">
+							<option value="True">Yes</option>
+							<option value="False" selected>No</option>
+						</select>
+					</div>
+				</template>
+				<template x-if="!checkBase()">
+					<!-- copy ruleset editors? -->
+					<div class="interior flex horizontal center">
+						<label for="same_editors"><h3 style="width: auto">Share with the same editors?</h3></label>
+						<select name="same_editors" id="same_editors" x-model="same_editors" style="width: auto">
+							<option value="True">Yes</option>
+							<option value="False" selected>No</option>
+						</select>
+					</div>
+				</template>
+			{% endif %}
+
+			<!-- submit button -->
 			<a><button type="submit">Create Ruleset</button></a>
 		</form>
+
+		<!-- Preview -->
 		<h2>Ruleset Description:</h2>
 		<hr>
 		<div class="usercontent" x-html="convert(text)"></div>

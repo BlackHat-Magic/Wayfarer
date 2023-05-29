@@ -42,6 +42,7 @@ In no particular order...
      - [ ] Add instructions
      - [ ] Communicate unsupported data
      - [X] ~~Input validation for imported text~~
+     - [ ] Validate pickles
      - [ ] Consolidate user content validation into a function
  - [ ] Make flash messages dismissable
  - [ ] Hyperlinks
@@ -76,6 +77,7 @@ In no particular order...
  - [ ] De-spaghettify import code (e.g. checking if item is list or dict can be more efficient)
  - [ ] Subdomain navigation
  - [ ] Images (find a host)
+ - [ ] Better options for ruleset visibility
 
 ## Usage
 
