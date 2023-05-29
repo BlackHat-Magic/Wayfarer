@@ -8,25 +8,32 @@ import json
 
 eprefs = Blueprint('eprefs', __name__)
 
+@eprefs.route("/")
+def noRulesetRefs():
+    return(noRuleset(current_user, "epmain.home"))
 @eprefs.route("/", subdomain="<ruleset>")
-def refs():
+def refs(ruleset):
     return(redirect(url_for("epmain.home")))
 
+@eprefs.route("/Actions")
+def noRulesetActions():
+    return(noRuleset(current_user, "eprefs.actions"))
 @eprefs.route("/Actions", subdomain="<ruleset>")
-def actions():
+def actions(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "actions.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
-            actions=actions, 
             adminrulesets=adminrulesets,
             title="Actions"
         )
     )
 
+@eprefs.route("/Actions/Create")
+@login_required
+def noRulesetCreateAction():
+    return(noRuleset(current_user, "eprefs.createAction"))
 @eprefs.route("/Actions/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createAction():
@@ -36,14 +43,16 @@ def createAction():
     return(
         render_template(
             "create-action.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create an Action"
         )
     )
 
+@eprefs.route("/Actions/Duplicate/<string:action>")
+@login_required
+def noRulesetDuplicateAction(action):
+    return(noRuleset(current_user, "eprefs.duplicateAction", action=action))
 @eprefs.route("/Actions/Duplicate/<string:action>", subdomain="<ruleset>")
 @login_required
 def duplicateAction(action):
@@ -51,6 +60,10 @@ def duplicateAction(action):
     action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
     return(makeAction(None, cruleset, action, "duplicate"))
 
+@eprefs.route("/Actions/Edit/<string:action>")
+@login_required
+def noRulesetEditAction(action):
+    return(noRuleset(current_user, "eprefs.editAction", action=action))
 @eprefs.route("/Actions/Edit/<string:action>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editAction(action):
@@ -61,8 +74,6 @@ def editAction(action):
     return(
         render_template(
             "create-action.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create an Action",
@@ -83,6 +94,10 @@ def deleteAction(action):
         flash("Action deleted", "orange")
     return(redirect(url_for("eprefs.actions")))
 
+@eprefs.route("/Actions/Import")
+@login_required
+def noRulesetImportActions():
+    return(noRuleset(current_user, "eprefs.importActions"))
 @eprefs.route("/Actions/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importActions():
@@ -92,22 +107,21 @@ def importActions():
     return(
         render_template(
             "import-action.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Import Actions"
         )
     )
 
+@eprefs.route("/Conditions")
+def noRulesetConditions():
+    return(noRuleset(current_user, "eprefs.conditions"))
 @eprefs.route("/Conditions", subdomain="<ruleset>")
 def conditions():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "conditions.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             conditions=cruleset.conditions, 
             adminrulesets=adminrulesets,
@@ -116,6 +130,10 @@ def conditions():
         )
     )
 
+@eprefs.route("/Conditions/Create")
+@login_required
+def noRulesetCreateCondition():
+    return(noRuleset(current_user, "eprefs.createCondition"))
 @eprefs.route("/Conditions/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createCondition():
@@ -124,15 +142,17 @@ def createCondition():
         return(makeCondition(request, cruleset, None, "create"))
     return(
         render_template(
-            "create-condition.html", 
-            user=current_user, 
-            frulesets=frulesets, 
+            "create-condition.html",
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create a Condition"
         )
     )
 
+@eprefs.route("/Conditions/Duplicate/<string:condition>")
+@login_required
+def noRulesetDuplicateCondition(condition):
+    return(noRuleset(current_user, "eprefs.duplicateCondition", condition=condition))
 @eprefs.route("/Conditions/Duplicate/<string:condition>", subdomain="<ruleset>")
 @login_required
 def duplicateCondition(condition):
@@ -140,6 +160,10 @@ def duplicateCondition(condition):
     condition = Condition.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     return(makeCondition(None, cruleset, condition, "duplicate"))
 
+@eprefs.route("/Conditions/Edit/<string:condition>")
+@login_required
+def noRulesetEditCondition(condition):
+    return(noRUleset(current_user, "eprefs.editCondition", condition=condition))
 @eprefs.route("/Conditions/Edit/<string:condition>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editCondition(condition):
@@ -150,15 +174,13 @@ def editCondition(condition):
     return(
         render_template(
             "create-condition.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title=f"Edit {condition.name}",
             condition = condition
         )
     )
-    
+
 @eprefs.route("/Conditions/Delete/<string:condition>", subdomain="<ruleset>")
 @login_required
 def deleteCondition(condition):
@@ -171,6 +193,10 @@ def deleteCondition(condition):
         db.session.commit()
     return(redirect(url_for("eprefs.conditions")))
 
+@eprefs.route("/Conditions/Import")
+@login_required
+def noRulesetImportConditions():
+    return(noRuleset(current_user, "eprefs.importConditions"))
 @eprefs.route("/Conditions/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importConditions():
@@ -180,8 +206,6 @@ def importConditions():
     return(
         render_template(
             "import-condition.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             conditions=conditions, 
             adminrulesets=adminrulesets,
@@ -189,14 +213,15 @@ def importConditions():
         )
     )
 
+@eprefs.route("/Diseases")
+def noRulesetDiseases():
+    return(noRuleset(current_user, "eprefs.diseases"))
 @eprefs.route("/Diseases", subdomain="<ruleset>")
 def diseases():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "conditions.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             conditions = cruleset.diseases,
             adminrulesets=adminrulesets,
@@ -205,6 +230,10 @@ def diseases():
         )
     )
 
+@eprefs.route("/Diseases/Create")
+@login_required
+def noRulesetCreateDisease():
+    return(noRuleset(current_user, "eprefs.createDisease"))
 @eprefs.route("/Diseases/Create", subdomain="<ruleset>")
 @login_required
 def createDisease():
@@ -214,14 +243,16 @@ def createDisease():
     return(
         render_template(
             "create-condition.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create a Disease"
         )
     )
 
+@eprefs.route("/Diseases/Duplicate/<string:disease>")
+@login_required
+def noRulesetDuplicateDisease(disease):
+    return(noRuleset(current_user, "eprefs.duplicateDisease", disease=disease))
 @eprefs.route("/Diseases/Duplicate/<string:disease>", subdomain="<ruleset>")
 @login_required
 def duplicateDisease(disease):
@@ -239,8 +270,6 @@ def editDisease(disease):
     return(
         render_template(
             "create-condition.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title=f"Edit {disease.name}",
@@ -261,14 +290,15 @@ def deleteDisease(disease):
         flash("Disease deleted.", "orange")
     return(redirect(url_for("eprefs.diseases")))
 
+@eprefs.route("/Statuses")
+def noRulesetStatuses():
+    return(noRuleset(current_user, "eprefs.statuses"))
 @eprefs.route("/Statuses", subdomain="<ruleset>")
 def statuses():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "conditions.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             conditions=cruleset.statuses, 
             adminrulesets=adminrulesets,
@@ -277,6 +307,10 @@ def statuses():
         )
     )
 
+@eprefs.route("/Statuses/Create")
+@login_required
+def noRulesetCreateStatus():
+    return(noRuleset(current_user, "eprefs.createStatus"))
 @eprefs.route("/Statuses/Create", subdomain="<ruleset>")
 @login_required
 def createStatus():
@@ -286,14 +320,16 @@ def createStatus():
     return(
         render_template(
             "create-condition.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create a Status"
         )
     )
 
+@eprefs.route("/Statuses/Duplicate/<string:status>")
+@login_required
+def noRulesetDuplicateStatus(status):
+    return(noRuleset(current_user, "eprefs.duplicateStatus", status=status))
 @eprefs.route("/Statuses/Duplicate/<string:status>", subdomain="<ruleset>")
 @login_required
 def duplicateStatus(status):
@@ -301,6 +337,10 @@ def duplicateStatus(status):
     status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
     return(makeStatus(None, cruleset, status, "duplicate"))
 
+@eprefs.route("/Statuses/Edit/<string:status>")
+@login_required
+def noRulesetEditStatus(status):
+    return(noRuleset(current_user, "eprefs.editStatus", status=status))
 @eprefs.route("/Statuses/Edit/<string:status>", subdomain="<ruleset>")
 @login_required
 def editStatus(status):
@@ -311,8 +351,6 @@ def editStatus(status):
     return(
         render_template(
             "create-condition.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title=f"Edit {status.name}",
@@ -333,6 +371,9 @@ def deleteStatus(status):
         flash("Status deleted.", "orange")
     return(redirect(url_for("eprefs.statuses")))
 
+@eprefs.route("/Items")
+def noRulesetItems():
+    return(noRuleset(current_user, "eprefs.items"))
 @eprefs.route("/Items", subdomain="<ruleset>")
 def items():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -340,8 +381,6 @@ def items():
     return(
         render_template(
             "items.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Items",
@@ -349,6 +388,10 @@ def items():
         )
     )
 
+@eprefs.route("/Items/Create")
+@login_required
+def noRulesetCreateItem():
+    return(noRuleset(current_user, "eprefs.createItem"))
 @eprefs.route("/Items/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createItem():
@@ -358,8 +401,6 @@ def createItem():
     return(
         render_template(
             "create-item.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create an Item",
@@ -368,6 +409,10 @@ def createItem():
         )
     )
 
+@eprefs.route("/Items/Duplicate/<string:item>")
+@login_required
+def noRulesetDuplicateItem(item):
+    return(noRuleset(current_user, "eprefs.duplicateItem", item=item))
 @eprefs.route("/Items/Duplicate/<string:item>", subdomain="<ruleset>")
 @login_required
 def duplicateItem(item):
@@ -375,6 +420,10 @@ def duplicateItem(item):
     item = Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first_or_404()
     return(makeItem(None, cruleset, item, "duplicate"))
 
+@eprefs.route("/Items/Edit/<string:item>")
+@login_required
+def noRulesetEditItem(item):
+    return(noRuleset(current_user, "eprefs.editItem", item=item))
 @eprefs.route("/Items/Edit/<string:item>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editItem(item):
@@ -385,8 +434,6 @@ def editItem(item):
     return(
         render_template(
             "create-item.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create an Item",
@@ -409,6 +456,10 @@ def deleteItem(item):
         flash("Item deleted.", "orange")
     return(redirect(url_for("eprefs.items")))
 
+@eprefs.route("/Items/Import")
+@login_required
+def noRulesetImportItems():
+    return(noRuleset(current_user, "eprefs.importItems"))
 @eprefs.route("/Items/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importItems():
@@ -420,14 +471,15 @@ def importItems():
     return(
         render_template(
             "import-item.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Import Items"
         )
     )
 
+@eprefs.route("/Item/<string:item>")
+def noRulesetItem(item):
+    return(noRuleset(current_user, "eprefs.item", item=item))
 @eprefs.route("/Item/<string:item>", subdomain="<ruleset>")
 def item(item):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -435,8 +487,6 @@ def item(item):
     return(
         render_template(
             "item.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             item=item, 
             adminrulesets=adminrulesets,
@@ -444,14 +494,15 @@ def item(item):
         )
     )
 
+@eprefs.route("/Items/Tags")
+def noRulesetItemTags():
+    return(noRuleset(current_user, "eprefs.tags"))
 @eprefs.route("/Items/Tags", subdomain="<ruleset>")
 def tags():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
             "tags.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             tags=ItemTag.query.filter_by(rulesetid=cruleset.id).order_by(ItemTag.name), 
             adminrulesets=adminrulesets,
@@ -459,6 +510,10 @@ def tags():
         )
     )
 
+@eprefs.route("/Items/Tags/Create")
+@login_required
+def noRulesetCreateItemTag():
+    return(noRuleset(current_user, "eprefs.createTag"))
 @eprefs.route("/Items/Tags/Create", methods=["GET", "POST"], subdomain="<ruleset>") 
 @login_required
 def createTag():
@@ -468,14 +523,16 @@ def createTag():
     return(
         render_template(
             "create-tag.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create Item Type"
         )
     )
 
+@eprefs.route("/Items/Tags/Duplicate/<string:item>")
+@login_required
+def noRulesetDuplicateItemTag(item):
+    return(noRuleset(current_user, "eprefs.duplicateTag", item=item))
 @eprefs.route("/Items/Tags/Duplicate/<string:item>", subdomain="<ruleset>")
 @login_required
 def duplicateTag(item):
@@ -483,6 +540,10 @@ def duplicateTag(item):
     tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     return(itemTag(None, cruleset, tag, "duplicate"))
 
+@eprefs.route("/Items/Tags/Edit/<string:item>")
+@login_required
+def noRulesetEditItemTag(item):
+    return(noRuleset(current_user, "eprefs.editTag", item=item))
 @eprefs.route("/Items/Tags/Edit/<string:item>", methods=["GET", "POST"], subdomain="<ruleset>") 
 @login_required
 def editTag(item):
@@ -515,6 +576,9 @@ def deleteTag(item):
         flash("Item tag deleted.", "orange")
     return(redirect(url_for("eprefs.tags")))
 
+@eprefs.route("/Items/Properties")
+def noRulesetWeaponProperties():
+    return(noRuleset(current_user, "eprefs.properties"))
 @eprefs.route("/Items/Properties", subdomain="<ruleset>")
 def properties():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -530,6 +594,10 @@ def properties():
         )
     )
 
+@eprefs.route("/Items/Properties/Create")
+@login_required
+def noRulesetCreateWeaponProperty():
+    return(noRuleset(current_user, "eprefs.createProperty"))
 @eprefs.route("/Items/Properties/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createProperty():
@@ -547,6 +615,10 @@ def createProperty():
         )
     )
 
+@eprefs.route("/Items/Properties/Duplicate/<string:item>")
+@login_required
+def noRulesetDuplicateWeaponProperty(item):
+    return(noRuleset(current_user, "eprefs.duplicateProperty", item=item))
 @eprefs.route("/Items/Properties/Duplicate/<string:item>", subdomain="<ruleset>")
 @login_required
 def duplicateProperty(item):
@@ -554,6 +626,10 @@ def duplicateProperty(item):
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     return(itemProperty(None, cruleset, tproperty, "duplicate"))
 
+@eprefs.route("/Items/Properties/Edit/<string:item>")
+@login_required
+def noRulesetEditWeaponProperty(itme):
+    return(noRuleset(current_user, "eprefs.editProperty", item=item))
 @eprefs.route("/Items/Properties/Edit/<string:item>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editProperty(item):
@@ -586,6 +662,9 @@ def deleteProperty(item):
         flash("Item property deleted.", "orange")
     return(redirect(url_for("eprefs.properties")))
 
+@eprefs.route("/Languages")
+def noRulesetLanguages():
+    return(noRuleset(current_user, "eprefs.languages"))
 @eprefs.route("/Languages", subdomain="<ruleset>")
 def languages():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -600,6 +679,10 @@ def languages():
         )
     )
 
+@eprefs.route("/Languages/Create")
+@login_required
+def noRulesetCreateLanguage():
+    return(noRuleset(current_user, "eprefs.createLanguage"))
 @eprefs.route("/Languages/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createLanguage():
@@ -617,6 +700,10 @@ def createLanguage():
         )
     )
 
+@eprefs.route("/Languages/Duplicate/<string:tlanguage>")
+@login_required
+def noRulesetDuplicateLanguage(tlanguage):
+    return(noRuleset(current_user, "eprefs.duplicateLanguage", tlanguage=tlanguage))
 @eprefs.route("/Languages/Duplicate/<string:tlanguage>", subdomain="<ruleset>")
 @login_required
 def duplicateLanguage(tlanguage):
@@ -624,6 +711,10 @@ def duplicateLanguage(tlanguage):
     tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first_or_404()
     return(makeLanguage(None, cruleset, tlanguage, "duplicate"))
 
+@eprefs.route("/Languages/Edit/<string:tlanguage>")
+@login_required
+def noRulesetEditLanguage(tlanguage):
+    return(noRuleset(current_user, "eprefs.editLanguage", tlanguage=tlanguage))
 @eprefs.route("/Languages/Edit/<string:tlanguage>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editLanguage(tlanguage):
@@ -656,6 +747,10 @@ def deleteLanguage(tlanguage):
         flash("Language deleted.", "orange")
     return(redirect(url_for("eprefs.languages")))
 
+@eprefs.route("/Languages/Import")
+@login_required
+def noRulesetImportLnaguages():
+    return(noRuleset(current_user, "eprefs.importLanguages"))
 @eprefs.route("/Languages/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importLanguages():
@@ -673,6 +768,9 @@ def importLanguages():
         )
     )
 
+@eprefs.route("/Spells")
+def noRulesetSpells():
+    return(noRuleset(current_user, "eprefs.spells"))
 @eprefs.route("/Spells", subdomain="<ruleset>")
 def spells():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -687,6 +785,10 @@ def spells():
         )
     )
 
+@eprefs.route("/Spells/Create")
+@login_required
+def noRulesetCreateSpell():
+    return(noRuleset(current_user, "eprefs.createSpell"))
 @eprefs.route("/Spells/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createSpell():
@@ -704,13 +806,21 @@ def createSpell():
         )
     )
 
-@eprefs.route("/Spells/Duplicte/<string:spell>", subdomain="<ruleset>")
+@eprefs.route("/Spells/Duplicate/<string:spell>")
+@login_required
+def noRulesetDuplicateSpell(spell):
+    return(noRuleset(current_user, "eprefs.duplicateSpell", spell=spell))
+@eprefs.route("/Spells/Duplicate/<string:spell>", subdomain="<ruleset>")
 @login_required
 def duplicateSpell(spell):
     cruleset = getCurrentRuleset(current_user)
     spell = cruleset.spells.filter_by(name = spell).first_or_404()
     return(makeSpell(None, cruleset, spell, "duplicate"))
 
+@eprefs.route("/Spells/Edit/<string:spell>")
+@login_required
+def noRulesetEditSpell(spell):
+    return(noRuleset(current_user, "eprefs.editSpell", spell=spell))
 @eprefs.route("/Spells/Edit/<string:spell>", subdomain="<ruleset>")
 @login_required
 def editSpell(spell):
@@ -743,6 +853,10 @@ def deleteSpell(spell):
         flash("Spell deleted.", "orange")
     return(redirect(url_for("eprefs.spells")))
 
+@eprefs.route("/Spells/Import")
+@login_required
+def noRulesetImportSpells():
+    return(noRuleset(current_user, "eprefs.importSpells"))
 @eprefs.route("/Spells/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importSpells():
@@ -759,7 +873,9 @@ def importSpells():
             title="Import Spells"
         )
     )
-
+@eprefs.route("/Spell/<string:spell>")
+def noRulesetSpell(spell):
+    return(noRuleset(current_user, "eprefs.spell"))
 @eprefs.route("/Spell/<string:spell>", subdomain="<ruleset>")
 def spell(spell):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -776,6 +892,9 @@ def spell(spell):
         )
     )
 
+@eprefs.route("/Recipes")
+def noRulesetRecipes():
+    return(noRuleset(current_user, "eprefs.recipes"))
 @eprefs.route("/Recipes", subdomain="<ruleset>")
 def recipes():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -790,6 +909,10 @@ def recipes():
         )
     )
 
+@eprefs.route("/Recipes/Create")
+@login_required
+def noRulesetCreateRecipe():
+    return(noRuleset(current_user, "eprefs.createRecipe"))
 @eprefs.route("/Recipes/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createRecipe():
@@ -807,6 +930,10 @@ def createRecipe():
         )
     )
 
+@eprefs.route("/Recipes/Duplicate/<string:recipe>")
+@login_required
+def noRulesetDuplicateRecipe(recipe):
+    return(noRuleset(current_user, "eprefs.duplicateRecipe"))
 @eprefs.route("/Recipes/Duplicate/<string:recipe>", subdomain="<ruleset>")
 @login_required
 def duplicateRecipe(recipe):
@@ -814,6 +941,10 @@ def duplicateRecipe(recipe):
     recipe = cruleset.recipes.filter_by(name = recipe).first_or_404()
     return(makeRecipe(request, cruleset, recipe, "duplicate"))
 
+@eprefs.route("/Recipes/Edit/<string:recipe>")
+@login_required
+def noRulesetEditRecipe(recipe):
+    return(noRuleset(current_user, "eprefs.editRecipe"))
 @eprefs.route("/Recipes/Edit/<string:recipe>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editRecipe(recipe):
@@ -833,6 +964,9 @@ def editRecipe(recipe):
         )
     )
 
+@eprefs.route("/Skills")
+def noRulesetSkills():
+    return(noRuleset(current_user, "eprefs.skills"))
 @eprefs.route("/Skills", subdomain="<ruleset>")
 def skills():
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -849,6 +983,10 @@ def skills():
         )
     )
 
+@eprefs.route("/Skills/Create")
+@login_required
+def noRulesetCreateSkill():
+    return(noRuleset(current_user, "eprefs.createSkill"))
 @eprefs.route("/Skills/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createSkill():
@@ -866,6 +1004,10 @@ def createSkill():
         )
     )
 
+@eprefs.route("/Slills/Duplicate/<string:tskill>")
+@login_required
+def noRulesetDuplicateSkill(tskill):
+    return(noRuleset(current_user, "eprefs.duplicateSkill", tskill=tskill))
 @eprefs.route("/Skills/Duplicate/<string:tskill>", subdomain="<ruleset>")
 @login_required
 def duplicateSkill(tskill):
@@ -876,6 +1018,10 @@ def duplicateSkill(tskill):
         return(redirect(url_for("eprefs.skills")))
     return(skill(request, cruleset, tskill, "duplicate"))
 
+@eprefs.route("/Skills/Edit/<string:tskill>")
+@login_required
+def noRulesetEditSkill(tskill):
+    return(noRuleset(current_user, "eprefs.editSkill", tskill=tskill))
 @eprefs.route("/Skills/Edit/<string:tskill>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editSkill(tskill):
@@ -912,6 +1058,10 @@ def deleteSkill(tskill):
         flash("Skill deleted.", "orange")
     return(redirect(url_for("eprefs.skills")))
 
+@eprefs.route("/Skills/Import")
+@login_required
+def noRulesetImportSkills():
+    return(noRuleset(current_user, "eprefs.importSkills"))
 @eprefs.route("/Skills/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importSkills():
