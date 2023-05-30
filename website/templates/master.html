@@ -104,14 +104,16 @@
 			{% for ruleset in adminrulesets %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}
-			{% if current_user.username != "admin" %}
+			{% if not current_user.is_admin %}
 			{% for ruleset in current_user.rulesets %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}
 			{% endif %}
-			{% for ruleset in frulesets %}
+			{% if current_user.is_authenticated %}
+			{% for ruleset in current_user.getForeignRulesets() %}
 			<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 			{% endfor %}
+			{% endif %}
 		</select>
 	</li>
 	<li><a @click="changeRuleset()">Change Rulesets</a></li>

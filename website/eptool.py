@@ -8,7 +8,7 @@ eptool = Blueprint('eptool', __name__)
 ## TOOLS
 @eptool.route("/")
 def tools():
-    return(redirect(url_for("epmain.home")))
+    return(redirect(url_for("epmain.home", ruleset=ruleset)))
 
 @eptool.route("/VTT")
 def vtt():
@@ -16,8 +16,6 @@ def vtt():
     return(
         render_template(
             "unfinished.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Page Under Construction"
@@ -30,8 +28,6 @@ def npcGen():
     return(
         render_template(
             "unfinished.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Page Under Construction"
@@ -44,8 +40,6 @@ def backstoryGen():
     return(
         render_template(
             "unfinished.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Page Under Construction"
@@ -58,8 +52,6 @@ def crCalc():
     return(
         render_template(
             "unfinished.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Page Under Construction"
@@ -72,8 +64,6 @@ def encounterGen():
     return(
         render_template(
             "unfinished.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Page Under Construction"
@@ -86,8 +76,6 @@ def lootGen():
     return(
         render_template(
             "unfinished.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Page Under Construction"
@@ -100,8 +88,6 @@ def statGen():
     return(
         render_template(
             "unfinished.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Page Under Construction"

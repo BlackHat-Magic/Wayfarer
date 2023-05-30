@@ -15,7 +15,7 @@
 				<div>
 					<a href="{{ url_for('eprefs.createSkill', tskill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ skill.name }}</button></a>
 					<a href="{{ url_for('eprefs.duplicateSkill', tskill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ skill.name }}</button></a>
-					<a href="{{ url_for('eprefs.deleteSkill', tskill=skill.name ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
+					<a href="{{ url_for('eprefs.deleteSkill', tskill=skill.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
 				</div>
 			{% endif %}
             <hr>

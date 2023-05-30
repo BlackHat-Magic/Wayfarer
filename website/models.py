@@ -17,6 +17,11 @@ class User(db.Model, UserMixin):
     characters = db.relationship("Character", backref="user")
     rulesets = db.relationship("Ruleset", backref="user")
     foreign_ruleset = db.Column(db.PickleType, default=[])
+    def getForeignRulesets(self):
+        rulesets = []
+        for ruleset in self.foreign_ruleset:
+            rulesets += Ruleset.query.filter_by(id=ruleset).first()
+        return(rulesets)
     current_ruleset = db.Column(db.String(32))
 
 class Ruleset(db.Model):

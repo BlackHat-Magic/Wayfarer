@@ -17,7 +17,7 @@
 			{% if not cruleset.skills %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any skills in this ruleset! Without adding any, you won't be able to specify skills granted by this background. You can create skills <a href="{{ url_for('eprefs.createSkill') }}">here</a>.</p>
+					<p>You don't have any skills in this ruleset! Without adding any, you won't be able to specify skills granted by this background. You can create skills <a href="{{ url_for('eprefs.createSkill', ruleset=cruleset.identifier) }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -48,7 +48,7 @@
 			{% if not tools %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any items with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tool proficiencies granted by this background. You can create items <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
+					<p>You don't have any items with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tool proficiencies granted by this background. You can create items <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -79,7 +79,7 @@
 			{% if not cruleset.languages %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any languages in this ruleset! Without adding any, you won't be able to specify languages granted by this background. You can create languages <a href="{{ url_for('eprefs.createLanguage') }}">here</a>.</p>
+					<p>You don't have any languages in this ruleset! Without adding any, you won't be able to specify languages granted by this background. You can create languages <a href="{{ url_for('eprefs.createLanguage', ruleset=cruleset.identifier) }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}
@@ -111,7 +111,7 @@
 			{% if not cruleset.items %}
 				<div class="mild danger">
 					<h3>Hey!</h3>
-					<p>You don't have any items in this ruleset! Without adding any, you won't be able to specify items included in starting equipment granted by this background. You can create items <a href="{{ url_for('eprefs.createItem') }}">here</a>.</p>
+					<p>You don't have any items in this ruleset! Without adding any, you won't be able to specify items included in starting equipment granted by this background. You can create items <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
 				</div>
 				<div style="height: 30px"></div>
 			{% else %}

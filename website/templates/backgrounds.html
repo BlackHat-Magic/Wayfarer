@@ -40,7 +40,7 @@
 				</tr>
 			</template>
 		</table>
-		{% if cruleset.userid == user.id %}
+		{% if cruleset.userid == current_user.id %}
 		<div class="interior flex horizontal center">
 			<a href="{{ url_for('epchar.createBackground', ruleset=cruleset.identifier) }}"><button>Create A Background</button></a>
 			<a href="{{ url_for('epchar.importBackgrounds', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>

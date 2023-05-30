@@ -21,9 +21,7 @@ In no particular order...
  - [ ] Add JSON import/export functionality
      - [ ] Export Functionality
      - [X] ~~Import races~~
-     - [ ] Import backgrounds
-         - [X] Import variant backgrounds
-         - [ ] Tool Proficiencies
+     - [X] ~~Import backgrounds~~
      - [X] ~~Import feats~~
      - [ ] Import classes (will likely never be fully supported; partial support is planned)
      - [X] ~~Import actions~~

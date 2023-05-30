@@ -7,7 +7,7 @@ from .models import Skill, ItemTag, Property, Language, Item, Action, Condition,
 def makeAction(request, cruleset, action, instruction):
     if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} actions in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.actions")))
+        return(redirect(url_for("eprefs.actions", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_action = Action(
             rulesetid = cruleset.id,
@@ -44,20 +44,20 @@ def makeAction(request, cruleset, action, instruction):
             db.session.add(new_action)
             db.session.commit()
             flash("Action created!", "green")
-            return(redirect(url_for("eprefs.actions")))
+            return(redirect(url_for("eprefs.actions", ruleset=cruleset.identifier)))
         else:
             action.name = name
             action.time = time
             action.text = text
             db.session.commit()
             flash("Changes saved!", "green")
-            return(redirect(url_for("eprefs.actions")))
-        return(redirect(url_for("eprefs.createAction")))
+            return(redirect(url_for("eprefs.actions", ruleset=cruleset.identifier)))
+        return(redirect(url_for("eprefs.createAction", ruleset=cruleset.identifier)))
 
 def actionImporter(actions, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import actions into rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.actions")))
+        return(redirect(url_for("eprefs.actions", ruleset=cruleset.identifier)))
     try:
         for action in actions["action"]:
             name = action["name"]
@@ -91,15 +91,15 @@ def actionImporter(actions, cruleset):
             db.session.add(new_action)
         db.session.commit()
         flash("Actions imported!", "green")
-        return(redirect(url_for("eprefs.actions")))
+        return(redirect(url_for("eprefs.actions", ruleset=cruleset.identifier)))
     except:
         flash("Improperly formatted JSON; could not import.", "red")
-        return(redirect(url_for("eprefs.importActions")))
+        return(redirect(url_for("eprefs.importActions", ruleset=cruleset.identifier)))
 
 def makeCondition(request, cruleset, condition, instruction):
     if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} conditions in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.conditions")))
+        return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_condition = Condition(
             rulesetid = cruleset.id,
@@ -109,7 +109,7 @@ def makeCondition(request, cruleset, condition, instruction):
         db.session.add(new_condition)
         db.session.commit()
         flash("Condition duplicated!", "green")
-        return(redirect(url_for("eprefs.conditions")))
+        return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
     else:
         name = request.form.get("name")
         text = request.form.get("text")
@@ -132,19 +132,19 @@ def makeCondition(request, cruleset, condition, instruction):
             db.session.add(new_condition)
             db.session.commit()
             flash("Condition created!")
-            return(redirect(url_for("eprefs.conditions")))
+            return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
         else:
             condition.name = name
             condition.text = text
             db.session.commit()
             flash("Changes saved!")
-            return(redirect(url_for("eprefs.conditions")))
-        return(redirect(url_for("eprefs.createCondition")))
+            return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
+        return(redirect(url_for("eprefs.createCondition", ruleset=cruleset.identifier)))
 
 def makeDisease(request, cruleset, disease, instruction):
     if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} diseases in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.diseases")))
+        return(redirect(url_for("eprefs.diseases", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_disease = Disease(
             rulesetid = cruleset.id,
@@ -154,7 +154,7 @@ def makeDisease(request, cruleset, disease, instruction):
         db.session.add(new_disease)
         db.session.commit()
         flash("Disease duplicated!", "green")
-        return(redirect(url_for("eprefs.diseases")))
+        return(redirect(url_for("eprefs.diseases", ruleset=cruleset.identifier)))
     else:
         name = request.form.get("name")
         text = request.form.get("text")
@@ -177,19 +177,19 @@ def makeDisease(request, cruleset, disease, instruction):
             db.session.add(new_disease)
             db.session.commit()
             flash("Disease created!")
-            return(redirect(url_for("eprefs.diseases")))
+            return(redirect(url_for("eprefs.diseases", ruleset=cruleset.identifier)))
         else:
             disease.name = name
             disease.text = text
             db.session.commit()
             flash("Changes saved!")
-            return(redirect(url_for("eprefs.diseases")))
-        return(redirect(url_for("eprefs.createdisease")))
+            return(redirect(url_for("eprefs.diseases", ruleset=cruleset.identifier)))
+        return(redirect(url_for("eprefs.createdisease", ruleset=cruleset.identifier)))
 
 def makeStatus(request, cruleset, status, instruction):
     if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} statuses in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.statuses")))
+        return(redirect(url_for("eprefs.statuses", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_status = Status(
             rulesetid = cruleset.id,
@@ -199,7 +199,7 @@ def makeStatus(request, cruleset, status, instruction):
         db.session.add(new_status)
         db.session.commit()
         flash("Status duplicated!", "green")
-        return(redirect(url_for("eprefs.statuses")))
+        return(redirect(url_for("eprefs.statuses", ruleset=cruleset.identifier)))
     else:
         name = request.form.get("name")
         text = request.form.get("text")
@@ -222,19 +222,19 @@ def makeStatus(request, cruleset, status, instruction):
             db.session.add(new_status)
             db.session.commit()
             flash("Status created!")
-            return(redirect(url_for("eprefs.statuses")))
+            return(redirect(url_for("eprefs.statuses", ruleset=cruleset.identifier)))
         else:
             status.name = name
             status.text = text
             db.session.commit()
             flash("Changes saved!")
-            return(redirect(url_for("eprefs.statuses")))
-        return(redirect(url_for("eprefs.createStatus")))
+            return(redirect(url_for("eprefs.statuses", ruleset=cruleset.identifier)))
+        return(redirect(url_for("eprefs.createStatus", ruleset=cruleset.identifier)))
 
 def conditionImporter(conditions, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import import conditions into rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.conditions")))
+        return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
     try:
         if("condition" in conditions.keys()):
             for condition in conditions["condition"]:
@@ -305,10 +305,10 @@ def conditionImporter(conditions, cruleset):
                 db.session.add(new_status)
         db.session.commit()
         flash("Conditions imported!", "green")
-        return(redirect(url_for("eprefs.conditions")))
+        return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
     except:
         flash("Improperly formatted JSON; could not import.", "red")
-        return(redirect(url_for("eprefs.importConditions")))
+        return(redirect(url_for("eprefs.importConditions", ruleset=cruleset.identifier)))
 
 def itemTag(request, cruleset, tag, instruction):
     if(current_user.id != cruleset.userid):
@@ -327,19 +327,19 @@ def itemTag(request, cruleset, tag, instruction):
         text = request.form.get("text")
         if(len(name) < 1):
             flash("You must specify a tag name.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         elif(len(name) > 127):
             flash("Tag name must be fewer than 128 characters.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         elif(len(text) > 16383):
             flash("Tag description must be fewer than 16384 characters.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         elif("<" in text):
             flash("Open angle brackets (\"<\") are not allowed.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         elif("javascript" in text):
             flash("Cross-site scripting attacks are not allowed.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         else:
             if(instruction == "create"):
                 new_tag = ItemTag(
@@ -355,7 +355,7 @@ def itemTag(request, cruleset, tag, instruction):
                 tag.text = text
                 db.session.commit()
                 flash("Changes Saved!", "green")
-    return(redirect(url_for("eprefs.tags")))
+    return(redirect(url_for("eprefs.tags", ruleset=cruleset.identifier)))
 
 def itemProperty(request, cruleset, tproperty, instruction):
     if(current_user.id != cruleset.userid):
@@ -374,19 +374,19 @@ def itemProperty(request, cruleset, tproperty, instruction):
         text = request.form.get("text")
         if(len(name) < 1):
             flash("You must specify a tag name.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         elif(len(name) > 127):
             flash("Tag name must be fewer than 128 characters.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         elif(len(text) > 16383):
             flash("Tag description must be fewer than 16384 characters.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         elif("<" in text):
             flash("Open angle brackets (\"<\") are not allowed.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         elif("javascript" in text):
             flash("Cross-site scripting attacks are not allowed.", "red")
-            return(redirect(url_for("eprefs.createTag")))
+            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         else:
             if(instruction == "create"):
                 new_property = Property(
@@ -401,12 +401,12 @@ def itemProperty(request, cruleset, tproperty, instruction):
                 tproperty.name = name
                 tproperty.text = text
                 db.session.commit()
-    return(redirect(url_for("eprefs.properties")))
+    return(redirect(url_for("eprefs.properties", ruleset=cruleset.identifier)))
 
 def makeItem(request, cruleset, item, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot ceeate skills for rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.items")))
+        return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_item = Item(
             rulesetid = cruleset.id,
@@ -433,7 +433,7 @@ def makeItem(request, cruleset, item, instruction):
         db.session.add(new_item)
         db.session.commit()
         flash("ITem Duplicated!", "green")
-        return(redirect(url_for("eprefs.items")))
+        return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
     else:
         name = request.form.get("name")
         is_magical = request.form.get("ismagical")
@@ -531,7 +531,7 @@ def makeItem(request, cruleset, item, instruction):
             db.session.add(new_item)
             db.session.commit()
             flash("Item created!", "green")
-            return(redirect(url_for("eprefs.items")))
+            return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
         else:
             item.name = name
             item.is_magical = is_magical
@@ -554,310 +554,310 @@ def makeItem(request, cruleset, item, instruction):
             item.weapon_properties = weapon_properties
             db.session.commit()
             flash("Changes saved!", "green")
-            return(redirect(url_for("eprefs.items")))
-        return(redirect(url_for("eprefs.createItem")))
+            return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
+        return(redirect(url_for("eprefs.createItem", ruleset=cruleset.identifier)))
 
 def itemImporter(items, base, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import items into rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.items")))
-    try:
-        for properties in base["itemProperty"]:
-            if("entries" in properties.keys()):
-                name = properties["entries"][0]["name"].casefold().capitalize()
-                text = parseEntries(properties["entries"][0]["entries"])
-                if(len(name) > 127):
-                    flash(f"Item/Weapon Property {name} name too long (maximum 127 characters); skipping property...", "orange")
-                    continue
-                elif(len(text) > 16383):
-                    flash(f"Item/Weapon Property {name} description too long (maximum 16383 characters); skipping property...", "orange")
-                    continue
-                elif("<" in text):
-                    flash(f"Item/Weapon Property {name} description contains disallowed character open angle bracket (\"<\"); skipping property...", "orange")
-                    continue
-                elif("javascript" in text):
-                    flash(f"Item/Weapon Property {name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping property...", "orange")
-                    continue
-                new_property = Property(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    text = description
-                )
-            else:
-                name = properties["name"].casefold().capitalize()
-                if(len(name) > 127):
-                    flash(f"Item/Weapon Property {name} name too long (maximum 127 characters); skipping property...", "orange")
-                    continue
-                new_property = Property(
-                    rulesetid = cruleset.id,
-                    name = name,
-                    text = None
-                )
-            db.session.add(new_property)
-        for types in base["itemType"]:
-            if("name" in types.keys()):
-                name = types["name"]
-            else:
-                name = types["entries"][0]["name"]
-            text = parseEntries(types["entries"], 3, name)
+        return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
+    # try:
+    for properties in base["itemProperty"]:
+        if("entries" in properties.keys()):
+            name = properties["entries"][0]["name"].casefold().capitalize()
+            text = parseEntries(properties["entries"][0]["entries"], 2, None)
             if(len(name) > 127):
-                flash(f"Item Type {name} name too long (maximum 127 characters); skipping type...", "orange")
+                flash(f"Item/Weapon Property {name} name too long (maximum 127 characters); skipping property...", "orange")
                 continue
             elif(len(text) > 16383):
-                flash(f"Item Type {name} description too long (maximum 16383 characters); skipping type...", "orange")
+                flash(f"Item/Weapon Property {name} description too long (maximum 16383 characters); skipping property...", "orange")
                 continue
             elif("<" in text):
-                flash(f"Item Type {name} description contains disallowed character open angle bracket (\"<\"); skipping type...", "orange")
+                flash(f"Item/Weapon Property {name} description contains disallowed character open angle bracket (\"<\"); skipping property...", "orange")
                 continue
             elif("javascript" in text):
-                flash(f"Item Type {name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping type...", "orange")
+                flash(f"Item/Weapon Property {name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping property...", "orange")
                 continue
-            new_property = ItemTag(
+            new_property = Property(
                 rulesetid = cruleset.id,
                 name = name,
                 text = text
             )
-            db.session.add(new_property)
-        for item in base["baseitem"]:
-            name = item["name"]
-            proficiency = False
-            if(item["rarity"] != "none"):
-                is_magical = True
-                rarity = item["rarity"].casefold().capitalize()
-            else:
-                is_magical = False
-                rarity = None
-            tags = []
-            if("type" in item.keys()):
-                for types in base["itemType"]:
-                    if(types["abbreviation"] == item["type"] or (type(item["type"] == list) and types["abbreviation"] in item["type"])):
-                        if("name" in types.keys()):
-                            tags.append(types["name"].casefold().capitalize())
-                        else:
-                            tags.append(types["entries"][0]["name"])
-            if("weaponCategory" in item.keys()):
-                tags.append(item["weaponCategory"].casefold().capitalize())
-            if("weapon" in item.keys() or "armor" in item.keys()):
-                proficiency = is_weapon = True
-            else:
-                is_weapon = False
-            if("value" in item.keys()):
-                cost = item["value"]
-            else:
-                cost = None
-            text = ""
-            if("entries" in item.keys()):
-                for entry in item["entries"]:
-                    if(type(entry) == str):
-                        text += f"{entry}\n\n"
-                    else:
-                        for paragraph in entry["entries"]:
-                            text += f"***{entry['name']}.*** {paragraph}\n\n"
-            if("armor" in item.keys()):
-                is_armor = True
-                armor_class = item["ac"]
-                proficiency = True
-                if(item["type"] == "LA"):
-                    tags.append("Light Armor")
-                    add_dex = True
-                    max_dex = 0
-                elif(item["type"] == "MA"):
-                    tags.append("Medium Armor")
-                    add_dex = True
-                    max_dex = 2
-                else:
-                    tags.append("Heavy Armor")
-                    add_dex = False
-                    max_dex = None
-            else:
-                is_armor = False
-                armor_class = None
-                add_dex = None
-                max_dex = None
-            dmg_dict = {
-                "N": "Necrotic",
-                "S": "Slashing",
-                "B": "Bludgeoning",
-                "A": "Acid",
-                "C": "Cold",
-                "R": "Radiant",
-                "L": "Lightning",
-                "T": "Thunder",
-                "P": "Piercing"
-            }
-            # Piercing, Poison, Psychic, Fire, Force
-            die_num = damage_die = damage_type = None
-            if("weapon" in item.keys()):
-                is_weapon = True
-                if("dmg1" in item.keys()):
-                    die_num, damage_die = item["dmg1"].split("d")[0], item["dmg1"].split("d")[-1]
-                    damage_type = dmg_dict[item["dmgType"]]
-            else:
-                is_weapon = False
-            weapon_properties = []
-            if("property" in item.keys()):
-                for properties in base["itemProperty"]:
-                    if(properties["abbreviation"] == item["property"] or (type(item["property"] == list) and properties["abbreviation"] in item["property"])):
-                        if("name" in properties.keys()):
-                            weapon_properties.append(properties["name"].casefold().capitalize())
-                        else:
-                            weapon_properties.append(properties["entries"][0]["name"].casefold().capitalize())
-            if("weight" in item.keys()):
-                weight = item["weight"]
-            else:
-                weight = None
+        else:
+            name = properties["name"].casefold().capitalize()
             if(len(name) > 127):
-                flash(f"{name} name too long (maximum 127 characters); skipping item...", "orange")
+                flash(f"Item/Weapon Property {name} name too long (maximum 127 characters); skipping property...", "orange")
                 continue
-            elif(len(text) > 16383):
-                flash(f"{name} description too long (maximum 16383 characters); skipping item...", "orange")
-                continue
-            elif("<" in text):
-                flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping item...", "orange")
-                continue
-            elif("javascript" in text):
-                flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping item...", "orange")
-                continue
-            elif(len(damage_type) > 15):
-                flash(f"{name} damage type too long (maximum 15 characters); skipping item...", "orange")
-                continue
-            new_item = Item(
+            new_property = Property(
                 rulesetid = cruleset.id,
                 name = name,
-                is_magical = is_magical,
-                rarity = rarity,
-                tier = None,
-                attunement = None,
-                tags = tags,
-                proficiency = proficiency,
-                cost = cost,
-                weight = weight,
-                text = text,
-                is_armor = is_armor,
-                armor_class = armor_class,
-                add_dex = add_dex,
-                max_dex = max_dex,
-                is_weapon = is_weapon,
-                die_num = die_num,
-                damage_die = damage_die,
-                damage_type = damage_type,
-                weapon_properties = weapon_properties
-            )
-            db.session.add(new_item)
-        for item in items["item"]:
-            name = item["name"]
-            is_magical = False
-            rarity = tier = None
-            attunement = False
-            text = ""
-            if("rarity" in item.keys()):
-                is_magical = True
-                rarity = item["rarity"].casefold().capitalize()
-            if("tier" in item.keys()):
-                is_magical = True
-                tier = item["tier"].casefold().capitalize()
-            if("reqAttune" in item.keys()):
-                attunement = True
-                if(item["reqAttune"] != "true" and type(item["reqAttune"]) != bool):
-                    text += f"Requires attunement {item['reqAttune']}\n\n" 
-            tags = []
-            if("type" in item.keys()):
-                for types in base["itemType"]:
-                    if(types["abbreviation"] == item["type"] or (type(item["type"] == list) and types["abbreviation"] in item["type"])):
-                        if("name" in types.keys()):
-                            tags.append(types["name"])
-                        else:
-                            tags.append(types["entries"][0]["name"])
-            proficiency = False
-            if("value" in item.keys()):
-                cost = item["value"]
-            else:
-                cost = None
-            is_armor = False
-            armor_class = add_dex = max_dex = None
-            is_weapon = False
-            die_num = damage_die = damage_type = weapon_properties = None
-            if("weight" in item.keys()):
-                weight = item["weight"]
-            elif("baseItem" in item.keys()):
-                for sitem in base["baseitem"]:
-                    if(sitem["name"] == item["baseItem"] and "weight" in sitem.keys()):
-                        weight = sitem["weight"]
-                        if("ac" in sitem.keys()):
-                            is_armor = True
-                            armor_class = sitem["ac"]
-                            if(sitem["type"] == "LA"):
-                                add_dex = True
-                                max_dex = 0
-                            elif(sitem["type"] == "MA"):
-                                add_dex = True
-                                max_dex = 2
-                            else:
-                                add_dex = False
-                        elif("weapon" in sitem.keys()):
-                            is_weapon = True
-                            die_num, damage_die = sitem["dmg1"].split("d")
-                            weapon_properties = []
-                            if("property" in sitem.keys()):
-                                for properties in base["itemProperty"]:
-                                    if(properties["abbreviation"] == sitem["property"] or (type(sitem["property"] == list) and properties["abbreviation"] in sitem["property"])):
-                                        weapon_properties.append(properties["name"].casefold().capitalize())
-            else:
-                weight = None
-            if("entries" in item.keys()):
-                print(item["name"])
-                text = parseEntries(item["entries"], 3, item["name"])
-            else:
                 text = None
-            if(len(name) > 127):
-                flash(f"{name} name too long (maximum 127 characters); skipping item...", "orange")
-                continue
-            elif(len(text) > 16383):
-                flash(f"{name} description too long (maximum 16383 characters); skipping item...", "orange")
-                continue
-            elif("<" in text):
-                flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping item...", "orange")
-                continue
-            elif("javascript" in text):
-                flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping item...", "orange")
-                continue
-            elif(len(damage_type) > 15):
-                flash(f"{name} damage type too long (maximum 15 characters); skipping item...", "orange")
-                continue
-            new_item = Item(
-                rulesetid = cruleset.id,
-                name = name,
-                is_magical = is_magical,
-                rarity = rarity,
-                tier = tier,
-                attunement = attunement,
-                tags = tags,
-                proficiency = proficiency,
-                cost = cost,
-                weight = weight,
-                text = text,
-                is_armor = is_armor,
-                armor_class = armor_class,
-                add_dex = add_dex,
-                max_dex = max_dex,
-                is_weapon = is_weapon,
-                die_num = die_num,
-                damage_die = damage_die,
-                damage_type = damage_type,
-                weapon_properties = weapon_properties
             )
-            db.session.add(new_item)
-        db.session.commit()
-        flash("Items Imported!", "green")
-        return(redirect(url_for("eprefs.items")))
-    except:
-        flash("Improperly formatted JSON; could not import.", "red")
-        return(redirect(url_for("eprefs.importItems")))
+        db.session.add(new_property)
+    for types in base["itemType"]:
+        if("name" in types.keys()):
+            name = types["name"]
+        else:
+            name = types["entries"][0]["name"]
+        text = parseEntries(types["entries"], 3, name)
+        if(len(name) > 127):
+            flash(f"Item Type {name} name too long (maximum 127 characters); skipping type...", "orange")
+            continue
+        elif(len(text) > 16383):
+            flash(f"Item Type {name} description too long (maximum 16383 characters); skipping type...", "orange")
+            continue
+        elif("<" in text):
+            flash(f"Item Type {name} description contains disallowed character open angle bracket (\"<\"); skipping type...", "orange")
+            continue
+        elif("javascript" in text):
+            flash(f"Item Type {name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping type...", "orange")
+            continue
+        new_property = ItemTag(
+            rulesetid = cruleset.id,
+            name = name,
+            text = text
+        )
+        db.session.add(new_property)
+    for item in base["baseitem"]:
+        name = item["name"]
+        proficiency = False
+        if(item["rarity"] != "none"):
+            is_magical = True
+            rarity = item["rarity"].casefold().capitalize()
+        else:
+            is_magical = False
+            rarity = None
+        tags = []
+        if("type" in item.keys()):
+            for types in base["itemType"]:
+                if(types["abbreviation"] == item["type"] or (type(item["type"] == list) and types["abbreviation"] in item["type"])):
+                    if("name" in types.keys()):
+                        tags.append(types["name"].casefold().capitalize())
+                    else:
+                        tags.append(types["entries"][0]["name"])
+        if("weaponCategory" in item.keys()):
+            tags.append(item["weaponCategory"].casefold().capitalize())
+        if("weapon" in item.keys() or "armor" in item.keys()):
+            proficiency = is_weapon = True
+        else:
+            is_weapon = False
+        if("value" in item.keys()):
+            cost = item["value"]
+        else:
+            cost = None
+        text = ""
+        if("entries" in item.keys()):
+            for entry in item["entries"]:
+                if(type(entry) == str):
+                    text += f"{entry}\n\n"
+                else:
+                    for paragraph in entry["entries"]:
+                        text += f"***{entry['name']}.*** {paragraph}\n\n"
+        if("armor" in item.keys()):
+            is_armor = True
+            armor_class = item["ac"]
+            proficiency = True
+            if(item["type"] == "LA"):
+                tags.append("Light Armor")
+                add_dex = True
+                max_dex = 0
+            elif(item["type"] == "MA"):
+                tags.append("Medium Armor")
+                add_dex = True
+                max_dex = 2
+            else:
+                tags.append("Heavy Armor")
+                add_dex = False
+                max_dex = None
+        else:
+            is_armor = False
+            armor_class = None
+            add_dex = None
+            max_dex = None
+        dmg_dict = {
+            "N": "Necrotic",
+            "S": "Slashing",
+            "B": "Bludgeoning",
+            "A": "Acid",
+            "C": "Cold",
+            "R": "Radiant",
+            "L": "Lightning",
+            "T": "Thunder",
+            "P": "Piercing"
+        }
+        # Piercing, Poison, Psychic, Fire, Force
+        die_num = damage_die = damage_type = None
+        if("weapon" in item.keys()):
+            is_weapon = True
+            if("dmg1" in item.keys()):
+                die_num, damage_die = item["dmg1"].split("d")[0], item["dmg1"].split("d")[-1]
+                damage_type = dmg_dict[item["dmgType"]]
+        else:
+            is_weapon = False
+        weapon_properties = []
+        if("property" in item.keys()):
+            for properties in base["itemProperty"]:
+                if(properties["abbreviation"] == item["property"] or (type(item["property"] == list) and properties["abbreviation"] in item["property"])):
+                    if("name" in properties.keys()):
+                        weapon_properties.append(properties["name"].casefold().capitalize())
+                    else:
+                        weapon_properties.append(properties["entries"][0]["name"].casefold().capitalize())
+        if("weight" in item.keys()):
+            weight = item["weight"]
+        else:
+            weight = None
+        if(len(name) > 127):
+            flash(f"{name} name too long (maximum 127 characters); skipping item...", "orange")
+            continue
+        elif(len(text) > 16383):
+            flash(f"{name} description too long (maximum 16383 characters); skipping item...", "orange")
+            continue
+        elif("<" in text):
+            flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping item...", "orange")
+            continue
+        elif("javascript" in text):
+            flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping item...", "orange")
+            continue
+        elif(damage_type and len(damage_type) > 15):
+            flash(f"{name} damage type too long (maximum 15 characters); skipping item...", "orange")
+            continue
+        new_item = Item(
+            rulesetid = cruleset.id,
+            name = name,
+            is_magical = is_magical,
+            rarity = rarity,
+            tier = None,
+            attunement = None,
+            tags = tags,
+            proficiency = proficiency,
+            cost = cost,
+            weight = weight,
+            text = text,
+            is_armor = is_armor,
+            armor_class = armor_class,
+            add_dex = add_dex,
+            max_dex = max_dex,
+            is_weapon = is_weapon,
+            die_num = die_num,
+            damage_die = damage_die,
+            damage_type = damage_type,
+            weapon_properties = weapon_properties
+        )
+        db.session.add(new_item)
+    for item in items["item"]:
+        name = item["name"]
+        is_magical = False
+        rarity = tier = None
+        attunement = False
+        text = ""
+        if("rarity" in item.keys()):
+            is_magical = True
+            rarity = item["rarity"].casefold().capitalize()
+        if("tier" in item.keys()):
+            is_magical = True
+            tier = item["tier"].casefold().capitalize()
+        if("reqAttune" in item.keys()):
+            attunement = True
+            if(item["reqAttune"] != "true" and type(item["reqAttune"]) != bool):
+                text += f"Requires attunement {item['reqAttune']}\n\n" 
+        tags = []
+        if("type" in item.keys()):
+            for types in base["itemType"]:
+                if(types["abbreviation"] == item["type"] or (type(item["type"] == list) and types["abbreviation"] in item["type"])):
+                    if("name" in types.keys()):
+                        tags.append(types["name"])
+                    else:
+                        tags.append(types["entries"][0]["name"])
+        proficiency = False
+        if("value" in item.keys()):
+            cost = item["value"]
+        else:
+            cost = None
+        is_armor = False
+        armor_class = add_dex = max_dex = None
+        is_weapon = False
+        die_num = damage_die = damage_type = weapon_properties = None
+        if("weight" in item.keys()):
+            weight = item["weight"]
+        elif("baseItem" in item.keys()):
+            for sitem in base["baseitem"]:
+                if(sitem["name"] == item["baseItem"] and "weight" in sitem.keys()):
+                    weight = sitem["weight"]
+                    if("ac" in sitem.keys()):
+                        is_armor = True
+                        armor_class = sitem["ac"]
+                        if(sitem["type"] == "LA"):
+                            add_dex = True
+                            max_dex = 0
+                        elif(sitem["type"] == "MA"):
+                            add_dex = True
+                            max_dex = 2
+                        else:
+                            add_dex = False
+                    elif("weapon" in sitem.keys()):
+                        is_weapon = True
+                        die_num, damage_die = sitem["dmg1"].split("d")
+                        weapon_properties = []
+                        if("property" in sitem.keys()):
+                            for properties in base["itemProperty"]:
+                                if(properties["abbreviation"] == sitem["property"] or (type(sitem["property"] == list) and properties["abbreviation"] in sitem["property"])):
+                                    weapon_properties.append(properties["name"].casefold().capitalize())
+        else:
+            weight = None
+        if("entries" in item.keys()):
+            print(item["name"])
+            text = parseEntries(item["entries"], 3, item["name"])
+        else:
+            text = None
+        if(len(name) > 127):
+            flash(f"{name} name too long (maximum 127 characters); skipping item...", "orange")
+            continue
+        elif(text and len(text) > 16383):
+            flash(f"{name} description too long (maximum 16383 characters); skipping item...", "orange")
+            continue
+        elif(text and "<" in text):
+            flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping item...", "orange")
+            continue
+        elif(text and "javascript" in text):
+            flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping item...", "orange")
+            continue
+        elif(damage_type and len(damage_type) > 15):
+            flash(f"{name} damage type too long (maximum 15 characters); skipping item...", "orange")
+            continue
+        new_item = Item(
+            rulesetid = cruleset.id,
+            name = name,
+            is_magical = is_magical,
+            rarity = rarity,
+            tier = tier,
+            attunement = attunement,
+            tags = tags,
+            proficiency = proficiency,
+            cost = cost,
+            weight = weight,
+            text = text,
+            is_armor = is_armor,
+            armor_class = armor_class,
+            add_dex = add_dex,
+            max_dex = max_dex,
+            is_weapon = is_weapon,
+            die_num = die_num,
+            damage_die = damage_die,
+            damage_type = damage_type,
+            weapon_properties = weapon_properties
+        )
+        db.session.add(new_item)
+    db.session.commit()
+    flash("Items Imported!", "green")
+    return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
+    # except:
+    #     flash("Improperly formatted JSON; could not import.", "red")
+    #     return(redirect(url_for("eprefs.importItems", ruleset=cruleset.identifier)))
 
 def makeLanguage(request, cruleset, language, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create languages for rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.languages")))
+        return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_language = Language(
             rulesetid=cruleset.id,
@@ -867,7 +867,7 @@ def makeLanguage(request, cruleset, language, instruction):
         db.session.add(new_language)
         db.session.commit()
         flash("Language duplicated!", "green")
-        return(redirect(url_for("eprefs.languages")))
+        return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
     else:
         name = request.form.get("name")
         text = request.form.get("text")
@@ -886,7 +886,7 @@ def makeLanguage(request, cruleset, language, instruction):
             language.text = text
             db.session.commit()
             flash("Changes Saved!", "green")
-            return(redirect(url_for("eprefs.languages")))
+            return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
         else:
             new_language = Language(
                 rulesetid = cruleset.id,
@@ -896,13 +896,13 @@ def makeLanguage(request, cruleset, language, instruction):
             db.session.add(new_language)
             db.session.commit()
             flash("Language created!", "green")
-            return(redirect(url_for("eprefs.languages")))
-        return(redirect(url_for("eprefs.createLanguage")))
+            return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
+        return(redirect(url_for("eprefs.createLanguage", ruleset=cruleset.identifier)))
 
 def languageImporter(languages, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import languages into rulesets that are not your own.", "red")
-        return(redirect(url_for('eprefs.languages')))
+        return(redirect(url_for('eprefs.languages', ruleset=cruleset.identifier)))
     try:
         for language in languages["language"]:
             name = language["name"]
@@ -940,15 +940,15 @@ def languageImporter(languages, cruleset):
             db.session.add(new_language)
         db.session.commit()
         flash("Languages Imported!", "green")
-        return(redirect(url_for("eprefs.languages")))
+        return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
     except:
         flash("Improperly formatted JSON.; unable to import.", "red")
-        return(redirect(url_for("eprefs.importLanguages")))
+        return(redirect(url_for("eprefs.importLanguages", ruleset=cruleset.identifier)))
 
 def makeSpell(request, cruleset, spell, instruction):
     if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} spells in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.spells")))
+        return(redirect(url_for("eprefs.spells", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_spell = Spell(
             rulesetid = cruleset.userid,
@@ -969,7 +969,7 @@ def makeSpell(request, cruleset, spell, instruction):
         db.session.add(new_spell)
         db.session.commit()
         flash("Spell duplicated!", "green")
-        return(redirect(url_for("eprefs.spells")))
+        return(redirect(url_for("eprefs.spells", ruleset=cruleset.identifier)))
     else:
         name = request.form.get("name")
         school = request.form.get("school")
@@ -1031,7 +1031,7 @@ def makeSpell(request, cruleset, spell, instruction):
             db.session.add(new_spell)
             db.session.commit()
             flash("Spell created!", "green")
-            return(redirect(url_for("eprefs.spells")))
+            return(redirect(url_for("eprefs.spells", ruleset=cruleset.identifier)))
         else:
             spell.name = name
             spell.school = school
@@ -1048,8 +1048,8 @@ def makeSpell(request, cruleset, spell, instruction):
             spell.text = text
             db.session.commit()
             flash("Changes saved!", "green")
-            return(redirect(url_for("eprefs.spells")))
-        return(redirect(url_for("eprefs.createSpell")))
+            return(redirect(url_for("eprefs.spells", ruleset=cruleset.identifier)))
+        return(redirect(url_for("eprefs.createSpell", ruleset=cruleset.identifier)))
 
 def spellImporter(spells, cruleset):
     try:
@@ -1259,15 +1259,15 @@ def spellImporter(spells, cruleset):
             db.session.add(new_spell)
         db.session.commit()
         flash("Spells imported!", "green")
-        return(redirect(url_for("eprefs.spells")))
+        return(redirect(url_for("eprefs.spells", ruleset=cruleset.identifier)))
     except:
         flash("Improperly formatted JSON; could not import.", "red")
-        return(redirect(url_for("eprefs.importSpells")))
+        return(redirect(url_for("eprefs.importSpells", ruleset=cruleset.identifier)))
 
 def makeRecipe(request, cruleset, recipe, instruction):
     if(current_user.id != cruleset.id):
         flash(f"You cannot {instruction} recipes in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.recipes")))
+        return(redirect(url_for("eprefs.recipes", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_recipe = Recipe(
             rulesetid = cruleset.id,
@@ -1277,7 +1277,7 @@ def makeRecipe(request, cruleset, recipe, instruction):
         db.session.add(new_recipe)
         db.session.commit()
         flash("Recipe duplicated!", "green")
-        return(redirect(url_for("eprefs.recipes")))
+        return(redirect(url_for("eprefs.recipes", ruleset=cruleset.identifier)))
     else:
         name = request.form.get("name")
         text = request.form.get("text")
@@ -1300,14 +1300,14 @@ def makeRecipe(request, cruleset, recipe, instruction):
             db.session.add(new_recipe)
             db.session.commit()
             flash("Recipe created!", "green")
-            return(redirect(url_for("eprefs.recipes")))
+            return(redirect(url_for("eprefs.recipes", ruleset=cruleset.identifier)))
         else:
             recipe.name = name
             recipe.text = text
             db.session.commit()
             flash("Changes saved!", "green")
-            return(redirect(url_for("eprefs.recipes")))
-        return(redirect(url_for("eprefs.createRecipe")))
+            return(redirect(url_for("eprefs.recipes", ruleset=cruleset.identifier)))
+        return(redirect(url_for("eprefs.createRecipe", ruleset=cruleset.identifier)))
  
 def skill(request, cruleset, skill, instruction):
     if(current_user.id != cruleset.userid):
@@ -1330,19 +1330,19 @@ def skill(request, cruleset, skill, instruction):
             ability_score = None
         if(len(name) < 1):
             flash("You must specify a skill name.", "red")
-            return(redirect(url_for("eprefs.createSkill")))
+            return(redirect(url_for("eprefs.createSkill", ruleset=cruleset.identifier)))
         elif(len(name) > 63):
             flash("Skill name must be fewer than 64 characters.", "red")
-            return(redirect(url_for("eprefs.createSkill")))
+            return(redirect(url_for("eprefs.createSkill", ruleset=cruleset.identifier)))
         elif(len(description) > 16383):
             flash("Skill description must be fewer than 16384 characters.", "red")
-            return(redirect(url_for("eprefs.createSkill")))
+            return(redirect(url_for("eprefs.createSkill", ruleset=cruleset.identifier)))
         elif("javascript" in description):
             flash("Cross-site scripting attacks are not allowed.", "red")
-            return(redirect(url_for("eprefs.createSkill")))
+            return(redirect(url_for("eprefs.createSkill", ruleset=cruleset.identifier)))
         elif("<" in description):
             flash("Open angle brackets(\"<\") are not allowed.", "red")
-            return(redirect(url_for("eprefs.createSkill")))
+            return(redirect(url_for("eprefs.createSkill", ruleset=cruleset.identifier)))
         else:
             if(instruction == "edit"):
                 skill.name = name
@@ -1359,12 +1359,12 @@ def skill(request, cruleset, skill, instruction):
                 db.session.add(new_skill)
                 flash("Skill created!", "green")
             db.session.commit()
-    return(redirect(url_for("eprefs.skills")))
+    return(redirect(url_for("eprefs.skills", ruleset=cruleset.identifier)))
 
 def skillImporter(skills, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import skills into rulests that are not your own.", "red")
-        return(redirect(url_for("eprefs.skills")))
+        return(redirect(url_for("eprefs.skills", ruleset=cruleset.identifier)))
     asidict = {
         "Acrobatics": "dex",
         "Animal Handling": "wis",
@@ -1404,13 +1404,13 @@ def skillImporter(skills, cruleset):
             if(len(name) > 127):
                 flash(f"{name} name too long (maximum 127 characters); skipping spell...", "orange")
                 continue
-            elif(len(text) > 16383):
+            elif(len(description) > 16383):
                 flash(f"{name} description too long (maximum 16383 characters); skipping spell...", "orange")
                 continue
-            elif("<" in text):
+            elif("<" in description):
                 flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping spell...", "orange")
                 continue
-            elif("javascript" in text):
+            elif("javascript" in description):
                 flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping spell...", "orange")
                 continue
             new_skill = Skill(
@@ -1422,7 +1422,7 @@ def skillImporter(skills, cruleset):
             db.session.add(new_skill)
         db.session.commit()
         flash("Skills imported!", "green")
-        return(redirect(url_for("eprefs.skills")))
+        return(redirect(url_for("eprefs.skills", ruleset=cruleset.identifier)))
     except:
         flash("Improperly formatted JSON; could not import.", "red")
-        return(redirect(url_for("eprefs.importSkills")))
+        return(redirect(url_for("eprefs.importSkills", ruleset=cruleset.identifier)))

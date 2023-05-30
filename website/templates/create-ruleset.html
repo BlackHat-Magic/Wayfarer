@@ -58,7 +58,7 @@
 					{% for ruleset in adminrulesets %}
 					<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 					{% endfor %}
-					{% for ruleset in frulesets %}
+					{% for ruleset in current_user.getForeignRulesets() %}
 					<option value="{{ ruleset.id }}">{{ ruleset.name }}</option>
 					{% endfor %}
 				</select>

@@ -132,7 +132,7 @@ def addRuleset(ruleset):
             target_ruleset.viewers += current_user.id
             db.session.commit()
             flash("Added ruleset.", "green")
-            return(redirect(url_for("epmain.home")))
+            return(redirect(url_for("epmain.home", ruleset=ruleset)))
     return(
         render_template(
             "add-ruleset.html",
@@ -156,7 +156,7 @@ def removeRuleset(ruleset):
         current_user.foreign_ruleset.remove(rulesetid)
         db.session.commit()
     flash("Removed Ruleset.", "orange")
-    return(redirect(url_for("epmain.myRulesets")))
+    return(redirect(url_for("epmain.myRulesets", ruleset=ruleset)))
 
 @epmain.route("/Change-Ruleset", methods=["POST"])
 @login_required
@@ -209,7 +209,7 @@ def myAccount(ruleset):
             if(npasswd1 != "eternity-freezing-mama"):
                 current_user.password = generate_password_hash(npasswd1, method="sha256")
             flash("Changes saved.", "green")
-            return(redirect(url_for("epmain.home")))
+            return(redirect(url_for("epmain.home", ruleset=ruleset)))
     return(
         render_template(
             "my-account.html",

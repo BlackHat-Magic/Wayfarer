@@ -21,8 +21,6 @@ def rules(ruleset):
     return(
         render_template(
             "rules.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             prules=pinnedrules, 
             adminrulesets=adminrulesets,
@@ -62,16 +60,14 @@ def createRule(ruleset):
                 db.session.add(new_rule)
                 db.session.commit()
                 flash("Rule created.", "green")
-                return(redirect(url_for("eprule.rules")))
+                return(redirect(url_for("eprule.rules", ruleset=ruleset)))
     if(len(cruleset.categories) < 1):
         flash("You must have at least one category to add the rule to.")
-        return(redirect(url_for("eprule.createCategory")))
+        return(redirect(url_for("eprule.createCategory", ruleset=ruleset)))
     
     return(
         render_template(
             "create-rule.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create a Rule"
@@ -88,7 +84,7 @@ def createCategory(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(len(current_user.rulesets) < 1):
         flash("The current ruleset must have at least one ruleset to add the category to.", "red")
-        return(redirect(url_for("epmain.createRuleset")))
+        return(redirect(url_for("epmain.createRuleset", ruleset=ruleset)))
     elif(cruleset.id == 1 and current_user.id != 1):
         flash("You cannot edit the default ruleset.", "red")
     elif(request.method == "POST"):
@@ -106,12 +102,10 @@ def createCategory(ruleset):
             db.session.add(new_category)
             db.session.commit()
             flash("Rule category created.", "green")
-            return(redirect(url_for("eprule.rules")))
+            return(redirect(url_for("eprule.rules", ruleset=ruleset)))
     return(
         render_template(
             "create-category.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create a Rule Category"
@@ -129,8 +123,6 @@ def CategoryRoute(categoryname, ruleset):
     return(
         render_template(
             "category.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             rules=rules, 
             title=categoryname, 

@@ -13,7 +13,7 @@ def noRulesetChar():
     return(noRuleset(current_user, "epmain.home"))
 @epchar.route("/", subdomain="<ruleset>")
 def char(ruleset):
-    return(redirect(url_for("epmain.home")))
+    return(redirect(url_for("epmain.home", ruleset=ruleset)))
 
 @epchar.route("/Races")
 def noRulesetRaces():
@@ -27,9 +27,7 @@ def races(ruleset):
         render_template(
             "races.html", 
             user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
-            ability='', 
             adminrulesets=adminrulesets, 
             title="Races",
             races=races,
@@ -50,8 +48,6 @@ def createRace(ruleset):
     return(
         render_template(
             "create-race.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create a Race"
@@ -67,11 +63,7 @@ def noRulesetDuplicateRace(race):
 def duplicateRace(race, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     race = Race.query.filter_by(rulesetid=cruleset.id, name=race).first_or_404()
-    if(not race):
-        flash("Race does not exist.", "red")
-        return(redirect(url_for("epchar.races")))
-    result = makeRace(request, cruleset, race, "duplicate")
-    return(result)
+    return(makeRace(request, cruleset, race, "duplicate"))
 
 @epchar.route("/Races/Edit/<string:race>")
 @login_required
@@ -91,8 +83,6 @@ def editRace(race, ruleset):
     return(
         render_template(
             "create-race.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title=f"Edit {target_race.name}",
@@ -117,7 +107,7 @@ def deleteRace(race, ruleset):
         db.session.delete(race)
         db.session.commit()
         flash("Race deleted.", "orange")
-    return(redirect(url_for("epchar.races")))
+    return(redirect(url_for("epchar.races", ruleset=ruleset)))
 
 @epchar.route("/Races/Import")
 @login_required
@@ -134,8 +124,6 @@ def importRaces(ruleset):
     return(
         render_template(
             "import-race.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Import Races",
@@ -152,8 +140,6 @@ def race(race, ruleset):
     return(
         render_template(
             "race.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             race=display, 
             adminrulesets=adminrulesets, 
@@ -170,8 +156,6 @@ def backgrounds(ruleset):
     return(
         render_template(
             "backgrounds.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Backgrounds"
@@ -194,8 +178,6 @@ def createBackground(ruleset):
     return(
         render_template(
             "create-background.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             tools=tools, 
@@ -231,8 +213,6 @@ def editBackground(tbackground, ruleset):
     return(
         render_template(
             "create-background.html",
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             tools=tools, 
@@ -252,7 +232,7 @@ def deleteBackground(tbackground, ruleset):
         db.session.delete(tbackground)
         db.session.commit()
         flash("Background deleted.", "orange")
-    return(redirect(url_for("epchar.backgrounds")))
+    return(redirect(url_for("epchar.backgrounds", ruleset=ruleset)))
 
 @epchar.route("/Backgrounds/Import")
 @login_required
@@ -267,8 +247,6 @@ def importBackgrounds(ruleset):
     return(
         render_template(
             "import-background.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Import Backgrounds",
@@ -287,8 +265,6 @@ def background(background, ruleset):
     return(
         render_template(
             "background.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             background=background, 
             adminrulesets=adminrulesets, 
@@ -305,8 +281,6 @@ def feats(ruleset):
     return(
         render_template(
             "feats.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Feats"
@@ -326,8 +300,6 @@ def createFeat(ruleset):
     return(
         render_template(
             "create-feat.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Create a Feat"
@@ -345,7 +317,7 @@ def duplicateFeat(tfeat, ruleset):
     tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat).first_or_404()
     if(current_user.id != cruleset.userid):
         return(makefeat(None, cruleset, tfeat, "duplicate"))
-    return(redirect(url_for("epchar.feats")))
+    return(redirect(url_for("epchar.feats", ruleset=ruleset)))
 
 @epchar.route("/Feats/Edit/<string:tfeat>")
 @login_required
@@ -361,8 +333,6 @@ def editFeat(tfeat, ruleset):
     return(
         render_template(
             "create-feat.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title=f"Edit {tfeat.name}",
@@ -381,7 +351,7 @@ def deleteFeat(tfeat, ruleset):
         db.session.delete(tfeat)
         db.session.commit()
         flash("Feat deleted.", "orange")
-    return(redirect(url_for("epchar.feats")))
+    return(redirect(url_for("epchar.feats", ruleset=ruleset)))
 
 @epchar.route("/Feats/Import")
 @login_required
@@ -396,8 +366,6 @@ def importFeats(ruleset):
     return(
         render_template(
             "import-feat.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Import Feats",
@@ -415,8 +383,6 @@ def feat(feat, ruleset):
     return(
         render_template(
             "feat.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             feat=feat, 
             adminrulesets=adminrulesets, 
@@ -434,8 +400,6 @@ def stats(ruleset):
     return(
         render_template(
             "stats.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             scores=scores,
@@ -456,8 +420,6 @@ def createStat(ruleset):
     return(
         render_template(
             "create-stat.html",
-            user=current_user,
-            frulesets=frulesets,
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Create an Ability Score"
@@ -480,8 +442,6 @@ def editStat(score, ruleset):
     return(
         render_template(
             "create-stat.html",
-            user=current_user,
-            frulesets=frulesets,
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Create an Ability Score",
@@ -511,7 +471,7 @@ def deleteStat(score, ruleset):
         db.session.delete(ability_score)
         db.session.commit()
         flash("Ability Score deleted.", "orange")
-    return(redirect(url_for("epchar.stats")))
+    return(redirect(url_for("epchar.stats", ruleset=ruleset)))
 
 @epchar.route("/Classes")
 def noRulesetClasses():
@@ -522,8 +482,6 @@ def classes(ruleset):
     return(
         render_template(
             "classes.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Classes"
@@ -543,8 +501,6 @@ def createClass(ruleset):
     return(
         render_template(
             "create-class.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Create a Class"
@@ -575,8 +531,6 @@ def editClass(tclass, ruleset):
     return(
         render_template(
             "create-class.html", 
-            user=current_user, 
-            frulesets=frulesets, 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title=f"Edit {tclass.name}",
@@ -594,8 +548,6 @@ def classPage(selectedclass, ruleset):
     return(
         render_template(
             "class.html",
-            user=current_user,
-            frulesets=frulesets,
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title=selectedclass.name + " Class",

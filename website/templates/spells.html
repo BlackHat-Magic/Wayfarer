@@ -85,7 +85,7 @@
 				</tr>
 			</template>
 		</table>
-		{% if cruleset.userid == user.id %}
+		{% if cruleset.userid == current_user.id %}
 		<div class="interior flex horizontal center">
 			<a href="{{ url_for('eprefs.createSpell', ruleset=cruleset.identifier) }}"><button>Create A Spell</button></a>
 			<a href="{{ url_for('eprefs.importSpells', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>

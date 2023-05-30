@@ -23,7 +23,7 @@ def abilityScore(request, cruleset, ability_score, instruction):
         db.session.add(new_ability_score)
         db.session.commit()
         flash("Ability Score Duplicated!")
-        return(redirect(url_for("epchar.stats")))
+        return(redirect(url_for("epchar.stats", ruleset=cruleset.identifier)))
     if(order):
         try:
             order = int(order)
@@ -67,16 +67,16 @@ def abilityScore(request, cruleset, ability_score, instruction):
             ability_score.text = text
             db.session.commit()
             flash("Changes saved!", "green")
-        return(redirect(url_for("epchar.stats")))
+        return(redirect(url_for("epchar.stats", ruleset=cruleset.identifier)))
     elif(instruction=="create"):
-        return(redirect(url_for("epchar.createStat")))
+        return(redirect(url_for("epchar.createStat", ruleset=cruleset.identifier)))
     else:
-        return(redirect(url_for("epchar.editStat", score=ability_score.name.replace(" ", "-"))))
+        return(redirect(url_for("epchar.editStat", score=ability_score.name, ruleset=cruleset.identifier)))
 
 def makeRace(request, cruleset, race, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create a race in a ruleset that is not yours.")
-        return(redirect(url_for("epchar.races")))
+        return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):
         new_race = Race(
             rulesetid = cruleset.id,
@@ -126,7 +126,7 @@ def makeRace(request, cruleset, race, instruction):
                 db.session.add(new_subrace_feature)
         db.session.commit()
         flash("Race duplicated!", "green")
-        return(redirect(url_for("epchar.races")))
+        return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
     else:
         name = request.form.get("name")
         asis = request.form.getlist("asi")
@@ -198,53 +198,53 @@ def makeRace(request, cruleset, race, instruction):
             for feature in features:
                 if(len(feature) < 1):
                     flash("Each racial feature must have a name.", "red")
-                    return(redirect(url_for("epchar.createRace")))
+                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                 elif(len(feature) > 127):
                     flash("Racial feature names must be fewer than 128 characters.", "red")
-                    return(redirect(url_for("epchar.createRace")))
+                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
             for ftext in feature_text:
                 if(len(ftext) > 16383):
                     flash("Racial feature text must be fewer than 16384 characters.", "red")
-                    return(redirect(url_for("epchar.createRace")))
+                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                 elif("<" in ftext):
                     flash("Open angle brackets (\"<\") are not allowed.", "red")
-                    return(redirect(url_for("epchar.createRace")))
+                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                 elif("javascript" in ftext):
                     flash("Cross-site scripting attacks are not allowed.", "red")
-                    return(redirect(url_for("epchar.createRace")))
+                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
             if(has_subraces):
                 for subrace in subraces:
                     if(len(subrace["name"]) < 1):
                         flash("You must specify a name for each subrace.", "red")
-                        return(redirect(url_for("epchar.createRace")))
+                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                     elif(len(subrace["name"]) > 127):
                         flash("Subrace names must be fewer than 128 characters.", "red")
-                        return(redirect(url_for("epchar.createRace")))
+                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                     elif(len(subrace["text"]) > 16383):
                         flash("Subrace descriptions must be fewer than 16384 characters.", "red")
-                        return(redirect(url_for("epchar.createRace")))
+                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                     elif("<" in subrace["text"]):
                         flash("Open angle brackets (\"<\") are not allowed.", "red")
-                        return(redirect(url_for("epchar.createRace")))
+                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                     elif("javascript" in subrace["text"]):
                         flash("Cross-site scripting attacks are not allowed.", "red")
-                        return(redirect(url_for("epchar.createRace")))
+                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                     for feature in subrace["features"]:
                         if(len(feature["name"]) < 1):
                             flash("You must specify a name for each subrace features.", "red")
-                            return(redirect(url_for("epchar.createRace")))
+                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                         elif(len(feature["name"]) > 127):
                             flash("Subrace feature names must be fewer than 128 characters.", "red")
-                            return(redirect(url_for("epchar.createRace")))
+                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                         elif(len(feature["text"]) > 16383):
                             flash("Subrace feature text must be fewer than 16384 characters.", "red")
-                            return(redirect(url_for("epchar.createRace")))
+                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                         elif("<" in feature["text"]):
                             flash("Open angle brackets (\"<\") are not allowed.", "red")
-                            return(redirect(url_for("epchar.createRace")))
+                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
                         elif("javascript" in feature["text"]):
                             flash("Cross-site scripting attacks are not allowed.", "red")
-                            return(redirect(url_for("epchar.createRace")))
+                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
             if(instruction == "create"):
                 new_race = Race(
                     rulesetid = cruleset.id,
@@ -303,7 +303,7 @@ def makeRace(request, cruleset, race, instruction):
                             db.session.add(new_feature)
                         db.session.commit()
                 flash("Race created!", "green")
-                return(redirect(url_for("epchar.races")))
+                return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
             else:
                 race.name = name
                 race.flavor = flavor
@@ -377,13 +377,13 @@ def makeRace(request, cruleset, race, instruction):
                         db.session.delete(subrace)
                 db.session.commit()
                 flash("Changes saved!", "green")
-                return(redirect(url_for("epchar.races")))
-        return(redirect(url_for("epchar.createRace")))
+                return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
+        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
 
 def raceImporter(races, flavor, cruleset):
     if(cruleset.userid != current_user.id):
         flash("You cannot import races into rulesets that are not your own", "red")
-        return(redirect(url_for("epchar.importRace")))
+        return(redirect(url_for("epchar.importRace", ruleset=cruleset.identifier)))
     try:
         for i, race in enumerate(races["race"]):
             name = f"{race['name']} ({race['source']})"
@@ -471,7 +471,7 @@ def raceImporter(races, flavor, cruleset):
             
             if(size_text != None and len(size_text) > 255):
                 flash(f"Size text must be fewer than 256 characters. Offender: {race['name']}", "red")
-                return(redirect(url_for("epchar.importRace")))
+                return(redirect(url_for("epchar.importRace", ruleset=cruleset.identifier)))
 
             flavortext = ""
 
@@ -704,10 +704,10 @@ def raceImporter(races, flavor, cruleset):
                                         flash(f"Too many entries in {name} subrace {sname} flavor text (exceeds 16383 character limit); truncating...", "orange")
         db.session.commit()
         flash("Races imported!", "green")
-        return(redirect(url_for("epchar.races")))
+        return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
     except:
         flash("Improperly formatted JSON; could not import.", "red")
-        return(redirect(url_for("epchar.importRaces")))
+        return(redirect(url_for("epchar.importRaces", ruleset=cruleset.identifier)))
 
 def makebackground(request, cruleset, background, instruction):
     if(current_user.id != cruleset.userid):
@@ -751,39 +751,39 @@ def makebackground(request, cruleset, background, instruction):
         featuretexts = request.form.getlist("featuretext")
         if(len("name") < 1 or not name):
             flash("You must specify a background name.", "red")
-            return(redirect(url_for("epchar.createBackground")))
+            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
         elif(len("name") > 127):
             flash("Background name must be fewer than 128 characters.", "red")
-            return(redirect(url_for("epchar.createBackground")))
+            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
         elif(len("text") > 16383):
             flash("Text must be fewer than 16384 characters.", "red")
-            return(redirect(url_for("epchar.createBackground")))
+            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
         elif("<" in "text"):
             flash("Open angle brackets(\"<\") are not allowed.", "red")
-            return(redirect(url_for("epchar.createBackground")))
+            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
         elif("javascript" in "text"):
             flash("Cross-site scripting attacks are not allowed.", "red")
-            return(redirect(url_for("epchar.createBackground")))
+            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
         elif(len(goldcontainer) > 127):
             flash("Starting gold container name must be fewer than 128 characters.")
-            return(redirect(url_for("epchar.createBackground")))
+            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
         else:
             for index, feature in enumerate(featurenames):
                 if(len(feature) < 1):
                     flash("You must specify a feature name.", "red")
-                    return(redirect(url_for("epchar.createBackground")))
+                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
                 elif(len(feature) > 127):
                     flash("Feature name must be fewer than 128 characters.", "red")
-                    return(redirect(url_for("epchar.createBackground")))
+                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
                 elif(len(featuretexts[index]) > 16383):
                     flash("Text must be fewer than 16383 characters.", "red")
-                    return(redirect(url_for("epchar.createBackground")))
+                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
                 elif("<" in featuretexts[index]):
                     flash("Open angle brackets(\"<\") are not allowed.", "red")
-                    return(redirect(url_for("epchar.createBackground")))
+                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
                 elif("javascript" in featuretexts[index]):
                     flash("Cross-site scripting attacks are not allowed.", "red")
-                    return(redirect(url_for("epchar.createBackground")))
+                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
             if(instruction == "create"):
                 new_background = Background(
                     rulesetid = cruleset.id,
@@ -839,12 +839,12 @@ def makebackground(request, cruleset, background, instruction):
                     db.session.commit()
                 flash("Changes saved!", "green")
 
-    return(redirect(url_for("epchar.backgrounds")))
+    return(redirect(url_for("epchar.backgrounds", ruleset=cruleset.identifier)))
 
 def backgroundImporter(backgrounds, flavor, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import backgrounds into rulesets that are not your own.", "red")
-        return(redirect(url_for("epchar.backgrounds")))
+        return(redirect(url_for("epchar.backgrounds", ruleset=cruleset.identifier)))
     # try:
     for background in backgrounds["background"]:
         if("_copy" in background.keys()):
@@ -855,6 +855,20 @@ def backgroundImporter(backgrounds, flavor, cruleset):
             for skill in background["skillProficiencies"][0].keys():
                 skills.append(skill.casefold().capitalize())
         tools = []
+        if("toolProficiencies" in background.keys()):
+            for key in background["toolProficiencies"][0].keys():
+                if(key == "choose"):
+                    tool_text = ""
+                    i_list = "abcdefghijklmnopqrstuvwxyz"
+                    for i, choice in enumerate(background["toolProficiencies"][0]["choose"]["from"]):
+                        print(f"{name} {choice}")
+                        if(len(tool_text) > 0):
+                            tool_text += " or "
+                        tool_text += f"({i_list[i]}) {choice.capitalize()}"
+                    tools.append(tool_text)
+                else:
+                    tools.append(key.capitalize())
+
         lang_num = 0
         if("languageProficiencies" in background.keys()):
             if("anyStandard" in background["languageProficiencies"][0].keys()):
@@ -1105,11 +1119,10 @@ def backgroundImporter(backgrounds, flavor, cruleset):
                                     feature.text = ftext
     db.session.commit()
     flash("Backgrounds Imported!", "green")
-    flash("Tool Proficiencies were not imported; they are not supported yet", "orange")
-    return(redirect(url_for('epchar.backgrounds')))
+    return(redirect(url_for('epchar.backgrounds', ruleset=cruleset.identifier)))
     # except:
     #     flash("Improperly formatted JSON; unable to import.", "red")
-    #     return(redirect(url_for("epchar.importBackgrounds")))
+    #     return(redirect(url_for("epchar.importBackgrounds", ruleset=cruleset.identifier)))
 
 def makefeat(request, cruleset, tfeat, instruction):
     if(current_user.id != cruleset.userid):
@@ -1157,12 +1170,12 @@ def makefeat(request, cruleset, tfeat, instruction):
                 tfeat.text = text
                 db.session.commit()
                 flash("Changes saved!", "green")
-    return(redirect(url_for("epchar.feats")))
+    return(redirect(url_for("epchar.feats", ruleset=cruleset.identifier)))
 
 def featImporter(feats, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import feats into rulesets that are not your own.", "red")
-        return(redirect(url_for("epchar.feats")))
+        return(redirect(url_for("epchar.feats", ruleset=cruleset.identifier)))
     try:
         for feat in feats["feat"]:
             name = feat["name"]
@@ -1214,11 +1227,11 @@ def featImporter(feats, cruleset):
             db.session.add(new_feat)
         db.session.commit()
         flash("Feats imported!", "green")
-        return(redirect(url_for("epchar.feats")))
+        return(redirect(url_for("epchar.feats", ruleset=cruleset.identifier)))
 
     except:
         flash("Improperly formatted JSON; unable to import.", "red")
-        return(redirect(url_for("epchar.importFeats")))
+        return(redirect(url_for("epchar.importFeats", ruleset=cruleset.identifier)))
 
 def makeclass(request, cruleset, tclass, instruction):
     if(current_user.id != cruleset.userid):
@@ -1628,7 +1641,7 @@ def makeclass(request, cruleset, tclass, instruction):
                     db.session.commit() 
                     flash("Changes saved!", "green")
             elif(instruction == "edit"):
-                return(redirect(url_for("epchar.editClass", tclass=tclass.name.replace(" ", "-"))))
+                return(redirect(url_for("epchar.editClass", tclass=tclass.name, ruleset=cruleset.identifier)))
             else:
-                return(redirect(url_for("epchar.createClass")))
-    return(redirect(url_for("epchar.classes")))
+                return(redirect(url_for("epchar.createClass", ruleset=cruleset.identifier)))
+    return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
