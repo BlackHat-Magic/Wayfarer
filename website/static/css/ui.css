@@ -167,6 +167,8 @@ select.nav-item:hover {
     width: 15%;
     border-radius: 12px;
     min-width: 250px;
+    align-self: flex-start;
+    position: sticky;
 }
 
 .tab {

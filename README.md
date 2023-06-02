@@ -20,6 +20,17 @@ In no particular order...
  - [x] ~~make background filters more useful~~
  - [ ] Add JSON import/export functionality
      - [ ] Export Functionality
+         - [ ] Export Races
+         - [ ] Export Backgrounds
+         - [ ] Export Feats
+         - [ ] Export Ability Scores
+         - [ ] Export Classes
+         - [ ] Export Actions
+         - [ ] Export Conditions/Diseases/Statuses
+         - [ ] Export Items/Item Types/Weapon Properties
+         - [ ] Export Languages
+         - [ ] Export Spells
+         - [ ] Export Skills
      - [X] ~~Import races~~
      - [X] ~~Import backgrounds~~
      - [X] ~~Import feats~~
@@ -67,15 +78,19 @@ In no particular order...
      - [ ] EULA
      - [ ] LibreJS support
      - [ ] Footer
- - [ ] Comment Code
- - [ ] Move the submit button on create/edit classes page to the bottom (this is less trivial than it sounds I swear)
+ - [ ] Code Cleanup
+     - [ ] Comment Code
+     - [ ] Move the submit button on create/edit classes page to the bottom (this is less trivial than it sounds I swear)
+     - [ ] De-spaghettify import code (e.g. checking if item is list or dict can be more efficient)
+     - [ ] dict keys
+     - [ ] comprehension
+     - [ ] dict.get() instead of if in dict.keys()
  - [ ] Header Links
  - [ ] "Cantrip-level x"
  - [ ] Alert administrator of high ID collision probability
- - [ ] De-spaghettify import code (e.g. checking if item is list or dict can be more efficient)
  - [ ] Subdomain navigation
  - [ ] Images (find a host)
- - [ ] Better options for ruleset visibility
+ - [X] ~~Better options for ruleset visibility~~
 
 ## Usage
 

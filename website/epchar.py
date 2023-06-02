@@ -526,6 +526,7 @@ def noRulesetEditClass(tclass):
 @login_required
 def editClass(tclass, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    tclass = Playerclass.query.filter_by(rulesetid=cruleset.id, name=tclass).first_or_404()
     if(request.method == "POST"):
         return(makeclass(request, cruleset, tclass, "edit"))
     return(
@@ -538,13 +539,36 @@ def editClass(tclass, ruleset):
         )
     )
 
+@epchar.route("/Classes/Delete/<string:tclass>")
+@login_required
+def deleteClass(tclass):
+    return(tclass)
+
+
+# Borken; fix later caus I'm lazy
+# @epchar.route("/Classes/Import", subdomain="<ruleset>", methods=["GET", "POST"])
+# @login_required
+# def importClass(ruleset):
+#     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+#     if(request.method == "POST"):
+#         tclass = json.loads(request.form.get("parsed"))
+#         return(classImporter(tclass, cruleset))
+#     return(
+#         render_template(
+#             "import-class.html",
+#             cruleset=cruleset,
+#             adminrulesets=adminrulesets,
+#             title="Import Class",
+#         )
+#     )
+
 @epchar.route("/Class/<string:selectedclass>")
 def noRulesetClassPage(selectedclass):
     return(noRuleset(current_user, "epchar.classPage", selectedclass=selectedclass))
 @epchar.route("/Class/<string:selectedclass>", subdomain="<ruleset>")
 def classPage(selectedclass, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    selectedclass = Playerclass.query.filter_by(name=selectedclass).first_or_404()
+    selectedclass = Playerclass.query.filter_by(rulesetid=cruleset.id, name=selectedclass).first_or_404()
     return(
         render_template(
             "class.html",

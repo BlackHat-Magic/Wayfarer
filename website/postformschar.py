@@ -1645,3 +1645,206 @@ def makeclass(request, cruleset, tclass, instruction):
             else:
                 return(redirect(url_for("epchar.createClass", ruleset=cruleset.identifier)))
     return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
+
+def classImporter(tclass, cruleset):
+    if(current_user.id != cruleset.userid):
+        flash("You cannot import classes into rulesets that are not your own.", "red")
+        return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
+    # try:
+    if(tclass["class"][0]["name"] == "Artificer" and tclass["class"][0]["source"] != "Wayfarer"):
+        tclass["class"][0] = tclass["class"][2]
+    target_class = tclass["class"][0]
+    name = target_class["name"]
+    hit_die = target_class["hd"]["faces"]
+    if(hit_die == 4):
+        hit_die = 0
+    elif(hit_die == 6):
+        hit_die = 1
+    elif(hit_die == 8):
+        hit_die = 2
+    elif(hit_die == 10):
+        hit_die = 3
+    elif(hit_die == 12):
+        hit_die = 4
+    else:
+        hit_die = 5
+    proficiencies = []
+    for key, value in target_class["startingProficiencies"].items():
+        if(key != "skills"):
+            continue
+        for proficiency in value:
+            proficiencies.append(f"{proficiency} {key}".capitalize())
+    saves = []
+    ruleset_abilities = AbilityScore.query.filter_by(rulesetid=cruleset.id).order_by(AbilityScore.order)
+    for ability in ruleset_abilities:
+        if(ability.abbr in target_class["proficiency"]):
+            saves.append(True)
+        else:
+            saves.append(False)
+    skills = []
+    for skill in target_class["startingProficiencies"]["skills"][0]["choose"]["from"]:
+        skills.append(skill.capitalize())
+    equipment = ""
+    for item in target_class["startingEquipment"]["default"]:
+        equipment += f" - {item}\n"
+    gold = target_class["startingEquipment"]["goldAlternative"]
+    gold_nums = int(gold.split("|")[1].split("×")[0].split("d")[0])
+    gold_dice = int(gold.split("|")[1].split("×")[0].split("d")[1])
+    gold_mult = int(gold.split("|")[1].split("×")[1])
+    multiclass_prereq = ""
+    for ability, score in target_class["multiclassing"]["requirements"].items():
+        if(len(multiclass_prereq) > 0):
+            multiclass_prereq += ", "
+        target_ability = AbilityScore.query.filter_by(rulesetid=cruleset.id, abbr=ability).first()
+        if(not target_ability is None):
+            multiclass_prereq += f"{ability.capitalize()} {score}"
+        else:
+            multiclass_prereq += f"{target_ability.name.capitalize()} {score}"
+    multiclass_profic = []
+    for key, value in target_class["multiclassing"]["proficienciesGained"].items():
+        for item in value:
+            multiclass_profic.append(f"{item} {key}".capitalize())
+    subclass_name = target_class["subclassTitle"]
+    text = parseEntries(target_class["fluff"], 2, None)
+    if("levels" in target_class.keys()):
+        levels = target_class["levels"]
+    else:
+        levels = 20
+    subclass_level = sorted(tclass["subclassFeature"], key=lambda x: x.get("level", levels))[0]["level"]
+    if(len(name) > 127):
+        flash("Class name must be fewer than 128 characters.", "red")
+    elif(len(equipment) > 1023):
+        flash("Too much starting equipment (must be fewer than 1024 characters after being parsed to string).", "red")
+    elif(len(multiclass_prereq) > 1023):
+        flash("Too many multiclassing prerequisites (must be fewer than 1024 characters after being parsed to string).", "red")
+    elif(len(subclass_name) > 127):
+        flash("Subclass title must be fewer than 128 characters.", "red")
+    elif(len(text) > 16383):
+        flash("Class flavor must be fewer than 16384 characters.", "red")
+    else:
+        new_class = Playerclass(
+            ruleset = cruleset,
+            name = name,
+            hitdie = hit_die,
+            proficiencies = proficiencies,
+            saves = saves,
+            skills = skills,
+            equipment = equipment,
+            gold_nums = gold_nums,
+            gold_dice = gold_dice,
+            gold_mult = gold_mult,
+            multiclass_prereq = multiclass_prereq,
+            multiclass_profic = multiclass_profic,
+            subclass_name = subclass_name,
+            subclass_level = subclass_level,
+            levels = levels,
+            images = []
+        )
+        db.session.add(new_class)
+        casterdict = {
+            "full": 3,
+            "1/2": 2,
+            "artificer": 2,
+            "1/3": 1
+        }
+        for feature in tclass["classFeature"]:
+            name = feature["name"]
+            level_obtained = feature["level"]
+            text = parseEntries(feature["entries"], 3, None)
+            if(len(name) > 127):
+                flash(f"{name} is too long of a feature name (maximum 127 characters); skipping...", "red")
+                continue
+            elif(len(name) < 1):
+                flash("Class features must have a name; skipping unnamed feature...", "red")
+                continue
+            elif(len(text) > 16383):
+                flash(f"{name} description is too long (max 16383 characters); skipping...", "red")
+                continue
+            new_class_feature = ClassFeature(
+                playerclass = new_class,
+                level_obtained = level_obtained,
+                name = name,
+                text = text
+            )
+            db.session.add(new_class_feature)
+        for subclass in tclass["subclass"]:
+            name = subclass["name"]
+            text = ""
+            images = []
+            if("casterProgression" in target_class.keys()):
+                caster_type = casterdict[target_class["casterProgression"]]
+            elif("casterProgression" in subclass.keys()):
+                caster_type = casterdict[subclass["casterProgression"]]
+            else:
+                caster_type = 0
+            new_subclass = Subclass(
+                playerclass = new_class,
+                name = name,
+                text = text,
+                images = images,
+                caster_type = caster_type
+            )
+            db.session.add(new_subclass)
+            for feature in tclass["subclassFeature"]:
+                if(feature["subclassShortName"] not in new_subclass.name):
+                    continue
+                if(feature["name"] == new_subclass.name):
+                    for entry in feature["entries"]:
+                        if(type(entry) == str):
+                            if(len(new_subclass.text) > 1):
+                                new_subclass.text += "\n\n"
+                            new_subclass.text += entry
+                    continue
+                name = feature["name"]
+                level_obtained = feature["level"]
+                text = ""
+                for entry in feature["entries"]:
+                    if(type(entry) != str):
+                        continue
+                    if(len(text) > 0):
+                        text += "\n\n"
+                    text += entry
+                new_subclass_feature = SubclassFeature(
+                    subclass = new_subclass,
+                    level_obtained = level_obtained,
+                    name = name,
+                    text = text
+                )
+            if("subclassTableGroups" in subclass.keys()):
+                for i, column in enumerate(subclass["subclassTableGroups"][0]["colLabels"]):
+                    name = column
+                    data = []
+                    for row in subclass["subclassTableGroups"][0]["rows"]:
+                        datum = row[i]
+                        if(type(datum) == str or type(datum) == int):
+                            data.append(datum)
+                        else:
+                            data.append(datum)
+                    new_subclass_column = SubclassColumn(
+                        subclass = new_subclass,
+                        name = name,
+                        data = data
+                    )
+                    db.session.add(new_subclass_column)
+        if("classTableGroups" in target_class.keys()):
+            for i, column in enumerate(target_class["classTableGroups"][0]["colLabels"]):
+                name = column
+                data = []
+                for row in target_class["classTableGroups"][0]["rows"]:
+                    datum = row[i]
+                    if(type(datum) == str or type(datum) == int):
+                        data.append(datum)
+                    else:
+                        data.append(datum["value"])
+                new_class_column = ClassColumn(
+                    playerclass = new_class,
+                    name = name,
+                    data = data
+                )
+                db.session.add(new_class_column)
+        db.session.commit()
+        flash("Class imported!", "green")
+        return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
+    # except:
+    #     flash("Improperly formatted JSON; unable to import.", "red")
+    #     return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))

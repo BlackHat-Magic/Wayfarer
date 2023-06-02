@@ -33,7 +33,10 @@
 			</template>
 		</table>
         {% if cruleset.userid == current_user.id %}
-        <a href="{{ url_for('epchar.createClass', ruleset=cruleset.identifier) }}"><button>Create a Class</button></a>
+        <div class="interior flex horizontal center">
+            <a href="{{ url_for('epchar.createClass', ruleset=cruleset.identifier) }}"><button>Create a Class</button></a>
+            <!-- <a href=""><button>Import from JSON</button></a> -->
+        </div>
         {% endif %}
     </div>
 </div>
