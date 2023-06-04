@@ -19,32 +19,9 @@ In no particular order...
  - [x] ~~fix Races page~~
  - [x] ~~make background filters more useful~~
  - [ ] Add JSON import/export functionality
-     - [ ] Export Functionality
-         - [ ] Export Races
-         - [ ] Export Backgrounds
-         - [ ] Export Feats
-         - [ ] Export Ability Scores
-         - [ ] Export Classes
-         - [ ] Export Actions
-         - [ ] Export Conditions/Diseases/Statuses
-         - [ ] Export Items/Item Types/Weapon Properties
-         - [ ] Export Languages
-         - [ ] Export Spells
-         - [ ] Export Skills
-     - [X] ~~Import races~~
-     - [X] ~~Import backgrounds~~
-     - [X] ~~Import feats~~
-     - [ ] Import classes (partial support)
-     - [X] ~~Import actions~~
-     - [X] ~~Import conditions, diseases, and statuses~~
-     - [ ] Import items
-         - [X] ~~Import item details~~
-         - [ ] More comprehensive item type importing
-     - [X] ~~Import languages~~
-     - [X] ~~Import spells~~
-     - [X] ~~Import skills~~
+     - [X] ~~Export Functionality~~
+     - [X] ~~Import Functionality~~
      - [ ] Import Entire Rulesets
-     - [ ] Filter imported sources
  - [x] ~~Make races page work with custom ability scores~~
  - [x] ~~Add support for multiple administrator rulesets~~
  - [ ] Idiotproofing
@@ -57,6 +34,8 @@ In no particular order...
  - [ ] Hyperlinks
      - [ ] Correctly parse and reformat 5e tools markup
  - [ ] Filter URLs
+ - [ ] Header URLs
+ - [ ] Tab State URLs
  - [ ] Cache unsaved database entries if user input is invalid
  - [ ] GM Tools (tables, traps, etc)
      - [ ] NPC Generator
@@ -85,10 +64,10 @@ In no particular order...
      - [ ] dict keys
      - [ ] comprehension
      - [ ] dict.get() instead of if in dict.keys()
- - [ ] Header Links
  - [ ] "Cantrip-level x"
  - [ ] Alert administrator of high ID collision probability
- - [ ] Subdomain navigation
+ - [ ] Site administration panel
+ - [X] ~~Subdomain navigation~~
  - [ ] Images (find a host)
  - [X] ~~Better options for ruleset visibility~~
 
