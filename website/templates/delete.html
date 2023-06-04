@@ -1,0 +1,14 @@
+
+{% extends "master.html" %}
+
+{% block body %}
+<div class="flex">
+	<form class="flex vertical start" method="post">
+		<h1>{{ title }}</h1>
+		{% block text %}
+		{% endblock %}
+		<a><button type="submit" class="mild danger">Delete Forever</button></a>
+	</form>
+</div>
+
+{% endblock %}

@@ -41,6 +41,7 @@ class Ruleset(db.Model):
     item_tags = db.relationship("ItemTag", backref="ruleset")
     item_properties = db.relationship("Property", backref="ruleset")
     items = db.relationship("Item", backref="ruleset")
+    damage_types = db.relationship("DamageType", backref="ruleset")
     conditions = db.relationship("Condition", backref="ruleset")
     diseases = db.relationship("Disease", backref="ruleset")
     statuses = db.relationship("Status", backref="ruleset")
@@ -49,6 +50,7 @@ class Ruleset(db.Model):
     races = db.relationship("Race", backref="ruleset")
     feats = db.relationship("Feat", backref="ruleset")
     ability_scores = db.relationship("AbilityScore", backref="ruleset")
+    spell_schools = db.relationship("SpellSchool", backref="ruleset")
     spells = db.relationship("Spell", backref="ruleset")
     backgrounds = db.relationship("Background", backref="ruleset")
     classes = db.relationship("Playerclass", backref="ruleset")
@@ -56,7 +58,6 @@ class Ruleset(db.Model):
     characters = db.relationship("Character", backref="ruleset")
     monster = db.relationship("Monster", backref="ruleset")
     monster_type = db.relationship("MonsterType", backref="ruleset")
-    damage_type = db.relationship("DamageType", backref="ruleset")
     
 class Category(db.Model):
     __tablename__ = "category"
@@ -81,6 +82,9 @@ class Language(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class Recipe(db.Model):
     __tablename__ = "recipe"
     id = db.Column(db.Integer, primary_key=True)
@@ -89,6 +93,9 @@ class Recipe(db.Model):
     text = db.Column(db.String(16383))
     images = db.Column(db.PickleType)
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class ItemTag(db.Model):
     __tablename__ = "itemtag"
     id = db.Column(db.Integer, primary_key=True)
@@ -96,12 +103,18 @@ class ItemTag(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class Property(db.Model):
     __tablename__ = "property"
     id = db.Column(db.Integer, primary_key=True)
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class Item(db.Model):
     __tablename__ = "item"
@@ -127,8 +140,11 @@ class Item(db.Model):
     is_weapon = db.Column(db.Boolean)
     die_num = db.Column(db.Integer)
     damage_die = db.Column(db.Integer)
-    damage_type = db.Column(db.String(15))
+    damage_types = db.Column(db.PickleType)
     weapon_properties = db.Column(db.PickleType)
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class Condition(db.Model):
     __tablename__ = "condition"
@@ -137,6 +153,9 @@ class Condition(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class Disease(db.Model):
     __tablename__ = "disease"
     id = db.Column(db.Integer, primary_key = True)
@@ -144,12 +163,18 @@ class Disease(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class Status(db.Model):
     __tablename__ = "status"
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class Skill(db.Model):
     __tablename__ = "skill"
@@ -159,6 +184,9 @@ class Skill(db.Model):
     ability_score = db.Column(db.String(3))
     description = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class Action(db.Model):
     __tablename__ = "action"
     id = db.Column(db.Integer, primary_key = True)
@@ -166,6 +194,9 @@ class Action(db.Model):
     name = db.Column(db.String(127))
     time = db.Column(db.String(127))
     text = db.Column(db.String(16383))
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class Race(db.Model):
     __tablename__ = "race"
@@ -190,8 +221,15 @@ class Race(db.Model):
     weight_num = db.Column(db.Integer)
     weight_die = db.Column(db.Integer)
     subrace_flavor = db.Column(db.String(16383))
+
     race_features = db.relationship("RaceFeature", backref="race")
     subraces = db.relationship("Subrace", backref="race")
+
+    def to_dict(self):
+        data = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        data["race_features"] = [feature.to_dict() for feature in self.race_features]
+        data["subraces"] = [subrace.to_dict() for subrace in self.subraces]
+        return(data)
 
 class RaceFeature(db.Model):
     __tablename__ = "racefeature"
@@ -200,6 +238,9 @@ class RaceFeature(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class Subrace(db.Model):
     __tablename__ = "subrace"
     id = db.Column(db.Integer, primary_key = True)
@@ -207,7 +248,13 @@ class Subrace(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
     images = db.Column(db.PickleType)
+
     subrace_features = db.relationship("SubraceFeature", backref="subrace")
+
+    def to_dict(self):
+        data = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        data["subrace_features"] = [feature.to_dict() for feature in self.subrace_features]
+        return(data)
 
 class SubraceFeature(db.Model):
     __tablename__ = "subracefeature"
@@ -216,6 +263,9 @@ class SubraceFeature(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class Feat(db.Model):
     __tablename__ = "feat"
     id = db.Column(db.Integer, primary_key = True)
@@ -223,6 +273,9 @@ class Feat(db.Model):
     name = db.Column(db.String(127))
     prerequisite = db.Column(db.String(255))
     text = db.Column(db.String(16383))
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class AbilityScore(db.Model):
     __tablename__ = "abilityscore"
@@ -233,12 +286,22 @@ class AbilityScore(db.Model):
     abbr = db.Column(db.String(3))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
+class SpellSchool(db.Model):
+    __tablename__ = "spellschool"
+    id = db.Column(db.Integer, primary_key = True)
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
+
 class Spell(db.Model):
     __tablename__ = "spell"
     id = db.Column(db.Integer, primary_key = True)
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
-    school = db.Column(db.String(31))
+    schools = db.Column(db.PickleType)
     level = db.Column(db.Integer)
     casting_time = db.Column(db.Integer)
     spell_range = db.Column(db.Integer)
@@ -248,8 +311,11 @@ class Spell(db.Model):
     material_specific = db.Column(db.String(255))
     consumes_material = db.Column(db.Boolean)
     concentration = db.Column(db.Boolean)
-    duration = db.Column(db.String)
+    duration = db.Column(db.Integer)
     text = db.Column(db.String(16383))
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class Background(db.Model):
     __tablename__ = "background"
@@ -265,7 +331,13 @@ class Background(db.Model):
     starting_gold = db.Column(db.Integer)
     text = db.Column(db.String(16383))
     images = db.Column(db.PickleType)
+
     background_features = db.relationship("BackgroundFeature", backref="background")
+    
+    def to_dict(self):
+        data = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        data["background_features"] = [feature.to_dict() for feature in self.background_features]
+        return(data)
 
 class BackgroundFeature(db.Model):
     __tablename__ = "backgroundfeature"
@@ -273,6 +345,9 @@ class BackgroundFeature(db.Model):
     backgroundid = db.Column(db.Integer, db.ForeignKey("background.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 # not UpperCamelCase because SQLAlchemy gets mad when it is. idk why
 class Playerclass(db.Model):
@@ -283,6 +358,7 @@ class Playerclass(db.Model):
     hitdie = db.Column(db.Integer)
     proficiencies = db.Column(db.PickleType)
     saves = db.Column(db.PickleType)
+    skill_num = db.Column(db.Integer)
     skills = db.Column(db.PickleType)
     equipment = db.Column(db.String(1023))
     gold_nums = db.Column(db.Integer)
@@ -295,9 +371,17 @@ class Playerclass(db.Model):
     levels = db.Column(db.Integer)
     text = db.Column(db.String(16383))
     images = db.Column(db.PickleType)
+
+    class_columns = db.relationship("ClassColumn", backref = "playerclass")
     class_features = db.relationship("ClassFeature", backref = "playerclass")
     subclasses = db.relationship("Subclass", backref = "playerclass")
-    columns = db.relationship("ClassColumn", backref = "playerclass")
+
+    def to_dict(self):
+        data = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        data["class_features"] = [feature.to_dict() for feature in self.class_features]
+        data["subclasses"] = [subclass.to_dict() for subclass in self.subclasses]
+        data["class_columns"] = [column.to_dict() for column in self.class_columns]
+        return(data)
 
 class ClassFeature(db.Model):
     __tablename__ = "classfeature"
@@ -307,12 +391,18 @@ class ClassFeature(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class ClassColumn(db.Model):
     __tablename__ = "classcolumn"
     id = db.Column(db.Integer, primary_key = True)
     classid = db.Column(db.Integer, db.ForeignKey("playerclass.id"))
     name = db.Column(db.String(127))
     data = db.Column(db.PickleType)
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class Subclass(db.Model):
     __tablename__ = "subclass"
@@ -322,8 +412,15 @@ class Subclass(db.Model):
     text = db.Column(db.String(16383))
     images = db.Column(db.PickleType)
     caster_type = db.Column(db.Integer)
+
+    subclass_columns = db.relationship("SubclassColumn", backref="subclass")
     subclass_features = db.relationship("SubclassFeature", backref="subclass")
-    columns = db.relationship("SubclassColumn", backref="subclass")
+
+    def to_dict(self):
+        data = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        data["subclass_features"] = [feature.to_dict() for feature in self.subclass_features]
+        data["subclass_columns"] = [column.to_dict() for column in self.subclass_columns]
+        return(data)
 
 class SubclassFeature(db.Model):
     __tablename__ = "subclassfeature"
@@ -333,12 +430,18 @@ class SubclassFeature(db.Model):
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
 
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
 class SubclassColumn(db.Model):
     __tablename__ = "subclasscolumn"
     id = db.Column(db.Integer, primary_key = True)
     subclassid = db.Column(db.Integer, db.ForeignKey("subclass.id"))
     name = db.Column(db.String(127))
     data = db.Column(db.PickleType)
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class Currency(db.Model):
     __tablename__ = "currency"
@@ -347,6 +450,9 @@ class Currency(db.Model):
     name = db.Column(db.String(127))
     value = db.Column(db.Integer)
     text = db.Column(db.String(16383))
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class Character(db.Model):
     __tablename__ = "character"
@@ -505,6 +611,9 @@ class DamageType(db.Model):
     rulesetid = db.Column(db.String(32), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383)) # might stay unused
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
 
 class MonsterFeature(db.Model):
     __tablenae__ = "monsterfeature"

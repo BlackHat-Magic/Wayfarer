@@ -3,6 +3,7 @@ from flask_login import current_user
 from . import db
 from .jsonparsers import *
 from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore, ClassColumn, SubclassColumn, ClassFeature, Playerclass, Subclass, SubclassFeature
+import pickle, sys
 
 def abilityScore(request, cruleset, ability_score, instruction):
     name = request.form.get("name")
@@ -72,6 +73,43 @@ def abilityScore(request, cruleset, ability_score, instruction):
         return(redirect(url_for("epchar.createStat", ruleset=cruleset.identifier)))
     else:
         return(redirect(url_for("epchar.editStat", score=ability_score.name, ruleset=cruleset.identifier)))
+
+def abilityScoreImporter(scores, cruleset):
+    if(cruleset.userid != current_user.id):
+        flash("You cannot import races into rulesets that are not your own.", "red")
+        return(redirect(url_for("epchar.importRace", ruleset=cruleset.identifier)))
+    try:
+        for i, score in enumerate(scores):
+            name = score["name"]
+            order = score["order"]
+            abbr = score["abbr"]
+            text = score["text"]
+            if(len(name) < 1):
+                flash(f"Each ability score must have a name; skipping index {i}...", "orange")
+                continue
+            elif(len(name) > 127):
+                flash(f"Ability score {name} name too long (maximum 127 characters); skipping...", "orange")
+                continue
+            elif(len(abbr) != 3):
+                flash(f"Ability score abbreviations must be three characters; skipping {name}...", "orange")
+                continue
+            elif(len(text) > 16383):
+                flash(f"{name} description too long (maximum 16383 characters); skipping...", "orange")
+                continue
+            new_ability_score = AbilityScore(
+                ruleset = cruleset,
+                name = name,
+                order = order,
+                abbr = abbr,
+                text = text
+            )
+            db.session.add(new_ability_score)
+            db.session.commit()
+            flash("Ability scores imported!", "green")
+            return(redirect(url_for("epchar.stats", ruleset=cruleset.identifier)))
+    except:
+        flash("Improperly formatted JSON; could not import.", "red")
+        return(redirect(url_for("epchar.importStat", ruleset=cruleset.identifier)))
 
 def makeRace(request, cruleset, race, instruction):
     if(current_user.id != cruleset.userid):
@@ -385,125 +423,57 @@ def raceImporter(races, flavor, cruleset):
         flash("You cannot import races into rulesets that are not your own", "red")
         return(redirect(url_for("epchar.importRace", ruleset=cruleset.identifier)))
     try:
-        for i, race in enumerate(races["race"]):
-            name = f"{race['name']} ({race['source']})"
-            sizedict = {
-                "T": 0,
-                "S": 1,
-                "M": 2,
-                "L": 3,
-                "H": 4,
-                "G": 5
-            }
-            if("size" in race.keys()):
-                if(race["size"][0] in sizedict.keys()):
-                    size = sizedict[race["size"][0]]
-                    size_text = None
-                else:
-                    size = None
-                    size_text = race["size"][0]
-            else:
-                size = 2
-            
-            walk = 30
-            fly = swim = burrow = climb = 0
+        for i, race in enumerate(races):
+            name = race["name"]
+            flavor = race["flavor"]
+            images = race["images"]
+            asis = race["asis"]
+            asi_text = race["asi_text"]
+            size = race["size"]
+            size_text = race["size_text"]
+            walk = race["walk"]
+            climb = race["climb"]
+            fly = race["fly"]
+            swim = race["swim"]
+            burrow = race["burrow"]
+            base_height = race["base_height"]
+            base_weight = race["base_weight"]
+            height_num = race["height_num"]
+            height_die = race["height_die"]
+            weight_num = race["weight_num"]
+            weight_die = race["weight_die"]
+            subrace_flavor = race["subrace_flavor"]
 
-            if("speed" in race.keys()):
-                if(type(race["speed"]) == int):
-                    walk = race["speed"]
-                elif(type(race["speed"]) == dict):
-                    if("walk" in race["speed"].keys()):
-                        walk = race["speed"]["walk"]
-                    if("fly" in race["speed"].keys()):
-                        fly = race["speed"]["fly"]
-                    if("swim" in race["speed"].keys()):
-                        swim = race["speed"]["swim"]
-                    if("burrow" in race["speed"].keys()):
-                        burrow = race["speed"]["burrow"]
-                    if("climb" in race["speed"].keys()):
-                        climb = race["speed"]["climb"]
-
-            base_height = height_num = height_die = base_weight = weight_num = weight_die = None
-            if("heightAndWeight" in race.keys() and race["heightAndWeight"]):
-                if("baseHeight" in race["heightAndWeight"].keys()):
-                    base_height = race["heightAndWeight"]["baseHeight"]
-                    height_num = int(race["heightAndWeight"]["heightMod"].split("d")[0])
-                    height_die = int(race["heightAndWeight"]["heightMod"].split("d")[-1])
-                if("baseWeight" in race["heightAndWeight"].keys()):
-                    base_weight = race["heightAndWeight"]["baseWeight"]
-                    if("weightMod" in race["heightAndWeight"].keys()):
-                        weight_num = int(race["heightAndWeight"]["weightMod"].split("d")[0])
-                        weight_die = int(race["heightAndWeight"]["weightMod"].split("d")[-1])
-                    else:
-                        height_num = weight_num = 1
-
-            asis = {}
-            asi_text = ""
-            if("ability" in race.keys()):
-                if("choose" not in race["ability"][0].keys()):
-                    for score in AbilityScore.query.filter_by(rulesetid = cruleset.id).order_by(AbilityScore.order):
-                        asis.update({score.abbr: 0})
-                    for score in race["ability"][0].keys():
-                        asis[score] = race["ability"][0][score]
-                else:
-                    for score in race["ability"][0].keys():
-                        if(len(asi_text) > 0):
-                            asi_text += ", "
-                        if(score != "choose"):
-                            asi_text += score.capitalize() + " "
-                            if(race["ability"][0][score] > 0):
-                                asi_text += "+"
-                            asi_text += str(race["ability"][0][score])
-                        else:
-                            if("count" in race["ability"][0]["choose"].keys()):
-                                asi_text += "+1 to any " + str(race["ability"][0]["choose"]["count"]) + " of your choice from:"
-                                for thingy in race["ability"][0]["choose"]["from"]:
-                                    asi_text += f" {thingy},"
-                            else:
-                                asi_text += f"+{race['ability'][0]['choose']['amount']} to any one ability score of your choice"
-            new_asis = []
-            for asi in asis.values():
-                new_asis.append(asi)
-            
-            if(asi_text != None and len(asi_text) > 255):
-                asi_text = f"{asi_text[:252]}..."
-                flash(f"{race['name']} Ability Score Improvement text had to be shortened to fit 256 character limit.", "orange")
-            
-            if(size_text != None and len(size_text) > 255):
-                flash(f"Size text must be fewer than 256 characters. Offender: {race['name']}", "red")
-                return(redirect(url_for("epchar.importRace", ruleset=cruleset.identifier)))
-
-            flavortext = ""
-
-            for flavors in flavor["raceFluff"]:
-                if(flavors["name"] == race["name"] and flavors["source"] == race["source"] and "entries" in flavors.keys()):
-                    flavortext += parseEntries(flavors["entries"], 3, name)
-
-            flavortext += f"## {race['name']} Traits\n\n---"
-
+            if(len(name) < 1):
+                flash(f"Each race must have a name; skipping index {i}...", "orange")
+                continue
             if(len(name) > 127):
-                flash(f"{name} name is too long (max 127 characters); skipping race...", "orange")
+                flash(f"{name} name too long (maximum 127 characters); skipping...", "orange")
                 continue
             elif(len(flavor) > 16383):
-                flash(f"{name} flavor text is too long (max 16383 characters); skipping race...", "orange")
+                flash(f"{name} description too long (maximum 16383 characters); skipping...", "orange")
                 continue
-            elif("<" in flavor):
-                flash(f"{name} flavor text contains disallowed character open angle bracket (\"<\"); skipping race...", "orange")
+            elif(sys.getsizeof(pickle.dumps(images)) > 16384):
+                flash(f"{name} has too many images (maximum raw data size of links 16KiB); skipping...", "orange")
                 continue
-            elif("javascript" in flavor):
-                flash(f"{name} flavor text contains disallowed substring \"javascript\" (potential XSS attack); skipping...", "orange")
+            elif(sys.getsizeof(pickle.dumps(asis)) > 16384):
+                flash(f"{name} has too many ability score improvements (maximum raw data size of list 16KiB); skipping...", "orange")
                 continue
             elif(len(asi_text) > 255):
-                flash(f"{name} ASI text too long (max 255 characters); skipping race...", "orange")
+                flash(f"{name} ability score improvement text too long (maximum 255 characters); skipping...", "orange")
                 continue
             elif(len(size_text) > 255):
-                flash(f"{name} Size text too long (max 255 characters); skipping race...", "orange")
+                flash(f"{name} size text too long (maximum 255 characters); skipping...", "orange")
+                continue
+            elif(len(subrace_flavor) > 16383):
+                flash(f"{name} subrace flavor text too long (maximum 16383 characters); skipping...", "orange")
                 continue
             new_race = Race(
-                rulesetid = cruleset.id,
+                ruleset = cruleset,
                 name = name,
-                flavor = flavortext,
-                asis = new_asis,
+                flavor = flavor,
+                images = images,
+                asis = asis,
                 asi_text = asi_text,
                 size = size,
                 size_text = size_text,
@@ -518,190 +488,71 @@ def raceImporter(races, flavor, cruleset):
                 height_die = height_die,
                 weight_num = weight_num,
                 weight_die = weight_die,
-                subrace_flavor = None
+                subrace_flavor = subrace_flavor
             )
             db.session.add(new_race)
+            for j, feature in enumerate(race["race_features"]):
+                name = feature["name"]
+                text = feature["text"]
 
-            if("speed" in race.keys() and type(race["speed"]) != int and type(race["speed"]) != dict):
+                if(len(name) < 1):
+                    flash(f"{new_race.name} feature at index {j} is missing a name; skipping...", "orange")
+                    continue
+                elif(len(name) > 127):
+                    flash(f"{new_race.name} feature {name} name too long (maximum 127 characters); skipping...", "orange")
+                    continue
+                elif(len(text) > 16383):
+                    flash(f"{new_race.name} feature {name} description too long (maximum 16383 characters); skipping...", "orange")
+                    continue
                 new_race_feature = RaceFeature(
                     race = new_race,
-                    name = "Speed",
-                    text = str(race["speed"])
+                    name = name,
+                    text = text
                 )
                 db.session.add(new_race_feature)
-            
-            featurenames = []
+            for j, subrace in enumerate(race["subracaes"]):
+                name = subrace["name"]
+                text = subrace["text"]
+                images = subrace["images"]
 
-            if("entries" in race.keys()):
-                for feature in race["entries"]:
-                    if(type(feature) == dict and "name" in feature.keys()):
-                        fname = feature["name"]
-                        ftext = parseEntries(feature["entries"], 4, f"{name}")
-                        if(len(fname) > 127):
-                            flash(f"{name} race feature {fname} name is too long (max 127 characters); skipping feature...", "orange")
-                            continue
-                        elif(len(ftext) > 16383):
-                            flash(f"{name} race feature {fname} description is too long (max 16383 characters); skipping feature...", "orange")
-                            continue
-                        elif("<" in ftext):
-                            flash(f"{name} race feature {fname} contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
-                            continue
-                        elif("javascript" in ftext):
-                            flash(f"{name} race feature {fname} contains disallowed substring \"javascript\" (porential XSS attack); skipping feature...", "orange")
-                            continue
-                        new_race_feature = RaceFeature(
-                            race = new_race,
-                            name = fname,
-                            text = ftext
-                        )
-                        db.session.add(new_race_feature)
-                        featurenames.append(feature["name"])
-                    elif(len(new_race.flavor + str(feature)) + 4 < 16383):
-                        if(len(new_race.flavor) > 0):
-                            new_race.flavor += "\n\n"
-                        new_race.flavor += str(feature)
-                    else:
-                        flash(f"Too many entries in {name} flavor text (exceeds 16383 character limit); truncating...", "orange")
-
-            if("_copy" in race.keys()):
-                copied = Race.query.filter_by(rulesetid = cruleset.id, name = f"{race['_copy']['name']} ({race['_copy']['source']})").first()
-                alter = []
-                if(copied == None):
-                    flash(f"{name} Copies abilities from {race['_copy']['name']} ({race['_copy']['source']}), which comes later in the JSON file and cannot be accessed yet; abilities must be copied manually.", "orange")
-                else:
-                    if(type(race["_copy"]["_mod"]["entries"]) == list):
-                        for feature in race["_copy"]["_mod"]["entries"]:
-                            if("replace" in feature.keys()):
-                                alter.append(feature["replace"])
-                            fname = feature["items"]["name"]
-                            ftext = parseEntries(feature["items"]["entries"], 3, name)
-                            if(len(fname) > 127):
-                                flash(f"{name} race feature {fname} name too long (max 127 characters); skipping feature...", "orange")
-                                continue
-                            elif(len(ftext) > 16383):
-                                flash(f"{name} race feature {fname} description too long (max 16383 characters); skipping feature...", "orange")
-                                continue
-                            elif("<" in ftext):
-                                flash(f"{name} race feature {fname} contains disallowed character open angle brakcet (\"<\"); skipping feature...", "orange")
-                                continue
-                            elif("javascript" in ftext):
-                                flash(f"{name} race feature {fname} contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
-                                continue
-                            new_feature = RaceFeature(
-                                race = new_race,
-                                name = fname,
-                                text = ftext
-                            )
-                            db.session.add(new_feature)
-                    else:
-                        fname = race["_copy"]["_mod"]["entries"]["items"]["name"]
-                        ftext = parseEntries(race["_copy"]["_mod"]["entries"]["items"]["entries"], 3, name)
-                        if(len(fname) > 127):
-                            flash(f"{name} race feature {fname} name too long (max 127 characters); skipping feature...", "orange")
-                            continue
-                        elif(len(ftext) > 16383):
-                            flash(f"{name} race feature {fname} description too long (max 16383 characters); skipping feature...", "orange")
-                            continue
-                        elif("<" in ftext):
-                            flash(f"{name} race feature {fname} contains disallowed character open angle brakcet (\"<\"); skipping feature...", "orange")
-                            continue
-                        elif("javascript" in ftext):
-                            flash(f"{name} race feature {fname} contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
-                            continue
-                        new_feature = RaceFeature(
-                            race = new_race,
-                            name = race["_copy"]["_mod"]["entries"]["items"]["name"],
-                            text = parseEntries(race["_copy"]["_mod"]["entries"]["items"]["entries"], 3, name)
-                        )
-                    for feature in copied.race_features:
-                        if(feature.name not in alter):
-                            new_feature = RaceFeature(
-                                race = new_race,
-                                name = feature.name,
-                                text = feature.text
-                            )
-
-            if("languageProficiencies" in race.keys() and "Languages" not in featurenames and "Language" not in featurenames):
-                langtext = ""
-                for language in race["languageProficiencies"][0].keys():
-                    if(language != "other" and language != "anyStandard"):
-                        if(len(langtext) > 0):
-                            langtext += ", "
-                        langtext += language.capitalize()
-                if("other" in race["languageProficiencies"][0].keys()):
-                    if(len(langtext) > 0):
-                        langtext += f", plus one extra language of your choice"
-                    else:
-                        langtext += "one language of your choice"
-                if("anyStandard" in race["languageProficiencies"][0].keys()):
-                    if(len(langtext) > 0):
-                        langtext += f", and {['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][race['languageProficiencies'][0]['anyStandard'] - 1]} of your choice"
-                langtext = "You can speak, read, and write " + langtext + "."
-                new_race_feature = RaceFeature(
+                if(len(name) < 1):
+                    flash(f"{new_race.name} feature at index {j} is missing a name; skipping...", "orange")
+                    continue
+                elif(len(name) > 127):
+                    flash(f"{new_race.name} subrace {name} name too long (maximum 127 characters); skipping...", "orange")
+                    continue
+                elif(len(text) > 16383):
+                    flash(f"{new_race.name} subrace {name} description too long (maximum 16383 characters); skipping...", "orange")
+                    continue
+                elif(sys.getsizeof(pickle.dumps(images)) > 16384):
+                    flash(f"{new_race.name} subrace {name} has too many images (maximum raw data size of links 16KiB); skipping...", "orange")
+                    continue
+                new_subrace = Subrace(
                     race = new_race,
-                    name = "Languages",
-                    text = langtext
+                    name = name,
+                    text = text,
+                    images = images
                 )
-                db.session.add(new_race_feature)
-            
-            for subrace in races["subrace"]:
-                if("name" in subrace.keys() and subrace["raceName"] == race["name"]):
-                    sname = subrace["name"]
-                    if(len(sname) > 127):
-                        flash(f"{name} subrace {sname} name too long (max 127 characters); skipping subrace...", "orange")
-                    else:
-                        new_subrace = Subrace(
-                            race = new_race,
-                            name = subrace["name"],
-                            text = "",
-                        )
-                        db.session.add(new_subrace)
-                        if("entries" in subrace.keys()):
-                            for feature in subrace["entries"]:
-                                if(type(feature) == dict):
-                                    sfname = feature["name"]
-                                    sftext = parseEntries(feature["entries"], 3, feature["name"])
-                                    if(len(sfname) > 127):
-                                        flash(f"{name} subrace {sname} subrace feature {sfname} name too long (max 127 characters); skipping subrace feature...", "orange")
-                                        continue
-                                    elif("<" in sftext):
-                                        flash(f"{name} subrace {sname} subrace feature {sfname} contains disallowed character open angle bracket (\"<\"); skipping subrace feature...", "orange")
-                                        continue
-                                    elif("javascript" in sftext):
-                                        flash(f"{name} subrace {sname} subrace feature {sfname} contains disallowed substring \"javascript\" (potential XSS attack); skipping subrace feature...", "orange")
-                                        continue
-                                    elif(len(sftext) > 16383):
-                                        flash(f"{name} subrace {sname} subrace feature {sfname} description too long (max 16383 characters); skipping subrace feature...", "orange")
-                                        continue
-                                    new_subrace_feature = SubraceFeature(
-                                        subrace = new_subrace,
-                                        name = sfname,
-                                        text = sftext
-                                    )
-                                    db.session.add(new_subrace_feature)
-                                elif(len(new_subrace.text + str(feature)) + 4 < 16383):
-                                    if(len(new_subrace.text) > 0):
-                                        new_subrace.text += "\n\n"
-                                    new_subrace.text += str(feature)
-                                else:
-                                    flash(f"Too many entries in {name} subrace {sfname} flavor text (exceeds 16383 character limit); truncating...", "orange")
-                        for flavors in flavor["raceFluff"]:
-                            if(race["name"] in flavors["name"] and subrace["name"] in flavors["name"]):
-                                if("entries" in flavors.keys()):
-                                    textappend = parseEntries(flavors["entries"], 3, flavors["name"])
-                                    if(len(new_subrace.text + textappend) < 16383):
-                                        new_subrace.text += textappend
-                                    else:
-                                        flash(f"Too many entries in {name} subrace {sname} flavor text (exceeds 16383 character limit); truncating...", "orange")
-                                if("_copy" in flavors.keys() and "_mod" in flavors["_copy"].keys()):
-                                    if(type(flavors["_copy"]["_mod"]["entries"]["items"]) == str):
-                                        textappend = flavors["_copy"]["_mod"]["entries"]["items"]
-                                    else:
-                                        textappend = parseEntries(flavors["_copy"]["_mod"]["entries"]["items"]["entries"], 3, subrace["name"])
-                                    if(len(new_subrace.text + textappend) < 16383):
-                                        new_subrace.text += textappend
-                                    else:
-                                        flash(f"Too many entries in {name} subrace {sname} flavor text (exceeds 16383 character limit); truncating...", "orange")
+                db.session.add(new_subrace)
+                for k, feature in subrace["subrace_features"]:
+                    name = feature["name"]
+                    text = feature["text"]
+
+                    if(len(name) < 1):
+                        flash(f"{new_race.name} subrace {new_subrace.name} feature at index {k} is missing a name; skipping...", "orange")
+                        continue
+                    elif(len(name) > 127):
+                        flash(f"{new_race.name} subrace {new_subrace.name} feature {name} name too long (maximum 127 characters); skipping...", "orange")
+                        continue
+                    elif(len(text) > 16383):
+                        flash(f"{new_race.name} subrace {new_subrace.name} feature {name} description too long (maximum 16383 characters); skipping...", "orange")
+                        continue
+                    new_subrace_feature = SubraceFeature(
+                        subrace = new_subrace,
+                        name = name,
+                        text = text
+                    )
+                    db.session.add(new_subrace)
         db.session.commit()
         flash("Races imported!", "green")
         return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
@@ -845,284 +696,84 @@ def backgroundImporter(backgrounds, flavor, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import backgrounds into rulesets that are not your own.", "red")
         return(redirect(url_for("epchar.backgrounds", ruleset=cruleset.identifier)))
-    # try:
-    for background in backgrounds["background"]:
-        if("_copy" in background.keys()):
-            continue
-        name = background["name"]
-        skills = []
-        if("skillProficiencies" in background.keys()):
-            for skill in background["skillProficiencies"][0].keys():
-                skills.append(skill.casefold().capitalize())
-        tools = []
-        if("toolProficiencies" in background.keys()):
-            for key in background["toolProficiencies"][0].keys():
-                if(key == "choose"):
-                    tool_text = ""
-                    i_list = "abcdefghijklmnopqrstuvwxyz"
-                    for i, choice in enumerate(background["toolProficiencies"][0]["choose"]["from"]):
-                        print(f"{name} {choice}")
-                        if(len(tool_text) > 0):
-                            tool_text += " or "
-                        tool_text += f"({i_list[i]}) {choice.capitalize()}"
-                    tools.append(tool_text)
-                else:
-                    tools.append(key.capitalize())
-
-        lang_num = 0
-        if("languageProficiencies" in background.keys()):
-            if("anyStandard" in background["languageProficiencies"][0].keys()):
-                lang_num = background["languageProficiencies"][0]["anyStandard"]
-        languages = []
-        equipment = []
-        gold_container = starting_gold = None
-        if("startingEquipment" in background.keys()):
-            for i, group in enumerate(background["startingEquipment"]):
-                if("_" in group.keys()):
-                    for item in background["startingEquipment"][i]["_"]:
-                        if(type(item) == str):
-                            equipment.append(item)
-                        elif("item" in item.keys()):
-                            if("displayName" in item.keys()):
-                                equipment.append(item["displayName"])
-                            elif("containsValue" in item.keys()):
-                                gold_container = item['item'].split('|')[0]
-                                starting_gold = item["containsValue"] / 100
-                        elif("special" in item.keys()):
-                            if("quantity" in item.keys()):
-                                equipment.append(f"{str(item['quantity'])} {item['special']}")
-                            else:
-                                equipment.append(item["special"])
-                else:
-                    item = "("
-                    for key in group.keys():
-                        if(len(item) > 1):
-                            item += " or "
-                        if(type(group[key][0]) == str):
-                            item += group[key][0]
-                        elif("displayName" in group[key][0].keys()):
-                            item += group[key][0]["displayName"].split("|")[0]
-                        elif("special" in group[key][0].keys()):
-                            item += group[key][0]["special"]
-                    item += ")"
-                    equipment.append(item)
-        text = ""
-        if("hasFluff" in background.keys()):
-            for fluff in flavor["backgroundFluff"]:
-                if(fluff["name"] == background["name"] and fluff["source"] == background["source"]):
-                    if("_copy" not in fluff.keys()):
-                        text += parseEntries(fluff["entries"], 0, name)
-        if(len(name) > 127):
-            flash(f"{name} name is too long (maximum 127 characters); skipping background...", "orange")
-            continue
-        elif(len(text) > 16383):
-            flash(f"{name} description is too long (maximum 16383 characters); skipping background...", "orange")
-            continue
-        elif("<" in text):
-            flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping background...", "orange")
-            continue
-        elif("javascript" in text):
-            flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping background...", "orange")
-            continue
-        new_background = Background(
-            rulesetid = cruleset.id,
-            name = name,
-            skills = skills,
-            tools = tools,
-            lang_num = lang_num,
-            languages = languages,
-            equipment = equipment,
-            text = text,
-            gold_container = gold_container,
-            starting_gold = starting_gold
-        )
-        db.session.add(new_background)
-
-        if("entries" in background.keys()):
-            for entry in background["entries"]:
-                if("name" in entry.keys()):
-                    fname = entry["name"]
-                    ftext = parseEntries([entry], 0, "")
-                    if(len(fname) > 127):
-                        flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
-                        continue
-                    elif(len(ftext) > 16383):
-                        flash(f"{name} background feature {ftext} description is too long (maximum 16383 characters); skipping feature...", "orange")
-                        continue
-                    new_background_feature = BackgroundFeature(
-                        background=new_background,
-                        name = entry["name"],
-                        text = text
-                    )
-                    db.session.add(new_background_feature)
-    for background in backgrounds["background"]:
-        if("_copy" in background.keys()):
+    try:
+        for i, background in enumerate(backgrounds):
             name = background["name"]
-            print("name")
-            background_to_copy = Background.query.filter_by(rulesetid = cruleset.id, name=background["_copy"]["name"]).first()
-            if(not background_to_copy):
-                flash(f"{name} is variant of {background['_copy']['name']}, but {background['_copy']['name']} doesn't exist; skipping variant background...", "orange")
+            skills = background["skills"]
+            tools = background["tools"]
+            lang_num = background["lang_num"]
+            languages = background["languages"]
+            equipment = background["equipment"]
+            gold_container = background["gold_container"]
+            starting_gold = background["starting_gold"]
+            text = background["text"]
+            images = background["images"]
+
+            if(len(name) < 1):
+                flash(f"Background at index {i} has no name; skipping...", "orange")
                 continue
-            skills = []
-            if("skillProficiencies" in background.keys()):
-                for skill in background["skillProficiencies"][0].keys():
-                    skills.append(skill.capitalize())
-            else:
-                skills = background_to_copy.skills
-            tools = []
-            if("toolProficiencies" in background.keys()):
-                for tool in background["toolProficiencies"][0].keys():
-                    tools.append(tool.capitalize())
-            else:
-                tools = background_to_copy.tools
-            lang_num = background_to_copy.lang_num
-            languages = background_to_copy.languages
-            equipment = background_to_copy.equipment
-            gold_container = background_to_copy.gold_container
-            starting_gold = background_to_copy.starting_gold
-            text = background_to_copy.text
+            elif(len(name) > 127):
+                flash(f"{name} name too long (maximum 127 characters); skipping", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(skills)) > 16384):
+                flash(f"{name} has too many skills (maximum raw data size 16KiB); skipping...", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(tools)) > 16384):
+                flash(f"{name} has too many tool proficiencies (maximum raw data size 16KiB); skipping...", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(languages)) > 16384):
+                flash(f"{name} has too many language proficiencies (maximum raw data size 16KiB); skipping...", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(equipment)) > 16384):
+                flash(f"{name} has too much starting equipment (Maximum raw data size 16KiB); skipping...", "orange")
+                continue
+            elif(len(gold_container) > 127):
+                flash(f"{name} gold container name ({gold_container}) too long (maximum 127 characters); skipping...", "orange")
+                continue
+            elif(len(text) > 16383):
+                flash(f"{name} description too long (maximum 16383 characters); skipping...", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(images)) > 16384):
+                flash(f"{name} has too many images (maximum raw size of list of links 16 KiB); skipping...", "orange")
+                continue
             new_background = Background(
+                ruleset = cruleset,
                 name = name,
                 skills = skills,
                 tools = tools,
                 lang_num = lang_num,
+                languages = languages,
                 equipment = equipment,
                 gold_container = gold_container,
                 starting_gold = starting_gold,
-                text = text
+                text = text,
+                images = images
             )
             db.session.add(new_background)
-            for feature in background_to_copy.background_features:
+            for j, feature in enumerate(background["background_features"]):
+                name = feature["name"]
+                text = feature["text"]
+                if(len(name) < 1):
+                    flash(f"{new_background.name} feature at index {j} has no name; skipping...", "orange")
+                    continue
+                elif(len(name) > 127):
+                    flash(f"{new_background.name} feature {name} name too long (maximum 127 characters); skipping...", "orange")
+                    continue
+                elif(len(text) > 16383):
+                    flash(f"{new_background.name} feature {name} description too long (maximum 16383 characters); skipping...", "orange")
+                    continue
                 new_background_feature = BackgroundFeature(
                     background = new_background,
-                    name = feature.name,
-                    text = feature.text
+                    name = name,
+                    text = text
                 )
                 db.session.add(new_background_feature)
-            # istg the json formatting on 5e.tools is downright arcane
-            if("_mod" in background["_copy"].keys()):
-                if(type(background["_copy"]["_mod"]["entries"]) == dict):
-                    if(background["_copy"]["_mod"]["entries"]["mode"] == "insertArr"):
-                        if(type(background["_copy"]["_mod"]["entries"]["items"]) == list):
-                            for feature in background["_copy"]["_mod"]["entries"]["items"]:
-                                fname = feature["name"]
-                                ftext = parseEntries(feature["entries"], 3, fname)
-                                if(len(name) > 127):
-                                    flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
-                                    continue
-                                elif(len(ftext) > 16383):
-                                    flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
-                                    continue
-                                elif("<" in ftext):
-                                    flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
-                                    continue
-                                elif("javascript" in ftext):
-                                    flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
-                                    continue
-                                new_background_feature = BackgroundFeature(
-                                    background = new_background,
-                                    name = fname,
-                                    text = ftext
-                                )
-                                db.session.add(new_background_feature)
-                        else:
-                            fname = background["_copy"]["_mod"]["entries"]["items"]["name"]
-                            ftext = parseEntries(background["_copy"]["_mod"]["entries"]["items"]["entries"], 3, fname)
-                            if(len(fname) > 127):
-                                flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
-                                continue
-                            elif(len(ftext) > 16383):
-                                flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
-                                continue
-                            elif("<" in ftext):
-                                flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
-                                continue
-                            elif("javascript" in ftext):
-                                flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
-                                continue
-                            new_background_feature = BackgroundFeature(
-                                background = new_background,
-                                name = fname,
-                                text = ftext
-                            )
-                            db.session.add(new_background_feature)
-                    else:
-                        for feature in new_background.background_features:
-                            if(feature.name == background["_copy"]["_mod"]["entries"]["replace"]):
-                                fname = background["_copy"]["_mod"]["entries"]["items"]["name"]
-                                if(background["_copy"]["_mod"]["entries"]["items"]["type"] == "entries"):
-                                    ftext = parseEntries(background["_copy"]["_mod"]["entries"]["items"]["entries"], 3, fname)
-                                else:
-                                    ftext = parseEntries([background["_copy"]["_mod"]["entries"]["items"]], 3, fname)
-                                if(len(fname) > 127):
-                                    flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
-                                    db.session.delete(feature)
-                                    continue
-                                elif(len(ftext) > 16383):
-                                    flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
-                                    db.session.delete(feature)
-                                    continue
-                                elif("<" in ftext):
-                                    flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
-                                    db.session.delete(feature)
-                                    continue
-                                elif("javascript" in ftext):
-                                    flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
-                                    db.session.delete(feature)
-                                    continue
-                                feature.name = fname
-                                feature.text = ftext
-                else:
-                    for entry in background["_copy"]["_mod"]["entries"]:
-                        if(entry["mode"] == "insertArr"):
-                            fname = entry["items"]["name"]
-                            ftext = parseEntries(entry["items"]["entries"], 3, fname)
-                            if(len(fname) > 127):
-                                flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
-                                continue
-                            elif(len(ftext) > 16383):
-                                flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
-                                continue
-                            elif("<" in ftext):
-                                flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
-                                continue
-                            elif("javascript" in ftext):
-                                flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
-                                continue
-                            new_background_feature = BackgroundFeature(
-                                background = new_background,
-                                name = fname,
-                                text = ftext
-                            )
-                        else:
-                            for feature in new_background.background_features:
-                                if(feature.name == entry["replace"]):
-                                    fname = entry["items"]["name"]
-                                    ftext = parseEntries(entry["items"]["entries"], 3, fname)
-                                    if(len(fname) > 127):
-                                        flash(f"{name} background feature {fname} name is too long (maximum 127 characters); skipping feature...", "orange")
-                                        db.session.delete(feature)
-                                        continue
-                                    elif(len(ftext) > 16383):
-                                        flash(f"{name} background feature {fname} description is too long (maximum 16383 characters); skipping feature...", "orange")
-                                        db.session.delete(feature)
-                                        continue
-                                    elif("<" in ftext):
-                                        flash(f"{name} background feature {fname} description contains disallowed character open angle bracket (\"<\"); skipping feature...", "orange")
-                                        db.session.delete(feature)
-                                        continue
-                                    elif("javascript" in ftext):
-                                        flash(f"{name} background feature {fname} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feature...", "orange")
-                                        db.session.delete(feature)
-                                        continue
-                                    feature.name = fname
-                                    feature.text = ftext
-    db.session.commit()
-    flash("Backgrounds Imported!", "green")
-    return(redirect(url_for('epchar.backgrounds', ruleset=cruleset.identifier)))
-    # except:
-    #     flash("Improperly formatted JSON; unable to import.", "red")
-    #     return(redirect(url_for("epchar.importBackgrounds", ruleset=cruleset.identifier)))
+        db.session.commit()
+        flash("Backgrounds Imported!", "green")
+        return(redirect(url_for('epchar.backgrounds', ruleset=cruleset.identifier)))
+    except:
+        flash("Improperly formatted JSON; unable to import.", "red")
+        return(redirect(url_for("epchar.importBackgrounds", ruleset=cruleset.identifier)))
 
 def makefeat(request, cruleset, tfeat, instruction):
     if(current_user.id != cruleset.userid):
@@ -1177,51 +828,27 @@ def featImporter(feats, cruleset):
         flash("You cannot import feats into rulesets that are not your own.", "red")
         return(redirect(url_for("epchar.feats", ruleset=cruleset.identifier)))
     try:
-        for feat in feats["feat"]:
+        for i, feat in enumerate(feats):
             name = feat["name"]
-            prerequisites = ""
-            if("prerequisite" in feat.keys()):
-                for key in feat["prerequisite"][0].keys():
-                    if(len(prerequisites) > 0):
-                        prerequisites += ", "
-                    prerequisites += f"{key.casefold().capitalize()}: {feat['prerequisite'][0][key]}"
-            text = ""
-            if("ability" in feat.keys()):
-                for i, key in enumerate(feat["ability"][0].keys()):
-                    scorename = AbilityScore.query.filter_by(rulesetid = cruleset.id, abbr = key).first()
-                    if(not scorename):
-                        scorename = "{Unknown Score}"
-                    else:
-                        scorename = scorename.name.casefold().capitalize()
-                    if(len(text) > 1):
-                        if(i == len(feat["ability"][0].keys) - 1):
-                            text += f", and your {scorename} increases by {feat['ability'][0][key]}."
-                        else:
-                            f", and your {scorename} increases by {feat['ability'][0][key]}."
-                    else:
-                        f"Your {scorename} increases by {feat['ability'][0][key]}."
-                text = "***Ability Score Improvement.*** " + text
-            if("entries" in feat.keys()):
-                text += parseEntries(feat["entries"], 2, None)
-            if(len(name) > 127):
-                flash(f"{name} name too long (maximum 127 characters); skipping feat...", "orange")
+            prerequisite = feat["prerequisite"]
+            text = feat["text"]
+            
+            if(len(name) < 1):
+                flash(f"Feat at index {i} has no name; skipping...", "orange")
+                continue
+            elif(len(name) > 127):
+                flash(f"{name} name too long (maximum 127 characters); skipping...", "orange")
                 continue
             elif(len(prerequisite) > 255):
-                flash(f"{name} prerequisite too long (maximum 255 characters); skipping feat...", "orange")
+                flash(f"{name} prerequisite too long (maximum 255 characters); skipping...", "orange")
                 continue
             elif(len(text) > 16383):
-                flash(f"{name} description too long (maximum 16383 characters); skipping feat...", "orange")
-                continue
-            elif("<" in text):
-                flash(f"{name} description contains disallowed character open angle bracket (\"<\"); skipping feat...", "orange")
-                continue
-            elif("javascript" in text):
-                flash(f"{name} description contains disallowed substring \"javascript\" (potential XSS attack); skipping feat...", "orange")
+                flash(f"{name} description too long (maximum 16383 characters); skipping...", "orange")
                 continue
             new_feat = Feat(
-                rulesetid = cruleset.id,
+                ruleset = cruleset,
                 name = name,
-                prerequisite = prerequisites,
+                prerequisite = prerequisite,
                 text = text
             )
             db.session.add(new_feat)
@@ -1252,6 +879,7 @@ def makeclass(request, cruleset, tclass, instruction):
             subclass_name = tclass.subclass_name,
             subclass_level = tclass.subclass_level,
             levels = tclass.levels,
+            skill_num = tclass.skill_num,
             skills = tclass.skills
         )
         db.session.add(new_class)
@@ -1305,6 +933,7 @@ def makeclass(request, cruleset, tclass, instruction):
         text = request.form.get("text")
         hitdie = request.form.get("hitdie")
         proficiencies = request.form.getlist("proficiency")
+        skill_num = request.form.get("skill_num")
         skills = request.form.getlist("skill")
         saves = request.form.getlist("save")
         for i in range(len(saves)):
@@ -1345,23 +974,11 @@ def makeclass(request, cruleset, tclass, instruction):
         elif(len(text) > 16383):
             flash("Class description must be fewer than 16383 characters.", "red")
             bad = True
-        elif("<" in text):
-            flash("Open angle brackets (\"<\") are not allowed.", "red")
-            bad = True
-        elif("javascript" in text):
-            flash("Cross-site scripting attacks are not allowed.", "red")
-            bad = True
         elif(len(equipment) > 1023):
             flash("Class equipment must be fewer than 1024 characters.", "red")
             bad = True
         elif(len(multiclass_prereq) > 1023):
             flash("Multiclassing prerequisites must be fewer than 1024 characters.", "red")
-            bad = True
-        elif("<" in multiclass_prereq):
-            flash("Open angle brackets (\"<\") are not allowed.", "red")
-            bad = True
-        elif("javascript" in multiclass_prereq):
-            flash("Cross-site scripting attacks are not allowed.", "red")
             bad = True
         elif(len(subclass_name) > 127):
             flash("Subclass title must be fewer than 128 characters.", "red")
@@ -1478,6 +1095,7 @@ def makeclass(request, cruleset, tclass, instruction):
                         subclass_level = subclass_level,
                         levels = levels,
                         text = text,
+                        skill_num = skill_num,
                         skills = skills
                     )
                     db.session.add(new_class)
@@ -1646,205 +1264,192 @@ def makeclass(request, cruleset, tclass, instruction):
                 return(redirect(url_for("epchar.createClass", ruleset=cruleset.identifier)))
     return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
 
-def classImporter(tclass, cruleset):
+def classImporter(classes, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import classes into rulesets that are not your own.", "red")
         return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
-    # try:
-    if(tclass["class"][0]["name"] == "Artificer" and tclass["class"][0]["source"] != "Wayfarer"):
-        tclass["class"][0] = tclass["class"][2]
-    target_class = tclass["class"][0]
-    name = target_class["name"]
-    hit_die = target_class["hd"]["faces"]
-    if(hit_die == 4):
-        hit_die = 0
-    elif(hit_die == 6):
-        hit_die = 1
-    elif(hit_die == 8):
-        hit_die = 2
-    elif(hit_die == 10):
-        hit_die = 3
-    elif(hit_die == 12):
-        hit_die = 4
-    else:
-        hit_die = 5
-    proficiencies = []
-    for key, value in target_class["startingProficiencies"].items():
-        if(key != "skills"):
-            continue
-        for proficiency in value:
-            proficiencies.append(f"{proficiency} {key}".capitalize())
-    saves = []
-    ruleset_abilities = AbilityScore.query.filter_by(rulesetid=cruleset.id).order_by(AbilityScore.order)
-    for ability in ruleset_abilities:
-        if(ability.abbr in target_class["proficiency"]):
-            saves.append(True)
-        else:
-            saves.append(False)
-    skills = []
-    for skill in target_class["startingProficiencies"]["skills"][0]["choose"]["from"]:
-        skills.append(skill.capitalize())
-    equipment = ""
-    for item in target_class["startingEquipment"]["default"]:
-        equipment += f" - {item}\n"
-    gold = target_class["startingEquipment"]["goldAlternative"]
-    gold_nums = int(gold.split("|")[1].split("×")[0].split("d")[0])
-    gold_dice = int(gold.split("|")[1].split("×")[0].split("d")[1])
-    gold_mult = int(gold.split("|")[1].split("×")[1])
-    multiclass_prereq = ""
-    for ability, score in target_class["multiclassing"]["requirements"].items():
-        if(len(multiclass_prereq) > 0):
-            multiclass_prereq += ", "
-        target_ability = AbilityScore.query.filter_by(rulesetid=cruleset.id, abbr=ability).first()
-        if(not target_ability is None):
-            multiclass_prereq += f"{ability.capitalize()} {score}"
-        else:
-            multiclass_prereq += f"{target_ability.name.capitalize()} {score}"
-    multiclass_profic = []
-    for key, value in target_class["multiclassing"]["proficienciesGained"].items():
-        for item in value:
-            multiclass_profic.append(f"{item} {key}".capitalize())
-    subclass_name = target_class["subclassTitle"]
-    text = parseEntries(target_class["fluff"], 2, None)
-    if("levels" in target_class.keys()):
-        levels = target_class["levels"]
-    else:
-        levels = 20
-    subclass_level = sorted(tclass["subclassFeature"], key=lambda x: x.get("level", levels))[0]["level"]
-    if(len(name) > 127):
-        flash("Class name must be fewer than 128 characters.", "red")
-    elif(len(equipment) > 1023):
-        flash("Too much starting equipment (must be fewer than 1024 characters after being parsed to string).", "red")
-    elif(len(multiclass_prereq) > 1023):
-        flash("Too many multiclassing prerequisites (must be fewer than 1024 characters after being parsed to string).", "red")
-    elif(len(subclass_name) > 127):
-        flash("Subclass title must be fewer than 128 characters.", "red")
-    elif(len(text) > 16383):
-        flash("Class flavor must be fewer than 16384 characters.", "red")
-    else:
-        new_class = Playerclass(
-            ruleset = cruleset,
-            name = name,
-            hitdie = hit_die,
-            proficiencies = proficiencies,
-            saves = saves,
-            skills = skills,
-            equipment = equipment,
-            gold_nums = gold_nums,
-            gold_dice = gold_dice,
-            gold_mult = gold_mult,
-            multiclass_prereq = multiclass_prereq,
-            multiclass_profic = multiclass_profic,
-            subclass_name = subclass_name,
-            subclass_level = subclass_level,
-            levels = levels,
-            images = []
-        )
-        db.session.add(new_class)
-        casterdict = {
-            "full": 3,
-            "1/2": 2,
-            "artificer": 2,
-            "1/3": 1
-        }
-        for feature in tclass["classFeature"]:
-            name = feature["name"]
-            level_obtained = feature["level"]
-            text = parseEntries(feature["entries"], 3, None)
-            if(len(name) > 127):
-                flash(f"{name} is too long of a feature name (maximum 127 characters); skipping...", "red")
+    try:
+        for i, playerclass in classes:
+            name = playerclass["name"]
+            hitdie = playerclass["hitdie"]
+            proficiencies = playerclass["proficiencies"]
+            saves = playerclass["saves"]
+            skill_num = playerclass["skill_num"]
+            skills = playerclass["skills"]
+            equipment = playerclass["equipment"]
+            gold_nums = playerclass["gold_nums"]
+            gold_dice = playerclass["gold_dice"]
+            gold_mult = playerclass["gold_mult"]
+            multiclass_prereq = playerclass["multiclass_prereq"]
+            multiclass_profic = playerclass["multiclass_profic"]
+            subclass_name = playerclass["subclass_name"]
+            subclass_level = playerclass["subclass_level"]
+            levels = playerclass["levels"]
+            text = playerclass["text"]
+            images = playerclass["images"]
+
+            if(len(name) < 1):
+                flash(f"Class at index {i} has no name; skipping...", "orange")
                 continue
-            elif(len(name) < 1):
-                flash("Class features must have a name; skipping unnamed feature...", "red")
+            elif(len(name) > 127):
+                flash(f"{name} name too long (maximum 127 characters); skipping...", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(proficiencies)) > 16384):
+                flash(f"{name} has too many proficiencies (maximum raw data size 16KiB); skipping...", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(saves)) > 16384):
+                flash(f"{name} has too many saving throw proficiencies (maximum raw data size 16KiB); skipping...", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(skills)) > 16384):
+                flash(f"{name} has too many skill proficiency choices (maximum raw data size 16KiB); skipping...", "orange")
+                continue
+            elif(len(equipment) > 1023):
+                flash(f"{name} starting equipment too long (maximum 1023 characters); skipping...", "orange")
+                continue
+            elif(len(multiclass_prereq) > 1023):
+                flash(f"{name} multiclass prerequisites too long (maximum 1023 characters); skipping...", "orange")
+                continue
+            elif(sys.getsizeof(pickle.dumps(multiclass_profic)) > 16384):
+                flash(f"{name} has too many proficiencies granted on multiclass (maximum raw data size 16KiB); skipping...", "orange")
+                continue
+            elif(len(subclass_name) > 127):
+                flash(f"{name} subclass title ({subclass_name}) too long (maximum 127 characters); skipping...", "orange")
                 continue
             elif(len(text) > 16383):
-                flash(f"{name} description is too long (max 16383 characters); skipping...", "red")
+                flash(f"{name} description too long (maximum 16383 characters); skipping...", "orange")
                 continue
-            new_class_feature = ClassFeature(
-                playerclass = new_class,
-                level_obtained = level_obtained,
+            elif(sys.getsizeof(pickle.dumps(images))):
+                flash(f"{name} has too many images (maximum raw data size of list of links 16KiB); skipping...")
+                continue
+            new_class = Playerclass(
+                ruleset = cruleset,
                 name = name,
-                text = text
-            )
-            db.session.add(new_class_feature)
-        for subclass in tclass["subclass"]:
-            name = subclass["name"]
-            text = ""
-            images = []
-            if("casterProgression" in target_class.keys()):
-                caster_type = casterdict[target_class["casterProgression"]]
-            elif("casterProgression" in subclass.keys()):
-                caster_type = casterdict[subclass["casterProgression"]]
-            else:
-                caster_type = 0
-            new_subclass = Subclass(
-                playerclass = new_class,
-                name = name,
+                hitdie = hitdie,
+                proficiencies = proficiencies,
+                saves = saves,
+                skill_num = skill_num,
+                skills = skills,
+                equipment = equipment,
+                gold_nums = gold_nums,
+                gold_dice = gold_dice,
+                gold_mult = gold_mult,
+                multiclass_prereq = multiclass_prereq,
+                multiclass_profic = multiclass_profic,
+                subclass_name = subclass_name,
+                subclass_level = subclass_level,
+                levels = levels,
                 text = text,
-                images = images,
-                caster_type = caster_type
+                images = images
             )
-            db.session.add(new_subclass)
-            for feature in tclass["subclassFeature"]:
-                if(feature["subclassShortName"] not in new_subclass.name):
+            db.session.add(new_class)
+            for j, column in playerclass["class_columns"]:
+                name = column["name"]
+                data = column["data"]
+                if(len(name) < 1):
+                    flash(f"{new_class.name} column at index {j} has no name; skipping...", "orange")
                     continue
-                if(feature["name"] == new_subclass.name):
-                    for entry in feature["entries"]:
-                        if(type(entry) == str):
-                            if(len(new_subclass.text) > 1):
-                                new_subclass.text += "\n\n"
-                            new_subclass.text += entry
+                elif(len(name) > 127):
+                    flash(f"{new_class.name} column {name} name too long (maximum 127 characters); skipping...", "orange")
                     continue
+                elif(sys.getsizeof(pickle.dumps(data))):
+                    flash(f"{new_class} column {name} has too much data (maximum 16KiB); skipping...", "orange")
+                    continue
+                new_class_column = classColumn(
+                    playerclass = new_class,
+                    name = name,
+                    data = data
+                )
+                db.session.add(new_column)
+            for j, feature in playerclass["class_features"]:
+                level_obtained = feature["level_obtained"]
                 name = feature["name"]
-                level_obtained = feature["level"]
-                text = ""
-                for entry in feature["entries"]:
-                    if(type(entry) != str):
-                        continue
-                    if(len(text) > 0):
-                        text += "\n\n"
-                    text += entry
-                new_subclass_feature = SubclassFeature(
-                    subclass = new_subclass,
+                text = feature["text"]
+
+                if(len(name) < 1):
+                    flash(f"{new_class.name} feature at index {j} has no name; skipping...", "orange")
+                    continue
+                elif(len(name) > 127):
+                    flash(f"{new_class.name} feature {name} name too long (maximum 127 characters); skipping...", "orange")
+                    continue
+                elif(len(text) > 16383):
+                    flash(f"{new_class.name} feature {name} description too long (maximum 16383 characters); skipping...", "orange")
+                    continue
+                new_class_feature = ClassFeature(
+                    playerclass = new_class,
                     level_obtained = level_obtained,
                     name = name,
                     text = text
                 )
-            if("subclassTableGroups" in subclass.keys()):
-                for i, column in enumerate(subclass["subclassTableGroups"][0]["colLabels"]):
-                    name = column
-                    data = []
-                    for row in subclass["subclassTableGroups"][0]["rows"]:
-                        datum = row[i]
-                        if(type(datum) == str or type(datum) == int):
-                            data.append(datum)
-                        else:
-                            data.append(datum)
+                db.session.add(new_class_feature)
+            for j, subclass in playerclss["subclasses"]:
+                name = subclass["name"]
+                text = subclass["text"]
+                images = subclass["images"]
+                caster_type = subclass["caster_type"]
+
+                if(len(name) < 1):
+                    flash(f"{new_class.name} subclass at index {j} has no name; skipping...", "orange")
+                    continue
+                elif(len(name) > 127):
+                    flash(f"{new_class.name} subclass {name} name too long (maximum 127 characters); skipping...", "orange")
+                    continue
+                elif(len(text) > 16383):
+                    flash(f"{new_class.name} subclass {name} description too long (maximum 16383 characters); skipping...", "orange")
+                    continue
+                elif(sys.getsizeof(pickle.dumps(images)) > 16384):
+                    flash(f"{new_class.name} subclass {name} has too many images (maximum raw data size of list of links 16KiB); skipping...", "orange")
+                    continue
+                new_subclass = Subclass(
+                    playerclass = new_class,
+                    name = name,
+                    text = text,
+                    images = images,
+                    caster_type = caster_type
+                )
+                db.session.add(new_subclass)
+                for k, column in subclass["subclass_columns"]:
+                    name = column["name"]
+                    data = column["data"]
+
+                    if(len(name) < 1):
+                        flash(f"{new_class.name} subclass {new_subclass.name} column at index {k} has no name; skipping...", "orange")
+                        continue
+                    elif(len(name) > 127):
+                        flash(f"{new_class.name} subclass {new_subclass.name} column {name} name too long (maximum 127 characters); skipping...", "orange")
+                        continue
+                    elif(sys.getsizeof(pickle.dumps(data)) > 16384):
+                        flash(f"{new_class.name} subclass {new_subclass.name} column {name} has too much data (maximum 16KiB); skipping...", "orange")
+                        continue
                     new_subclass_column = SubclassColumn(
                         subclass = new_subclass,
                         name = name,
                         data = data
                     )
-                    db.session.add(new_subclass_column)
-        if("classTableGroups" in target_class.keys()):
-            for i, column in enumerate(target_class["classTableGroups"][0]["colLabels"]):
-                name = column
-                data = []
-                for row in target_class["classTableGroups"][0]["rows"]:
-                    datum = row[i]
-                    if(type(datum) == str or type(datum) == int):
-                        data.append(datum)
-                    else:
-                        data.append(datum["value"])
-                new_class_column = ClassColumn(
-                    playerclass = new_class,
-                    name = name,
-                    data = data
-                )
-                db.session.add(new_class_column)
+                    db.session.add(new_subclass)
+                for k, feature in subclass["subclass_features"]:
+                    level_obtained = feature["level_obtained"]
+                    name = feature["name"]
+                    text = feature["text"]
+
+                    if(len(name) < 1):
+                        flash(f"{new_class.name} subclass {new_subclass.name} feature at index {k} has no name; skipping...", "orange")
+                        continue
+                    if(len(name) > 127):
+                        flash(f"{new_class.name} subclass {new_subclass.name} feature {name} name too long (maximum 127 characters); skipping...", "orange")
+                        continue
+                    if(len(text) > 16383):
+                        flash(f"{new_class.name} subclass {new_subclass.name} feature {name} description too long (maximum 16383 characters); skipping...", "orange")
+                        continue
+                    new_subclass_feature = SubclassFeature(
+                        subclass = new_subclass,
+                        level_obtained = level_obtained,
+                        name = name,
+                        text = text
+                    )
+                    db.session.add(new_subclass)
         db.session.commit()
-        flash("Class imported!", "green")
+        flash("Classes imported!", "green")
         return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
-    # except:
-    #     flash("Improperly formatted JSON; unable to import.", "red")
-    #     return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
+    except:
+        flash("Improperly formatted JSON; unable to import.", "red")
+        return(redirect(url_for("epchar.importClass", ruleset=cruleset.identifier)))

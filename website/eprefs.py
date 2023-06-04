@@ -1,10 +1,10 @@
-from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, jsonify, flash
-from .models import Ruleset, Skill, Action, Condition, Item, ItemTag, Property, Language, Recipe, Spell
+from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, jsonify, flash, send_file
+from .models import *
 from flask_login import login_user, current_user, login_required
 from .postformsrefs import *
 from .uservalidation import *
 from . import db
-import json
+import json, io
 
 eprefs = Blueprint('eprefs', __name__)
 
@@ -30,10 +30,6 @@ def actions(ruleset):
         )
     )
 
-@eprefs.route("/Actions/Create")
-@login_required
-def noRulesetCreateAction():
-    return(noRuleset(current_user, "eprefs.createAction"))
 @eprefs.route("/Actions/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createAction(ruleset):
@@ -49,10 +45,6 @@ def createAction(ruleset):
         )
     )
 
-@eprefs.route("/Actions/Duplicate/<string:action>")
-@login_required
-def noRulesetDuplicateAction(action):
-    return(noRuleset(current_user, "eprefs.duplicateAction", action=action))
 @eprefs.route("/Actions/Duplicate/<string:action>", subdomain="<ruleset>")
 @login_required
 def duplicateAction(action, ruleset):
@@ -60,10 +52,6 @@ def duplicateAction(action, ruleset):
     action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
     return(makeAction(None, cruleset, action, "duplicate"))
 
-@eprefs.route("/Actions/Edit/<string:action>")
-@login_required
-def noRulesetEditAction(action):
-    return(noRuleset(current_user, "eprefs.editAction", action=action))
 @eprefs.route("/Actions/Edit/<string:action>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editAction(action, ruleset):
@@ -94,10 +82,6 @@ def deleteAction(action):
         flash("Action deleted", "orange")
     return(redirect(url_for("eprefs.actions", ruleset=ruleset)))
 
-@eprefs.route("/Actions/Import")
-@login_required
-def noRulesetImportActions():
-    return(noRuleset(current_user, "eprefs.importActions"))
 @eprefs.route("/Actions/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importActions(ruleset):
@@ -110,6 +94,25 @@ def importActions(ruleset):
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Import Actions"
+        )
+    )
+
+@eprefs.route("/Actions/Export", subdomain="<ruleset>")
+def exportActions(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    actions = [action.to_dict() for action in cruleset.actions]
+    json_data = json.dumps(actions)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="actions.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )
 
@@ -126,14 +129,12 @@ def conditions(ruleset):
             conditions=cruleset.conditions, 
             adminrulesets=adminrulesets,
             title="Conditions",
-            button="Condition"
+            button="Condition",
+            importer="eprefs.importConditions",
+            exporter="eprefs.exportConditions"
         )
     )
 
-@eprefs.route("/Conditions/Create")
-@login_required
-def noRulesetCreateCondition():
-    return(noRuleset(current_user, "eprefs.createCondition"))
 @eprefs.route("/Conditions/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createCondition(ruleset):
@@ -149,10 +150,6 @@ def createCondition(ruleset):
         )
     )
 
-@eprefs.route("/Conditions/Duplicate/<string:condition>")
-@login_required
-def noRulesetDuplicateCondition(condition):
-    return(noRuleset(current_user, "eprefs.duplicateCondition", condition=condition))
 @eprefs.route("/Conditions/Duplicate/<string:condition>", subdomain="<ruleset>")
 @login_required
 def duplicateCondition(condition, ruleset):
@@ -160,10 +157,6 @@ def duplicateCondition(condition, ruleset):
     condition = Condition.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     return(makeCondition(None, cruleset, condition, "duplicate"))
 
-@eprefs.route("/Conditions/Edit/<string:condition>")
-@login_required
-def noRulesetEditCondition(condition):
-    return(noRUleset(current_user, "eprefs.editCondition", condition=condition))
 @eprefs.route("/Conditions/Edit/<string:condition>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editCondition(condition, ruleset):
@@ -193,10 +186,6 @@ def deleteCondition(condition, ruleset):
         db.session.commit()
     return(redirect(url_for("eprefs.conditions", ruleset=ruleset)))
 
-@eprefs.route("/Conditions/Import")
-@login_required
-def noRulesetImportConditions():
-    return(noRuleset(current_user, "eprefs.importConditions"))
 @eprefs.route("/Conditions/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importConditions(ruleset):
@@ -209,7 +198,26 @@ def importConditions(ruleset):
             cruleset=cruleset, 
             conditions=conditions, 
             adminrulesets=adminrulesets,
-            title="Import Conditions, Diseases, and Statuses"
+            title="Import Conditions"
+        )
+    )
+
+@eprefs.route("/Conditions/Export", subdomain="<ruleset>")
+def exportConditions(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    conditions = [condition.to_dict() for condition in cruleset.conditions]
+    json_data = json.dumps(conditions)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="conditions.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )
 
@@ -226,14 +234,47 @@ def diseases(ruleset):
             conditions = cruleset.diseases,
             adminrulesets=adminrulesets,
             title="Diseases",
-            button="Disease"
+            button="Disease",
+            importer="eprefs.importDiseases",
+            exporter="eprefs.exportDiseases"
         )
     )
 
-@eprefs.route("/Diseases/Create")
+@eprefs.route("/Diseases/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def noRulesetCreateDisease():
-    return(noRuleset(current_user, "eprefs.createDisease"))
+def importDiseases(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    if(request.method == "POST"):
+        return(diseaseImporter(json.loads(request.form.get("parsed")), cruleset))
+    return(
+        render_template(
+            "import-disease.html", 
+            cruleset=cruleset, 
+            conditions=conditions, 
+            adminrulesets=adminrulesets,
+            title="Import Diseases"
+        )
+    )
+
+@eprefs.route("/Diseases/Export", subdomain="<ruleset>")
+def exportDiseases(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    diseases = [disease.to_dict() for disease in cruleset.diseases]
+    json_data = json.dumps(diseases)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="diseases.json",
+            mimetype="application/json",
+            as_attachment=True
+        )
+    )
+
 @eprefs.route("/Diseases/Create", subdomain="<ruleset>")
 @login_required
 def createDisease(ruleset):
@@ -249,10 +290,6 @@ def createDisease(ruleset):
         )
     )
 
-@eprefs.route("/Diseases/Duplicate/<string:disease>")
-@login_required
-def noRulesetDuplicateDisease(disease):
-    return(noRuleset(current_user, "eprefs.duplicateDisease", disease=disease))
 @eprefs.route("/Diseases/Duplicate/<string:disease>", subdomain="<ruleset>")
 @login_required
 def duplicateDisease(disease, ruleset):
@@ -303,14 +340,12 @@ def statuses(ruleset):
             conditions=cruleset.statuses, 
             adminrulesets=adminrulesets,
             title="Statuses",
-            button="Status"
+            button="Status",
+            importer="eprefs.importStatuses",
+            exporter="eprefs.exportStatuses"
         )
     )
 
-@eprefs.route("/Statuses/Create")
-@login_required
-def noRulesetCreateStatus():
-    return(noRuleset(current_user, "eprefs.createStatus"))
 @eprefs.route("/Statuses/Create", subdomain="<ruleset>")
 @login_required
 def createStatus(ruleset):
@@ -326,10 +361,6 @@ def createStatus(ruleset):
         )
     )
 
-@eprefs.route("/Statuses/Duplicate/<string:status>")
-@login_required
-def noRulesetDuplicateStatus(status):
-    return(noRuleset(current_user, "eprefs.duplicateStatus", status=status))
 @eprefs.route("/Statuses/Duplicate/<string:status>", subdomain="<ruleset>")
 @login_required
 def duplicateStatus(status, ruleset):
@@ -337,10 +368,6 @@ def duplicateStatus(status, ruleset):
     status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
     return(makeStatus(None, cruleset, status, "duplicate"))
 
-@eprefs.route("/Statuses/Edit/<string:status>")
-@login_required
-def noRulesetEditStatus(status):
-    return(noRuleset(current_user, "eprefs.editStatus", status=status))
 @eprefs.route("/Statuses/Edit/<string:status>", subdomain="<ruleset>")
 @login_required
 def editStatus(status, ruleset):
@@ -371,6 +398,41 @@ def deleteStatus(status):
         flash("Status deleted.", "orange")
     return(redirect(url_for("eprefs.statuses", ruleset=ruleset)))
 
+@eprefs.route("/Statuses/Import", methods=["GET", "POST"], subdomain="<ruleset>")
+@login_required
+def importStatuses(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    if(request.method == "POST"):
+        return(statusImporter(json.loads(request.form.get("parsed")), cruleset))
+    return(
+        render_template(
+            "import-status.html", 
+            cruleset=cruleset, 
+            conditions=conditions, 
+            adminrulesets=adminrulesets,
+            title="Import Status"
+        )
+    )
+
+@eprefs.route("/Statuses/Export", subdomain="<ruleset>")
+def exportStatuses(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    statuses = [status.to_dict() for status in cruleset.statuses]
+    json_data = json.dumps(statuses)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="statuses.json",
+            mimetype="application/json",
+            as_attachment=True
+        )
+    )
+
 @eprefs.route("/Items")
 def noRulesetItems():
     return(noRuleset(current_user, "eprefs.items"))
@@ -388,10 +450,6 @@ def items(ruleset):
         )
     )
 
-@eprefs.route("/Items/Create")
-@login_required
-def noRulesetCreateItem():
-    return(noRuleset(current_user, "eprefs.createItem"))
 @eprefs.route("/Items/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createItem(ruleset):
@@ -409,10 +467,6 @@ def createItem(ruleset):
         )
     )
 
-@eprefs.route("/Items/Duplicate/<string:item>")
-@login_required
-def noRulesetDuplicateItem(item):
-    return(noRuleset(current_user, "eprefs.duplicateItem", item=item))
 @eprefs.route("/Items/Duplicate/<string:item>", subdomain="<ruleset>")
 @login_required
 def duplicateItem(item, ruleset):
@@ -420,10 +474,6 @@ def duplicateItem(item, ruleset):
     item = Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first_or_404()
     return(makeItem(None, cruleset, item, "duplicate"))
 
-@eprefs.route("/Items/Edit/<string:item>")
-@login_required
-def noRulesetEditItem(item):
-    return(noRuleset(current_user, "eprefs.editItem", item=item))
 @eprefs.route("/Items/Edit/<string:item>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editItem(item, ruleset):
@@ -456,10 +506,6 @@ def deleteItem(item):
         flash("Item deleted.", "orange")
     return(redirect(url_for("eprefs.items", ruleset=ruleset)))
 
-@eprefs.route("/Items/Import")
-@login_required
-def noRulesetImportItems():
-    return(noRuleset(current_user, "eprefs.importItems"))
 @eprefs.route("/Items/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importItems(ruleset):
@@ -474,6 +520,25 @@ def importItems(ruleset):
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Import Items"
+        )
+    )
+
+@eprefs.route("/Items/Export", subdomain="<ruleset>")
+def exportItems(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    items = [item.to_dict() for item in cruleset.items]
+    json_data = json.dumps(items)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="items.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )
 
@@ -510,10 +575,6 @@ def tags(ruleset):
         )
     )
 
-@eprefs.route("/Items/Tags/Create")
-@login_required
-def noRulesetCreateItemTag():
-    return(noRuleset(current_user, "eprefs.createTag"))
 @eprefs.route("/Items/Tags/Create", methods=["GET", "POST"], subdomain="<ruleset>") 
 @login_required
 def createTag(ruleset):
@@ -529,10 +590,6 @@ def createTag(ruleset):
         )
     )
 
-@eprefs.route("/Items/Tags/Duplicate/<string:item>")
-@login_required
-def noRulesetDuplicateItemTag(item):
-    return(noRuleset(current_user, "eprefs.duplicateTag", item=item))
 @eprefs.route("/Items/Tags/Duplicate/<string:item>", subdomain="<ruleset>")
 @login_required
 def duplicateTag(item, ruleset):
@@ -540,10 +597,6 @@ def duplicateTag(item, ruleset):
     tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     return(itemTag(None, cruleset, tag, "duplicate"))
 
-@eprefs.route("/Items/Tags/Edit/<string:item>")
-@login_required
-def noRulesetEditItemTag(item):
-    return(noRuleset(current_user, "eprefs.editTag", item=item))
 @eprefs.route("/Items/Tags/Edit/<string:item>", methods=["GET", "POST"], subdomain="<ruleset>") 
 @login_required
 def editTag(item, ruleset):
@@ -563,7 +616,7 @@ def editTag(item, ruleset):
 
 @eprefs.route("/Items/Tags/Delete/<string:item>", subdomain="<ruleset>")
 @login_required
-def deleteTag(item):
+def deleteTag(ruleset, item):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tag = ItemTag.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     if(current_user.id != cruleset.userid):
@@ -573,6 +626,41 @@ def deleteTag(item):
         db.session.commit()
         flash("Item tag deleted.", "orange")
     return(redirect(url_for("eprefs.tags", ruleset=ruleset)))
+
+@eprefs.route("/Items/Tags/Import", subdomain="<ruleset>", methods=["GET", "POST"])
+@login_required
+def importTags(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    if(request.method=="POST"):
+        tags = json.loads(request.form.get("parsed"))
+        return(tagImporter(items, base, cruleset))
+    return(
+        render_template(
+            "import-item.html", 
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Import Item Tags"
+        )
+    )
+
+@eprefs.route("/Items/Tags/Export", subdomain="<ruleset>")
+def exportTags(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    tags = [tag.to_dict() for tag in cruleset.item_tags]
+    json_data = json.dumps(tags)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="item-tags.json",
+            mimetype="application/json",
+            as_attachment=True
+        )
+    )
 
 @eprefs.route("/Items/Properties")
 def noRulesetWeaponProperties():
@@ -590,10 +678,6 @@ def properties(ruleset):
         )
     )
 
-@eprefs.route("/Items/Properties/Create")
-@login_required
-def noRulesetCreateWeaponProperty():
-    return(noRuleset(current_user, "eprefs.createProperty"))
 @eprefs.route("/Items/Properties/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createProperty(ruleset):
@@ -609,10 +693,6 @@ def createProperty(ruleset):
         )
     )
 
-@eprefs.route("/Items/Properties/Duplicate/<string:item>")
-@login_required
-def noRulesetDuplicateWeaponProperty(item):
-    return(noRuleset(current_user, "eprefs.duplicateProperty", item=item))
 @eprefs.route("/Items/Properties/Duplicate/<string:item>", subdomain="<ruleset>")
 @login_required
 def duplicateProperty(item, ruleset):
@@ -620,10 +700,6 @@ def duplicateProperty(item, ruleset):
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     return(itemProperty(None, cruleset, tproperty, "duplicate"))
 
-@eprefs.route("/Items/Properties/Edit/<string:item>")
-@login_required
-def noRulesetEditWeaponProperty(itme):
-    return(noRuleset(current_user, "eprefs.editProperty", item=item))
 @eprefs.route("/Items/Properties/Edit/<string:item>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editProperty(item, ruleset):
@@ -654,6 +730,41 @@ def deleteProperty(item):
         flash("Item property deleted.", "orange")
     return(redirect(url_for("eprefs.properties", ruleset=ruleset)))
 
+@eprefs.route("/Items/Properties/Import", subdomain="<ruleset>", methods=["GET", "POST"])
+@login_required
+def importProperties(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    if(request.method=="POST"):
+        properties = json.loads(request.form.get("parsed"))
+        return(propertyImporter(items, base, cruleset))
+    return(
+        render_template(
+            "import-properties.html", 
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Import Weapon Properties"
+        )
+    )
+
+@eprefs.route("/Items/Properties/Export", subdomain="<ruleset>")
+def exportProperties(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    items = [item.to_dict() for item in cruleset.item_properties]
+    json_data = json.dumps(item)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="diseases.json",
+            mimetype="application/json",
+            as_attachment=True
+        )
+    )
+
 @eprefs.route("/Languages")
 def noRulesetLanguages():
     return(noRuleset(current_user, "eprefs.languages"))
@@ -669,10 +780,6 @@ def languages(ruleset):
         )
     )
 
-@eprefs.route("/Languages/Create")
-@login_required
-def noRulesetCreateLanguage():
-    return(noRuleset(current_user, "eprefs.createLanguage"))
 @eprefs.route("/Languages/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createLanguage(ruleset):
@@ -688,10 +795,6 @@ def createLanguage(ruleset):
         )
     )
 
-@eprefs.route("/Languages/Duplicate/<string:tlanguage>")
-@login_required
-def noRulesetDuplicateLanguage(tlanguage):
-    return(noRuleset(current_user, "eprefs.duplicateLanguage", tlanguage=tlanguage))
 @eprefs.route("/Languages/Duplicate/<string:tlanguage>", subdomain="<ruleset>")
 @login_required
 def duplicateLanguage(tlanguage, ruleset):
@@ -699,10 +802,6 @@ def duplicateLanguage(tlanguage, ruleset):
     tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first_or_404()
     return(makeLanguage(None, cruleset, tlanguage, "duplicate"))
 
-@eprefs.route("/Languages/Edit/<string:tlanguage>")
-@login_required
-def noRulesetEditLanguage(tlanguage):
-    return(noRuleset(current_user, "eprefs.editLanguage", tlanguage=tlanguage))
 @eprefs.route("/Languages/Edit/<string:tlanguage>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editLanguage(tlanguage, ruleset):
@@ -733,10 +832,6 @@ def deleteLanguage(tlanguage):
         flash("Language deleted.", "orange")
     return(redirect(url_for("eprefs.languages", ruleset=ruleset)))
 
-@eprefs.route("/Languages/Import")
-@login_required
-def noRulesetImportLnaguages():
-    return(noRuleset(current_user, "eprefs.importLanguages"))
 @eprefs.route("/Languages/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importLanguages(ruleset):
@@ -749,6 +844,25 @@ def importLanguages(ruleset):
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Import Languages",
+        )
+    )
+
+@eprefs.route("/Languages/Export", subdomain="<ruleset>")
+def exportLanguages(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    languages = [language.to_dict() for language in cruleset.languages]
+    json_data = json.dumps(languages)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="languages.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )
 
@@ -767,10 +881,6 @@ def spells(ruleset):
         )
     )
 
-@eprefs.route("/Spells/Create")
-@login_required
-def noRulesetCreateSpell():
-    return(noRuleset(current_user, "eprefs.createSpell"))
 @eprefs.route("/Spells/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createSpell(ruleset):
@@ -786,10 +896,6 @@ def createSpell(ruleset):
         )
     )
 
-@eprefs.route("/Spells/Duplicate/<string:spell>")
-@login_required
-def noRulesetDuplicateSpell(spell):
-    return(noRuleset(current_user, "eprefs.duplicateSpell", spell=spell))
 @eprefs.route("/Spells/Duplicate/<string:spell>", subdomain="<ruleset>")
 @login_required
 def duplicateSpell(spell, ruleset):
@@ -797,10 +903,6 @@ def duplicateSpell(spell, ruleset):
     spell = cruleset.spells.filter_by(name = spell).first_or_404()
     return(makeSpell(None, cruleset, spell, "duplicate"))
 
-@eprefs.route("/Spells/Edit/<string:spell>")
-@login_required
-def noRulesetEditSpell(spell):
-    return(noRuleset(current_user, "eprefs.editSpell", spell=spell))
 @eprefs.route("/Spells/Edit/<string:spell>", subdomain="<ruleset>")
 @login_required
 def editSpell(spell, ruleset):
@@ -831,10 +933,6 @@ def deleteSpell(spell):
         flash("Spell deleted.", "orange")
     return(redirect(url_for("eprefs.spells", ruleset=ruleset)))
 
-@eprefs.route("/Spells/Import")
-@login_required
-def noRulesetImportSpells():
-    return(noRuleset(current_user, "eprefs.importSpells"))
 @eprefs.route("/Spells/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importSpells(ruleset):
@@ -849,6 +947,26 @@ def importSpells(ruleset):
             title="Import Spells"
         )
     )
+
+@eprefs.route("/Spells/Export", subdomain="<ruleset>")
+def exportSpells(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    spells = [spell.to_dict() for spell in cruleset.spells]
+    json_data = json.dumps(spells)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="spells.json",
+            mimetype="application/json",
+            as_attachment=True
+        )
+    )
+
 @eprefs.route("/Spell/<string:spell>")
 def noRulesetSpell(spell):
     return(noRuleset(current_user, "eprefs.spell"))
@@ -881,10 +999,6 @@ def recipes(ruleset):
         )
     )
 
-@eprefs.route("/Recipes/Create")
-@login_required
-def noRulesetCreateRecipe():
-    return(noRuleset(current_user, "eprefs.createRecipe"))
 @eprefs.route("/Recipes/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createRecipe(ruleset):
@@ -900,10 +1014,6 @@ def createRecipe(ruleset):
         )
     )
 
-@eprefs.route("/Recipes/Duplicate/<string:recipe>")
-@login_required
-def noRulesetDuplicateRecipe(recipe):
-    return(noRuleset(current_user, "eprefs.duplicateRecipe"))
 @eprefs.route("/Recipes/Duplicate/<string:recipe>", subdomain="<ruleset>")
 @login_required
 def duplicateRecipe(recipe, ruleset):
@@ -911,10 +1021,6 @@ def duplicateRecipe(recipe, ruleset):
     recipe = cruleset.recipes.filter_by(name = recipe).first_or_404()
     return(makeRecipe(request, cruleset, recipe, "duplicate"))
 
-@eprefs.route("/Recipes/Edit/<string:recipe>")
-@login_required
-def noRulesetEditRecipe(recipe):
-    return(noRuleset(current_user, "eprefs.editRecipe"))
 @eprefs.route("/Recipes/Edit/<string:recipe>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editRecipe(recipe, ruleset):
@@ -929,6 +1035,42 @@ def editRecipe(recipe, ruleset):
             adminrulesets=adminrulesets,
             title=f"Edit {recipe.name}",
             recipe = recipe
+        )
+    )
+
+@eprefs.route("/Recipes/Import", subdomain="<ruleset>", methods=["GET", "POST"])
+@login_required
+def importRecipes(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    if(request.method == "POST"):
+        recipes = json.loads(request.form.get('parsed'))
+        return(recipeImporter(cruleset, recipes))
+    return(
+        render_template(
+            "import-recipe.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Import Recipes",
+        )
+    )
+
+@eprefs.route("/Recipes/Export", subdomain="<ruleset>")
+def exportRecipes(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    recipes = [recipe.to_dict() for recipe in cruleset.recipes]
+    json_data = json.dumps(recipes)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="recipes.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )
 
@@ -949,10 +1091,6 @@ def skills(ruleset):
         )
     )
 
-@eprefs.route("/Skills/Create")
-@login_required
-def noRulesetCreateSkill():
-    return(noRuleset(current_user, "eprefs.createSkill"))
 @eprefs.route("/Skills/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createSkill(ruleset):
@@ -968,10 +1106,6 @@ def createSkill(ruleset):
         )
     )
 
-@eprefs.route("/Slills/Duplicate/<string:tskill>")
-@login_required
-def noRulesetDuplicateSkill(tskill):
-    return(noRuleset(current_user, "eprefs.duplicateSkill", tskill=tskill))
 @eprefs.route("/Skills/Duplicate/<string:tskill>", subdomain="<ruleset>")
 @login_required
 def duplicateSkill(tskill, ruleset):
@@ -982,10 +1116,6 @@ def duplicateSkill(tskill, ruleset):
         return(redirect(url_for("eprefs.skills", ruleset=ruleset)))
     return(skill(request, cruleset, tskill, "duplicate"))
 
-@eprefs.route("/Skills/Edit/<string:tskill>")
-@login_required
-def noRulesetEditSkill(tskill):
-    return(noRuleset(current_user, "eprefs.editSkill", tskill=tskill))
 @eprefs.route("/Skills/Edit/<string:tskill>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editSkill(tskill, ruleset):
@@ -1020,10 +1150,6 @@ def deleteSkill(tskill, ruleset):
         flash("Skill deleted.", "orange")
     return(redirect(url_for("eprefs.skills", ruleset=ruleset)))
 
-@eprefs.route("/Skills/Import")
-@login_required
-def noRulesetImportSkills():
-    return(noRuleset(current_user, "eprefs.importSkills"))
 @eprefs.route("/Skills/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importSkills(ruleset):
@@ -1036,5 +1162,24 @@ def importSkills(ruleset):
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Import Skills",
+        )
+    )
+
+@eprefs.route("/Skills/Export", subdomain="<ruleset>")
+def exportSkills(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    skills = [skills.to_dict() for skil in cruleset.skills]
+    json_data = json.dumps(skills)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="skills.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )

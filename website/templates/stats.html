@@ -22,9 +22,13 @@
 			<div x-html="convert(`{{ score.text }}`)"></div>
 		</div>
 		{% endfor %}
-		{% if cruleset.userid == current_user.id %}
-		<a href="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}"><button>Create Ability Score</button></a>
-		{% endif %}
+		<div class="interior flex horizontal center">
+			{% if cruleset.userid == current_user.id %}
+			<a href="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}"><button>Create Ability Score</button></a>
+			<a href="{{ url_for('epchar.importStats', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+			{% endif %}
+			<a href="{{ url_for('epchar.exportStats', ruleset=cruleset.identifier) }}"><button>Download all as JSON</button></a>
+		</div>
 	</div>
 </div>
 {% endblock %}

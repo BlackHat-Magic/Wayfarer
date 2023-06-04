@@ -1,0 +1,5 @@
+{% extends "delete.html" %}
+
+{% block text %}
+<p>Are you sure you want to delete the {{ ability_score.name }} ability score? It will be lost permanently. This can cause issues with skills, races, and other entries associated with this ability score. It is recommended that you remove any references to this score from other items in this ruleset before deleting it. This action cannot be undone.</p>
+{% endblock %}

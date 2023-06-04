@@ -29,15 +29,10 @@
 		<div class="interior flex vertical start" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 			<div style="width: 100%">
 				<label for="school">Spell School: </label>
-				<select name="school" id="school" x-model="school" style="width: auto" @change="appendSchool">
-					<option>Abjuration</option>
-					<option>Conjuration</option>
-					<option>Divination</option>
-					<option>Enchantment</option>
-					<option>Evocation</option>
-					<option>Illusion</option>
-					<option>Transmutation</option>
-					<option>Necromancy</option>
+				<select name="school" id="school" x-model="school" style="width: auto" @change="appendSchool()">
+					{% for school in cruleset.spell_schools %}
+					<option x-init="schools.append(`{{ school.name }}`)">{{ school.name }}</option>
+					{% endfor %}
 				</select>
 			</div>
 			<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
@@ -85,12 +80,13 @@
 				</tr>
 			</template>
 		</table>
-		{% if cruleset.userid == current_user.id %}
 		<div class="interior flex horizontal center">
+			{% if cruleset.userid == current_user.id %}
 			<a href="{{ url_for('eprefs.createSpell', ruleset=cruleset.identifier) }}"><button>Create A Spell</button></a>
 			<a href="{{ url_for('eprefs.importSpells', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+			{% endif %}
+			<a href="{{ url_for('eprefs.exportSpells', ruleset=cruleset.identifier) }}" download><button>Download all as JSON</button></a>
 		</div>
-		{% endif %}
 	</div>
 </div>
 {% endblock %}

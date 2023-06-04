@@ -23,8 +23,11 @@
 		</div>
 		{% endfor %}
 		<div class="interior flex horizontal center">
+			{% if current_user.id == cruleset.userid %}
 			<a href="{{ url_for('eprefs.createLanguage', ruleset=cruleset.identifier) }}"><button>Create Language</button></a>
 			<a href="{{ url_for('eprefs.importLanguages', ruleset=cruleset.identifier) }}"><button>Import From JSON</button></a>
+			{% endif %}
+			<a href="{{ url_for('eprefs.exportLanguages', ruleset=cruleset.identifier) }}" download><button>Download all as JSON</button></a>
 		</div>
 	</div>
 </div>

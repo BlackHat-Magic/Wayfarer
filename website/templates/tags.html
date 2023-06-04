@@ -22,7 +22,13 @@
 			<div x-html="convert(`{{ tag.text }}`)"></div>
 		</div>
 		{% endfor %}
-		<a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}"><button>Create an Item Type</button></a>
+		<div class="interior flex horizontal center">
+			{% if current_user.id == cruleset.userid %}
+			<a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}"><button>Create an Item Type</button></a>
+			<a href="{{ url_for('eprefs.importTags', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+			{% endif %}
+			<a href="{{ url_for('eprefs.exportTags', ruleset=cruleset.identifier) }}" download><button>Download all as JSON</button></a>
+		</div>
 	</div>
 </div>
 

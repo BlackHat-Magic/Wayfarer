@@ -1,10 +1,10 @@
-from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify
-from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore, ClassColumn, SubclassColumn, ClassFeature, Playerclass, Subclass, SubclassFeature
+from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, flash, jsonify, send_file
+from .models import *
 from flask_login import current_user, login_required
 from .postformschar import *
 from .uservalidation import *
 from . import db
-import json
+import json, io
 
 epchar = Blueprint('epchar', __name__)
 
@@ -35,10 +35,6 @@ def races(ruleset):
         )
     )
 
-@epchar.route("/Races/Create")
-@login_required
-def noRulesetCreateRace():
-    return(noRuleset(current_user, "epchar.createRace"))
 @epchar.route("/Races/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createRace(ruleset):
@@ -54,10 +50,6 @@ def createRace(ruleset):
         )
     )
 
-@epchar.route("/Races/Duplicate/<string:race>")
-@login_required
-def noRulesetDuplicateRace(race):
-    return(noRuleset(current_user, "epchar.duplicateRace", race=race))
 @epchar.route("/Races/Duplicate/<string:race>", subdomain="<ruleset>")
 @login_required
 def duplicateRace(race, ruleset):
@@ -65,10 +57,6 @@ def duplicateRace(race, ruleset):
     race = Race.query.filter_by(rulesetid=cruleset.id, name=race).first_or_404()
     return(makeRace(request, cruleset, race, "duplicate"))
 
-@epchar.route("/Races/Edit/<string:race>")
-@login_required
-def noRulesetEditRace(rac):
-    return(noRuleset(current_user, "epchar.editRace", race=race))
 @epchar.route("/Races/Edit/<string:race>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editRace(race, ruleset):
@@ -90,14 +78,15 @@ def editRace(race, ruleset):
         )
     )
 
-@epchar.route("/Races/Delete/<string:race>", subdomain="<ruleset>")
+@epchar.route("/Races/Delete/<string:race>", subdomain="<ruleset>", methods=["GET", "POST"])
 @login_required
 def deleteRace(race, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     race = Race.query.filter_by(rulesetid=cruleset.id, name=race).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete races in rulesets that are not yours.", "red")
-    else:
+        return(redirect(url_for("epchar.races", ruleset=ruleset)))
+    if(request.method == "POST"):
         for feature in race.race_features:
             db.session.delete(feature)
         for subrace in race.subraces:
@@ -107,12 +96,17 @@ def deleteRace(race, ruleset):
         db.session.delete(race)
         db.session.commit()
         flash("Race deleted.", "orange")
-    return(redirect(url_for("epchar.races", ruleset=ruleset)))
+        return(redirect(url_for("epchar.races", ruleset=ruleset)))
+    return(
+        render_template(
+            "delete-race.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title = f"Delete {race.name}?",
+            race = race
+        )
+    )
 
-@epchar.route("/Races/Import")
-@login_required
-def noRulesetImportRace():
-    return(noRuleset(current_user, "epchar.importRaces"))
 @epchar.route("/Races/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importRaces(ruleset):
@@ -127,6 +121,25 @@ def importRaces(ruleset):
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
             title="Import Races",
+        )
+    )
+
+@epchar.route("/Races/Export/", subdomain="<ruleset>")
+def exportRaces(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    races = [race.to_dict() for race in cruleset.races]
+    json_data = json.dumps(races)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="races.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )
 
@@ -162,10 +175,6 @@ def backgrounds(ruleset):
         )
     )
 
-@epchar.route("/Backgrounds/Create")
-@login_required
-def noRulesetCreateBackground():
-    return(noRuleset(current_user, "epchar.createBackground"))
 @epchar.route("/Backgrounds/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createBackground(ruleset):
@@ -185,26 +194,18 @@ def createBackground(ruleset):
         )
     )
 
-@epchar.route("/Backgrounds/Duplicate/<string:tbackground>")
+@epchar.route("/Backgrounds/Duplicate/<string:background>", subdomain="<ruleset>")
 @login_required
-def noRulesetDuplicatebackground(tbackground):
-    return(noRuleset(current_user, "epchar.duplicateBackground", tbackground=tbackground))
-@epchar.route("/Backgrounds/Duplicate/<string:tbackground>", subdomain="<ruleset>")
-@login_required
-def duplicateBackground(tbackground, ruleset):
+def duplicateBackground(background, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground).first_or_404()
-    return(makebackground(request, cruleset, tbackground, "duplicate"))
+    background = Background.query.filter_by(rulesetid = cruleset.id, name=background).first_or_404()
+    return(makebackground(request, cruleset, background, "duplicate"))
 
-@epchar.route("/Backgrounds/Edit/<string:tbackground>")
+@epchar.route("/Backgrounds/Edit/<string:background>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def noRulesetEditBackground(tbackground):
-    return(noRuleset(current_user, "epchar.editBackground", tbackground=tbackground))
-@epchar.route("/Backgrounds/Edit/<string:tbackground>", methods=["GET", "POST"], subdomain="<ruleset>")
-@login_required
-def editBackground(tbackground, ruleset):
+def editBackground(background, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground).first_or_404()
+    background = Background.query.filter_by(rulesetid = cruleset.id, name=background).first_or_404()
     tools = []
     for tool in Item.query.filter_by(rulesetid = cruleset.id, proficiency = True):
         tools.append(tool)
@@ -217,27 +218,35 @@ def editBackground(tbackground, ruleset):
             adminrulesets=adminrulesets,
             tools=tools, 
             title=f"Edit {tbackground.name}",
-            tbackground=tbackground
+            background=background
         )
     )
 
-@epchar.route("/Backgrounds/Delete/<string:tbackground>", subdomain="<ruleset>")
+@epchar.route("/Backgrounds/Delete/<string:background>", subdomain="<ruleset>", methods=["GET", "POST"])
 @login_required
-def deleteBackground(tbackground, ruleset):
+def deleteBackground(background, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tbackground = Background.query.filter_by(rulesetid = cruleset.id, name=tbackground).first_or_404()
+    background = Background.query.filter_by(rulesetid = cruleset.id, name=background).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete backgrounds in rulesets that are not your own.", "red")
-    else:
-        db.session.delete(tbackground)
+        return(redirect(url_for("epchar.backgrounds", ruleset=ruleset)))
+    if(request.method == "POST"):
+        for feature in background.background_features:
+            db.session.delete(feature)
+        db.session.delete(background)
         db.session.commit()
         flash("Background deleted.", "orange")
-    return(redirect(url_for("epchar.backgrounds", ruleset=ruleset)))
+        return(redirect(url_for("epchar.backgrounds", ruleset=ruleset)))
+    return(
+        render_template(
+            "delete-background.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title = f"Delete {background.name}?",
+            background = background
+        )
+    )
 
-@epchar.route("/Backgrounds/Import")
-@login_required
-def noRulesetImportBackgrounds():
-    return(noRuleset(current_user, "epchar.importBackgrounds"))
 @epchar.route("/Backgrounds/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importBackgrounds(ruleset):
@@ -252,6 +261,25 @@ def importBackgrounds(ruleset):
             title="Import Backgrounds",
             textone="Background Features (backgrounds.js)",
             texttwo="Background Flavor Text (fluff-backgrounds.js)"
+        )
+    )
+
+@epchar.route("/Backgrounds/Export/", subdomain="<ruleset>")
+def exportBackgrounds(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    backgrounds = [background.to_dict() for background in cruleset.backgrounds]
+    json_data = json.dumps(backgrounds)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="backgrounds.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )
 
@@ -287,10 +315,6 @@ def feats(ruleset):
         )
     )
 
-@epchar.route("/Feats/Create")
-@login_required
-def noRulesetCreateFeat():
-    return(noRuleset(current_user, "epmain.createFeat"))
 @epchar.route("/Feats/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createFeat(ruleset):
@@ -306,57 +330,55 @@ def createFeat(ruleset):
         )
     )
 
-@epchar.route("/Feats/Duplicate/<string:tfeat>")
+@epchar.route("/Feats/Duplicate/<string:feat>", subdomain="<ruleset>")
 @login_required
-def noRulesetDuplicateFeat(tfeat):
-    return(noRuleset(current_user, "epchar.duplicateFeat"))
-@epchar.route("/Feats/Duplicate/<string:tfeat>", subdomain="<ruleset>")
-@login_required
-def duplicateFeat(tfeat, ruleset):
+def duplicateFeat(feat, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat).first_or_404()
+    feat = Feat.query.filter_by(rulesetid=cruleset.id, name=feat).first_or_404()
     if(current_user.id != cruleset.userid):
-        return(makefeat(None, cruleset, tfeat, "duplicate"))
+        return(makefeat(None, cruleset, feat, "duplicate"))
     return(redirect(url_for("epchar.feats", ruleset=ruleset)))
 
-@epchar.route("/Feats/Edit/<string:tfeat>")
+@epchar.route("/Feats/Edit/<string:feat>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def noRulesetEditFeat(tfeat):
-    return(noRuleset(current_user, "epmain.editFeat", tfeat=tfeat))
-@epchar.route("/Feats/Edit/<string:tfeat>", methods=["GET", "POST"], subdomain="<ruleset>")
-@login_required
-def editFeat(tfeat, ruleset):
+def editFeat(feat, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tfeat = Feat.query.filter_by(rulesetid=cruleset.id, name=tfeat).first_or_404()
+    feat = Feat.query.filter_by(rulesetid=cruleset.id, name=feat).first_or_404()
     if(request.method == "POST"):
-        return(makefeat(request, cruleset, tfeat, "edit"))
+        return(makefeat(request, cruleset, feat, "edit"))
     return(
         render_template(
             "create-feat.html", 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
-            title=f"Edit {tfeat.name}",
-            tfeat=tfeat
+            title=f"Edit {feat.name}",
+            feat=feat
         )
     )
 
-@epchar.route("/Feats/Delete/<string:tfeat>", subdomain="<ruleset>")
+@epchar.route("/Feats/Delete/<string:feat>", subdomain="<ruleset>", methods=["GET", "POST"])
 @login_required
-def deleteFeat(tfeat, ruleset):
+def deleteFeat(feat, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tfeat = Feat.query.filter_by(rulesetid = cruleset.id, name = tfeat).first_or_404()
+    feat = Feat.query.filter_by(rulesetid = cruleset.id, name = feat).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete feats in rulesets that are not your own.", "red")
-    else:
-        db.session.delete(tfeat)
+        return(redirect(url_for("epchar.feats", ruleset=ruleset)))
+    if(request.method == "POST"):
+        db.session.delete(feat)
         db.session.commit()
         flash("Feat deleted.", "orange")
-    return(redirect(url_for("epchar.feats", ruleset=ruleset)))
+        return(redirect(url_for("epchar.feats", ruleset=ruleset)))
+    return(
+        render_template(
+            "delete-feat.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title=f"Delete {feat.name}?",
+            feat=feat
+        )
+    )
 
-@epchar.route("/Feats/Import")
-@login_required
-def noRulesetImportFeats():
-    return(noRuleset(current_user, "epchar.importFeats"))
 @epchar.route("/Feats/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def importFeats(ruleset):
@@ -370,6 +392,25 @@ def importFeats(ruleset):
             adminrulesets=adminrulesets, 
             title="Import Feats",
             text="Feats (feats.json)"
+        )
+    )
+
+@epchar.route("/Feats/Export/", subdomain="<ruleset>")
+def exportFeats(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    feats = [feat.to_dict() for feat in cruleset.feats]
+    json_data = json.dumps(feats)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="feats.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )
 
@@ -407,10 +448,6 @@ def stats(ruleset):
         )
     )
 
-@epchar.route("/Ability-Scores/Create")
-@login_required
-def noRulesetCreateAbilityScore():
-    return(noRuleset(current_user, "epchar.createStat"))
 @epchar.route("/Ability-Scores/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createStat(ruleset):
@@ -426,10 +463,6 @@ def createStat(ruleset):
         )
     )
 
-@epchar.route("/Ability-Scores/Edit/<string:score>")
-@login_required
-def noRulesetEditAbilityScore(score):
-    return(noRuleset(current_user, "epchar.editStat", score=score))
 @epchar.route("/Ability-Scores/Edit/<string:score>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editStat(score, ruleset):
@@ -449,10 +482,6 @@ def editStat(score, ruleset):
         )
     )
 
-@epchar.route("/Ability-Scores/Duplicate/<string:score>")
-@login_required
-def noRulesetDuplicateAbilityScore(score):
-    return(noRuleset(current_user, "epchar.duplicateStat", score=score))
 @epchar.route("/Ability-Scores/Duplicate/<string:score>", subdomain="<ruleset>")
 @login_required
 def duplicateStat(score, ruleset):
@@ -460,18 +489,52 @@ def duplicateStat(score, ruleset):
     ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score).first_or_404()
     return(abilityScore(None, cruleset, ability_score, "duplicate"))
 
-@epchar.route("/Ability-Scores/Delete/<string:score>", subdomain="<ruleset>")
+@epchar.route("/Ability-Scores/Delete/<string:score>", subdomain="<ruleset>", methods=["GET", "POST"])
 @login_required
 def deleteStat(score, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     ability_score = AbilityScore.query.filter_by(rulesetid=cruleset.id, name=score).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete Ability Scores in rulesets that are not your own", "red")
-    else:
+        return(redirect(url_for("epchar.stats", ruleset=ruleset)))
+    if(request.method == "POST"):
         db.session.delete(ability_score)
         db.session.commit()
         flash("Ability Score deleted.", "orange")
-    return(redirect(url_for("epchar.stats", ruleset=ruleset)))
+    return(
+        render_template(
+            "delete-stat.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title = f"Delete {ability_score.name}?",
+            ability_score = ability_score
+        )
+    )
+
+@epchar.route("/Ability-Scores/Import", subdomain="<ruleset>", methods=["GET", "POST"])
+@login_required
+def importStats(ruleset):
+    adminrulesets, cruleet = validateRuleset(current_user, ruleset)
+    return("FUCK")
+
+@epchar.route("/Ability-Scores/Export", subdomain="<ruleset>")
+def exportStats(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    stats = [stat.to_dict() for stat in cruleset.ability_scores]
+    json_data = json.dumps(stats)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="ability-scores.json",
+            mimetype="application/json",
+            as_attachment=True
+        )
+    )
 
 @epchar.route("/Classes")
 def noRulesetClasses():
@@ -488,10 +551,6 @@ def classes(ruleset):
         )
     )
 
-@epchar.route("/Classes/Create")
-@login_required
-def noRulesetCreateClass():
-    return(noRuleset(current_user, "epchar.createClass"))
 @epchar.route("/Classes/Create", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def createClass(ruleset):
@@ -507,10 +566,6 @@ def createClass(ruleset):
         )
     )
 
-@epchar.route("/Classes/Duplicate/<string:tclass>")
-@login_required
-def noRulesetDuplicateClass(tclass):
-    return(noRuleset(current_user, "epchar.duplicateClass", tclass=tclass))
 @epchar.route("/Classes/Duplicate/<string:tclass>", subdomain="<ruleset>")
 @login_required
 def duplicateClass(tclass, ruleset):
@@ -518,10 +573,6 @@ def duplicateClass(tclass, ruleset):
     tclass = Class.query.filter_by(rulesetid=cruleset.id, name=tclass).first_or_404()
     return(makeclass(None, cruleset, tclass, "duplicate"))
 
-@epchar.route("/Classes/Edit/<string:tclass>")
-@login_required
-def noRulesetEditClass(tclass):
-    return(noRuleset(current_user, "epchar.editClass", tclass=tclass))
 @epchar.route("/Classes/Edit/<string:tclass>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editClass(tclass, ruleset):
@@ -539,28 +590,54 @@ def editClass(tclass, ruleset):
         )
     )
 
-@epchar.route("/Classes/Delete/<string:tclass>")
+@epchar.route("/Classes/Delete/<string:tclass>", subdomain="<ruleset>", methods=["GET", "POST"])
 @login_required
 def deleteClass(tclass):
-    return(tclass)
-
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    tclass = Playerclass.query.filter_by(rulesetid=cruleset.id, name=tclass).first_or_404()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete Ability Scores in rulesets that are not your own", "red")
+        return(redirect(url_for("epchar.stats", ruleset=ruleset)))
+    if(request.method == "POST"):
+        for feature in tclass.class_features:
+            db.session.delete(feature)
+        for column in tclass.columns:
+            db.session.delete(column)
+        for subclass in tclass.subclasses:
+            for feature in subclass.subclass_features:
+                db.session.delete(feature)
+            for column in subclass.columns:
+                db.session.delete(column)
+            db.session.delete(subclass)
+        db.session.delete(tclass)
+        db.session.commit()
+        flash("Class deleted.", "orange")
+    return(
+        render_template(
+            "delete-class.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title = f"Delete {tclass.name}?",
+            tclass = tclass
+        )
+    )
 
 # Borken; fix later caus I'm lazy
-# @epchar.route("/Classes/Import", subdomain="<ruleset>", methods=["GET", "POST"])
-# @login_required
-# def importClass(ruleset):
-#     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-#     if(request.method == "POST"):
-#         tclass = json.loads(request.form.get("parsed"))
-#         return(classImporter(tclass, cruleset))
-#     return(
-#         render_template(
-#             "import-class.html",
-#             cruleset=cruleset,
-#             adminrulesets=adminrulesets,
-#             title="Import Class",
-#         )
-#     )
+@epchar.route("/Classes/Import", subdomain="<ruleset>", methods=["GET", "POST"])
+@login_required
+def importClasses(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    if(request.method == "POST"):
+        tclass = json.loads(request.form.get("parsed"))
+        return(classImporter(tclass, cruleset))
+    return(
+        render_template(
+            "import-class.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Import Class",
+        )
+    )
 
 @epchar.route("/Class/<string:selectedclass>")
 def noRulesetClassPage(selectedclass):
@@ -576,5 +653,24 @@ def classPage(selectedclass, ruleset):
             adminrulesets=adminrulesets,
             title=selectedclass.name + " Class",
             playerclass=selectedclass
+        )
+    )
+
+@epchar.route("/Classes/Export/", subdomain="<ruleset>")
+def exportClasses(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    classes = [playerclass.to_dict() for playerclass in cruleset.classes]
+    json_data = json.dumps(classes)
+
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+
+    return(
+        send_file(
+            mem, 
+            download_name="classes.json",
+            mimetype="application/json",
+            as_attachment=True
         )
     )

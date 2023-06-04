@@ -59,12 +59,13 @@
 				</tr>
 			</template>
 		</table>
-		{% if cruleset.userid == current_user.id %}
 		<div class="interior flex horizontal center">
+			{% if cruleset.userid == current_user.id %}
 			<a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}"><button>Create An Item</button></a>
 			<a href="{{ url_for('eprefs.importItems', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+			{% endif %}
+			<a href="{{ url_for('eprefs.exportItems', ruleset=cruleset.identifier) }}" download><button>Download all as JSON</button></a>
 		</div>
-		{% endif %}
 	</div>
 </div>
 {% endblock %}

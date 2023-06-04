@@ -33,8 +33,11 @@
 		</div>
 		{% endfor %}
 		<div class="interior flex horizontal center">
+			{% if current_user.id == cruleset.userid %}
 			<a href="{{ url_for('eprefs.create' + button, ruleset=cruleset.identifier) }}"><button>Create {{ button }}</button></a>
-			<a href="{{ url_for('eprefs.importConditions', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+			<a href="{{ url_for(importer, ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+			{% endif %}
+			<a href="{{ url_for(exporter, ruleset=cruleset.identifier) }}" download><button>Download all as JSON</button></a>
 		</div>
 	</div>
 </div>

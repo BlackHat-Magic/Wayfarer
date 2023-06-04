@@ -16,7 +16,7 @@
         <div class="interior flex horizontal center">
             <a href="{{ url_for('epchar.duplicateFeat', feat=feat.name, ruleset=cruleset.identifier) }}"><button type="button">Duplicate {{ feat.name }}</button></a>
             <a href="{{ url_for('epchar.editFeat', feat=feat.name, ruleset=cruleset.identifier) }}"><button type=button>Edit {{ feat.name }}</button></a>
-            <a href="{{ url_for('epchar.deleteDeat', feat=feat.name, ruleset=cruleset.identifier) }}"><button type="button" class="mild danger">Delete {{ feat.name }}</button></a>
+            <a href="{{ url_for('epchar.deleteFeat', feat=feat.name, ruleset=cruleset.identifier) }}"><button type="button" class="mild danger">Delete {{ feat.name }}</button></a>
         </div>
         {% endif %}
     </div>

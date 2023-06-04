@@ -167,7 +167,7 @@ document.addEventListener ("alpine:init", () => {
         },
 
         school: "Abjuration",
-        schools: ["Abjuration", "Conjuration", "Divination", "Enchantment", "Evocation", "Illusion", "Necromancy", "Transmutation"],
+        schools: [],
         appendSchool() {
             if(!(this.schools.includes(document.querySelector("#school").value))){
                 this.schools.push(document.querySelector("#school").value);

@@ -34,7 +34,7 @@ In no particular order...
      - [X] ~~Import races~~
      - [X] ~~Import backgrounds~~
      - [X] ~~Import feats~~
-     - [ ] Import classes (will likely never be fully supported; partial support is planned)
+     - [ ] Import classes (partial support)
      - [X] ~~Import actions~~
      - [X] ~~Import conditions, diseases, and statuses~~
      - [ ] Import items

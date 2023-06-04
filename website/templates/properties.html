@@ -22,7 +22,13 @@
 			<div x-html="convert(`{{ property.text }}`)"></div>
 		</div>
 		{% endfor %}
-		<a href="{{ url_for('eprefs.createProperty', ruleset=cruleset.identifier) }}"><button>Create Weapon Property</button></a>
+		<div class="interior flex horizontal center">
+			{% if current_user.id == cruleset.userid %}
+			<a href="{{ url_for('eprefs.createProperty', ruleset=cruleset.identifier) }}"><button>Create Weapon Property</button></a>
+			<a href="{{ url_for('eprefs.importProperties', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+			{% endif %}
+			<a href="{{ url_for('eprefs.exportProperties', ruleset=cruleset.identifier) }}" download><button>Download all as JSON</button></a>
+		</div>
 	</div>
 </div>
 
