@@ -13,9 +13,9 @@
             <h2>{{ skill.name }}</h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
-					<a href="{{ url_for('eprefs.createSkill', tskill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ skill.name }}</button></a>
-					<a href="{{ url_for('eprefs.duplicateSkill', tskill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ skill.name }}</button></a>
-					<a href="{{ url_for('eprefs.deleteSkill', tskill=skill.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
+					<a href="{{ url_for('eprefs.editSkill', skill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ skill.name }}</button></a>
+					<a href="{{ url_for('eprefs.duplicateSkill', skill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ skill.name }}</button></a>
+					<a href="{{ url_for('eprefs.deleteSkill', skill=skill.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ skill.name }}</button></a>
 				</div>
 			{% endif %}
             <hr>
@@ -23,12 +23,13 @@
         <p><strong>Ability: </strong>{{ skill.ability_score }}</p>
         <div x-html="convert(`{{ skill.description }}`)" style="width: 100%; margin-bottom: 48px"></div>
         {% endfor %}
-        {% if cruleset.userid == current_user.id %}
         <div class="interior flex horizontal center">
+            {% if cruleset.userid == current_user.id %}
             <a href="{{ url_for('eprefs.createSkill', ruleset=cruleset.identifier) }}"><button>Create a Skill</button></a>
             <a href="{{ url_for('eprefs.importSkills', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+            {% endif %}
+            <a href="{{ url_for('eprefs.exportSkills', ruleset=cruleset.identifier) }}" download><button>Download all as JSON</button></a>
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

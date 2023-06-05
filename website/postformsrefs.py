@@ -439,10 +439,11 @@ def makeItem(request, cruleset, item, instruction):
             armor_class = item.armor_class,
             add_dex = item.add_dex,
             max_dex = item.max_dex,
+            stealth = item.stealth,
             is_weapon = item.is_weapon,
             die_num = item.die_num,
             damage_die = item.damage_die,
-            damage_type = item.damage_type,
+            damage_types = item.damage_types,
             weapon_properties = item.weapon_properties
         )
         db.session.add(new_item)
@@ -480,29 +481,35 @@ def makeItem(request, cruleset, item, instruction):
             is_armor = True
             armor_class = request.form.get("armorclass")
             add_dex = request.form.get("adddex")
+            stealth = request.form.get("stealthdisadvantage")
             if(add_dex):
                 add_dex = True
                 max_dex = request.form.get("maxdex")
             else:
                 add_dex = False
                 max_dex = None
+            if(stealth):
+                stealth = True
+            else:
+                stealth = False
         else:
             is_armor = False
             armor_class = None
             add_dex = None
             max_dex = None
+            stealth = None
         is_weapon = request.form.get("isweapon")
         if(is_weapon):
             is_weapon = True
             die_num = request.form.get("dienum")
             damage_die = request.form.get("damagedie")
-            damage_type = request.form.get("damagetype")
+            damage_types = request.form.getlist("damagetype")
             weapon_properties = request.form.getlist("property")
         else:
             is_weapon = False
             die_num = None
             damage_die = None
-            damage_type = None
+            damage_types = None
             weapon_properties = []
         if(len(name) < 1):
             flash("You must specify an item name.", "red")
@@ -537,10 +544,11 @@ def makeItem(request, cruleset, item, instruction):
                 armor_class = armor_class,
                 add_dex = add_dex,
                 max_dex = max_dex,
+                stealth = stealth,
                 is_weapon = is_weapon,
                 die_num = die_num,
                 damage_die = damage_die,
-                damage_type = damage_type,
+                damage_types = damage_types,
                 weapon_properties = weapon_properties
             )
             db.session.add(new_item)
@@ -562,10 +570,11 @@ def makeItem(request, cruleset, item, instruction):
             item.armor_class = armor_class
             item.add_dex = add_dex
             item.max_dex = max_dex
+            item.stealth = stealth
             item.is_weapon = is_weapon
             item.die_num = die_num
             item.damage_die = damage_die
-            item.damage_type = damage_type
+            item.damage_types = damage_types
             item.weapon_properties = weapon_properties
             db.session.commit()
             flash("Changes saved!", "green")
@@ -969,7 +978,7 @@ def recipeImporter(recipes, cruleset):
         flash("Improperly formatted JSON; could not import.", "red")
         return(redirect(url_for("eprefs.importRecipes", ruleset=cruleset.identifier)))
 
-def skill(request, cruleset, skill, instruction):
+def makeSkill(request, cruleset, skill, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create skills for rulesets that are not your own.", "red")
     elif(instruction == "duplicate"):

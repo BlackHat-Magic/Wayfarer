@@ -22,6 +22,7 @@ document.addEventListener ("alpine:init", () => {
         adddex: false,
         armorclass: null,
         maxdex: null,
+        stealthdisadvantage: false,
 
         tagselect: "",
         taglist: [],

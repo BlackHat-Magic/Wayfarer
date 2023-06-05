@@ -13,17 +13,10 @@ In no particular order...
  - [ ] make mobile site less unusable
  - [ ] make website pretty
  - [ ] add animations
- - [x] ~~clean up CSS file~~
- - [X] ~~add edit functionality~~
- - [X] ~~add duplication functionality~~
- - [x] ~~fix Races page~~
- - [x] ~~make background filters more useful~~
  - [ ] Add JSON import/export functionality
      - [X] ~~Export Functionality~~
      - [X] ~~Import Functionality~~
      - [ ] Import Entire Rulesets
- - [x] ~~Make races page work with custom ability scores~~
- - [x] ~~Add support for multiple administrator rulesets~~
  - [ ] Idiotproofing
      - [ ] Add instructions
      - [ ] Communicate unsupported data
@@ -57,19 +50,22 @@ In no particular order...
      - [ ] EULA
      - [ ] LibreJS support
      - [ ] Footer
+     - [ ] Make site work without JS
  - [ ] Code Cleanup
      - [ ] Comment Code
      - [ ] Move the submit button on create/edit classes page to the bottom (this is less trivial than it sounds I swear)
-     - [ ] De-spaghettify import code (e.g. checking if item is list or dict can be more efficient)
+     - [X] ~~De-spaghettify import code~~
      - [ ] dict keys
      - [ ] comprehension
      - [ ] dict.get() instead of if in dict.keys()
  - [ ] "Cantrip-level x"
  - [ ] Alert administrator of high ID collision probability
  - [ ] Site administration panel
- - [X] ~~Subdomain navigation~~
  - [ ] Images (find a host)
- - [X] ~~Better options for ruleset visibility~~
+ - [ ] Inventory Slots
+ - [ ] Custom Data (Pickle)
+ - [ ] Container info
+ - [ ] Remove Strength, Dexterity, Etc from items
 
 ## Usage
 

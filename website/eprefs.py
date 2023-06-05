@@ -478,18 +478,16 @@ def duplicateItem(item, ruleset):
 @login_required
 def editItem(item, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    item = Item.query.filter_by(rulesetid = cruleset.id, name = item.replace('-', ' ')).first_or_404()
+    item = Item.query.filter_by(rulesetid = cruleset.id, name = item).first_or_404()
     if(request.method == "POST"):
-        makeItem(request, cruleset, item, "edit")
+        return(makeItem(request, cruleset, item, "edit"))
     return(
         render_template(
             "create-item.html", 
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create an Item",
-            item=cruleset.item_tags.order_by(ItemTag.name),
-            tags = cruleset.item_properties.order_by(Property.name),
-            properties = properties
+            item=item,
         )
     )
 
@@ -706,7 +704,7 @@ def editProperty(item, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     if(request.method == "POST"):
-        return(itemProperty(request, cruleset, None, "create"))
+        return(itemProperty(request, cruleset, None, "edit"))
     return(
         render_template(
             "create-property.html", 
@@ -719,7 +717,7 @@ def editProperty(item, ruleset):
 
 @eprefs.route("/Items/Properties/Delete/<string:item>", subdomain="<ruleset>")
 @login_required
-def deleteProperty(item):
+def deleteProperty(ruleset, item):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     if(current_user.id != cruleset.userid):
@@ -1096,7 +1094,7 @@ def skills(ruleset):
 def createSkill(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
-        return(skill(request, cruleset, None, "create"))
+        return(makeSkill(request, cruleset, None, "create"))
     return(
         render_template(
             "create-skill.html",
@@ -1106,49 +1104,51 @@ def createSkill(ruleset):
         )
     )
 
-@eprefs.route("/Skills/Duplicate/<string:tskill>", subdomain="<ruleset>")
+@eprefs.route("/Skills/Duplicate/<string:skill>", subdomain="<ruleset>")
 @login_required
-def duplicateSkill(tskill, ruleset):
+def duplicateSkill(skill, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
-    if(not tskill):
-        flash("Skill does not exist.", "red")
-        return(redirect(url_for("eprefs.skills", ruleset=ruleset)))
-    return(skill(request, cruleset, tskill, "duplicate"))
+    skill = Skill.query.filter_by(rulesetid=cruleset.id, name=skill).first_or_404()
+    return(makeSkill(request, cruleset, tskill, "duplicate"))
 
-@eprefs.route("/Skills/Edit/<string:tskill>", methods=["GET", "POST"], subdomain="<ruleset>")
+@eprefs.route("/Skills/Edit/<string:skill>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def editSkill(tskill, ruleset):
+def editSkill(skill, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
-    if(not tskill):
-        flash("Skill does not exist.", "red")
-        return(redirect(url_for("eprefs.skills", ruleset=ruleset)))
-    elif(request.method == "POST"):
-        return(skill(request, cruleset, tskill, "edit"))
+    skill = Skill.query.filter_by(rulesetid=cruleset.id, name=skill).first_or_404()
+    if(request.method == "POST"):
+        return(makeSkill(request, cruleset, skill, "edit"))
     return(
         render_template(
             "create-skill.html",
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             title="Create a Skill",
-            skill=tskill
+            skill=skill
         )
     )
 
 
-@eprefs.route("/Skills/Delete/<string:tskill>", subdomain="<ruleset>")
+@eprefs.route("/Skills/Delete/<string:skill>", subdomain="<ruleset>")
 @login_required
-def deleteSkill(tskill, ruleset):
+def deleteSkill(skill, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tskill = Skill.query.filter_by(rulesetid=cruleset.id, name=tskill.replace('-', ' ')).first()
-    if(not tskill):
-        flash("Skill does not exist.", "red")
-    else:
+    skill = Skill.query.filter_by(rulesetid=cruleset.id, name=skill).first_or_404()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete skills in rulesets that are not your own.", "red")
+        return(redirect(url_for("eprefs.skills", ruleset=ruleset)))
+    if(request.method == "POST"):
         db.session.delete(tskill)
         db.session.commit()
         flash("Skill deleted.", "orange")
-    return(redirect(url_for("eprefs.skills", ruleset=ruleset)))
+    return(
+        render_template(
+            "delete-skill.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title=f"Delete {tskill}?"
+        )
+    )
 
 @eprefs.route("/Skills/Import", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
@@ -1168,7 +1168,7 @@ def importSkills(ruleset):
 @eprefs.route("/Skills/Export", subdomain="<ruleset>")
 def exportSkills(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    skills = [skills.to_dict() for skil in cruleset.skills]
+    skills = [skill.to_dict() for skill in cruleset.skills]
     json_data = json.dumps(skills)
 
     mem = io.BytesIO()

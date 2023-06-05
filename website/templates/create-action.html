@@ -7,12 +7,20 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
+		{% if action %}
+		<h1>Edit {{ action.name }}</h1>
+		{% else %}
 		<h1>Create Action</h1>
+		{% endif %}
 		<form class="interior flex vertical start" method="post">
-			<input name="name" id="name" x-model="name" placeholder="Action Name">
-			<input name="time" id="time" x-model="time" placeholder="How Long Does the Action Take?">
-			<textarea name="text" id="text" x-model="text" placeholder="Action Description"></textarea>
+			<input name="name" id="name" x-model="name" placeholder="Action Name" {% if action %} x-init="name=`{{ action.name }}`" {% endif %}>
+			<input name="time" id="time" x-model="time" placeholder="How Long Does the Action Take?" {% if action %} x-init="time=`{{ action.time }}`" {% endif %}>
+			<textarea name="text" id="text" x-model="text" placeholder="Action Description" {% if action %} x-init="text=`{{ action.text }}`" {% endif %}></textarea>
+			{% if action %}
+			<a><button type="submit">Submit Changes</button></a>
+			{% else %}
 			<a><button type="submit">Create Action!</button></a>
+			{% endif %}
 		</form>
 		<h2 x-text="name"></h2>
 		<p><strong><em>Time: </em></strong><span x-text="time"></span></p>
