@@ -17,6 +17,7 @@ In no particular order...
      - [X] ~~Export Functionality~~
      - [X] ~~Import Functionality~~
      - [ ] Import Entire Rulesets
+     - [ ] Export Entire Rulesets
  - [ ] Idiotproofing
      - [ ] Add instructions
      - [ ] Communicate unsupported data
@@ -66,6 +67,7 @@ In no particular order...
  - [ ] Custom Data (Pickle)
  - [ ] Container info
  - [ ] Remove Strength, Dexterity, Etc from items
+ - [ ] Hover tooltips
 
 ## Usage
 

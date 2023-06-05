@@ -52,7 +52,7 @@
 			</tr>
 			<template x-for="item, index in filterQuery()">
 				<tr>
-					<td><a @click="window.location.href = '/Reference/Item/' + item.name" x-text="item.name"></a></td>
+					<td><a :href="`/Reference/Item/` + item.name" x-text="item.name"></a></td>
 					<td x-text="item.type"></td>
 					<td x-text="item.cost"></td>
 					<td x-text="item.weight + 'lbs'"></td>
