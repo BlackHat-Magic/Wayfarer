@@ -40,6 +40,8 @@ class Ruleset(db.Model):
     recipes = db.relationship("Recipe", backref="ruleset")
     item_tags = db.relationship("ItemTag", backref="ruleset")
     item_properties = db.relationship("Property", backref="ruleset")
+    item_tiers = db.relationship("ItemTier", backref="ruleset")
+    item_rarities = db.relationship("ItemRarity", backref="ruleset")
     items = db.relationship("Item", backref="ruleset")
     damage_types = db.relationship("DamageType", backref="ruleset")
     conditions = db.relationship("Condition", backref="ruleset")
@@ -112,6 +114,28 @@ class Property(db.Model):
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     text = db.Column(db.String(16383))
+    displays_range = db.Column(db.Boolean)
+    displays_versatile = db.Column(db.Boolean)
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
+class ItemTier(db.Model):
+    __tablename__ = "itemtier"
+    id = db.Column(db.Integer, primary_key=True)
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
+
+    def to_dict(self):
+        return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+
+class ItemRarity(db.Model):
+    __tablename__ = "itemrarity"
+    id = db.Column(db.Integer, primary_key=True)
+    rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
+    name = db.Column(db.String(127))
+    text = db.Column(db.String(16383))
 
     def to_dict(self):
         return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
@@ -122,8 +146,8 @@ class Item(db.Model):
     rulesetid = db.Column(db.String(36), db.ForeignKey("ruleset.id"))
     name = db.Column(db.String(127))
     is_magical = db.Column(db.Boolean)
-    rarity = db.Column(db.Integer)
-    tier = db.Column(db.Integer)
+    rarity = db.Column(db.String(127))
+    tier = db.Column(db.String(127))
     attunement = db.Column(db.Boolean)
     tags = db.Column(db.PickleType)
     proficiency = db.Column(db.Boolean)
@@ -142,6 +166,10 @@ class Item(db.Model):
     damage_die = db.Column(db.Integer)
     damage_types = db.Column(db.PickleType)
     weapon_properties = db.Column(db.PickleType)
+    short_range = db.Column(db.Integer)
+    long_range = db.Column(db.Integer)
+    versatile_num = db.Column(db.Integer)
+    versatile_die = db.Column(db.Integer)
 
     def to_dict(self):
         return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
@@ -450,6 +478,7 @@ class Currency(db.Model):
     name = db.Column(db.String(127))
     value = db.Column(db.Integer)
     text = db.Column(db.String(16383))
+    main = db.Column(db.Boolean)
 
     def to_dict(self):
         return({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})

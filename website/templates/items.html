@@ -7,29 +7,45 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		{% for item in items %}
+		{% for item in cruleset.items %}
 		<template x-init="itemROM.push(
 			{
 				name: `{{ item.name }}`,
 				type: {{ item.tags }},
-				cost: `{{ item.cost }}`,
-				weight: `{{ item.weight }}`
+				cost: {% if item.cost %} {{ item.cost }} {% else %} null {% endif %},
+				weight: {% if item.weight %} {{ item.weight }} {% else %} null {% endif %}
 			}
 		)"></template>
 		{% endfor %}
 		<h1>Items</h1>
-		<input type="text" name="tableinput" id="tableinput" placeholder="Search Items..." x-model="query">
+		<input 
+			type="text" 
+			name="tableinput" 
+			id="tableinput" 
+			placeholder="Search Items..." 
+			x-model="query">
 		<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-			<form class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
-				<div class="interior flex horizontal start" style="width: auto; background-color: inherit">
+			<form 
+				class="interior flex horizontal space-between" 
+				style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+				<div 
+					class="interior flex horizontal start" 
+					style="width: auto; background-color: inherit">
 					<label for="tags">Tags:</label>
-					<select name="tags" id="tags" x-model="tags" style="width: auto" @change="appendTag()">
+					<select 
+						name="tags" 
+						id="tags" 
+						x-model="tags" 
+						style="width: auto" 
+						@change="appendTag()">
 						{% for tag in cruleset.item_tags %}
 						<option>{{ tag.name }}</option>
 						{% endfor %}
 					</select>
 				</div>
-				<div class="interior flex horizontal start" style="width: auto; background-color: inherit">
+				<div 
+					class="interior flex horizontal start" 
+					style="width: auto; background-color: inherit">
 					<label for="filterType">Filter Type: </label>
 					<select name="filterType" id="filterType" x-model="filtertype" style="width:auto">
 						<option>AND</option>
@@ -39,7 +55,9 @@
 			</form>
 			<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
 				<template x-for="tag, index in taglist">
-					<span class="chip" @click="removeTag(index)"><span x-text="tag"></span><span class="remove">&times</span></span>
+					<span class="chip" @click="removeTag(index)">
+						<span x-text="tag"></span><span class="remove">&times</span>
+					</span>
 				</template>
 			</div>
 		</div>
@@ -52,10 +70,17 @@
 			</tr>
 			<template x-for="item, index in filterQuery()">
 				<tr>
-					<td><a :href="`/Reference/Item/` + item.name" x-text="item.name"></a></td>
-					<td x-text="item.type"></td>
-					<td x-text="item.cost"></td>
-					<td x-text="item.weight + 'lbs'"></td>
+					<td><a :href="`/Reference/Item/${item.name}`" x-text="item.name"></a></td>
+					<td>
+						<template x-for="tag, index in item.type">
+							<span>
+								<span x-show="index > 0">, </span>
+								<span x-text="tag"></span>
+							</span>
+						</template>
+					</td>
+					<td x-text="item.cost == null ? `—` : item.cost"></td>
+					<td x-text="item.weight == null ? `—` : `${item.weight} lbs`"></td>
 				</tr>
 			</template>
 		</table>
@@ -63,6 +88,7 @@
 			{% if cruleset.userid == current_user.id %}
 			<a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}"><button>Create An Item</button></a>
 			<a href="{{ url_for('eprefs.importItems', ruleset=cruleset.identifier) }}"><button>Import from JSON</button></a>
+			<!-- <a href=""><button>Bulk Tools</button></a> -->
 			{% endif %}
 			<a href="{{ url_for('eprefs.exportItems', ruleset=cruleset.identifier) }}" download><button>Download all as JSON</button></a>
 		</div>

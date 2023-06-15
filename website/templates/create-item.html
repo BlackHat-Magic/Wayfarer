@@ -6,136 +6,466 @@
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start" x-data="main">
+	<form class="flex vertical start" x-data="main" method="POST">
+
+		<!-- ranged weapon.versatile dice stuff -->
+		{% for property in cruleset.item_properties %}
+		{% if property.displays_range %}
+		<template x-init="rangedisplayers.push(`{{ property.name }}`)"></template>
+		{% endif %}
+		{% if property.displays_versatile %}
+		<template x-init="versatiledisplayers.push(`{{ property.name }}`)"></template>
+		{% endif %}
+		{% endfor %}
+
+		<!-- title -->
 		{% if not item %}
 			<h1>Create an Item</h1>
 		{% else %}
 			<h1>{{ item.name }}</h1>
 		{% endif %}
-		<form class="interior flex vertical start" method="post">
-			<input type="text" name="name" id="name" x-model="name" placeholder="Item Name" {% if item %} x-init="name=`{{ item.name }}`" {% endif %}>
-			<div class="interior flex horizontal space-around" style="width: 100%">
-				<div class="interior flex horizontal start" {% if item and item.proficiency %} x-init="proficiency=true" {% endif %}>
-					<label for="proficiency">Can be Proficient?</label>
-					<input id="proficiency" name="proficiency" type="checkbox" x-model="proficiency" style="width: auto">
+		
+		<!-- name -->
+		<input 
+			type="text" 
+			name="name" 
+			id="name" 
+			x-model="name" 
+			placeholder="Item Name" 
+			{% if item %} 
+				x-init="name=`{{ item.name }}`" 
+			{% endif %}>
+
+		<!-- boolean section -->
+		<div class="interior flex horizontal space-around" style="width: 100%">
+			<!-- Can a user be proficient (will it show up as an option in background proficiencies?) -->
+			<div 
+				class="interior flex horizontal start" 
+				{% if item and item.proficiency %} 
+					x-init="proficiency=true" 
+				{% endif %}>
+				<label for="proficiency">Can be Proficient?</label>
+				<input 
+					id="proficiency" 
+					name="proficiency" 
+					type="checkbox" 
+					x-model="proficiency" 
+					style="width: auto">
+			</div>
+
+			<!-- is it a weapon -->
+			<div 
+				class="interior flex horizontal start" 
+				{% if item and item.is_weapon %} 
+					x-init="isweapon=true" 
+				{% endif %}>
+				<label for="isweapon">Is Weapon?</label>
+				<input 
+					id="isweapon" 
+					name="isweapon" 
+					type="checkbox" 
+					x-model="isweapon" 
+					style="width: auto">
+			</div>
+
+			<!-- armor info section -->
+			<div class="interior flex vertical start">
+				<!-- is it armor at all? -->
+				<div 
+					class="interior flex horizontal start" 
+					{% if item and item.is_armor %} 
+						x-init="isarmor=true" 
+					{% endif %}>
+					<label for="isarmor">Is Armor?</label>
+					<input id="isarmor" name="isarmor" type="checkbox" x-model="isarmor" style="width: auto">
 				</div>
-				<div class="interior flex horizontal start" {% if item and item.is_weapon %} x-init="isweapon=true" {% endif %}>
-					<label for="isweapon">Is Weapon?</label>
-					<input id="isweapon" name="isweapon" type="checkbox" x-model="isweapon" style="width: auto">
+
+				<!-- if it is armor, does the player get to add their dex to their AC? (only shows if item is armor) -->
+				<div 
+					class="interior flex horizontal start" 
+					x-show="isarmor" 
+					{% if item and item.add_dex %} 
+						x-init="adddex=true" 
+					{% endif %}>
+					<label for="adddex">Add Dex?</label>
+					<input id="adddex" name="adddex" type="checkbox" x-model="adddex" style="width: auto">
 				</div>
-				<div class="interior flex vertical start">
-					<div class="interior flex horizontal start" {% if item and item.is_armor %} x-init="isarmor=true" {% endif %}>
-						<label for="isarmor">Is Armor?</label>
-						<input id="isarmor" name="isarmor" type="checkbox" x-model="isarmor" style="width: auto">
-					</div>
-					<div class="interior flex horizontal start" x-show="isarmor" {% if item and item.add_dex %} x-init="adddex=true" {% endif %}>
-						<label for="adddex">Add Dex?</label>
-						<input id="adddex" name="adddex" type="checkbox" x-model="adddex" style="width: auto">
-					</div>
-					<div class="interior flex horizontal start" x-show="isarmor" {% if item and item.add_dex %} x-init="stealthdisadvantage=true" {% endif %}>
-						<label for="stealthdisadvantage">Stealth Disadvantage?</label>
-						<input id="stealthdisadvantage" name="stealthdisadvantage" type="checkbox" x-model="stealthdisadvantage" style="width: auto">
-					</div>
-				</div>
-				<div class="interior flex vertical start">
-					<div class="interior flex horizontal start"{% if item and item.is_magical %} x-init="ismagical=true" {% endif %}>
-						<label for="ismagical">Is Magical?</label>
-						<input type="checkbox" name="ismagical" id="ismagical" x-model="ismagical" style="width: auto">
-					</div>
+
+				<!-- if it is armor, does the player have disadvantage on stealth checks when wearing it? (only shows if item is armor) -->
+				<div 
+					class="interior flex horizontal start" 
+					x-show="isarmor" 
+					{% if item and item.add_dex %} 
+						x-init="stealthdisadvantage=true" 
+					{% endif %}>
+					<label for="stealthdisadvantage">Stealth Disadvantage?</label>
+					<input 
+						id="stealthdisadvantage" 
+						name="stealthdisadvantage" 
+						type="checkbox" 
+						x-model="stealthdisadvantage" 
+						style="width: auto">
 				</div>
 			</div>
-			{% if not cruleset.item_tags %}
-				<div class="mild danger">
-					<h3>Hey!</h3>
-					<p>You don't have any item tags in this ruleset! Without adding any, you won't be able to assign tags to this item. You can create item tags <a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}">here</a>.</p>
+
+			<!-- is it a magic item? -->
+			<div class="interior flex vertical start">
+				<div 
+					class="interior flex horizontal start"
+					{% if item and item.is_magical %} 
+						x-init="ismagical=true" 
+					{% endif %}>
+					<label for="ismagical">Is Magical?</label>
+					<input 
+						type="checkbox" 
+						name="ismagical" 
+						id="ismagical" 
+						x-model="ismagical" 
+						style="width: auto">
 				</div>
-				<div style="height: 30px"></div>
-			{% else %}
-				<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px">
-					<div style="width: 100%">
-						<label for="tagselect">Add Tag: </label>
-						<select name="tagselect" id="tagselect" x-model="tagselect" style="width: auto" @change="appendTag()" x-init="updateTags()">
-							{% for tag in cruleset.item_tags %}
-							<option>{{ tag.name }}</option>
-							{% endfor %}
-						</select>
-					</div>
-					<template x-for="tag, index in taglist">
-						<span @click="removeTag(index)" class="chip"><span x-text="tag"></span><span class="remove">&times</span></span>
-					</template>
-					<template x-for="tag, index in taglist" {% if item %} x-init="taglist={{ item.tags }}" {% endif %}>
-						<input type="hidden" name="tag" id="tag" x-model="taglist[index]">
-					</template>
-				</div>
-			{% endif %}
-			{% if not cruleset.item_properties %}
-				<div class="mild danger" x-show="isweapon">
-					<h3>Hey!</h3>
-					<p>You don't have any weapon properties in this ruleset! Without adding any, you won't be able to assign properties to this weapon. You can create weapon properties <a href="{{ url_for('eprefs.createProperty', ruleset=cruleset.identifier) }}">here</a>.</p>
-				</div>
-			{% else %}
-				<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px" x-show="isweapon">
-					<div style="width: 100%">
-						<label for="propertyselect">Add Weapon Property: </label>
-						<select name="propertyselect" id="propertyselect" x-model="propertyselect" style="width: auto" @change="appendProperty()" x-init="updateProperties()">
-							{% for property in cruleset.item_properties %}
-							<option>{{ property.name }}</option>
-							{% endfor %}
-						</select>
-					</div>
-					<template x-for="property, index in propertylist" {% if item %} x-init="propertylist={{ item.weapon_properties }}" {% endif %}>
-						<span @click="removeProperty(index)" class="chip"><span x-text="property"></span><span class="remove">&times</span></span>
-					</template>
-					<template x-for="property, index in propertylist">
-						<input type="hidden" name="property" id="property" x-model="propertylist[index]">
-					</template>
-				</div>
-			{% endif %}
-			<div class="interior flex horizontal space-around" style="width: 100%">
-				<input name="cost" id="cost" type="text" x-model="cost" style="width: auto" placeholder="Cost" {% if item and item.cost %} x-init="cost=`{{ item.cost }}`" {% endif %}>
-				<input name="weight" id="weight" type="number" x-model="weight" style="width: auto" placeholder="Weight (lbs)" {% if item and item.weight%} x-init="weight={{ item.weight }}" {% endif %}>
-				<input name="armorclass" id="armorclass" type="number" x-model="armorclass" style="width: auto" placeholder="Armor Class" x-show="isarmor" {% if item and item.armor_class %} x-init="armorclass={{ item.armor_class }}" {% endif %}>
-				<input name="maxdex" id="maxdex" type="number" x-model="maxdex" style="width: auto" placeholder="Max Dex (0 for None)" x-show="adddex" {% if item and item.add_dex and item.max_dex %} x-init="maxdex={{ item.max_dex }}" {% endif %}>
-				<div class="interior flex horizontal start" x-show="isweapon">
-					<label for="dienum">Damage Dice:</label>
-					<input name="dienum" id="dienum" type="number" x-model="dienum" style="width: auto" placeholder="Damage Die Number" {% if item and item.is_weapon %} x-init="dienum={{ item.die_num }}" {% endif %}>
-					<select name="damagedie" id="damagedie" x-model="damagedie" style="width: auto" {% if item and item.is_weapon %} x-init="damagedie={{ item.damage_die }}" {% endif %}>
-						<option value="4">d4</option>
-						<option value="6">d6</option>
-						<option value="8">d8</option>
-						<option value="10">d10</option>
-						<option value="12">d12</option>
-						<option value="20">d20</option>
+			</div>
+		</div>
+
+		<!-- item tags -->
+		{% if not cruleset.item_tags %}
+			<!-- if current ruleset has no item tags, prompt user to add some -->
+			<div class="mild danger">
+				<h3>Hey!</h3>
+				<p>You don't have any item tags in this ruleset! Without adding any, you won't be able to assign tags to this item. You can create item tags <a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}">here</a>.</p>
+			</div>
+			<div style="height: 30px"></div>
+		{% else %}
+			<!-- item tag selection (only shows if current ruleset has item tags) -->
+			<div 
+				class="interior flex horizontal start" 
+				style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px">
+				<!-- item tag selector -->
+				<div style="width: 100%">
+					<label for="tagselect">Add Tag: </label>
+					<select 
+						name="tagselect" 
+						id="tagselect" 
+						x-model="tagselect" 
+						style="width: auto" 
+						@change="appendTag()" 
+						x-init="updateTags()">
+						{% for tag in cruleset.item_tags %}
+						<option>{{ tag.name }}</option>
+						{% endfor %}
 					</select>
-					<input name="damagetype" id="damagetype" type="text" x-model="damagetype" style="width: auto" placeholder="Damage Type" {% if item and item.is_weapon %} x-init="damagetype=`{{ item.damage_type }}`	" {% endif %}>
 				</div>
+
+				<!-- little chips showing which tags are already selected -->
+				<template x-for="tag, index in taglist">
+					<span 
+						@click="removeTag(index)" 
+						class="chip">
+						<span x-text="tag"></span>
+						<span class="remove">&times</span>
+					</span>
+				</template>
+
+				<!-- hidden inputs so that flask can access the chips with request.form.get -->
+				<template 
+					x-for="tag, index in taglist" 
+					{% if item %} 
+						x-init="taglist={{ item.tags }}" 
+					{% endif %}>
+					<input type="hidden" name="tag" id="tag" x-model="taglist[index]">
+				</template>
 			</div>
-			<textarea x-model="text" placeholder="Item Description"></textarea>
-			<input type="hidden" name="text" id="text" x-model="text" {% if item %} x-init="text=`{{ item.text }}`" {% endif %}>
-			{% if item %}
-				<a><button type="submit">Submit Changes</button></a>
-			{% else %}
-				<a><button type="submit">Create Item!</button></a>
-			{% endif %}
-		</form>
+		{% endif %}
+
+		<!-- weapon properties (only shows if item is a weapon) -->
+		{% if not cruleset.item_properties %}
+			<!-- if current ruleset has no weapon properties, prompt user to add some (only shows if item is a weapon) -->
+			<div class="mild danger" x-show="isweapon">
+				<h3>Hey!</h3>
+				<p>You don't have any weapon properties in this ruleset! Without adding any, you won't be able to assign properties to this weapon. You can create weapon properties <a href="{{ url_for('eprefs.createProperty', ruleset=cruleset.identifier) }}">here</a>.</p>
+			</div>
+		{% else %}
+			<!-- item tag selection (only shows if current ruleset has weapon properties and item is a weapon) -->
+			<div class="interior flex horizontal start" style="background-color: var(--nord-inactive); width: 100%; padding: 0px 12px; margin: 12px 0px" x-show="isweapon">
+				<!-- weapon property selector -->
+				<div style="width: 100%">
+					<label for="propertyselect">Add Weapon Property: </label>
+					<select 
+						name="propertyselect" 
+						id="propertyselect" 
+						x-model="propertyselect" 
+						style="width: auto" 
+						@change="appendProperty()" 
+						x-init="updateProperties()">
+						{% for property in cruleset.item_properties %}
+						<option>{{ property.name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+				<!-- little chips showing which tags are already selected -->
+				<template 
+					x-for="property, index in propertylist" 
+					{% if item %} 
+						x-init="propertylist={{ item.weapon_properties }}" 
+					{% endif %}>
+					<span 
+						@click="removeProperty(index)" 
+						class="chip">
+						<span x-text="property"></span>
+						<span class="remove">&times</span>
+					</span>
+				</template>
+
+				<!-- hidden inputs so that flask can access the chips with request.form.get -->
+				<template x-for="property, index in propertylist">
+					<input type="hidden" name="property" id="property" x-model="propertylist[index]">
+				</template>
+			</div>
+		{% endif %}
+		
+		<!-- numerical data -->
+		<div class="interior flex horizontal space-around" style="width: 100%">
+			<!-- item cost -->
+			<input
+				name="cost"
+				id="cost"
+				type="text"
+				x-model="cost"
+				style="width: auto"
+				placeholder="Cost"
+				{% if item and item.cost %}
+					x-init="cost=`{{ item.cost }}`"
+				{% endif %}>
+
+			<!-- item wight -->
+			<input
+				name="weight"
+				id="weight"
+				type="number"
+				x-model="weight"
+				style="width: auto"
+				placeholder="Weight (lbs)"
+				{% if item and item.weight%}
+					x-init="weight={{ item.weight }}"
+				{% endif %}>
+
+			<!-- provided armor class (only shows if item is armor) -->
+			<input
+				name="armorclass"
+				id="armorclass"
+				type="number"
+				x-model="armorclass"
+				style="width: auto"
+				placeholder="Armor Class"
+				x-show="isarmor"
+				{% if item and item.armor_class %}
+					x-init="armorclass={{ item.armor_class }}"
+				{% endif %}>
+
+			<!-- maximum dex a player can add to armor class (only shows if item is armor and player can add dex) -->
+			<input
+				name="maxdex"
+				id="maxdex"
+				type="number"
+				x-model="maxdex"
+				style="width: auto"
+				placeholder="Max Dex (0 for None)"
+				x-show="adddex"
+				{% if item and item.add_dex and item.max_dex %}
+					x-init="maxdex={{ item.max_dex }}"
+				{% endif %}>
+
+			<input 
+				name="strength"
+				id="strength"
+				type="number"
+				x-model="strength"
+				style="width: auto"
+				placeholder="Strength Requirement"
+				x-show="isarmor"
+				{% if item and item.is_armor and item.strength != None and item.strength != 0 %}
+					x-init="strength={{ item.strength }}"
+				{% endif %}>
+
+			<!-- weapon information -->
+			<div class="interior flex horizontal start" x-show="isweapon">
+				<!-- damage dice -->
+				<label for="dienum">Damage Dice:</label>
+				<input
+					name="dienum"
+					id="dienum"
+					type="number"
+					x-model="dienum"
+					style="width: auto"
+					placeholder="Damage Die Number"
+					{% if item and item.is_weapon %}
+						x-init="dienum={{ item.die_num }}"
+					{% endif %}>
+				<select
+					name="damagedie"
+					id="damagedie"
+					x-model="damagedie" 
+					style="width: auto" 
+					{% if item and item.is_weapon %}
+						x-init="damagedie={{ item.damage_die }}"
+					{% endif %}>
+					<option value="4">d4</option>
+					<option value="6">d6</option>
+					<option value="8">d8</option>
+					<option value="10">d10</option>
+					<option value="12">d12</option>
+					<option value="20">d20</option>
+				</select>
+
+				<!-- damage type -->
+				<input 
+					name="damagetype"
+					id="damagetype" 
+					type="text" 
+					x-model="damagetype" 
+					style="width: auto" 
+					placeholder="Damage Type" 
+					{% if item and item.is_weapon %} 
+						x-init="damagetype=`{{ item.damage_type }}`" 
+					{% endif %}>
+			</div>
+
+			<!-- versatile dice -->
+			<div class="interior flex horizontal start" x-show="checkVersatile()">
+				<label for="versatilenum">Versatile Damage Dice: </label>
+				<input 
+					name="versatilenum" 
+					id="versatilenum" 
+					type="number" 
+					x-model="versatilenum" 
+					style="width: auto" 
+					placeholder="Versatile Damage Die Number" 
+					{% if item and item.is_weapon and item.versatile_num != None %}
+						x-init="versatilenum={{ item.versatile_num }}" 
+					{% endif %}>
+				<select 
+					name="versatiledie" 
+					id="versatiledie" 
+					x-model="versatiledie" 
+					style="width: auto" 
+					{% if item and item.is_weapon and item.versatile_die != None %} 
+						x-init="versatiledie={{ item.versatile_die }}" 
+					{% endif %}>
+					<option value="4">d4</option>
+					<option value="6">d6</option>
+					<option value="8">d8</option>
+					<option value="10">d10</option>
+					<option value="12">d12</option>
+					<option value="20">d20</option>
+				</select>
+			</div>
+
+			<!-- item range -->
+			<div class="interior flex horizontal start" x-show="checkRange()">
+				<label for="shortrange">Item Short Range: </label>
+				<input 
+					name="shortrange" 
+					id="shortrange" 
+					type="number" 
+					x-model="shortrange" 
+					style="width: auto" 
+					placeholder="Item Short Range" 
+					{% if item and item.is_weapon and item.short_range != None %} 
+						x-init="shortrange={{ item.short_range }}" 
+					{% endif %}>
+				<label for="longrange">Item Short Range: </label>
+				<input 
+					name="longrange" 
+					id="longrange" 
+					type="number" 
+					x-model="longrange" 
+					style="width: auto" 
+					placeholder="Item Long Range" 
+					{% if item and item.is_weapon and item.long_range != None %} 
+						x-init="longrange={{ item.long_range }}" 
+					{% endif %}>
+			</div>
+		</div>
+		<div class="interior flex horizontal space-around" x-show="ismagical">
+			<div class="interior flex horizontal center">
+				<label for="rarity">Item Rarity: </label>
+				<select name="rarity" id="rarity" x-model="rarity" style="width: auto">
+					<option :value="null">None</option>
+					{% for rarity in cruleset.item_rarities %}
+					<option>{{ rarity.name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="interior flex horizontal center">
+				<label for="tier">Item Tier: </label>
+				<select name="tier" id="tier" x-model="tier" style="width: auto">
+					<option :value="null">None</option>
+					{% for tier in cruleset.item_tiers %}
+					<option></option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<!-- item description -->
+		<textarea 
+			name="text" 
+			id="text" 
+			x-model="text" 
+			placeholder="Item Description" 
+			{% if item %} 
+				x-init="text=`{{ item.text }}`" 
+			{% endif %}>
+		</textarea>
+
+		<!-- item preview -->
 		<div class="usercontent">
 			<h1 x-text="name"></h1>
-			<div class="interior flex horizontal space-between" style="width: 100%">
-				<p><em x-text="tags"></em></p>
-			</div>
+			<div class="interior flex horizontal space-between" style="width: 100%"><p><em>
+				<template x-for="i, tag in taglist + propertylist">
+					<span x-show="i > 0">, </span>
+					<span x-text="tag"></span>
+					<span 
+						x-show="versatiledisplayers.includes(tag)" 
+						x-text="` (${versatilenum}d${versatiledie})`">
+					</span>
+					<span 
+						x-show="rangedisplayers.includes(tag)" 
+						x-text="` (${shortrange}/${longrange})`">
+					</span>
+				</template>
+				<span x-show="ismagical">
+					<span x-show="rarity != null" x-text="', ${rarity}'"></span>
+					<span x-show="tier!= null" x-text="', ${tier}'"></span>
+					<span>, Requires Attunement</span>
+				</span>
+			</em></p></div>
 			<div class="interior flex horizontal space-between">
-				<p x-text="cost + ', ' + weight + 'lbs'" style="width: auto"></p>
+				<p style="width: auto">
+					<span x-show="cost > 0" x-text="cost"></span>
+					<span x-show="cost > 0 && weight > 0">, </span>
+					<span x-show="weight > 0" x-text="`${weight} lbs`"></span>
+				</p>
 				<p x-show="isarmor" style="width: auto">
-					<span x-text="'AC ' + armorclass"></span>
+					<span x-text="'AC ${armorclass}'"></span>
 					<span x-show="adddex" x-text="' + Dex'"></span>
-					<template x-if="maxdex != null && maxdex != 0 && adddex">
-						<span x-text="' (Max ' + maxdex + ')'"></span>
-					</template>
+					<span 
+						x-show="maxdex != null && maxdex != 0 && adddex" 
+						x-text="' (Max ${maxdex})'">
+					</span>
 				</p>
 			</div>
 			<hr>
 			<div x-html="convert(text)"></div>
+			<p style="width: 100%" x-show="stealthdisadvantage">The wearer has disadvantage on Dexterity (Stealth) checks.</p>
+			<p x-show="strength > 0 && strength != null" style="width: 100%" x-text="`If the wearer has a Strength score lower than ${strength}, their speed is reduced by 10 feet.`"></p>
 		</div>
-	</div>
+
+		<!-- submit button -->
+		{% if item %}
+			<a><button type="submit">Submit Changes</button></a>
+		{% else %}
+			<a><button type="submit">Create Item!</button></a>
+		{% endif %}
+	</form>
 </div>
 {% endblock %}

@@ -1,8 +1,8 @@
 from flask import render_template, redirect, url_for, request, session, flash, jsonify
 from flask_login import current_user
 from . import db
-from .jsonparsers import *
 from .models import *
+import re
 
 def makeRuleset(request, ruleset, instruction):
     if(instruction == "duplicate"):
@@ -487,6 +487,8 @@ def makeRuleset(request, ruleset, instruction):
         viewers = request.form.getlist("viewer")
         editors = request.form.getlist("editor")
         visibility = int(request.form.get("visibility"))
+        # www# ns#
+        banned_identifiers = ["admin", "admins", "auth", "secure", "api", "apis", "mail", "ftp", "webmail", "test", "tests", "dev", "devs", "developer", "developers", "development", "support", "blog", "blogs", "status", "help", "doc", "docs", "cdn", "cdns", "static", "shop", "shops", "store", "stores", "forum", "forums", "billing", "pay", "payment", "payments", "subscribe", "subscription", "account", "accounts", "login", "user", "users", "dashboard", "asset", "assets", "download", "downloads", "email", "mail", "webmail", "news", "info", "privacy", "terms", "tos", "termsofservice", "privacypolicy", "settings", "profile", "profiles", "mobile", "reports", "report", "dmca", "copyright", "data", "portal", "portals", "partner", "partners", "affiliate", "affiliates", "career", "careers", "job", "jobs", "investor", "investors", "invest", "press", "media", "image", "images", "img", "imgs", "video", "videos", "vid", "vids", "file", "files", "ssl", "staging", "beta", "betas", "alpha", "alphas", "prerelease", "prereleases", "demo", "demos", "wiki", "wikis", "feedback", "survey", "surveys", "chat", "chats", "event", "events", "marketing", "sales", "webinar", "webinars", "training", "education", "community", "communities", "client", "clients", "customer", "customers", "knowledge", "knowledgebase"]
         if(len(name) < 1):
             flash("You must specify a ruleset name.", "red")
         elif(len(name) > 127):
@@ -497,6 +499,8 @@ def makeRuleset(request, ruleset, instruction):
             flash("Only alphanumeric characters (a-z, A-Z, 0-9) are allowed in ruleset identifiers.", "red")
         elif(len(identifier) > 32):
             flash("Ruleset identifiers must be fewer than 32 characters", "red")
+        elif(identifier in banned_identifiers or bool(re.match(r"^(www|ww|ns)\d+$", identifier))):
+            flash("Identifier not allowed.", "red")
         elif(len(text) > 16383):
             flash("Ruleset description must be fewer than 16383 characters.", "red")
         elif(instruction == "create"):

@@ -1,6 +1,30 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
         name: "",
+        ismagical: false,
+        tier: null,
+        rarity: null,
+        strength: null,
+        stealth: false,
+
+        versatiledisplayers: [],
+        rangedisplayers: [],
+        checkVersatile() {
+            for (let i = 0; i < this.versatiledisplayers.length - 1; i++) {
+                if (this.propertylist.includes(this.versatiledisplayers[i])) {
+                    return(true)
+                }
+            }
+            return(false)
+        },
+        checkRange () {
+            for (let i = 0; i < this.rangedisplayers.length - 1; i++) {
+                if (this.propertylist.includes(this.rangedisplayers[i])) {
+                    return(true)
+                }
+            }
+            return(false)
+        },
 
         cost: "",
         weight: "",
@@ -63,8 +87,12 @@ document.addEventListener ("alpine:init", () => {
         propertylist: [],
         properties: "",
         dienum: null,
-        damagedie: "d4",
+        damagedie: 4,
         damagetype: "",
+        longrange: null,
+        shortrange: null,
+        versatilenum: null,
+        versatiledie: 4,
         appendProperty() {
             if(!(this.propertylist.includes(document.querySelector("#propertyselect").value))) {
                 this.propertylist.push(document.querySelector("#propertyselect").value);

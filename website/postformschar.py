@@ -1,8 +1,7 @@
 from flask import render_template, redirect, url_for, request, session, flash, jsonify
 from flask_login import current_user
 from . import db
-from .jsonparsers import *
-from .models import Ruleset, Race, RaceFeature, Subrace, SubraceFeature, Background, BackgroundFeature, Feat, Item, Playerclass, AbilityScore, ClassColumn, SubclassColumn, ClassFeature, Playerclass, Subclass, SubclassFeature
+from .models import *
 import pickle, sys
 
 def abilityScore(request, cruleset, ability_score, instruction):
@@ -104,12 +103,12 @@ def abilityScoreImporter(scores, cruleset):
                 text = text
             )
             db.session.add(new_ability_score)
-            db.session.commit()
-            flash("Ability scores imported!", "green")
-            return(redirect(url_for("epchar.stats", ruleset=cruleset.identifier)))
+        db.session.commit()
+        flash("Ability scores imported!", "green")
+        return(redirect(url_for("epchar.stats", ruleset=cruleset.identifier)))
     except:
         flash("Improperly formatted JSON; could not import.", "red")
-        return(redirect(url_for("epchar.importStat", ruleset=cruleset.identifier)))
+        return(redirect(url_for("epchar.importStats", ruleset=cruleset.identifier)))
 
 def makeRace(request, cruleset, race, instruction):
     if(current_user.id != cruleset.userid):
@@ -418,7 +417,7 @@ def makeRace(request, cruleset, race, instruction):
                 return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
         return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
 
-def raceImporter(races, flavor, cruleset):
+def raceImporter(races, cruleset):
     if(cruleset.userid != current_user.id):
         flash("You cannot import races into rulesets that are not your own", "red")
         return(redirect(url_for("epchar.importRace", ruleset=cruleset.identifier)))
@@ -450,7 +449,7 @@ def raceImporter(races, flavor, cruleset):
             if(len(name) > 127):
                 flash(f"{name} name too long (maximum 127 characters); skipping...", "orange")
                 continue
-            elif(len(flavor) > 16383):
+            elif(flavor and len(flavor) > 16383):
                 flash(f"{name} description too long (maximum 16383 characters); skipping...", "orange")
                 continue
             elif(sys.getsizeof(pickle.dumps(images)) > 16384):
@@ -459,13 +458,13 @@ def raceImporter(races, flavor, cruleset):
             elif(sys.getsizeof(pickle.dumps(asis)) > 16384):
                 flash(f"{name} has too many ability score improvements (maximum raw data size of list 16KiB); skipping...", "orange")
                 continue
-            elif(len(asi_text) > 255):
+            elif(asi_text and len(asi_text) > 255):
                 flash(f"{name} ability score improvement text too long (maximum 255 characters); skipping...", "orange")
                 continue
-            elif(len(size_text) > 255):
+            elif(size_text and len(size_text) > 255):
                 flash(f"{name} size text too long (maximum 255 characters); skipping...", "orange")
                 continue
-            elif(len(subrace_flavor) > 16383):
+            elif(subrace_flavor and len(subrace_flavor) > 16383):
                 flash(f"{name} subrace flavor text too long (maximum 16383 characters); skipping...", "orange")
                 continue
             new_race = Race(
@@ -501,7 +500,7 @@ def raceImporter(races, flavor, cruleset):
                 elif(len(name) > 127):
                     flash(f"{new_race.name} feature {name} name too long (maximum 127 characters); skipping...", "orange")
                     continue
-                elif(len(text) > 16383):
+                elif(text and len(text) > 16383):
                     flash(f"{new_race.name} feature {name} description too long (maximum 16383 characters); skipping...", "orange")
                     continue
                 new_race_feature = RaceFeature(
@@ -510,7 +509,7 @@ def raceImporter(races, flavor, cruleset):
                     text = text
                 )
                 db.session.add(new_race_feature)
-            for j, subrace in enumerate(race["subracaes"]):
+            for j, subrace in enumerate(race["subraces"]):
                 name = subrace["name"]
                 text = subrace["text"]
                 images = subrace["images"]
@@ -521,7 +520,7 @@ def raceImporter(races, flavor, cruleset):
                 elif(len(name) > 127):
                     flash(f"{new_race.name} subrace {name} name too long (maximum 127 characters); skipping...", "orange")
                     continue
-                elif(len(text) > 16383):
+                elif(text and len(text) > 16383):
                     flash(f"{new_race.name} subrace {name} description too long (maximum 16383 characters); skipping...", "orange")
                     continue
                 elif(sys.getsizeof(pickle.dumps(images)) > 16384):
@@ -534,7 +533,7 @@ def raceImporter(races, flavor, cruleset):
                     images = images
                 )
                 db.session.add(new_subrace)
-                for k, feature in subrace["subrace_features"]:
+                for k, feature in enumerate(subrace["subrace_features"]):
                     name = feature["name"]
                     text = feature["text"]
 
@@ -544,7 +543,7 @@ def raceImporter(races, flavor, cruleset):
                     elif(len(name) > 127):
                         flash(f"{new_race.name} subrace {new_subrace.name} feature {name} name too long (maximum 127 characters); skipping...", "orange")
                         continue
-                    elif(len(text) > 16383):
+                    elif(text and len(text) > 16383):
                         flash(f"{new_race.name} subrace {new_subrace.name} feature {name} description too long (maximum 16383 characters); skipping...", "orange")
                         continue
                     new_subrace_feature = SubraceFeature(

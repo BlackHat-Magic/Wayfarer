@@ -112,9 +112,8 @@ def deleteRace(race, ruleset):
 def importRaces(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method == "POST"):
-        races = json.loads(request.form.get("parsed_features"))
-        flavor = json.loads(request.form.get("parsed_flavor"))
-        return(raceImporter(races, flavor, cruleset))
+        races = json.loads(request.form.get("parsed"))
+        return(raceImporter(races, cruleset))
     return(
         render_template(
             "import-race.html", 
@@ -179,11 +178,11 @@ def backgrounds(ruleset):
 @login_required
 def createBackground(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    if(request.method == "POST"):
+        return(makebackground(request, cruleset, None, "create"))
     tools = []
     for tool in Item.query.filter_by(rulesetid = cruleset.id, proficiency = True):
         tools.append(tool)
-    if(request.method == "POST"):
-        return(makebackground(request, cruleset, None, "create"))
     return(
         render_template(
             "create-background.html", 
@@ -514,8 +513,18 @@ def deleteStat(score, ruleset):
 @epchar.route("/Ability-Scores/Import", subdomain="<ruleset>", methods=["GET", "POST"])
 @login_required
 def importStats(ruleset):
-    adminrulesets, cruleet = validateRuleset(current_user, ruleset)
-    return("FUCK")
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    if(request.method == "POST"):
+        ability_scores = json.loads(request.form.get("parsed"))
+        return(abilityScoreImporter(ability_scores, cruleset))
+    return(
+        render_template(
+            "import-stat.html",
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Import Ability Scores",
+        )
+    )
 
 @epchar.route("/Ability-Scores/Export", subdomain="<ruleset>")
 def exportStats(ruleset):

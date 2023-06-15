@@ -509,9 +509,8 @@ def deleteItem(item):
 def importItems(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method=="POST"):
-        items = json.loads(request.form.get("parsed_features"))
-        base = json.loads(request.form.get("parsed_flavor"))
-        return(itemImporter(items, base, cruleset))
+        items = json.loads(request.form.get("parsed"))
+        return(itemImporter(items, cruleset))
     return(
         render_template(
             "import-item.html", 
@@ -631,10 +630,10 @@ def importTags(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method=="POST"):
         tags = json.loads(request.form.get("parsed"))
-        return(tagImporter(items, base, cruleset))
+        return(tagImporter(tags, cruleset))
     return(
         render_template(
-            "import-item.html", 
+            "import-tag.html", 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Import Item Tags"
@@ -704,7 +703,7 @@ def editProperty(item, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     tproperty = Property.query.filter_by(rulesetid=cruleset.id, name=item).first_or_404()
     if(request.method == "POST"):
-        return(itemProperty(request, cruleset, None, "edit"))
+        return(itemProperty(request, cruleset, tproperty, "edit"))
     return(
         render_template(
             "create-property.html", 
@@ -734,10 +733,10 @@ def importProperties(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     if(request.method=="POST"):
         properties = json.loads(request.form.get("parsed"))
-        return(propertyImporter(items, base, cruleset))
+        return(propertyImporter(properties, cruleset))
     return(
         render_template(
-            "import-properties.html", 
+            "import-property.html", 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
             title="Import Weapon Properties"
@@ -748,7 +747,7 @@ def importProperties(ruleset):
 def exportProperties(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     items = [item.to_dict() for item in cruleset.item_properties]
-    json_data = json.dumps(item)
+    json_data = json.dumps(items)
 
     mem = io.BytesIO()
     mem.write(json_data.encode('utf-8'))
@@ -757,11 +756,50 @@ def exportProperties(ruleset):
     return(
         send_file(
             mem, 
-            download_name="diseases.json",
+            download_name="properties.json",
             mimetype="application/json",
             as_attachment=True
         )
     )
+
+# @eprefs.route("Items/Bulk-Tools", subdomain="<ruleset>", methods=["GET", "POST"])
+# @login_required
+# def bulkItems(ruleset):
+#     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+#     if(request.method == "POST"):
+#         if(request.form.get("action") == "delete"):
+#             for i, item in enumerate(cruleset.items):
+#                 if(request.form.get(f"{item.name}-select")):
+#                     db.session.delete(item)
+#             flash("Items deleted.", "orange")
+#         elif(request.form.get("action") == "addtag"):
+#             for i, item in enumerate(cruleset.items):
+#                 if(request.form.get(f"{item.name}-select")):
+#                     # idk why, but SQLAlchemy refuses to acknowledge the commit # unless I convert it to a set first (a tuple would probably # also work but I didn't test it). I've tried refreshing
+#                     # making it transient and readding it, deleting and
+#                     # reinitializing, expiring the session; only this works
+#                     tags = set(item.tags)
+#                     for tag in request.form.getlist("addremtag"):
+#                         tags.add(tag)
+#                     item.tags = list(tags)
+#             flash("Tags added.", "green")
+#         elif(request.form.get("action") == "remtag"):
+#             for i, item in enumerate(cruleset.items):
+#                 if(request.form.get(f"{item.name}-select")):
+#                     for tag in request.form.getlist("addremtag"):
+#                         if(tag in item.tags):
+#                             item.tags.remove(tag)
+#             flash("Tags removed.", "green")
+#         db.session.commit()
+#         return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
+#     return(
+#         render_template(
+#             "items-bulk.html", 
+#             cruleset=cruleset,
+#             adminrulesets=adminrulesets,
+#             title="Bulk Item Tools"
+#         )
+#     )
 
 @eprefs.route("/Languages")
 def noRulesetLanguages():

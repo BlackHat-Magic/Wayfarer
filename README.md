@@ -1,4 +1,4 @@
-# Wayfinder
+# Wayfarer
 
 A website used to store rulesets for tabletop roleplaying games. Primarily designed for 5th edition Dungeons and Dragons.
 
@@ -71,7 +71,7 @@ In no particular order...
 
 ## Usage
 
-Wayfinder assumes that the the first user is the administrator. **All rulesets created by the administrator account are public.** It is preferable that you be the only one who can access the site at this stage, to prevent someone else from potentially creating the administrator account. From here, you can add the rules and such for the default ruleset and begin using the site. Once the default ruleset and administrator account are set up, you can allow external connections to the site.
+Wayfarer assumes that the the first user is the administrator. **All rulesets created by the administrator account are public.** It is preferable that you be the only one who can access the site at this stage, to prevent someone else from potentially creating the administrator account. From here, you can add the rules and such for the default ruleset and begin using the site. Once the default ruleset and administrator account are set up, you can allow external connections to the site.
 
 ## Acknowledgements
 

@@ -6,6 +6,8 @@ document.addEventListener ("alpine:init", () => {
         },
         name: "",
         time: "",
-        text: ""
+        text: "",
+        showversatile: false,
+        showrange: false
     }))
 })

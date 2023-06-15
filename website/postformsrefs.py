@@ -1,8 +1,7 @@
 from flask import render_template, redirect, url_for, request, session, flash, jsonify
 from flask_login import current_user
 from . import db
-from .jsonparsers import *
-from .models import Skill, ItemTag, Property, Language, Item, Action, Condition, Disease, Status, Spell
+from .models import *
 import sys, pickle
 
 def makeAction(request, cruleset, action, instruction):
@@ -289,12 +288,6 @@ def itemTag(request, cruleset, tag, instruction):
         elif(len(text) > 16383):
             flash("Tag description must be fewer than 16384 characters.", "red")
             return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
-        elif("<" in text):
-            flash("Open angle brackets (\"<\") are not allowed.", "red")
-            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
-        elif("javascript" in text):
-            flash("Cross-site scripting attacks are not allowed.", "red")
-            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
         else:
             if(instruction == "create"):
                 new_tag = ItemTag(
@@ -349,7 +342,9 @@ def itemProperty(request, cruleset, tproperty, instruction):
         new_property = Property(
             rulesetid = cruleset.id,
             name = f"{tproperty.name} Duplicate",
-            text = tproperty.text
+            text = tproperty.text,
+            displays_range = tproperty.displays_range,
+            displays_versatile = tproperty.displays_versatile
         )
         db.session.add(new_property)
         db.session.commit()
@@ -357,27 +352,25 @@ def itemProperty(request, cruleset, tproperty, instruction):
     else:
         name = request.form.get("name")
         text = request.form.get("text")
+        displays_range = bool(request.form.get("showrange"))
+        displays_versatile = bool(request.form.get("showversatile"))
         if(len(name) < 1):
             flash("You must specify a tag name.", "red")
-            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
+            return(redirect(url_for("eprefs.itemProperty", ruleset=cruleset.identifier)))
         elif(len(name) > 127):
             flash("Tag name must be fewer than 128 characters.", "red")
-            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
+            return(redirect(url_for("eprefs.itemProperty", ruleset=cruleset.identifier)))
         elif(len(text) > 16383):
             flash("Tag description must be fewer than 16384 characters.", "red")
-            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
-        elif("<" in text):
-            flash("Open angle brackets (\"<\") are not allowed.", "red")
-            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
-        elif("javascript" in text):
-            flash("Cross-site scripting attacks are not allowed.", "red")
-            return(redirect(url_for("eprefs.createTag", ruleset=cruleset.identifier)))
+            return(redirect(url_for("eprefs.itemProperty", ruleset=cruleset.identifier)))
         else:
             if(instruction == "create"):
                 new_property = Property(
                     rulesetid = cruleset.id,
                     name = name,
-                    text = text
+                    text = text,
+                    displays_range = displays_range,
+                    displays_versatile = displays_versatile
                 )
                 db.session.add(new_property)
                 db.session.commit()
@@ -385,7 +378,10 @@ def itemProperty(request, cruleset, tproperty, instruction):
             else:
                 tproperty.name = name
                 tproperty.text = text
+                tproperty.displays_range = displays_range
+                tproperty.displays_versatile = displays_versatile
                 db.session.commit()
+                flash("Changes saved!", "green")
     return(redirect(url_for("eprefs.properties", ruleset=cruleset.identifier)))
 
 def propertyImporter(properties, cruleset):
@@ -396,19 +392,23 @@ def propertyImporter(properties, cruleset):
         for i, itemproperty in enumerate(properties):
             name = itemproperty["name"]
             text = itemproperty["text"]
+            displays_versatile = itemproperty["displays_range"]
+            displays_range = itemproperty["displays_range"]
             if(len(name) < 1):
                 flash(f"Property at index {i} has no name; skipping...", "orange")
                 continue
             elif(len(name) > 127):
                 flash(f"{name} name too long (maximum 127 characters); skipping...", "orange")
                 continue
-            elif(len(text) > 16383):
+            elif(text and len(text) > 16383):
                 flash(f"{name} description too long (maximum 16383 characters); skipping...", "orange")
                 continue
             new_property = Property(
                 ruleset = cruleset,
                 name = name,
-                text = text
+                text = text,
+                displays_versatile = displays_versatile,
+                displays_range = displays_range
             )
             db.session.add(new_property)
         db.session.commit()
@@ -435,16 +435,22 @@ def makeItem(request, cruleset, item, instruction):
             cost = item.cost,
             weight = item.weight,
             text = item.text,
+            images = item.images,
             is_armor = item.is_armor,
+            stealth = item.stealth,
+            strength = item.strength,
             armor_class = item.armor_class,
             add_dex = item.add_dex,
             max_dex = item.max_dex,
-            stealth = item.stealth,
             is_weapon = item.is_weapon,
             die_num = item.die_num,
             damage_die = item.damage_die,
             damage_types = item.damage_types,
-            weapon_properties = item.weapon_properties
+            weapon_properties = item.weapon_properties,
+            short_range = item.short_range,
+            long_range = item.long_range,
+            versatile_num = item.versatile_num,
+            versatile_die = item.versatile_die
         )
         db.session.add(new_item)
         db.session.commit()
@@ -492,12 +498,14 @@ def makeItem(request, cruleset, item, instruction):
                 stealth = True
             else:
                 stealth = False
+            strength = request.form.get("strength")
         else:
             is_armor = False
             armor_class = None
             add_dex = None
             max_dex = None
             stealth = None
+            strength = None
         is_weapon = request.form.get("isweapon")
         if(is_weapon):
             is_weapon = True
@@ -511,6 +519,10 @@ def makeItem(request, cruleset, item, instruction):
             damage_die = None
             damage_types = None
             weapon_properties = []
+        short_range = request.form.get("shortrange")
+        long_range = request.form.get("longrange")
+        versatile_num = request.form.get("versatilenum")
+        versatile_die = request.form.get("versatiledie")
         if(len(name) < 1):
             flash("You must specify an item name.", "red")
         elif(len(name) > 127):
@@ -529,7 +541,7 @@ def makeItem(request, cruleset, item, instruction):
             flash("Weapon Properties must be fewer than 256 characters.", "red")
         elif(instruction=="create"):
             new_item = Item(
-                rulesetid = cruleset.id,
+                ruleset = cruleset,
                 name = name,
                 is_magical = is_magical,
                 rarity = rarity,
@@ -540,16 +552,22 @@ def makeItem(request, cruleset, item, instruction):
                 cost = cost,
                 weight = weight,
                 text = text,
+                images = [],
                 is_armor = is_armor,
+                stealth = stealth,
+                strength = strength,
                 armor_class = armor_class,
                 add_dex = add_dex,
                 max_dex = max_dex,
-                stealth = stealth,
                 is_weapon = is_weapon,
                 die_num = die_num,
                 damage_die = damage_die,
                 damage_types = damage_types,
-                weapon_properties = weapon_properties
+                weapon_properties = weapon_properties,
+                short_range = short_range,
+                long_range = long_range,
+                versatile_num = versatile_num,
+                versatile_die = versatile_die
             )
             db.session.add(new_item)
             db.session.commit()
@@ -567,21 +585,26 @@ def makeItem(request, cruleset, item, instruction):
             item.weight = weight
             item.text = text
             item.is_armor = is_armor
+            item.stealth = stealth
+            item.strength = strength
             item.armor_class = armor_class
             item.add_dex = add_dex
             item.max_dex = max_dex
-            item.stealth = stealth
             item.is_weapon = is_weapon
             item.die_num = die_num
             item.damage_die = damage_die
             item.damage_types = damage_types
             item.weapon_properties = weapon_properties
+            item.short_range = short_range
+            item.long_range = long_range
+            item.versatile_num = versatile_num
+            item.versatile_die = versatile_die
             db.session.commit()
             flash("Changes saved!", "green")
             return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
         return(redirect(url_for("eprefs.createItem", ruleset=cruleset.identifier)))
 
-def itemImporter(items, base, cruleset):
+def itemImporter(items, cruleset):
     if(current_user.id != cruleset.userid):
         flash("You cannot import items into rulesets that are not your own.", "red")
         return(redirect(url_for("eprefs.items", ruleset=cruleset.identifier)))
@@ -597,6 +620,8 @@ def itemImporter(items, base, cruleset):
             cost = item["cost"]
             weight = item["weight"]
             text = item["text"]
+            if(not text):
+                text = ""
             images = item["images"]
             is_armor = item["is_armor"]
             stealth = item["stealth"]
@@ -624,13 +649,14 @@ def itemImporter(items, base, cruleset):
             elif(sys.getsizeof(pickle.dumps(images)) > 16384):
                 flash(f"{name} has too many images (maximum raw data size of list of links 16KiB); skipping...", "orange")
                 continue
-            elif(sys.getsizeof(pickle.dumps(damage_types))):
+            elif(sys.getsizeof(pickle.dumps(damage_types)) > 16383):
                 flash(f"{name} has too many damage types (maximum raw data size 16KiB); skipping...", "orange")
                 continue
-            elif(sys.getsizeof(pickle.dumps(weapon_properties))):
+            elif(sys.getsizeof(pickle.dumps(weapon_properties)) > 16383):
                 flash(f"{name} has too many weapon properties (maximum raw data size 16KiB); skipping...", "orange")
                 continue
             new_item = Item(
+                ruleset = cruleset,
                 name = name,
                 is_magical = is_magical,
                 rarity = rarity,
@@ -685,10 +711,6 @@ def makeLanguage(request, cruleset, language, instruction):
             flash("Language name must be fewer than 128 characters.", "red")
         elif(len(text) > 16383):
             flash("Language description must be fewer than 16384 characters.", "red")
-        elif("javascript" in text):
-            flash("Cross-site scripting attacks are not allowed.", "red")
-        elif("<" in text):
-            flash("Open angle brackets(\"<\") are not allowed.", "red")
         elif(instruction == "edit"):
             language.name = name
             language.text = text
