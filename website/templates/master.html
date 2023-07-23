@@ -87,8 +87,11 @@
 
 {% with messages = get_flashed_messages(with_categories=true) %}
 	{% for category, message in messages %}
-		<div class="interior flex horizontal center {{ category }} bar">
-			<span>{{ message }}</span>
+		<div class="interior flex horizontal center {{ category }} bar" x-data="{ dismissed: false }" x-show="!dismissed">
+			<span style="width: calc(100% - 80px)">{{ message }}</span>
+			<a style="margin: 0" @click="dismissed = !dismissed">
+				<span>&times</span>
+			</a>
 		</div>
 	{% endfor %}
 {% endwith %}

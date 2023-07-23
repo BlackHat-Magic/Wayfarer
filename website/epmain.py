@@ -9,8 +9,6 @@ import json
 
 epmain = Blueprint("epmain", __name__)
 
-# MAIN DOES NOT NEED SUBDOMAINS; FIX THIS
-
 @epmain.route("/")
 def noRulesetHome():
     return(noRuleset(current_user, "epmain.home"))
