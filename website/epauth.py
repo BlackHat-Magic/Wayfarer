@@ -7,17 +7,22 @@ from .uservalidation import *
 
 epauth = Blueprint('epauth', __name__)
 
+# Login endpoints
+# redirect with no subdomain
 @epauth.route("/Login")
 def noRulesetLogin():
     return(noRuleset(current_user, "epauth.login"))
+# subdomain
 @epauth.route("/Login", methods=["GET", "POST"], subdomain="<ruleset>")
 def login(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    # Login user with post request
     if(request.method == "POST"):
         username = request.form.get("username")
         password = request.form.get("password")
 
         user = User.query.filter_by(username = username).first()
+        # if user exists, validate credentials
         if(user):
             if(check_password_hash(user.password, password)):
                 login_user(user, remember=True)
@@ -26,8 +31,10 @@ def login(ruleset):
                 return(redirect(url_for("epmain.home", ruleset=cruleset.identifier)))
             else:
                 flash("Incorrect password.", "red")
+        # else, flash error that user does not exist
         else:
             flash("User does not exist.", "red")
+    # else return login page
     return(
         render_template(
             "login.html", 
@@ -37,11 +44,14 @@ def login(ruleset):
             title="Log In"
         )
     )
-    
+
+# logout endpoints; login required
+# redirect with no subdomain
 @epauth.route("/Logout")
 @login_required
 def noRulesetLogout():
     return(noRuleset(current_user, "epauth.logout"))
+# subdomain
 @epauth.route("/Logout", subdomain="<ruleset>")
 @login_required
 def logout(ruleset):
@@ -49,12 +59,16 @@ def logout(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(redirect(url_for("epmain.home", ruleset=cruleset.identifier)))
 
+# signup endpoints
+# redirect with no subdomain
 @epauth.route("/Signup")
 def noRulesetSignup():
     return(noRuleset(current_user, "epauth.signup"))
+# subdomain
 @epauth.route("/Signup", methods=["GET", "POST"], subdomain="<ruleset>")
 def signUp(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    # if post request, process signup info
     if(request.method == "POST"):
         username = request.form.get("username")
         email = request.form.get("email")
@@ -63,6 +77,7 @@ def signUp(ruleset):
 
         user = User.query.filter_by(username=username).first()
 
+        # validate input data
         if(user):
             flash("Username already in use. Please pick another username.", "red")
         elif(len(username) < 4):
@@ -74,8 +89,10 @@ def signUp(ruleset):
         elif(len(password1) < 8):
             flash("Password must be at least 8 characters", "red")
         else:
+            # create user with admin ruleset as current ruleset if admin rulesets exist
             try:
                 new_user = User(username = username, email = email, password=generate_password_hash(password1, method="sha256"), current_ruleset=Ruleset.query.filter_by(is_admin=True).first().id)
+            # otherwise create user with no current ruleset
             except:
                 new_user = User(username = username, email = email, password=generate_password_hash(password1, method="sha256"))
             db.session.add(new_user)
@@ -83,7 +100,7 @@ def signUp(ruleset):
             login_user(User.query.filter_by(username = username).first(), remember = True)
             flash(f"Welcome, {username}.", "green")
             return(redirect(url_for("epmain.home", ruleset=cruleset.identifier)))
-        
+    # else return signup page
     return(
         render_template(
             "signup.html", 
