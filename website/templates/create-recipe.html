@@ -6,17 +6,18 @@
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start" x-data="main">
-		<h1>Create Recipe</h1>
-		<form class="interior flex vertical start" method="post">
-			<input name="name" id="name" x-model="name" placeholder="Recipe Name">
-			<textarea name="text" id="text" x-model="text" placeholder="Recipe Description"></textarea>
-			<a><button type="submit">Create Recipe!</button></a>
-		</form>
+	<form class="flex vertical start" x-data="main" method="post">
+		<h1>{{ "Edit %s"|format(recipe.name) if recipe else "Create Recipe" }}</h1>
+
+		<input name="name" id="name" x-model="name" placeholder="Recipe Name" {% if recipe %} x-init="name = `{{ recipe.name }}`" {% endif %}>
+		<textarea name="text" id="text" x-model="text" placeholder="Recipe Description" {% if recipe %} x-init="text = `{{ recipe.text }}`" {% endif %}></textarea>
+
 		<h2 x-text="name"></h2>
 		<hr>
 		<div class="usercontent" x-html="convert(text)"></div>
-	</div>
+
+		<a><button type="submit">{{"Submit Changes" if recipe else "Create Recipe!"}}</button></a>
+	</form>
 </div>
 
 {% endblock %}

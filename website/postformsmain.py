@@ -530,4 +530,4 @@ def makeRuleset(request, ruleset, instruction):
             db.session.commit()
             flash("Changes saved!", "green")
             return(redirect(url_for("epmain.home", ruleset=ruleset.identifier)))
-    return(redirect(url_for("epmain.home", ruleset=Ruleset.query.filter_by(id=current_user.current_ruleset).first().identifier)))   
+    return(redirect(url_for("epmain.home", ruleset=Ruleset.query.filter_by(id=current_user.current_ruleset).first().identifier)))

@@ -71,7 +71,7 @@ def editAction(action, ruleset):
 
 @eprefs.route("/Actions/Delete/<string:action>", subdomain="<ruleset>")
 @login_required
-def deleteAction(action):
+def deleteAction(action, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     action = Action.query.filter_by(rulesetid = cruleset.id, name=action).first_or_404()
     if(current_user.id != cruleset.userid):
@@ -831,39 +831,39 @@ def createLanguage(ruleset):
         )
     )
 
-@eprefs.route("/Languages/Duplicate/<string:tlanguage>", subdomain="<ruleset>")
+@eprefs.route("/Languages/Duplicate/<string:language>", subdomain="<ruleset>")
 @login_required
-def duplicateLanguage(tlanguage, ruleset):
+def duplicateLanguage(language, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first_or_404()
-    return(makeLanguage(None, cruleset, tlanguage, "duplicate"))
+    language = Language.query.filter_by(rulesetid=cruleset.id, name=language).first_or_404()
+    return(makeLanguage(None, cruleset, language, "duplicate"))
 
-@eprefs.route("/Languages/Edit/<string:tlanguage>", methods=["GET", "POST"], subdomain="<ruleset>")
+@eprefs.route("/Languages/Edit/<string:language>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
-def editLanguage(tlanguage, ruleset):
+def editLanguage(language, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first_or_404()
+    language = Language.query.filter_by(rulesetid=cruleset.id, name=language).first_or_404()
     if(request.method == "POST"):
-        return(makeLanguage(request, cruleset, tlanguage, "edit"))
+        return(makeLanguage(request, cruleset, language, "edit"))
     return(
         render_template(
             "create-language.html",
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
-            title=f"Edit {tlanguage.name}",
-            tlanguage=tlanguage
+            title=f"Edit {language.name}",
+            language=language
         )
     )
 
-@eprefs.route("/Languages/Delete/<string:tlanguage>", subdomain="<ruleset>")
+@eprefs.route("/Languages/Delete/<string:language>", subdomain="<ruleset>")
 @login_required
-def deleteLanguage(tlanguage):
+def deleteLanguage(language):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    tlanguage = Language.query.filter_by(rulesetid=cruleset.id, name=tlanguage).first_or_404()
+    language = Language.query.filter_by(rulesetid=cruleset.id, name=language).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete languages in rulesets that are not your own.", "red")
     else:
-        db.session.delete(tlanguage)
+        db.session.delete(language)
         db.session.commit()
         flash("Language deleted.", "orange")
     return(redirect(url_for("eprefs.languages", ruleset=ruleset)))
@@ -1054,14 +1054,14 @@ def createRecipe(ruleset):
 @login_required
 def duplicateRecipe(recipe, ruleset):
     cruleset = getCurrentRuleset(current_user)
-    recipe = cruleset.recipes.filter_by(name = recipe).first_or_404()
+    recipe = Recipe.query.filter_by(rulesetid=cruleset.id, name=recipe).first_or_404()
     return(makeRecipe(request, cruleset, recipe, "duplicate"))
 
 @eprefs.route("/Recipes/Edit/<string:recipe>", methods=["GET", "POST"], subdomain="<ruleset>")
 @login_required
 def editRecipe(recipe, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    recipe = cruleset.recipes.filter_by(name = recipe).first_or_404()
+    recipe = Recipe.query.filter_by(rulesetid=cruleset.id, name=recipe).first_or_404()
     if(request.method == "POST"):
         return(makeRecipe(request, cruleset, recipe, "edit"))
     return(
@@ -1073,6 +1073,19 @@ def editRecipe(recipe, ruleset):
             recipe = recipe
         )
     )
+
+@eprefs.route("/Recipes/Delete/<string:recipe>", methods=["GET", "POST"], subdomain="<ruleset>")
+@login_required
+def deleteRecipe(recipe, ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    recipe = Recipe.query.filter_by(rulesetid=cruleset.id, name=recipe).first_or_404()
+    if(current_user.id != cruleset.userid):
+        flash("You cannot delete recipes in rulesets that are not your own.", "red")
+    else:
+        db.session.delete(recipe)
+        db.session.commit()
+        flash("Recipe deleted.", "orange")
+    return(redirect(url_for("eprefs.recipes", ruleset=ruleset)))
 
 @eprefs.route("/Recipes/Import", subdomain="<ruleset>", methods=["GET", "POST"])
 @login_required

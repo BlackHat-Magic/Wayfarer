@@ -8,11 +8,7 @@
 <div class="flex">
 	<form class="flex vertical start" x-data="main" method="post">
 		<!-- title -->
-		{% if tproperty %}
-			<h1>Edit {{ tproperty.name }}</h1>
-		{% else %}
-			<h1>Create Weapon Property</h1>
-		{% endif %}
+		<h1>{{ "Edit %s"|format(tproperty.name) if tproperty else "Create Weapon Property" }}</h1>
 
 		<!-- name -->
 		<input name="name" id="name" x-model="name" placeholder="Weapon Property Name" {% if tproperty %} x-init="name=`{{ tproperty.name }}`" {% endif %}>
@@ -21,11 +17,11 @@
 		<div class="interior flex horizontal space-around" style="width: 100%">
 			<div class="interior flex horizontal center">
 				<label for="showversatile">Show Versatile?</label>
-				<input type="checkbox" name="showversatile" id="showversatile" x-model="showversatile" {% if tproperty and tproperty.displays_versatile %} x-init="showversatile=true" {% endif %}>
+				<input type="checkbox" name="showversatile" id="showversatile" x-model="showversatile" value="1" {% if tproperty and tproperty.displays_versatile %} x-init="showversatile = true" {% endif %}>
 			</div>
 			<div class="interior flex horizontal center">
 				<label for="showrange">Show Range?</label>
-				<input type="checkbox" name="showrange" id="showrange" x-model="showrange" {% if tproperty and tproperty.displays_range %} x-init="showrange=true" {% endif %}>
+				<input type="checkbox" name="showrange" id="showrange" x-model="showrange" value="1" {% if tproperty and tproperty.displays_range %} x-init="showrange = true" {% endif %}>
 			</div>
 		</div>
 
@@ -36,11 +32,7 @@
 		<h2 x-text="name"></h2>
 		<hr>
 		<div class="usercontent" x-html="convert(text)"></div>
-		{% if tproperty %}
-			<a><button type="submit">Submit Changes</button></a>
-		{% else %}
-			<a><button type="submit">Create Weapon Property!</button></a>
-		{% endif %}
+		<a><button type="submit">{{ "Submit Changes" if tproperty else "Create Weapon Property!" }}</button></a>
 	</form>
 </div>
 

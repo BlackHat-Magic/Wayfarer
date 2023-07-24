@@ -7,11 +7,11 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Create Condition</h1>
+		<h1>{{ "Edit %s"|format(condition.name) if condition else "Create Condition" }}</h1>
 		<form class="interior flex vertical start" method="post">
-			<input name="name" id="name" x-model="name" placeholder="Condition Name">
-			<textarea name="text" id="text" x-model="text" placeholder="Condition Description"></textarea>
-			<a><button type="submit">Create Condition!</button></a>
+			<input name="name" id="name" x-model="name" placeholder="Condition Name" {% if condition %} x-init="name = `{{ condition.name }}`" {% endif %}>
+			<textarea name="text" id="text" x-model="text" placeholder="Condition Description" {% if condition %} x-init="text = `{{ condition.text }}`" {% endif %}></textarea>
+			<a><button type="submit">{{ "Submit Changes" if condition else "Create Condition!" }}</button></a>
 		</form>
 		<h2 x-text="name"></h2>
 		<hr>

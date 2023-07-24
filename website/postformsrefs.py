@@ -924,7 +924,7 @@ def spellImporter(spells, cruleset):
         return(redirect(url_for("eprefs.importSpells", ruleset=cruleset.identifier)))
 
 def makeRecipe(request, cruleset, recipe, instruction):
-    if(current_user.id != cruleset.id):
+    if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} recipes in rulesets that are not your own.", "red")
         return(redirect(url_for("eprefs.recipes", ruleset=cruleset.identifier)))
     elif(instruction == "duplicate"):

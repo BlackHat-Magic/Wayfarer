@@ -24,7 +24,7 @@ In no particular order...
      - [X] ~~Input validation for imported text~~
      - [ ] Validate pickles
      - [ ] Consolidate user content validation into a function
- - [ ] Make flash messages dismissable
+ - [X] ~~Make flash messages dismissable~~
  - [ ] Hyperlinks
      - [ ] Correctly parse and reformat 5e tools markup
  - [ ] Filter URLs

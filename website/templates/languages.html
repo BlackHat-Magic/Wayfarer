@@ -13,9 +13,9 @@
 			<h2 x-text="`{{ language.name }}`"></h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
-					<a href="{{ url_for('eprefs.editLanguage', tlanguage=language.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ language.name }}</button></a>
-					<a href="{{ url_for('eprefs.duplicateLanguage', tlanguage=language.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ language.name }}</button></a>
-					<a href="{{ url_for('eprefs.deleteLanguage', tlanguage=language.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ language.name }}</button></a>
+					<a href="{{ url_for('eprefs.editLanguage', language=language.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ language.name }}</button></a>
+					<a href="{{ url_for('eprefs.duplicateLanguage', language=language.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ language.name }}</button></a>
+					<a href="{{ url_for('eprefs.deleteLanguage', language=language.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ language.name }}</button></a>
 				</div>
 			{% endif %}
 			<hr>

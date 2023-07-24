@@ -244,7 +244,7 @@ def editBackground(background, ruleset):
     background = Background.query.filter_by(rulesetid = cruleset.id, name=background).first_or_404()
     # if post request, attempt to edit background; return result of edit function
     if(request.method == "POST"):
-        return(makebackground(request, cruleset, tbackground, "edit"))
+        return(makebackground(request, cruleset, background, "edit"))
     # else gather all tools that players can have proficiency with in current ruleset
     tools = []
     for tool in Item.query.filter_by(rulesetid = cruleset.id, proficiency = True):
@@ -256,7 +256,7 @@ def editBackground(background, ruleset):
             cruleset=cruleset, 
             adminrulesets=adminrulesets,
             tools=tools, 
-            title=f"Edit {tbackground.name}",
+            title=f"Edit {background.name}",
             background=background
         )
     )

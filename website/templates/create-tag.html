@@ -6,25 +6,17 @@
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start" x-data="main">
-		{% if tag %}
-			<h1>Edit {{ tag.name }}</h1>
-		{% else %}
-			<h1>Create Item Type</h1>
-		{% endif %}
-		<form class="interior flex vertical start" method="post">
-			<input name="name" id="name" x-model="name" placeholder="Item Type Name" {% if tag %} x-init="name=`{{ tag.name }}`" {% endif %}>
-			<textarea name="text" id="text" x-model="text" placeholder="Item Type Description Description" {% if tag %} x-init="text=`{{ tag.text }}`" {% endif %}></textarea>
-			{% if tag %}
-				<a><button type="submit">Submit Changes</button></a>
-			{% else %}
-				<a><button type="submit">Create Item Type!</button></a>
-			{% endif %}
-		</form>
-		<h2 x-text="name"></h2>
-		<hr>
-		<div class="usercontent" x-html="convert(text)"></div>
-	</div>
+<form method="post" class="flex vertical start" x-data="main">
+	<h1>{{ "Edit %s"|format(tag.name) if tag else "Create Item Type" }}</h1>
+
+	<input name="name" id="name" x-model="name" placeholder="Item Type Name" {% if tag %} x-init="name=`{{ tag.name }}`" {% endif %}>
+	<textarea name="text" id="text" x-model="text" placeholder="Item Type Description Description" {% if tag %} x-init="text=`{{ tag.text }}`" {% endif %}></textarea>
+	<h2 x-text="name"></h2>
+	<hr>
+	<div class="usercontent" x-html="convert(text)"></div>
+
+	<a><button type="submit">{{ "Submit Changes" if tag else "Create Item Type!" }}</button></a>
+</form>
 </div>
 
 {% endblock %}

@@ -7,27 +7,19 @@
 {% block body %}
 <div class="flex">
 	<form class="flex vertical start" x-data="main" method="post">
-		{% if tfeat %}
-			<h1>Edit {{ tfeat.name }}</h1>
-		{% else %}
-			<h1>Create a Feat</h1>
-		{% endif %}
-		<input id="name" name="name" x-model="name" placeholder="Feat Name" {% if tfeat %} x-init="name=`{{ tfeat.name }}`" {% endif %}>
-		<input id="prereq" name="prereq" x-model="prereq" placeholder="Feat Prerequisite" {% if tfeat %} x-init="prereq=`{{ tfeat.prerequisite }}`" {% endif %}>
-		<textarea id="text" name="text" x-model="text" placeholder="Feat Description" {% if tfeat %} x-init="text=`{{ tfeat.text }}`" {% endif %}></textarea>
+		<h1>{{ "Edit %s"|format(feat.name) if feat else "Create a Feat" }}</h1>
+		<input id="name" name="name" x-model="name" placeholder="Feat Name" {% if feat %} x-init="name = `{{ feat.name }}`" {% endif %}>
+		<input id="prereq" name="prereq" x-model="prereq" placeholder="Feat Prerequisite" {% if feat %} x-init="prereq = `{{ feat.prerequisite }}`" {% endif %}>
+		<textarea id="text" name="text" x-model="text" placeholder="Feat Description" {% if feat %} x-init="text = `{{ feat.text }}`" {% endif %}></textarea>
 		<div class="usercontent">
 			<h1 x-text="name"></h1>
-			<template x-if="prereq.length != 0">
+			<template x-if="prereq != ''">
 				<p><strong><em>Prerequisite: </em></strong><span x-text="prereq"></span></p>
 			</template>
 			<hr>
 			<div x-html="convert(text)" style="width: 100%"></div>
 		</div>
-		{% if tfeat %}
-			<a><button type="submit">Submit Changes</button></a>
-		{% else %}
-			<a><button type="submit">Create Feat</button></a>
-		{% endif %}
+		<a><button type="submit">{{ "Submit Changes" if feat else "Create Feat!" }}</button></a>
 	</form>
 </div>
 {% endblock %}

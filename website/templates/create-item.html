@@ -19,11 +19,7 @@
 		{% endfor %}
 
 		<!-- title -->
-		{% if not item %}
-			<h1>Create an Item</h1>
-		{% else %}
-			<h1>{{ item.name }}</h1>
-		{% endif %}
+		<h1>{{ "Edit %s"|format(item.name) if item else "Create an Item" }}</h1>
 		
 		<!-- name -->
 		<input 
@@ -461,11 +457,7 @@
 		</div>
 
 		<!-- submit button -->
-		{% if item %}
-			<a><button type="submit">Submit Changes</button></a>
-		{% else %}
-			<a><button type="submit">Create Item!</button></a>
-		{% endif %}
+		<a><button type="submit">{{ "Submit Changes" if item else "Create Item!" }}</button></a>
 	</form>
 </div>
 {% endblock %}

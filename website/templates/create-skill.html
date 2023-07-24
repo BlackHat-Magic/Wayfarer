@@ -6,40 +6,28 @@
 
 {% block body %}
 <div class="flex">
-    <div class="flex vertical start" x-data="main">
-        {% if skill %}
-            <h1>Edit {{ skill.name }}</h1>
-        {% else %}
-            <h1>Create a Skill</h1>
-        {% endif %}
-        <form class="interior flex vertical start" method="post">
-            <input type="text" name="name" id="name" placeholder="Skill Name" x-model="name" {% if skill %} x-init="name=`{{ skill.name }}`" {% endif %}>
-            {% if not cruleset.ability_scores %}
-                <div class="mild danger">
-                    <h3>Hey!</h3>
-					<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify the ability score used by this background. You can create ability scores <a href="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}">here</a>.</p>
-                </div>
-                <div style="height: 30px"></div>
-            {% endif %}
-            <label for="ability">Ability:</label>
-            <select name="ability" id="ability" x-model="ability" {% if skill %} x-init="ability=`{{ skill.ability_score }}`" {% endif %} >
-                <option value="N/A">N/A</option>
-                {% for score in cruleset.ability_scores %}
-                    <option value="{{ score.abbr }}">{{ score.name }}</option>
-                {% endfor %}
-            </select>
-            <textarea placeholder="Skill Description" x-model="text"></textarea>
-            <input type="hidden" name="text" id="text" x-model="text" {% if skill %} x-init="text=`{{ skill.description }}`" {% endif %}>
-            {% if skill %}
-                <a><button type="submit">Submit Changes</button></a>
-            {% else %}
-                <a><button type="submit">Create Skill!</button></a>
-            {% endif %}
-        </form>
-        <h1 x-text="name"></h1>
-        <p x-html="'<strong>Ability Score: </strong>' + ability"></p>
-        <div x-html="convert(text)"></div>
-    </div>
+<form class="flex vertical start" x-data="main" method="post">
+    <h1>{{ "Edit %s"|format(skill.name) if skill else "Create a Skill" }}</h1>
+    <input type="text" name="name" id="name" placeholder="Skill Name" x-model="name" {% if skill %} x-init="name=`{{ skill.name }}`" {% endif %}>
+    {% if not cruleset.ability_scores %}
+        <div class="mild danger">
+            <h3>Hey!</h3>
+            <p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify the ability score used by this background. You can create ability scores <a href="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}">here</a>.</p>
+        </div>
+        <div style="height: 30px"></div>
+    {% endif %}
+    <label for="ability">Ability:</label>
+    <select name="ability" id="ability" x-model="ability" {% if skill %} x-init="ability=`{{ skill.ability_score }}`" {% endif %} >
+        <option value="N/A">N/A</option>
+        {% for score in cruleset.ability_scores %}
+            <option value="{{ score.abbr }}">{{ score.name }}</option>
+        {% endfor %}
+    </select>
+    <textarea placeholder="Skill Description" x-model="text" name="text" id="text" {% if skill %} x-init="text=`{{ skill.description }}`" {% endif %}></textarea>
+    <p x-html="'<strong>Ability Score: </strong>' + ability"></p>
+    <div x-html="convert(text)"></div>
+    <a><button type="submit">{{ "Submit Changes" if skill else "Create Skill!" }}</button></a>
+</form>
 </div>
 {% endblock %}
 

@@ -11,6 +11,13 @@
 		{% for recipe in cruleset.recipes %}
 		<div class="usercontent">
 			<h2 x-text="'{{ recipe.name }}'"></h2>
+			{% if cruleset.userid == current_user.id %}
+			<div>
+				<a href="{{ url_for('eprefs.editRecipe', recipe=recipe.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ recipe.name }}</button></a>
+				<a href="{{ url_for('eprefs.duplicateRecipe', recipe=recipe.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ recipe.name }}</button></a>
+				<a href="{{ url_for('eprefs.deleteRecipe', recipe=recipe.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ recipe.name }}</button></a>
+				</div>
+			{% endif %}
 			<hr>
 			<div x-html="convert(`{{ recipe.text }}`)"></div>
 		</div>

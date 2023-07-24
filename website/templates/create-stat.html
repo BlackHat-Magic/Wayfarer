@@ -6,26 +6,19 @@
 
 {% block body %}
 <div class="flex">
-	<form class="flex vertical start" x-data="main" method="post">
-		{% if score %}
-			<h1>Edit {{ score.name }}</h1>
-			<template x-init="name=`{{ score.name }}`; abbr=`{{ score.abbr }}`; order=`{{ score.order }}`; text=`{{ score.text }}`"></template>
-		{% else %}
-			<h1>Create Ability Score</h1>
-		{% endif %}
-		<input name="name" id="name" x-model="name" placeholder="Ability Score Name">
-		<input name="abbr" id="abbr" x-model="abbr" placeholder="Ability Score Abbreviation">
-		<input name="order" id="order" x-model="order" placeholder="Order (What Position it will appear in on the list of Ability Scores)">
-		<textarea name="text" id="text" x-model="text" placeholder="Ability Score Description"></textarea>
-		<h2 x-text="name + ' (' + abbr + ')'"></h2>
-		<hr>
-		<div class="usercontent" x-html="convert(text)"></div>
-		{% if score %}
-			<a><button type="submit">Submit Changes</button></a>
-		{% else %}
-			<a><button type="submit">Create Ability Score!</button></a>
-		{% endif %}
-	</form>
+<form class="flex vertical start" x-data="main" method="post">
+	<h1>{{ "Edit %s"|format(score.name) if score else "Create Ability Score" }}</h1>
+
+	<input name="name" id="name" x-model="name" placeholder="Ability Score Name" {% if score %} x-init="name=`{{ score.name }}`" {% endif %}>
+	<input name="abbr" id="abbr" x-model="abbr" placeholder="Ability Score Abbreviation" {% if score %} x-init="abbr=`{{ score.abbr }}`" {% endif %}>
+	<input name="order" id="order" x-model="order" placeholder="Order (What Position it will appear in on the list of Ability Scores)" {% if score %} x-init="order=`{{ score.order }}`" {% endif %}>
+	<textarea name="text" id="text" x-model="text" placeholder="Ability Score Description" {% if score %} x-init="text=`{{ score.text }}`" {% endif %}></textarea>
+	<h2 x-text="name + ' (' + abbr + ')'"></h2>
+	<hr>
+	<div class="usercontent" x-html="convert(text)"></div>
+
+	<a><button type="submit">{{ "Submit Changes" if score else "Create Ability Score!" }}</button></a>
+</form>
 </div>
 
 {% endblock %}

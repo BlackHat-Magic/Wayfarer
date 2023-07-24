@@ -6,80 +6,78 @@
 
 {% block body %}
 <div class="flex">
-	<div class="flex vertical start" x-data="main">
-		<h1>Create an Item</h1>
-		<form class="interior flex vertical start" method="post">
-			<input type="text" name="name" id="name" x-model="name" placeholder="Item Name">
-			<div class="interior flex horizontal space-around" style="width: 100%">
-				<div class="interior flex horizontal start">
-					<label for="verbal">Has Verbal Component?</label>
-					<input id="verbal" name="verbal" type="checkbox" x-model="verbal" style="width: auto">
-				</div>
-				<div class="interior flex horizontal start">
-					<label for="somatic">Has Somatic Component?</label>
-					<input id="somatic" name="somatic" type="checkbox" x-model="somatic" style="width: auto">
-				</div>
-				<div class="interior flex vertical start">
-					<div class="interior flex horizontal start">
-						<label for="material">Has Material Component?</label>
-						<input id="material" name="material" type="checkbox" x-model="material" style="width: auto">
-					</div>
-					<div class="interior flex horizontal start" x-show="material">
-						<label for="consumes_material">Consumes Material Component?</label>
-						<input id="consumes_material" name="consumes_material" type="checkbox" x-model="consumes_material" style="width: auto">
-					</div>
-				</div>
-				<div class="interior flex vertical start">
-					<div class="interior flex horizontal start">
-						<label for="concentration">Requires Concentration?</label>
-						<input type="checkbox" name="concentration" id="concentration" x-model="concentration" style="width: auto">
-					</div>
-				</div>
+<form class="flex vertical start" x-data="main" method="post">
+	<h1>{{ "Edit %s"|format(spell.name) if spell else "Create a Spell" }}</h1>
+	<input type="text" name="name" id="name" x-model="name" placeholder="Item Name">
+	<div class="interior flex horizontal space-around" style="width: 100%">
+		<div class="interior flex horizontal start">
+			<label for="verbal">Has Verbal Component?</label>
+			<input id="verbal" name="verbal" type="checkbox" x-model="verbal" style="width: auto">
+		</div>
+		<div class="interior flex horizontal start">
+			<label for="somatic">Has Somatic Component?</label>
+			<input id="somatic" name="somatic" type="checkbox" x-model="somatic" style="width: auto">
+		</div>
+		<div class="interior flex vertical start">
+			<div class="interior flex horizontal start">
+				<label for="material">Has Material Component?</label>
+				<input id="material" name="material" type="checkbox" x-model="material" style="width: auto">
 			</div>
-			<div class="interior flex horizontal space-between" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-				<div style="width: 100%">
-					<label for="school">Spell School: </label>
-					<select name="school" id="school" x-model="school" style="width: auto">
-						<option>Abjuration</option>
-						<option>Conjuration</option>
-						<option>Divination</option>
-						<option>Enchantment</option>
-						<option>Evocation</option>
-						<option>Illusion</option>
-						<option>Transmutation</option>
-						<option>Necromancy</option>
-					</select>
-				</div>
-				<label for="level" style="width: 25%">Spell Level:</label>
-				<input type="range" style="width: 30%; margin: 0" min="0" max="12" name="level" id="level" x-model="level">
-				<span style="width: 25%" x-text="levellist[level]"></span>
-				<label for="time" style="width: 25%">Casting Time: </label>
-				<input type="range" style="width: 30%; margin: 0" min="0" max="9" vname="time" id="time" x-model="time">
-				<span style="width: 25%" x-text="timelist[time]"></span>
-				<label for="range" style="width: 25%">Spell Range: </label>
-				<input type="range" style="width: 30%; margin: 0" min="0" max="23" name="range" id="range" x-model="range">
-				<span style="width: 25%" x-text="rangelist[range]"></span>
-				<label for="duration" style="width: 25%"> Spell Duration: </label>
-				<input type="range" style="width: 30%; margin: 0" min="0" max="11" name="duration" id="duration" x-model="duration">
-				<span style="width: 25%" x-text="durationlist[duration]"></span>
+			<div class="interior flex horizontal start" x-show="material">
+				<label for="consumes_material">Consumes Material Component?</label>
+				<input id="consumes_material" name="consumes_material" type="checkbox" x-model="consumes_material" style="width: auto">
 			</div>
-			<div class="interior flex horizontal space-around" style="width: 100%">
-				<input x-show="material" name="material_specific" id="material_specific" type="text" x-model="material_specific" style="width: auto" placeholder="Material Component">
+		</div>
+		<div class="interior flex vertical start">
+			<div class="interior flex horizontal start">
+				<label for="concentration">Requires Concentration?</label>
+				<input type="checkbox" name="concentration" id="concentration" x-model="concentration" style="width: auto">
 			</div>
-			<textarea x-model="text" placeholder="Item Description"></textarea>
-			<input type="hidden" name="text" id="text" x-model="text">
-			<a><button type="submit">Create Spell!</button></a>
-		</form>
-		<div class="usercontent">
-			<h1 x-text="name"></h1>
-			<p><em x-text="levellist[level] + '-level ' + school"></em></p>
-			<p><strong>Casting Time: </strong><span x-text="timelist[time]"></span></p>
-			<p><strong>Range: </strong><span x-text="rangelist[range]"></span></p>
-			<p><strong>Components: </strong><span x-text="parseComponents()"></span></p>
-			<p><strong>Duration: </strong><span x-text="durationlist[duration]"></span></p>
-			<hr>
-			<div x-html="convert(text)"></div>
 		</div>
 	</div>
+	<div class="interior flex horizontal space-between" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+		<div style="width: 100%">
+			<label for="school">Spell School: </label>
+			<select name="school" id="school" x-model="school" style="width: auto">
+				<option>Abjuration</option>
+				<option>Conjuration</option>
+				<option>Divination</option>
+				<option>Enchantment</option>
+				<option>Evocation</option>
+				<option>Illusion</option>
+				<option>Transmutation</option>
+				<option>Necromancy</option>
+			</select>
+		</div>
+		<label for="level" style="width: 25%">Spell Level:</label>
+		<input type="range" style="width: 30%; margin: 0" min="0" max="12" name="level" id="level" x-model="level">
+		<span style="width: 25%" x-text="levellist[level]"></span>
+		<label for="time" style="width: 25%">Casting Time: </label>
+		<input type="range" style="width: 30%; margin: 0" min="0" max="9" vname="time" id="time" x-model="time">
+		<span style="width: 25%" x-text="timelist[time]"></span>
+		<label for="range" style="width: 25%">Spell Range: </label>
+		<input type="range" style="width: 30%; margin: 0" min="0" max="23" name="range" id="range" x-model="range">
+		<span style="width: 25%" x-text="rangelist[range]"></span>
+		<label for="duration" style="width: 25%"> Spell Duration: </label>
+		<input type="range" style="width: 30%; margin: 0" min="0" max="11" name="duration" id="duration" x-model="duration">
+		<span style="width: 25%" x-text="durationlist[duration]"></span>
+	</div>
+	<div class="interior flex horizontal space-around" style="width: 100%">
+		<input x-show="material" name="material_specific" id="material_specific" type="text" x-model="material_specific" style="width: auto" placeholder="Material Component">
+	</div>
+	<textarea x-model="text" placeholder="Item Description"></textarea>
+	<input type="hidden" name="text" id="text" x-model="text">
+	<div class="usercontent">
+		<h1 x-text="name"></h1>
+		<p><em x-text="levellist[level] + '-level ' + school"></em></p>
+		<p><strong>Casting Time: </strong><span x-text="timelist[time]"></span></p>
+		<p><strong>Range: </strong><span x-text="rangelist[range]"></span></p>
+		<p><strong>Components: </strong><span x-text="parseComponents()"></span></p>
+		<p><strong>Duration: </strong><span x-text="durationlist[duration]"></span></p>
+		<hr>
+		<div x-html="convert(text)"></div>
+	</div>
+	<a><button type="submit">{{ "Submit Changes" if spell else "Create Spell!" }}</button></a>
+</form>
 </div>
 {% endblock %}
