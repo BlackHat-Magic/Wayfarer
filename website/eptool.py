@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, render_template, redirect, url_for, request, session
+from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, stream_with_context
 from .models import Ruleset
 from flask_login import login_required, current_user
 from .uservalidation import *
@@ -30,7 +30,7 @@ def npcGen(ruleset):
             "gen-npc.html", 
             cruleset=cruleset,
             adminrulesets=adminrulesets,
-            title="Page Under Construction"
+            title="Generate NPCs"
         )
     )
 

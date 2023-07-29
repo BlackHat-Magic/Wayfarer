@@ -386,11 +386,11 @@ document.addEventListener ("alpine:init", () => {
                 character.aligment = ""
                 lawful_chaotic = Math.random()
                 if(lawful_chaotic <= lc_lawful_prob) {
-                    character.alignment += "Lawful"
+                    character.alignment = "Lawful"
                 } else if (lawful_chaotic <= lc_lawful_prob + lc_neutral_prob) {
-                    character.alignment += "Neutral"
+                    character.alignment = "Neutral"
                 } else {
-                    character.alignment += "Evil"
+                    character.alignment = "Chaotic"
                 }
                 good_evil = Math.random()
                 if (good_evil <= ge_good_prob) {
@@ -398,31 +398,33 @@ document.addEventListener ("alpine:init", () => {
                 } else if (good_evil <= ge_good_prob + ge_neutral_prob) {
                     character.alignment += " Neutral"
                 } else {
-                    character.aligment += " Evil"
+                    character.alignment += " Evil"
                 }
                 if (character.alignment == "Neutral Neutral") {
                     character.alignment = "True Neutral"
                 }
+                // console.log(character)
             }
             ideallib = ["Balance", "Knowledge", "Live and let live", "Moderation", "Neutrality", "People", "Aspiration", "Discovery", "Glory", "Nation", "Redemption", "Self-Knowledge"]
             if (character.alignment.includes("Good")) {
-                ideallib += [
+                ideallib.concat([
                     "Beauty", "Charity", "Greater Good", "Life", "Respect", "Self-Sacrifice"
-                ]
+                ])
             } else if (character.alignment.includes("Evil")) {
-                ideallib += [
+                ideallib.concat([
                     "Domination", "Greed", "Might", "Pain", "Retribution", "Slaughter"
-                ]
+                ])
             }
             if (character.alignment.includes("Lawful")) {
-                ideallib += [
+                ideallib.concat([
                     "Community", "Fairness", "Honor", "Logic", "Responsibility", "Tradition"
-                ]
+                ])
             } else if (character.alignment.includes("Chaotic")) {
-                ideallib += [
+                ideallib.concat([
                     "Change", "Creativity", "Freedom", "Independence", "No Limits", "Whimsy"
-                ]
+                ])
             }
+            console.log(ideallib)
             character.ideal = ideallib[Math.floor(Math.random() * ideallib.length)]
 
             bondlib = [

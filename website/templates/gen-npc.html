@@ -250,32 +250,42 @@
 <div class="flex">
 <div class="flex vertical start">
     <h1 x-text="displayed_character.full_name"></h1>
-    <span><em x-text="displayed_character.sex + ' ' + displayed_character.race + '(' + displayed_character.subrace + '), ' + displayed_character.alignment"></em></span>
+    <span><em x-text="displayed_character.sex + ' ' + displayed_character.race + ' (' + displayed_character.subrace + '), ' + displayed_character.alignment"></em></span>
     <span><strong><em>Height: </em></strong><span x-text="(Math.floor(displayed_character.total_height / 12) + 1) + `' ` + displayed_character.total_height % 12 + `''`"></span></span>
     <span><strong><em>Weight: </em></strong><span x-text="displayed_character.total_weight + 'lbs'"></span></span>
-    <div class="interior flex horizontal center">
-        <blockquote style="width: auto"><ul>
-            <li x-text="displayed_character.feature_one"></li>
-            <li x-text="displayed_character.feature_two"></li>
-            <li x-text="displayed_character.talent"></li>
-            <li x-text="displayed_character.mannerism"></li>
-            <li x-text="displayed_character.trait"></li>
-            <template x-for="item in displayed_character.statfeature.split('; ')">
-                <li x-text="item"></li>
-            </template>
-        </ul></blockquote>
-        <div class="interior flex vertical start">
-            <span><strong><em>Ideal: </em></strong><span x-text="displayed_character.ideal"></span></span>
-            <span><strong><em>Bond: </em></strong><span x-text="displayed_character.bond"></span></span>
-            <span><strong><em>Flaw: </em></strong><span x-text="displayed_character.flaw"></span></span>
-            <span><strong><em>Strength: </em></strong><span x-text="character.strength"></span></span>
-            <span><strong><em>Dexterity: </em></strong><span x-text="character.dexterity"></span></span>
-            <span><strong><em>Constitution: </em></strong><span x-text="character.constitution"></span></span>
-            <span><strong><em>Intelligence: </em></strong><span x-text="character.intelligence"></span></span>
-            <span><strong><em>Wisdom: </em></strong><span x-text="character.wisdom"></span></span>
-            <span><strong><em>Charisma: </em></strong><span x-text="character.charisma"></span></span>
+    <div class="interior flex horizontal center" style="width: 100%">
+        <div class="interior flex vertical start" style="width: 50%">
+            <h6>Physical Traits</h6>
+            <blockquote><ul>
+                <li x-text="displayed_character.feature_one"></li>
+                <li x-text="displayed_character.feature_two"></li>
+                <li x-text="displayed_character.talent"></li>
+                <li x-text="displayed_character.mannerism"></li>
+                <li x-text="displayed_character.trait"></li>
+                <template x-for="item in displayed_character.statfeature.split('; ')">
+                    <li x-text="item"></li>
+                </template>
+            </ul></blockquote>
+        </div>
+        <div class="interior flex horizontal center" style="width: 50%">
+            <h6 style="width: 100%">Ability Scores</h6>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Strength: </em></strong><span style="width: 50%" x-text="character.strength"></span>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Dexterity: </em></strong><span style="width: 50%" x-text="character.dexterity"></span>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Constitution: </em></strong><span style="width: 50%" x-text="character.constitution"></span>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Intelligence: </em></strong><span style="width: 50%" x-text="character.intelligence"></span>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Wisdom: </em></strong><span style="width: 50%" x-text="character.wisdom"></span>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Charisma: </em></strong><span style="width: 50%" x-text="character.charisma"></span>
+            <h6 style="width: 100%">Personal</h6>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Ideal: </em></strong><span style="width: 50%" x-text="displayed_character.ideal"></span>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Bond: </em></strong><span style="width: 50%" x-text="displayed_character.bond"></span>
+            <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Flaw: </em></strong><span style="width: 50%" x-text="displayed_character.flaw"></span>
         </div>
     </div>
+    <div class="interior flex horizontal center">
+        <h2>Natural Language Description: </h2>
+        <a><button>Generate</button></a>
+    </div>
+    <blockquote><h3>Hello World!!</h3></blockquote>
 </div>
 </div>
 </template>
