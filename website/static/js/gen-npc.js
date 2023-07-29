@@ -516,6 +516,90 @@ document.addEventListener ("alpine:init", () => {
             }
 
             this.displayed_character = character;
+        },
+
+        InitSSE () {
+            window.addEventListener ("beforeunload", () => {
+                if (this.nld_source) {
+                    this.nld_source.close();
+                }
+                if (this.rpi_source) {
+                    this.rpi_source.close()
+                }
+            })
+        },
+
+        nld_source: null,
+        nld: "",
+        RequestNLD () {
+            let description = ""
+            description += ` - ${character.sex != "Neither" ? character.sex : ""} ${character.race}`
+            description += `\n - Height: ${Math.floor(character.total_height / 12 + 1)}' ${character.total_height % 12}"`
+            description += `\n - Weight: ${character.total_weight}`
+            description += `\n - ${character.feature_one}`
+            description += `\n - ${character.feature_two}`
+            description += `\n - Talent: ${character.talent}`
+            description += `\n - Mannerism: ${character.mannerism}`
+            description += `\n - Trait: ${character.trait}`
+            for (let i = 0; i < character.statfeature.split("; ").length; i++) {
+                description += `\n - ${character.statfeature.split("; ")[i]}`
+            }
+            description += `\n - Ideal: ${character.ideal}`
+            description += `\n - Bond: ${character.bond}`
+            description += `\n - Flaw: ${character.flaw}`
+
+            processed = encodeURIComponent(description)
+
+            this.nld_source = new EventSource(`/Tools/NPC-Gen/NLD?description=${processed}`)
+            this.nld_source.onmessage = (event) => {
+                this.nld = event.data;
+            }
+            this.nld_source.addEventListener("END", () => {
+                this.StopNLD();
+            })
+        },
+        StopNLD () {
+            if (this.nld_source) {
+                this.nld_source.close();
+                this.nld_source = null;
+            }
+        },
+
+        rpi_source: null,
+        rpi: "",
+        RequestRPI () {
+            let description = ""
+            description += ` - ${character.sex != "Neither" ? character.sex : ""} ${character.race}`
+            description += ` - Name: ${character.full_name}`
+            description += `\n - Height: ${Math.floor(character.total_height / 12 + 1)}' ${character.total_height % 12}"`
+            description += `\n - Weight: ${character.total_weight}`
+            description += `\n - ${character.feature_one}`
+            description += `\n - ${character.feature_two}`
+            description += `\n - Talent: ${character.talent}`
+            description += `\n - Mannerism: ${character.mannerism}`
+            description += `\n - Trait: ${character.trait}`
+            for (let i = 0; i < character.statfeature.split("; ").length; i++) {
+                description += `\n - ${character.statfeature.split("; ")[i]}`
+            }
+            description += `\n - Ideal: ${character.ideal}`
+            description += `\n - Bond: ${character.bond}`
+            description += `\n - Flaw: ${character.flaw}`
+
+            processed = encodeURIComponent(description)
+
+            this.rpi_source = new EventSource(`/Tools/NPC-Gen/RPI?description=${processed}`)
+            this.rpi_source.onmessage = (event) => {
+                this.rpi = event.data;
+            }
+            this.nld_source.addEventListener("END", () => {
+                this.stopRPI();
+            })
+        },
+        StopRPI () {
+            if (this.rpi_source) {
+                this.rpi_source.close();
+                this.rpi_source = null;
+            }
         }
     }))
 })

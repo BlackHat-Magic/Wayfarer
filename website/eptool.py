@@ -1,7 +1,8 @@
-from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, stream_with_context
-from .models import Ruleset
+from flask import Blueprint, Flask, render_template, redirect, url_for, request, session, stream_with_context, Response
+from .models import Ruleset, User
 from flask_login import login_required, current_user
 from .uservalidation import *
+import time, openai
 
 eptool = Blueprint('eptool', __name__)
 
@@ -33,6 +34,74 @@ def npcGen(ruleset):
             title="Generate NPCs"
         )
     )
+
+@eptool.route("/NPC-Gen/NLD", subdomain="<ruleset>")
+def npcGenNLD(ruleset):
+    if(not current_user.is_authenticated):
+        return(Response("event: END\ndata: Stream ended\n\n", mimetype="text/event-stream"))
+    description = request.args.get("description", "no")
+    if(description == "no"):
+        yield "event: END\ndata: Stream ended\n\n"
+    def event_stream():
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "The user will provide you a bulleted list of traits a fantasy character has. Respond with only a natural language description of that character. Word your response like you would a text box found in an adventure book that the game master in a tabletop roleplaying game would read to the players when describing the character as though they were an NPC. If the list includes details that the players would not be able to discern just by looking at the character, ignore them. And don't be too specific with details that the players can discern; they've just met this person, they haven't had time to study them. Make up details if needed."
+                    },
+                    {
+                        "role": "user",
+                        "content": description
+                    }
+                ],
+                stream=True
+            )
+            totality = ""
+            for chunk in response:
+                delta = chunk["choices"][0]["delta"].get("content", "")
+                totality += delta
+                yield f"data: {totality}\n\n"
+            yield "event: END\ndata: Stream ended\n\n"
+        except Exception as e:
+            yield f"data: ERROR: {str(e)}\n\n"
+            yield "event: END\ndata: Stream ended\n\n"
+    
+    return(Response(event_stream(), mimetype="text/event-stream"))
+
+@eptool.route("/NPC-Gen/RPI", subdomain="<ruleset>")
+def npcGenRPI(ruleset):
+    if(not current_user.is_authenticated):
+        return(Response("event: END\ndata: Stream ended\n\n", mimetype="text/event-stream"))
+    description = request.args.get("description", "no")
+    if(description == "no"):
+        yield "event: END\ndata: Stream ended\n\n"
+    def event_stream():
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "The user will provide you a bulleted list of traits a fantasy character has. Respond with instructions for how a game master for a tabletop roleplaying game should roleplay the character. Word your response like you would a text box found in an adventure book."
+                    },
+                    {
+                        "role": "user",
+                        "content": description
+                    }
+                ],
+                stream=True
+            )
+            totality = ""
+            for chunk in response:
+                delta = chunk["choices"][0]["delta"].get("content", "")
+                totality += delta
+                yield f"data: {totality}\n\n"
+            yield "event: END\ndata: Stream ended\n\n"
+        except Exception as e:
+            yield f"data: ERROR: {str(e)}\n\n"
+            yield "event: END\ndata: Stream ended\n\n"
 
 @eptool.route("/Backstory-Gen", subdomain="<ruleset>")
 def backstoryGen(ruleset):

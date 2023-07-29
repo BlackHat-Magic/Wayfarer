@@ -281,11 +281,22 @@
             <strong style="margin-right: 8px; width: calc(50% - 8px); text-align: right"><em>Flaw: </em></strong><span style="width: 50%" x-text="displayed_character.flaw"></span>
         </div>
     </div>
-    <div class="interior flex horizontal center">
-        <h2>Natural Language Description: </h2>
-        <a><button>Generate</button></a>
-    </div>
-    <blockquote><h3>Hello World!!</h3></blockquote>
+    {% if current_user.is_authenticated %}
+    <blockquote style="max-width: 720px!important; padding: 36px">
+        <div class="interior flex horizontal center" style="background-color: transparent">
+            <h2>Description: </h2>
+            <a><button @click="RequestNLD()">Generate</button></a>
+        </div>
+        <p x-text="nld"></p>
+    </blockquote>
+    <blockquote style="max-width: 720px!important; padding: 36px">
+        <div class="interior flex horizontal center" style="background-color: transparent">
+            <h2>Roleplay Instructions: </h2>
+            <a><button @click="RequestRPI()">Generate</button></a>
+        </div>
+        <p x-text="rpi"></p>
+    </blockquote>
+    {% endif %}
 </div>
 </div>
 </template>

@@ -3,17 +3,18 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
+from dotenv import load_dotenv
+import openai, os
 # import json
 
+load_dotenv()
 db = SQLAlchemy()
 DB_NAME = "database.db"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def start():
     app = Flask(__name__)
-    keyfile = open("session.key")
-    key = keyfile.read()
-    keyfile.close()
-    app.config["SECRET_KEY"] = key
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
     app.config["SQLALCHEMY_DATABASE_URI"] =  f"sqlite:///{DB_NAME}"
     db.init_app(app)
 
@@ -51,8 +52,8 @@ def create_database(app):
             db.create_all(app=app)
             from .models import User, Ruleset
             admin_user = User(
-                username = "admin",
-                password = generate_password_hash("password", method="sha256"),
+                username = os.getenv("DEFAULT_USERNAME"),
+                password = generate_password_hash(os.getenv("DEFAULT_PASSWORD"), method="sha256"),
                 is_admin = True
             )
             db.session.add(admin_user)
