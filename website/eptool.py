@@ -6,12 +6,12 @@ from .uservalidation import *
 eptool = Blueprint('eptool', __name__)
 
 ## TOOLS
-@eptool.route("/")
-def tools():
+@eptool.route("/", subdomain="<ruleset>")
+def tools(ruleset):
     return(redirect(url_for("epmain.home", ruleset=ruleset)))
 
-@eptool.route("/VTT")
-def vtt():
+@eptool.route("/VTT", subdomain="<ruleset>")
+def vtt(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
@@ -22,8 +22,20 @@ def vtt():
         )
     )
 
-@eptool.route("/NPC-Gen")
-def npcGen():
+@eptool.route("/NPC-Gen", subdomain="<ruleset>")
+def npcGen(ruleset):
+    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
+    return(
+        render_template(
+            "gen-npc.html", 
+            cruleset=cruleset,
+            adminrulesets=adminrulesets,
+            title="Page Under Construction"
+        )
+    )
+
+@eptool.route("/Backstory-Gen", subdomain="<ruleset>")
+def backstoryGen(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
@@ -34,8 +46,8 @@ def npcGen():
         )
     )
 
-@eptool.route("/Backstory-Gen")
-def backstoryGen():
+@eptool.route("/CR-Calc", subdomain="<ruleset>")
+def crCalc(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
@@ -46,8 +58,8 @@ def backstoryGen():
         )
     )
 
-@eptool.route("/CR-Calc")
-def crCalc():
+@eptool.route("/Encounter-Gen", subdomain="<ruleset>")
+def encounterGen(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
@@ -58,8 +70,8 @@ def crCalc():
         )
     )
 
-@eptool.route("/Encounter-Gen")
-def encounterGen():
+@eptool.route("/Loot-Gen", subdomain="<ruleset>")
+def lootGen(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(
@@ -70,20 +82,8 @@ def encounterGen():
         )
     )
 
-@eptool.route("/Loot-Gen")
-def lootGen():
-    adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    return(
-        render_template(
-            "unfinished.html", 
-            cruleset=cruleset,
-            adminrulesets=adminrulesets,
-            title="Page Under Construction"
-        )
-    )
-
-@eptool.route("/Stat-Gen")
-def statGen():
+@eptool.route("/Stat-Gen", subdomain="<ruleset>")
+def statGen(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     return(
         render_template(

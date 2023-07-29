@@ -1,0 +1,283 @@
+{% extends "master.html" %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/gen-npc.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div x-data="main">
+<div class="flex">
+<div class="flex vertical start">
+    <!-- title -->
+    <h1>Generate an NPC</h1>
+
+    <div class="interior flex horizontal center" style="background-color: var(--nord-inactive); padding: 24px; width: 100%">
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)">
+            <label><h3>Sex: </h3></label>
+            <select x-model="sex" style="width: auto">
+                <option>Male</option>
+                <option>Female</option>
+                <option>Neither</option>
+                <option>Random</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- name -->
+    <div class="interior flex vertical start" style="background-color: var(--nord-inactive); width: 100%; padding: 24px; margin-top: 24px">
+        <h3>Name</h3>
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)">
+            <label for="random_name">Random Name?</label>
+            <input 
+                type="checkbox" 
+                checked
+                name="random_name"
+                id="random_name"
+                x-model="random_name"
+                x-ref="random_name">
+        </div>
+        <input 
+            type="text"
+            x-show="!random_name"
+            name="name"
+            placeholder="NPC Name"
+            id="name"
+            x-model="name"
+            x-ref="name">
+    </div>
+    
+    <!-- race -->
+    <div class="interior flex vertical start" style="background-color: var(--nord-inactive); width: 100%; padding: 24px; margin-top: 24px">
+        <div class="interior flex vertical start mild danger" x-show="raceSelectWarnEval()" style="padding: 24px">
+            <h3>Invalid Input</h3>
+            <p>You must allow at least one race to be selected.</p>
+        </div>
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)">
+            <label for="race_select"><h3>Allowed Races: </h3></label>
+            <select
+                name="race_select"
+                id="race_select"
+                x-model="race_select"
+                x-ref="race_select"
+                style="width:auto">
+                <option value="all" selected>All</option>
+                <option value="select">From Selected</option>
+            </select>
+        </div>
+        <div class="interior flex vertical start" x-show="race_select == 'select'" style="background-color: var(--nord-inactive)">
+            {% for race in cruleset.races %}
+            {% set index = loop.index0 %}
+            <div class="interior flex horizontal center" x-init="raceROM.push({name: `{{ race.name }}`, selected: true, subraces: []})" style="background-color: var(--nord-inactive)">
+                {% for subrace in race.subraces %}
+                    <template x-init="raceROM[{{ index }}].subraces.push({name: `{{ subrace.name }}`, selected: true})"></template>
+                {% endfor %}
+                <label for="race-{{ index }}">{{ race.name }}</label>
+                <input
+                    type="checkbox" 
+                    checked
+                    name="race-{{ index }}-select"
+                    id="race-{{ index }}-select"
+                    x-ref="race-{{ index }}-select"
+                    x-model="raceROM[{{ index }}].selected">
+                </input>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- subrace -->
+    <div class="interior flex vertical start" style="background-color: var(--nord-inactive); width: 100%; padding: 24px; margin-top: 24px" x-show="subraceShowEval()">
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive); box-sizing: border-box">
+            <label for="subrace_select"><h3>Allowed Subraces: </h3></label>
+            <select
+                name="subrace_select"
+                id="subrace_select"
+                x-model="subrace_select"
+                x-ref="subrace_select"
+                style="width:auto">
+                <option value="all" selected>All</option>
+                <option value="select">From Selected</option>
+            </select>
+        </div>
+        {% for race in cruleset.races %}
+        {% set index=loop.index0 %}
+        {% for subrace in race.subraces %}
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)" x-show="raceROM[{{ index }}].selected">
+            <label for="race-{{ index }}-subrace-{{ loop.index0 }}">{{ subrace.name }}</label>
+            <input
+                type="checkbox"
+                checked
+                name="race-{{ index }}-subrace-{{ loop.index0 }}"
+                id="race-{{ index }}-subrace-{{ loop.index0 }}"
+                x-ref="race-{{ index }}-subrace-{{ loop.index0 }}"
+                x-model="raceROM[{{ index }}].subraces[{{ loop.index0 }}].selected">
+        </div>
+        {% endfor %}
+        {% endfor %}
+    </div>
+
+    <!-- alignment -->
+    <div class="interior flex vertical start" style="background-color: var(--nord-inactive); width: 100%; padding: 24px; margin-top: 24px">
+        <h3>Alignment</h3>
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)">
+            <h4 style="width: 100%">Good-Evil Axis</h4>
+            <p>These are the weights for the probability of a character being good, neutral, or evil. They are relative to one another, so they don't need to add to 100, but it's easiest if you input percentages.</p>
+            <p style="margin-top: 12px">By default they favor good NPCs. There's a three-in-six (50% or one-in-two) chance of them being good, a two-in-six (34% or one-in-three) chance of them being neutral, and a one-in-six (16%) chance of them being evil.</p>
+            <p style="margin-top: 12px">If you're not sure what to do, just leave them at default. Set evil to 0 if you don't want evil NPCs.</p>
+            <div class="interior flex vertical start" style="background-color: var(--nord-inactive)">
+                <h6>Good</h6>
+                <input 
+                    type="number"
+                    name="ge_good_weight"
+                    id="ge_good_weight"
+                    x-model="ge_good_weight"
+                    x-ref="ge_good_weight"
+                    style="width: auto"
+                    placeholder="Good Weight">
+            </div>
+            <div class="interior flex vertical start" style="background-color: var(--nord-inactive)">
+                <h6>Neutral</h6>
+                <input 
+                    type="number"
+                    name="ge_neutral_weight"
+                    id="ge_neutral_weight"
+                    x-model="ge_neutral_weight"
+                    x-ref="ge_neutral_weight"
+                    style="width: auto"
+                    placeholder="Neutral Weight">
+            </div>
+            <div class="interior flex vertical start" style="background-color: var(--nord-inactive)">
+                <h6>Evil</h6>
+                <input 
+                    type="number"
+                    name="ge_evil_weight"
+                    id="ge_evil_weight"
+                    x-model="ge_evil_weight"
+                    x-ref="ge_evil_weight"
+                    style="width: auto"
+                    placeholder="Evil Weight">
+            </div>
+        </div>
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)">
+            <h4 style="width: 100%">Lawful-Chaotic Axis</h4>
+            <p>These are the weights for the probability of a character being lawful, neutral, or chaotic. They are relative to one another, so they don't need to add to 100, but it's easiest if you input percentages.</p>
+            <p style="margin-top: 12px">By default they favor lawful NPCs.</p>
+            <p style="margin-top: 12px">If you're not sure what to do, just leave them at default.</p>
+            <div class="interior flex vertical start" style="background-color: var(--nord-inactive)">
+                <h6>Lawful</h6>
+                <input 
+                    type="number"
+                    name="lc_lawful_weight"
+                    id="lc_lawful_weight"
+                    x-model="lc_lawful_weight"
+                    x-ref="lc_lawful_weight"
+                    style="width: auto"
+                    placeholder="Lawful Weight">
+            </div>
+            <div class="interior flex vertical start" style="background-color: var(--nord-inactive)">
+                <h6>Neutral</h6>
+                <input 
+                    type="number"
+                    name="lc_neutral_weight"
+                    id="lc_neutral_weight"
+                    x-model="lc_neutral_weight"
+                    x-ref="lc_neutral_weight"
+                    style="width: auto"
+                    placeholder="Neutral Weight">
+            </div>
+            <div class="interior flex vertical start" style="background-color: var(--nord-inactive)">
+                <h6>Chaotic</h6>
+                <input 
+                    type="number"
+                    name="lc_chaotic_weight"
+                    id="lc_chaotic_weight"
+                    x-model="lc_chaotic_weight"
+                    x-ref="lc_chaotic_weight"
+                    style="width: auto"
+                    placeholder="Chaotic Weight">
+            </div>
+        </div>
+        <label for="unaligned_probability"><h3>Unaligned Probability</h3></label>
+        <p>The probability that a character is unaligned. 25% by default. Set  to 0 if you want all characters to have an alignment.</p>
+        <input
+            type="number"
+            name="unaligned_probability"
+            id="unaligned_probability"
+            x-model="unaligned_probability"
+            x-ref="unaligned_probability"
+            style="width: auto"
+            placeholder="Unaligned Weight">
+    </div>
+
+    <div class="interior flex vertical start" style="background-color: var(--nord-inactive); width: 100%; padding: 24px; margin-top: 24px">
+        <h3>Height and Weight</h3>
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)">
+            <label for="random_hw">Random?</label>
+            <input
+                type="checkbox" 
+                checked
+                name="random_hw"
+                id="random_hw"
+                x-ref="random_hw"
+                x-model="random_hw">
+            </input>
+        </div>
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)" x-show="!random_hw">
+            <label for="height"><h6>Height (inches): </h6></label>
+            <input
+                type="number"
+                name="height"
+                id="height"
+                x-ref="height"
+                x-model="height"
+                placeholder="Height (inches)">
+        </div>
+        <div class="interior flex horizontal center" style="background-color: var(--nord-inactive)" x-show="!random_hw">
+            <label for="weight"><h6>Weight (pounds): </h6></label>
+            <input
+                type="number"
+                name="weight"
+                id="weight"
+                x-ref="weight"
+                x-model="weight"
+                placeholder="Weight (pounds)">
+        </div>
+    </div>
+    <a><button @click="generate()">Generate!</button></a>
+</div>
+</div>
+<template x-if="displayed_character != null">
+<div class="flex">
+<div class="flex vertical start">
+    <h1 x-text="displayed_character.full_name"></h1>
+    <span><em x-text="displayed_character.sex + ' ' + displayed_character.race + '(' + displayed_character.subrace + '), ' + displayed_character.alignment"></em></span>
+    <span><strong><em>Height: </em></strong><span x-text="(Math.floor(displayed_character.total_height / 12) + 1) + `' ` + displayed_character.total_height % 12 + `''`"></span></span>
+    <span><strong><em>Weight: </em></strong><span x-text="displayed_character.total_weight + 'lbs'"></span></span>
+    <div class="interior flex horizontal center">
+        <blockquote style="width: auto"><ul>
+            <li x-text="displayed_character.feature_one"></li>
+            <li x-text="displayed_character.feature_two"></li>
+            <li x-text="displayed_character.talent"></li>
+            <li x-text="displayed_character.mannerism"></li>
+            <li x-text="displayed_character.trait"></li>
+            <template x-for="item in displayed_character.statfeature.split('; ')">
+                <li x-text="item"></li>
+            </template>
+        </ul></blockquote>
+        <div class="interior flex vertical start">
+            <span><strong><em>Ideal: </em></strong><span x-text="displayed_character.ideal"></span></span>
+            <span><strong><em>Bond: </em></strong><span x-text="displayed_character.bond"></span></span>
+            <span><strong><em>Flaw: </em></strong><span x-text="displayed_character.flaw"></span></span>
+            <span><strong><em>Strength: </em></strong><span x-text="character.strength"></span></span>
+            <span><strong><em>Dexterity: </em></strong><span x-text="character.dexterity"></span></span>
+            <span><strong><em>Constitution: </em></strong><span x-text="character.constitution"></span></span>
+            <span><strong><em>Intelligence: </em></strong><span x-text="character.intelligence"></span></span>
+            <span><strong><em>Wisdom: </em></strong><span x-text="character.wisdom"></span></span>
+            <span><strong><em>Charisma: </em></strong><span x-text="character.charisma"></span></span>
+        </div>
+    </div>
+</div>
+</div>
+</template>
+</div>
+{% endblock %}
