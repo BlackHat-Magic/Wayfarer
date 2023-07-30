@@ -17,8 +17,9 @@
 			}
 		)"></template>
 		{% endfor %}
+		<template x-init="initParams()"></template>
 		<h1>Feats</h1>
-		<input type="text" name="tableinput" id="tableinput" placeholder="Search Feats..." x-model="query">
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Feats..." x-model="query" @keyup="updateQuery()">
 		<table name="filtertable" id="filtertable">
 			<tr class="header">
 				<th style="width: 30%">Feat Name</th>

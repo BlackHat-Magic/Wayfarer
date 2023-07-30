@@ -24,12 +24,14 @@
 			}
 		)"></template>
 		{% endfor %}
+		<template x-init="initParams()"></template>
 		<h1>Spells</h1>
-		<input type="text" name="tableinput" id="tableinput" placeholder="Search Items..." x-model="query" style="margin: 12px">
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Items..." x-model="query" style="margin: 12px" @keyup="updateQuery()">
 		<div class="interior flex vertical start" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 			<div style="width: 100%">
 				<label for="school">Spell School: </label>
 				<select name="school" id="school" x-model="school" style="width: auto" @change="appendSchool()">
+					<option value="">Select</option>
 					{% for school in cruleset.spell_schools %}
 					<option x-init="schools.append(`{{ school.name }}`)">{{ school.name }}</option>
 					{% endfor %}
@@ -46,16 +48,16 @@
 		</div>
 		<div class="interior flex horizontal space-between" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 			<label for="level" style="width: 25%">Spell Level:</label>
-			<input type="range" style="width: 30%; margin: 0" min="0" max="13" name="level" id="level" x-model="level">
+			<input type="range" style="width: 30%; margin: 0" min="0" max="13" name="level" id="level" x-model="level" @change="updateLevel()">
 			<span style="width: 25%" x-text="levellist[level]"></span>
 			<label for="time" style="width: 25%">Casting Time: </label>
-			<input type="range" style="width: 30%; margin: 0" min="0" max="11" vname="time" id="time" x-model="time">
+			<input type="range" style="width: 30%; margin: 0" min="0" max="11" vname="time" id="time" x-model="time" @change="updateTime()">
 			<span style="width: 25%" x-text="timelist[time]"></span>
 			<label for="range" style="width: 25%">Spell Range: </label>
-			<input type="range" style="width: 30%; margin: 0" min="0" max="24" name="range" id="range" x-model="range">
+			<input type="range" style="width: 30%; margin: 0" min="0" max="24" name="range" id="range" x-model="range" @change="updateRange()">
 			<span style="width: 25%" x-text="rangelist[range]"></span>
 			<label for="duration" style="width: 25%"> Spell Duration: </label>
-			<input type="range" style="width: 30%; margin: 0" min="0" max="12" name="duration" id="duration" x-model="duration">
+			<input type="range" style="width: 30%; margin: 0" min="0" max="12" name="duration" id="duration" x-model="duration" @change="updateDuration()">
 			<span style="width: 25%" x-text="durationlist[duration]"></span>
 		</div>
 		<table name="filtertable" id="filtertable">

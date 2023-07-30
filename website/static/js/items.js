@@ -1,5 +1,49 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
+        initParams () {
+            params = new URLSearchParams(window.location.search);
+            this.query = params.get("query") || "";
+            this.taglist = params.get("tags").split(",");
+            this.filtertype = params.get("filtertype") || "AND";
+        },
+
+        updateQuery() {
+            params = new URLSearchParams(window.location.search);
+            if (this.query != null && this.query != "") {
+                params.set("query", this.query);
+            } else {
+                params.delete("query")
+            }
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+
+        updateTags() {
+            params = new URLSearchParams(window.location.search);
+            if (this.taglist != null && this.taglist.length > 0) {
+                params.set("tags", this.taglist.toString());
+            } else {
+                params.delete("tags")
+            }
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+
+        updateFilter () {
+            params = new URLSearchParams(window.location.search);
+            params.set("filtertype", this.filtertype)
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
         itemROM: [],
 
         query: "",
@@ -50,6 +94,7 @@ document.addEventListener ("alpine:init", () => {
             if(!(this.taglist.includes(document.querySelector("#tags").value))){
                 this.taglist.push(document.querySelector("#tags").value);
             }
+            this.updateTags()
         },
         removeTag(index) {
             output = [];
@@ -63,6 +108,7 @@ document.addEventListener ("alpine:init", () => {
                 newoutput.push(output[i])
             }
             this.taglist = newoutput;
+            this.updateTags()
         },
     }))
 })

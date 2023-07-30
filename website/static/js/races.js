@@ -1,6 +1,27 @@
 
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
+        initParams () {
+            params = new URLSearchParams(window.location.search);
+            this.query = params.get("query") || "";
+            this.ability = params.get("ability");
+            this.size = params.get("size");
+        },
+
+        updateQuery() {
+            params = new URLSearchParams(window.location.search);
+            if (this.query != null && this.query != "") {
+                params.set("query", this.query);
+            } else {
+                params.delete("query")
+            }
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+
         query: "",
         namearray: [],
         filterQuery() {
@@ -72,23 +93,54 @@ document.addEventListener ("alpine:init", () => {
             }
         },
 
+        updateAbility() {
+            params = new URLSearchParams(window.location.search);
+            if (this.abilityfilter != null && this.abilityfilter != "null") {
+                params.set("ability", this.abilityfilter);
+            } else {
+                params.delete("ability")
+            }
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+
         sizefilter: "",
+        sizedict: [
+            "Tiny",
+            "Small",
+            "Medium",
+            "Large",
+            "Huge",
+            "Gargantuan"
+        ],
         populateSize () {
-            sizearray = [
-                "Tiny",
-                "Small",
-                "Medium",
-                "Large",
-                "Huge",
-                "Gargantuan"
-            ]
-            target = document.querySelector("#size-filter");
+            sizearray = []
             for (let i = 0; i < this.raceROM.length; i++) {
-                if(!target.innerHTML.includes(sizearray[this.raceROM[i].size])) {
-                    target.innerHTML += "<option value='" + sizearray[this.raceROM[i].size] + "'>" + sizearray[this.raceROM[i].size] + "</option>";
+                if (!sizearray.includes(this.sizedict[this.raceROM[i].size])) {
+                    sizearray.push(this.sizedict[this.raceROM[i].size]);
                 }
             }
-            target.innerHTML += "<option value='other'>Other</option>"
-        }
+            target = document.querySelector("#size-filter");
+            for (let i = 0; i < sizearray.length; i++) {
+                target.innerHTML += `<option value="${sizearray[i]}">${sizearray[i]}</option>`;
+            }
+        },
+
+        updateSize() {
+            params = new URLSearchParams(window.location.search);
+            if (this.sizefilter != null && this.sizefilter != "null") {
+                params.set("size", this.sizefilter);
+            } else {
+                params.delete("size")
+            }
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
     }))
 })

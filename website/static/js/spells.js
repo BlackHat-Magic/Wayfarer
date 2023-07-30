@@ -1,5 +1,80 @@
 document.addEventListener ("alpine:init", () => {
     Alpine.data ("main", () => ({
+        initParams () {
+            params = new URLSearchParams(window.location.search);
+            this.query = params.get("query") || "";
+            if (params.get("schools")) {
+                this.schools = params.get("schools").split(",");
+            }
+            this.level = params.get("level") || 13;
+            this.time = params.get("time") || 11;
+            this.range = params.get("range") || 24;
+            this.duration = params.get("duration") || 12;
+            console.log(params.get("level"))
+        },
+        updateQuery () {
+            params = new URLSearchParams(window.location.search);
+            if (this.query != null && this.query != "") {
+                params.set("query", this.query);
+            } else {
+                params.delete("query")
+            }
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+        updateSchools () {
+            params = new URLSearchParams(window.location.search);
+            if (this.schools != null && this.schools != []) {
+                params.set("schools", this.schools.toString());
+            } else {
+                params.delete("schools")
+            }
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+        updateLevel () {
+            params = new URLSearchParams(window.location.search);
+            params.set("level", this.level)
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+        updateTime () {
+            params = new URLSearchParams(window.location.search);
+            params.set("time", this.time)
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+        updateRange () {
+            params = new URLSearchParams(window.location.search);
+            params.set("range", this.range)
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+        updateDuration () {
+            params = new URLSearchParams(window.location.search);
+            params.set("duration", this.duration)
+            new_url = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
+            if (params.toString() != null && params.toString() != "") {
+                new_url += `?${params.toString()}`
+            }
+            history.pushState({}, null, new_url)
+        },
+
         itemROM: [],
 
         query: "",
@@ -169,11 +244,13 @@ document.addEventListener ("alpine:init", () => {
         school: "Abjuration",
         schools: [],
         appendSchool() {
-            if(!(this.schools.includes(document.querySelector("#school").value))){
+            this.updateSchools();
+            if(!(this.schools.includes(document.querySelector("#school").value && this.school != ""))){
                 this.schools.push(document.querySelector("#school").value);
             }
         },
         removeSchool(index) {
+            this.updateSchools();
             output = [];
             for (let i = this.schools.length -1; i >=0; i--) {
                 if(i != index) {

@@ -27,9 +27,10 @@ In no particular order...
  - [X] ~~Make flash messages dismissable~~
  - [ ] Hyperlinks
      - [ ] Correctly parse and reformat 5e tools markup
- - [ ] Filter URLs
- - [ ] Header URLs
- - [ ] Tab State URLs
+ - [ ] URL Parameters/Header URLs
+     - [X] ~~Filter URLs~~
+     - [ ] Header URLs
+     - [ ] Tab State URLs
  - [ ] Cache unsaved database entries if user input is invalid
  - [ ] GM Tools (tables, traps, etc)
      - [ ] NPC Generator
@@ -50,11 +51,11 @@ In no particular order...
      - [ ] CCPA/GDPR Right to be Forgotten
      - [ ] EULA
      - [ ] LibreJS support
-     - [ ] Footer
+     - [X] ~~Footer~~
      - [ ] Make site work without JS
  - [ ] Code Cleanup
      - [ ] Comment Code
-     - [ ] Move the submit button on create/edit classes page to the bottom (this is less trivial than it sounds I swear)
+     - [X] ~~Move the submit button on create/edit classes page to the bottom (this is less trivial than it sounds I swear)~~
      - [X] ~~De-spaghettify import code~~
      - [ ] dict keys
      - [ ] comprehension

@@ -7,6 +7,7 @@
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
+		<!-- initialization stuff -->
 		{% for ability_score in ability_scores %}
 		<template x-init="namearray.push(`{{ ability_score.name }}`)"></template>
 		{% endfor %}
@@ -21,25 +22,34 @@
 			}
 		)"></template>
 		{% endfor %}
+		<template x-init="initParams()"></template>
+
+		<!-- title -->
 		<h1>Races</h1>
-		<input type="text" name="tableinput" id="tableinput" placeholder="Search Races..." x-model="query">
+
+		<!-- search box -->
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Races..." x-model="query" @keyup="updateQuery()">
+
+		<!-- ability score and size -->
 		<div class="interior flex horizontal center" style="width: 100%">
 			<form class="interior flex horizontal start" style="width: 50%; box-sizing: border-box; margin: 0px">
 				<label for="ability-filter" style="box-sizing: border-box; width: 33%; min-width: 64px">Ability:</label>
-				<select id="ability-filter" name="ability-filter" x-model="abilityfilter" style="width: calc(67% - 24px); min-width: 128px;">
+				<select id="ability-filter" name="ability-filter" x-model="abilityfilter" style="width: calc(67% - 24px); min-width: 128px;" @change="updateAbility()">
 					<option value="null">Select</option>
 					<template x-for="score in namearray">
-						<option x-text="score"></option>
+						<option x-text="score" :value="score"></option>
 					</template>
 				</select>
 			</form>
 			<form class="interior flex horizontal start" style="width: 50%; box-sizing: border-box; margin: 0px">
 				<label for="size-filter" style="box-sizing: border-box; width: 33%; min-width: 64px">Size:</label>
-				<select id="size-filter" name="size-filter" x-model="sizefilter" style="width: calc(67% - 24px); min-width: 128px;" x-init="populateSize()">
+				<select id="size-filter" name="size-filter" x-model="sizefilter" style="width: calc(67% - 24px); min-width: 128px;" x-init="populateSize()" @change="updateSize()">
 					<option value="null">Select</option>
 				</select>
 			</form>
 		</div>
+
+		<!-- table -->
 		<table name="filtertable" id="filtertable">
 			<tr class="header">
 				<th style="width: 50%">Race Name</th>
@@ -54,6 +64,8 @@
 				</tr>
 			</template>
 		</table>
+
+		<!-- creation buttons -->
 		<div class="interior flex horizontal center">
 			{% if cruleset.userid == current_user.id %}
 			<a href="{{ url_for('epchar.createRace', ruleset=cruleset.identifier) }}"><button>Create A Race</button></a>

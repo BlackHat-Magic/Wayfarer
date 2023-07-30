@@ -15,9 +15,10 @@
         }
     )"></template>
     {% endfor %}
+    <template x-init="initParams()"></template>
     <div class="flex vertical start">
         <h1>Classes</h1>
-		<input type="text" name="tableinput" id="tableinput" placeholder="Search Classes..." x-model="query">
+		<input type="text" name="tableinput" id="tableinput" placeholder="Search Classes..." x-model="query" @keyup="updateQuery()">
 		<table name="filtertable" id="filtertable">
 			<tr class="header">
 				<th style="width: 30%">Class Name</th>
