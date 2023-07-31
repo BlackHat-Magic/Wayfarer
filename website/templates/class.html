@@ -5,144 +5,127 @@
 {% endblock %}
 
 {% block body %}
-<div class="wide flex" x-data="main">
-    {% for subclass in playerclass.subclasses %}
-        <template x-init="subclasses.push({
-            name: `{{ subclass.name }}`,
-            text: `{{ subclass.text }}`,
-            castertype: {{ subclass.caster_type }},
-            columns: [],
-            features: [],
-        })"></template>
-        {% set bigindex = loop.index - 1 %}
-        {% for column in subclass.columns %}
-            <template x-init="subclasses[{{ bigindex }}].columns.push({
-                name: `{{ column.name }}`,
-                data: {{ column.data }}
-            })"></template>
-        {% endfor %}
-        {% for feature in subclass.subclass_features %}
-            <template x-init="subclasses[{{ bigindex }}].features.push({
-                name: `{{ feature.name }}`,
-                level: {{ feature.level_obtained }},
-                text: `{{ feature.text }}`,
-                is_subclass: true,
-            })"></template>
-        {% endfor %}
+<div class="flex" x-data="main">
+{% for subclass in playerclass.subclasses %}
+    <template x-init="subclasses.push({name: `{{ subclass.name }}`, text: `{{ subclass.text }}`, castertype: {{ subclass.caster_type }}, columns: [], features: []})"></template>
+    {% set bigindex = loop.index - 1 %}
+    {% for column in subclass.columns %}
+    <template x-init="subclasses[{{ bigindex }}].columns.push({name: `{{ column.name }}`, data: {{ column.data }}})"></template>
     {% endfor %}
-    {% for score in cruleset.ability_scores %}
-        {% if playerclass.saves[loop.index - 1] == True %}
-            <template x-init="save.{{score.name}} = true"></template>
-        {% else %}
-            <template x-init="save.{{score.name}} = false"></template>
-        {% endif %}
+    {% for feature in subclass.subclass_features %}
+    <template x-init="subclasses[{{ bigindex }}].features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`, is_subclass: true})"></template>
     {% endfor %}
-    {% for feature in playerclass.class_features %}
-        <template x-init="features.push({
-            name: `{{ feature.name }}`,
-            level: {{ feature.level_obtained }},
-            text: `{{ feature.text }}`
-        })"></template>
-    {% endfor %}
-    <div class="interior flex vertical start">
-        <h1>{{ playerclass.name }}</h1>
-        <div class="interior flex horizontal center">
-            <div class="flex vertical start tabs">
-                <!-- info block -->
-                <div class="tab-container" style="width: 100%">
-                    <blockquote class="classinfo">
-                        <h5>{{ playerclass.name }}</h5>
-                        <section>
-                            <h6>Hit Points</h6>
-                            <p><strong>Hit Dice: </strong><span x-text="dicelist[{{ playerclass.hitdie }}]"></span></p>
-                            <p><strong>Hit Points at First Level: </strong><span x-text="fhplist[{{ playerclass.hitdie }}] + ' + your Constitution modifier'"></span></p>
-                            <p><strong>Hit Points at Higher Levels: </strong>1<span x-text="dicelist[{{ playerclass.hitdie }}]"></span> (or <span x-text="fhplist[{{ playerclass.hitdie }}] / 2 + 1"></span>) + your Constitution modifier per {{ playerclass.name }} level after 1st</p>
-                        </section>
-                        <section>
-                            <h6>Proficiencies</h6>
-                            <p><strong>Items: </strong><span x-text="parseList({{ playerclass.proficiencies }})"></span></p>
-                            <p><strong>Saving Throws: </strong><span x-text="parseSaves()"></span></p>
-                            <p><strong>Skills: </strong>Choose two from <span x-text="parseList({{ playerclass.skills }})"></span></p>
-                        </section>
-                        <section>
-                            <h6>Starting Equipment</h6>
-                            <p>You start with the following items, plus anything provided by your background.</p>
-                            <div x-html="convert(`{{ playerclass.equipment }}`)"></div>
-                            <p>Alternatively, you may start the game with <span x-text="{{ playerclass.gold_nums }} + dicelist[{{ playerclass.gold_dice }}]"></span> &times {{ playerclass.gold_mult }} gp to buy your own equipment.</p>
-                        </section>
-                        <section>
-                            <h6>Multiclassing</h6>
-                            <div x-html="convert(`{{ playerclass.multiclass_prereq }}`)"></div>
-                            <p>When you gain a level in a class other than your first, you gain only some of that class's starting proficiencies.</p>
-                            <p><strong>Proficiencies: </strong><span x-text="parseList({{ playerclass.multiclass_profic }})"></span></p>
-                        </section>
-                    </blockquote>
-                </div>
-                <!-- class tabs -->
-                {% for subclass in playerclass.subclasses %}
-                    <div class="tab-container">
-                        <a :class="tabclass({{ loop.index }})" @click="currentsubclass = {{ loop.index - 1 }}">{{ subclass.name }}</a>
-                    </div>
-                {% endfor %}
-            </div>
-            <div class="interior flex vertical start tabs usercontent" style="width: calc(85% - 100px)!important">
-                <div x-html="convert(`{{ playerclass.text }}`)"></div>
-                <h3>{{ playerclass.name }} Table</h3>
-                <!-- class table -->
-                <table>
-                    <tr>
-                        <th rowspan="2">Level</th>
-                        <th rowspan="2">Features</th>
-                        {% for column in playerclass.columns %}
-                            <th rowspan="2">{{ column.name }}</th>
-                        {% endfor %}
-                        <template x-if="subclasses[currentsubclass].castertype != 0">
-                            <th :colspan="spelllist[subclasses[currentsubclass].castertype].length">Spell Slots Per Level</th>
-                        </template>
-                    </tr>
-                    <tr>
-                        <template x-for="spelllevel, index in spelllist[subclasses[currentsubclass].castertype]">
-                            <th x-text="index + 1"></th>
-                        </template>
-                    </tr>
-                    {% for level in range(playerclass.levels) %}
-                        <tr>
-                            <td>{{ loop.index }}</td>
-                            <td x-text="parseFeatures({{ loop.index }})"></td>
-                            {% set level = loop.index -1 %}
-                            {% for column in playerclass.columns %}
-                                <td>{{ playerclass.columns[loop.index - 1].data[level] }}</td>
-                            {% endfor %}
-                            <template x-for="spelllevel, index in spelllist[subclasses[currentsubclass].castertype]">
-                                <td x-text="spelllevel[level - 1]"></td>
-                            </template>
-                        </tr>
-                    {% endfor %}
-                </table>
-                <hr>
-                <!-- everything else -->
-                <h2>{{ playerclass.name }} Features</h2>
-                <template x-for="feature in concatClassFeatures()">
-                    <div>
-                        <template x-if="feature.is_subclass">
-                            <h3 x-text="`{{ playerclass.subclass_name }} Feature: ` + feature.name"></h3>
-                        </template>
-                        <template x-if="!feature.is_subclass">
-                            <h3 x-text="feature.name"></h3>
-                        </template>
-                        <hr>
-                        <div x-html="convert(feature.text)"></div>
-                    </div>
-                </template>
-            </div>
-            {% if current_user.id == cruleset.userid %}
-            <div class="interior flex horizontal center">
-                <a style="width: auto" href="{{ url_for('epchar.duplicateClass', tclass=playerclass.name, ruleset=cruleset.identifier) }}"><button>Duplicate {{ playerclass.name }}</button></a>
-                <a style="width: auto" href="{{ url_for('epchar.editClass', tclass=playerclass.name, ruleset=cruleset.identifier) }}"><button>Edit {{ playerclass.name }}</button></a>
-                <a style="width: auto" href="{{ url_for('epchar.deleteClass', tclass=playerclass.name, ruleset=cruleset.identifier) }}"><button class="mild danger">Delete {{ playerclass.name }}</button></a>
-            </div>
-            {% endif %}
-        </div>
+{% endfor %}
+{% for score in cruleset.ability_scores %}
+    {% if playerclass.saves[loop.index - 1] == True %}
+    <template x-init="save.{{score.name}} = true"></template>
+    {% else %}
+    <template x-init="save.{{score.name}} = false"></template>
+    {% endif %}
+{% endfor %}
+{% for feature in playerclass.class_features %}
+<template x-init="features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`})"></template>
+{% endfor %}
+
+<div class="interior flex vertical start">
+<h1 id="{{ playerclass.name.casefold().replace(' ', '-') }}"><a @click="CopyHash(`{{ playerclass.name.casefold().replace(' ', '-') }}`)">{{ playerclass.name }} <span class="anchor">🔗</span></a></h1>
+<div class="interior flex horizontal center">
+<div class="flex vertical start tabs">
+    <!-- info block -->
+    <div class="tab-container" style="width: 100%">
+        <blockquote class="classinfo">
+            <h5>{{ playerclass.name }}</h5>
+            <section>
+                <h6>Hit Points</h6>
+                <p><strong>Hit Dice: </strong><span x-text="dicelist[{{ playerclass.hitdie }}]"></span></p>
+                <p><strong>Hit Points at First Level: </strong><span x-text="fhplist[{{ playerclass.hitdie }}] + ' + your Constitution modifier'"></span></p>
+                <p><strong>Hit Points at Higher Levels: </strong>1<span x-text="dicelist[{{ playerclass.hitdie }}]"></span> (or <span x-text="fhplist[{{ playerclass.hitdie }}] / 2 + 1"></span>) + your Constitution modifier per {{ playerclass.name }} level after 1st</p>
+            </section>
+            <section>
+                <h6>Proficiencies</h6>
+                <p><strong>Items: </strong><span x-text="parseList({{ playerclass.proficiencies }})"></span></p>
+                <p><strong>Saving Throws: </strong><span x-text="parseSaves()"></span></p>
+                <p><strong>Skills: </strong>Choose two from <span x-text="parseList({{ playerclass.skills }})"></span></p>
+            </section>
+            <section>
+                <h6>Starting Equipment</h6>
+                <p>You start with the following items, plus anything provided by your background.</p>
+                <div x-html="convert(`{{ playerclass.equipment }}`)"></div>
+                <p>Alternatively, you may start the game with <span x-text="{{ playerclass.gold_nums }} + dicelist[{{ playerclass.gold_dice }}]"></span> &times {{ playerclass.gold_mult }} gp to buy your own equipment.</p>
+            </section>
+            <section>
+                <h6>Multiclassing</h6>
+                <div x-html="convert(`{{ playerclass.multiclass_prereq }}`)"></div>
+                <p>When you gain a level in a class other than your first, you gain only some of that class's starting proficiencies.</p>
+                <p><strong>Proficiencies: </strong><span x-text="parseList({{ playerclass.multiclass_profic }})"></span></p>
+            </section>
+        </blockquote>
     </div>
+    <!-- class tabs -->
+    {% for subclass in playerclass.subclasses %}
+        <div class="tab-container">
+            <a :class="tabclass({{ loop.index }})" @click="currentsubclass = {{ loop.index - 1 }}">{{ subclass.name }}</a>
+        </div>
+    {% endfor %}
+</div>
+<div class="interior flex vertical start tabs usercontent" style="width: calc(85% - 150px)!important">
+    <div x-html="convert(`{{ playerclass.text }}`)"></div>
+    <h3 id="class-table"><a @click="CopyHash(`class-table`)">{{ playerclass.name }} Table <span class="anchor">🔗</span></a></h3>
+    <!-- class table -->
+    <table style="width: 100%">
+        <tr>
+            <th rowspan="2">Level</th>
+            <th rowspan="2">Features</th>
+            {% for column in playerclass.class_columns %}
+                <th rowspan="2">{{ column.name }}</th>
+            {% endfor %}
+            <template x-if="subclasses[currentsubclass].castertype != 0">
+                <th :colspan="spelllist[subclasses[currentsubclass].castertype].length">Spell Slots Per Level</th>
+            </template>
+        </tr>
+        <tr>
+            <template x-for="spelllevel, index in spelllist[subclasses[currentsubclass].castertype]">
+                <th x-text="index + 1"></th>
+            </template>
+        </tr>
+        {% for level in range(playerclass.levels) %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td x-text="parseFeatures({{ loop.index }})"></td>
+                {% set level = loop.index -1 %}
+                {% for column in playerclass.class_columns %}
+                    <td>{{ column.data[level] }}</td>
+                {% endfor %}
+                <template x-for="spelllevel, index in spelllist[subclasses[currentsubclass].castertype]">
+                    <td x-text="spelllevel[level - 1]"></td>
+                </template>
+            </tr>
+        {% endfor %}
+    </table>
+    <hr>
+    <!-- everything else -->
+    <h2 id="features"><a>{{ playerclass.name }} Features <span class="anchor">🔗</span></a></h2>
+    <template x-for="feature in concatClassFeatures()">
+        <div>
+            <template x-if="feature.is_subclass">
+                <h3 :id="feature.name.toLowerCase().replace(' ', '-')"><a @click="CopyHash(feature.name.toLowerCase().replace(' ', '-'))"><span x-text="`${subclasses[currentsubclass].name}: ${feature.name}`"></span> <span class="anchor">🔗</span></a></h3>
+            </template>
+            <template x-if="!feature.is_subclass">
+                <h3 :id="feature.name.toLowerCase().replace(' ', '-')"><a @click="CopyHash(feature.name.toLowerCase().replace(' ', '-'))"><span x-text="feature.name"></span> <span class="anchor">🔗</span></a></h3>
+            </template>
+            <hr>
+            <div x-html="convert(feature.text)"></div>
+        </div>
+    </template>
+</div>
+{% if current_user.id == cruleset.userid %}
+<div class="interior flex horizontal center">
+    <a style="width: auto" href="{{ url_for('epchar.duplicateClass', tclass=playerclass.name, ruleset=cruleset.identifier) }}"><button>Duplicate {{ playerclass.name }}</button></a>
+    <a style="width: auto" href="{{ url_for('epchar.editClass', tclass=playerclass.name, ruleset=cruleset.identifier) }}"><button>Edit {{ playerclass.name }}</button></a>
+    <a style="width: auto" href="{{ url_for('epchar.deleteClass', tclass=playerclass.name, ruleset=cruleset.identifier) }}"><button class="mild danger">Delete {{ playerclass.name }}</button></a>
+</div>
+{% endif %}
+</div>
+</div>
 </div>
 {% endblock %}

@@ -1,16 +1,16 @@
 {% extends "master.html" %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/showdown-only.js') }}"></script>
+<script src="{{ url_for('static', filename='js/showdown-and-hash.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex">
 	<div class="flex vertical start" x-data="main">
-		<h1>Ability Scores</h1>
+		<h1 id="ability-scores"><a>Ability Scores <span class="anchor">🔗</span></a></h1>
 		{% for score in scores %}
 		<div class="usercontent">
-			<h2>{{ score.name + ' (' + score.abbr + ')' }}</h2>
+			<h2 id="{{ score.name.casefold().replace(' ', '-') }}"><a @click="CopyHash(`{{ score.name.casefold().replace(' ', '-') }}`)">{{ score.name + ' (' + score.abbr + ')' }} <span class="anchor">🔗</span></a></h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
 					<a href="{{ url_for('epchar.editStat', score=score.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ score.name }}</button></a>

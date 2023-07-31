@@ -1,27 +1,28 @@
 {% extends "master.html" %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/showdown-only.js') }}"></script>
+<script src="{{ url_for('static', filename='js/race.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="flex" x-data="main">
-    <div class="flex vertical start">
-        <h1>{{ race.name }}</h1>
+    <div class="flex vertical start usercontent">
+        <template x-init="InitHeaderIDs()"></template>
+        <h1 id="{{ race.name.casefold().replace(' ', '-') }}"><a @click="CopyHash(`{{ race.name.casefold().replace(' ', '-') }}`)">{{ race.name }}<span class="anchor">🔗</span></a></h1>
         <div class="usercontent" x-html="convert(`{{ race.flavor }}`)"></div>
         {% for feature in race.race_features %}
-        <div class="usercontent" x-html="convert('***{{ feature.name }}.*** ' + `{{ feature.text }}`)"></div>
+        <div class="usercontent" x-html="convert(`***{{ feature.name }}.*** {{ feature.text }}`)" id="flavor"></div>
         {% endfor %}
         {% if race.subraces %}
         <div class="usercontent">
-            <h2>Subrace</h2>
+            <h2 id="subrace"><a @click="CopyHash(`subrace`)">Subrace <span class="anchor">🔗</span></a></h2>
             <hr>
             <div x-html="convert(`{{ race.subrace_flavor }}`)"></div>
         </div>
             {% for subrace in race.subraces %}
             <div class="usercontent">
-                <h3>{{subrace.name}}</h3>
-                <div x-html="convert(`{{ subrace.text }}`)"></div>
+                <h3 id="{{ subrace.name.casefold().replace(' ', '-') }}"><a @click="CopyHash(`{{ subrace.name.casefold().replace(' ', '-') }}`)">{{subrace.name}} <span class="anchor">🔗</span></a></h3>
+                <div x-html="convert(`{{ subrace.text }}`)" id="subrace-flavor"></div>
                 {% for feature in subrace.subrace_features %}
                 <div x-html="convert('***{{feature.name}}.*** ' + `{{ feature.text }}`)"></div>
                 {% endfor %}
@@ -30,9 +31,9 @@
         {% endif %}
         {% if cruleset.userid == current_user.id %}
         <div class="interior flex horizontal center">
-            <a href="{{ url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button">Edit {{ race.name }}</button></a>
-            <a href="{{ url_for('epchar.duplicateRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button">Duplicate {{ race.name }}</button></a>
-            <a href="{{ url_for('epchar.deleteRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button" class="mild danger">Delete {{ race.name }}</button></a>
+            <a style="width: auto; margin: 12px" href="{{ url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button">Edit {{ race.name }}</button></a>
+            <a style="width: auto; margin: 12px" href="{{ url_for('epchar.duplicateRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button">Duplicate {{ race.name }}</button></a>
+            <a style="width: auto; margin: 12px" href="{{ url_for('epchar.deleteRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button" class="mild danger">Delete {{ race.name }}</button></a>
         </div>
         {% endif %}
     </div>

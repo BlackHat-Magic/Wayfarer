@@ -275,7 +275,7 @@ def exportDiseases(ruleset):
         )
     )
 
-@eprefs.route("/Diseases/Create", subdomain="<ruleset>")
+@eprefs.route("/Diseases/Create", subdomain="<ruleset>", methods=["GET", "POST"])
 @login_required
 def createDisease(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)

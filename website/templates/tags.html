@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/showdown-only.js') }}"></script>
+<script src="{{ url_for('static', filename='js/showdown-and-hash.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -10,7 +10,7 @@
 		<h1>Item Types</h1>
 		{% for tag in tags %}
 		<div class="usercontent">
-			<h2>{{ tag.name }}</h2>
+			<h2 id="{{ tag.name.casefold().replace(' ', '-') }}"><a @click="CopyHash(`{{ tag.name.casefold().replace(' ', '-') }}`)">{{ tag.name }} <span class="anchor">🔗</span></a></h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
 					<a href="{{ url_for('eprefs.editTag', item=tag.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ tag.name }}</button></a>

@@ -1162,13 +1162,13 @@ def makeclass(request, cruleset, tclass, instruction):
                     tclass.levels = levels
                     tclass.text = text
                     tclass.skills = skills
-                    for i, column in enumerate(tclass.columns):
+                    for i, column in enumerate(tclass.class_columns):
                         if(len(request.form.getlist("columnname")) < i + 1):
                             db.session.delete(column)
                         else:
                             column.name = request.form.getlist("columnname")[i]
                             column.data = request.form.getlist(f"column{i}value")
-                    for i in range(len(tclass.columns), len(request.form.getlist("columnname"))):
+                    for i in range(len(tclass.class_columns), len(request.form.getlist("columnname"))):
                         new_class_column = ClassColumn(
                             classid = tclass.id,
                             name = request.form.getlist("columnname")[i],
@@ -1204,13 +1204,13 @@ def makeclass(request, cruleset, tclass, instruction):
                             subclass.text = request.form.getlist("subclass_text")[i]
                             subclass.caster_type = request.form.getlist("castertype")[i]\
 
-                            for j, column in enumerate(subclass.columns):
+                            for j, column in enumerate(subclass.subclass_columns):
                                 if(len(request.form.getlist(f"subclass{i}columnname")) < j + 1):
                                     db.session.delete(column)
                                 else:
                                     column.name = request.form.getlist(f"subclass{i}columnname")[j]
                                     column.data = request.form.getlist(f"subclass{i}column{j}value")
-                            for j in range(len(subclass.columns), len(request.form.getlist(f"subclass{i}columnname"))):
+                            for j in range(len(subclass.subclass_columns), len(request.form.getlist(f"subclass{i}columnname"))):
                                 new_subclass_column = SubclassColumn(
                                     subclassid = subclass.id,
                                     name = request.form.getlist(f"subclass{i}columnname")[j],

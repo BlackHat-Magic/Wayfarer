@@ -136,6 +136,12 @@ document.addEventListener ("alpine:init", () => {
             sorted = concatenated.sort((a, b) => (parseInt(a.level) > parseInt(b.level)) ? 1 : -1);
 
             return(sorted);
+        },
+
+        CopyHash (id) {
+            window.location.hash = id;
+            url_with_hash = window.location.href;
+            navigator.clipboard.writeText(url_with_text);
         }
     }))
 })

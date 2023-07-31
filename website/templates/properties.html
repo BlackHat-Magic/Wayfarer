@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/showdown-only.js') }}"></script>
+<script src="{{ url_for('static', filename='js/showdown-and-hash.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -10,7 +10,7 @@
 		<h1>Weapon Properties</h1>
 		{% for property in properties %}
 		<div class="usercontent">
-			<h2>{{ property.name }}</h2>
+			<h2 id="{{ property.name.casefold().replace(' ', '-') }}"><a @click="CopyHash(`{{ property.name.casefold().replace(' ', '-') }}`)">{{ property.name }} <span class="anchor">🔗</span></a></h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
 					<a href="{{ url_for('eprefs.editProperty', ruleset=cruleset.identifier, item=property.name) }}"><button style="width: auto">Edit {{ property.name }}</button></a>

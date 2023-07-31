@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/showdown-only.js') }}"></script>
+<script src="{{ url_for('static', filename='js/showdown-and-hash.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -10,7 +10,7 @@
         <h1>Skills</h1>
         {% for skill in skills %}
         <div class="usercontent">
-            <h2>{{ skill.name }}</h2>
+            <h2 id="{{ skill.name.casefold().replace(' ', '-') }}"><a @click="CopyHash(`{{ skill.name.casefold().replace(' ', '-') }}`)">{{ skill.name }}</a> <span class="anchor">🔗</span></h2>
 			{% if cruleset.userid == current_user.id %}
 				<div>
 					<a href="{{ url_for('eprefs.editSkill', skill=skill.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ skill.name }}</button></a>

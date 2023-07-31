@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/showdown-only.js') }}"></script>
+<script src="{{ url_for('static', filename='js/showdown-and-hash.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -10,7 +10,7 @@
 		<h1>{{ title }}</h1>
 		{% for condition in conditions %}
 		<div class="usercontent">
-			<h2 x-text="'{{ condition.name }}'"></h2>
+			<h2 id="{{ condition.name.casefold().replace(' ', '-') }}"><a @click="CopyHash(`{{ condition.name.casefold().replace(' ', '-') }}`)">{{ condition.name }}</a> <span class="anchor">🔗</span></h2>
 			{% if current_user.id == cruleset.userid %}
 			<div>
 				{% if button == "Condition" %}
