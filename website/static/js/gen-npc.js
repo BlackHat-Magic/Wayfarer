@@ -63,6 +63,7 @@ document.addEventListener ("alpine:init", () => {
         weight: null,
 
         generate () {
+            this.nld = ""
             character = {};
 
             if (this.sex == "Random") {
@@ -523,15 +524,17 @@ document.addEventListener ("alpine:init", () => {
                 if (this.nld_source) {
                     this.nld_source.close();
                 }
-                if (this.rpi_source) {
-                    this.rpi_source.close()
+                if (this.portrait_source) {
+                    this.portrait_source.close()
                 }
             })
         },
 
+        reconnect_nld: false,
         nld_source: null,
         nld: "",
         RequestNLD () {
+            this.nld = ""
             let description = ""
             description += ` - ${character.sex != "Neither" ? character.sex : ""} ${character.race}`
             description += `\n - Height: ${Math.floor(character.total_height / 12 + 1)}' ${character.total_height % 12}"`
@@ -564,5 +567,88 @@ document.addEventListener ("alpine:init", () => {
                 this.nld_source = null;
             }
         },
+        portrait_source: null,
+        portrait_prompt: "",
+        portrait_status: "",
+        portraits: [],
+        RequestPortrait() {
+            console.log("Portrait request started...")
+            let description = ""
+            description += ` - ${character.sex != "Neither" ? character.sex : ""} ${character.race}`
+            description += `\n - Height: ${Math.floor(character.total_height / 12 + 1)}' ${character.total_height % 12}"`
+            description += `\n - Weight: ${character.total_weight}`
+            description += `\n - ${character.feature_one}`
+            description += `\n - ${character.feature_two}`
+            description += `\n - Talent: ${character.talent}`
+            description += `\n - Mannerism: ${character.mannerism}`
+            description += `\n - Trait: ${character.trait}`
+            for (let i = 0; i < character.statfeature.split("; ").length; i++) {
+                description += `\n - ${character.statfeature.split("; ")[i]}`
+            }
+            description += `\n - Ideal: ${character.ideal}`
+            description += `\n - Bond: ${character.bond}`
+            description += `\n - Flaw: ${character.flaw}`
+
+            processed = encodeURIComponent(description)
+
+            this.portrait_source = new EventSource(`/Tools/NPC-Gen/Portrait?description=${description}`)
+            this.portrait_source.addEventListener("TEXT", (event) => {
+                this.portrait_prompt = event.data;
+            })
+            this.portrait_source.addEventListener("STATUS", (event) => {
+                if (event.data == "IN_QUEUE") {
+                    console.log("In queue...")
+                    this.portrait_status = "We're waking up the gnome who draws your images... (He's very sleepy)"
+                } else if (event.data == "IN_PROGRESS") {
+                    console.log("In progress...")
+                    this.portrait_status = "The gnome is now drawing your images. (Be patient; he's trying his best)"
+                } else {
+                    console.log("Job completed.")
+                    this.portrait_status = "Images are finished, they are now loading..."
+                }
+            })
+            image_data = ""
+            this.portrait_source.addEventListener("IMAGE_CHUNK", (event) => {
+                console.log("Image chunk received")
+                image_data += event.data
+            })
+            this.portrait_source.addEventListener("IMAGE_END", (event) => {
+                console.log(event.data)
+                this.portraits.push(image_data)
+                image_data = "";
+            })
+            this.portrait_source.addEventListener("END", () => {
+                console.log("Stream ended.")
+                this.StopPortrait();
+                while (document.querySelector("#images").firstChild) {
+                    document.querySelector("#images").removeChild(document.querySelector("#images").firstChild)
+                }
+                for (let i = 0; i < this.portraits.length; i++) {
+                    img = document.createElement("img")
+                    img.src = `data:image/png;base64,${this.portraits[i]}`
+                    if (i % 2 == 0) {
+                        img.style.gridColumn = "1 / span 6"
+                    } else {
+                        img.style.gridColumn = "7 / span 6"
+                    }
+                    document.querySelector("#images").appendChild(img)
+                }
+                this.portrait_status = ""
+            })
+            this.portrait_source.addEventListener("ERROR", (event) => {
+                console.log(`Stream error: ${event.data}`)
+                this.StopPortrait()
+            })
+            this.portrait_source.onerror = (event) => {
+                this.portrait_status = event.data;
+                this.StopPortrait();
+            }
+        },
+        StopPortrait () {
+            if (this.portrait_source) {
+                this.portrait_source.close();
+                this.portrait_source = null;
+            }
+        }
     }))
 })

@@ -672,14 +672,14 @@ def createClass(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     # if post request, attempt to create class; return result of creation function
     if(request.method == "POST"):
-        return(makeclass(request, cruleset, None, "create"))
+        return(makeclass(request, cruleset, None, "create", adminrulesets))
     # else return class creation page
     return(
         render_template(
             "create-class.html", 
             cruleset=cruleset, 
             adminrulesets=adminrulesets, 
-            title="Create a Class"
+            title="Create a Class",
         )
     )
 

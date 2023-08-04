@@ -55,10 +55,15 @@ document.addEventListener ("alpine:init", () => {
 
         save: {},
 
+        customitem: "",
+        modal: false,
+
         proficiencyselect: null,
         proficiencylist: [],
         appendProficiency () {
-            if(!this.proficiencylist.includes(this.proficiencyselect)) {
+            if (this.proficiencyselect == "(Custom)") {
+                this.modal = true;
+            } else if(!this.proficiencylist.includes(this.proficiencyselect)) {
                 this.proficiencylist.push(this.proficiencyselect);
             }
         },
@@ -70,6 +75,11 @@ document.addEventListener ("alpine:init", () => {
                 }
             }
             this.proficiencylist = output;
+        },
+        appendCustom () {
+            this.proficiencylist.push(this.customitem);
+            this.customitem = "";
+            this.modal = false;
         },
 
         multiproficselect: null,
@@ -89,6 +99,7 @@ document.addEventListener ("alpine:init", () => {
             this.multiproficlist = output;
         },
 
+        skill_num: 2,
         skillselect: null,
         skilllist: [],
         appendSkill () {

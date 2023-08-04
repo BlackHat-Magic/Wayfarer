@@ -27,10 +27,7 @@ In no particular order...
  - [X] ~~Make flash messages dismissable~~
  - [ ] Hyperlinks
      - [ ] Correctly parse and reformat 5e tools markup
- - [ ] URL Parameters/Header URLs
-     - [X] ~~Filter URLs~~
-     - [ ] Header URLs
-     - [ ] Tab State URLs
+ - [X] ~~URL Parameters/Header URLs~~
  - [ ] Cache unsaved database entries if user input is invalid
  - [ ] GM Tools (tables, traps, etc)
      - [ ] NPC Generator

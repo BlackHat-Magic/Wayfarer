@@ -4,13 +4,14 @@ from os import path
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
-import openai, os
+import openai, os, runpod
 # import json
 
 load_dotenv()
 db = SQLAlchemy()
 DB_NAME = "database.db"
 openai.api_key = os.getenv("OPENAI_API_KEY")
+runpod.api_key = os.getenv("RUNPOD_API_KEY")
 
 def start():
     app = Flask(__name__)

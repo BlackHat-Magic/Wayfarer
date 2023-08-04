@@ -156,7 +156,7 @@ def removeRuleset(ruleset):
     flash("Removed Ruleset.", "orange")
     return(redirect(url_for("epmain.myRulesets", ruleset=ruleset)))
 
-@epmain.route("/Change-Ruleset", methods=["POST"])
+@epmain.route("/Change-Ruleset", methods=["POST"], subdomain="<ruleset>")
 @login_required
 def changeRuleset():
     rulesetid = json.loads(request.data)["rulesetid"]

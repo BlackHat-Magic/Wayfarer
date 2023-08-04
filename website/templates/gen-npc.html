@@ -289,6 +289,18 @@
         </div>
         <p x-text="nld"></p>
     </blockquote>
+    <blockquote style="max-width: 720px!important; padding: 36px">
+        <div class="interior flex horizontal center" style="background-color: transparent">
+            <h2>Image: </h2>
+            <a><button @click="RequestPortrait()">Generate</button></a>
+            <blockquote>
+                <h4>Prompt:</h4>
+                <p x-text="portrait_prompt"></p>
+            </blockquote>
+            <p x-text="portrait_status"></p>
+            <div class="interior grid horizontal start" id="images"></div>
+        </div>
+    </blockquote>
     {% endif %}
 </div>
 </div>

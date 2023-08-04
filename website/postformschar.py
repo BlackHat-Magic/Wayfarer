@@ -9,7 +9,7 @@ def abilityScore(request, cruleset, ability_score, instruction):
     abbr = request.form.get("abbr").casefold()
     order = request.form.get("order")
     text = request.form.get("text")
-    bad = False
+    invalid = False
     if(ability_score and current_user.id != cruleset.userid):
         flash("You cannot edit Ability Scores for rulesets that are not your own.", "red")
     elif(instruction == "duplicate"):
@@ -29,26 +29,26 @@ def abilityScore(request, cruleset, ability_score, instruction):
             order = int(order)
         except:
             flash("Ability Score Order must be a number.")
-            bad = True
+            invalid = True
     if(len(name) < 1):
         flash("You must specify an Ability Score name.", "red")
-        bad = True
+        invalid = True
     elif(len(name) > 127):
         flash("Ability Score name must be fewer than 128 characters.", "red")
-        bad = True
+        invalid = True
     elif(len(abbr) != 3):
         flash("Ability Score abbreviation must be 3 characters.", "red")
-        bad = True
+        invalid = True
     elif(len(text) > 16383):
         flash("Ability Score description must be fewer than 16384 characters.", "red")
-        bad = True
+        invalid = True
     elif("<" in text):
         flash("Open angle brackets (\"<\") are not allowed.", "red")
-        bad = True
+        invalid = True
     elif("javascript" in text):
         flash("Cross-site scripting attacks are not allowed.", "red")
-        bad = True
-    if(not bad):
+        invalid = True
+    if(not invalid):
         if(instruction == "create"):
             new_ability_score = AbilityScore(
                 rulesetid = cruleset.id,
@@ -859,7 +859,7 @@ def featImporter(feats, cruleset):
         flash("Improperly formatted JSON; unable to import.", "red")
         return(redirect(url_for("epchar.importFeats", ruleset=cruleset.identifier)))
 
-def makeclass(request, cruleset, tclass, instruction):
+def makeclass(request, cruleset, tclass, instruction, adminrulesets):
     if(current_user.id != cruleset.userid):
         flash("You cannot create classes in rulesets that are not your own.", "red")
     elif(instruction == "duplicate"):
@@ -927,33 +927,42 @@ def makeclass(request, cruleset, tclass, instruction):
         db.session.commit()
         flash("Class duplicated!", "green")
     else:
-        bad = False
+        invalid = False
         name = request.form.get("name")
         text = request.form.get("text")
         hitdie = request.form.get("hitdie")
         proficiencies = request.form.getlist("proficiency")
-        skill_num = request.form.get("skill_num")
+        try:
+            skill_num = int(request.form.get("skill_num"))
+        except:
+            flash("Number of skills must be a number", "red")
+            skill_num = 0
+            invalid = True
+        if(not skill_num):
+            skill_num = 0
         skills = request.form.getlist("skill")
-        saves = request.form.getlist("save")
-        for i in range(len(saves)):
-            if(saves[i] == "true"):
-                saves[i] = True
+        saves = []
+        for i in range(AbilityScore.query.filter_by(rulesetid=cruleset.id).count()):
+            if(request.form.get(f"save-{i}") == "true"):
+                saves.append(True)
             else:
-                saves[i] = False
+                saves.append(False)
         equipment = request.form.get("equipment")
         gold_nums = request.form.get("gold_nums")
         try:
             gold_nums = int(gold_nums)
         except:
             flash("Number of dice rolled for starting gold must be a number.", "red")
-            bad = True
+            gold_nums = 0
+            invalid = True
         gold_dice = request.form.get("gold_dice")
         gold_mult = request.form.get("gold_mult")
         try:
             gold_mult = int(gold_mult)
         except:
             flash("Starting gold multiplier must be a number.", "red")
-            bad = True
+            gold_mult = 0
+            invalid = True
         multiclass_prereq = request.form.get("prereq")
         multiclass_profic = request.form.getlist("multiprofic")
         subclass_name = request.form.get("subclassname")
@@ -963,304 +972,299 @@ def makeclass(request, cruleset, tclass, instruction):
             levels = int(levels)
         except:
             flash("Max level must be a number.", "red")
-            bad = True
+            levels = 0
+            invalid = True
         if(len(name) < 1):
             flash("You must specify a class name.", "red")
-            bad = True
+            invalid = True
         elif(len(name) > 127):
             flash("Class name must be fewer than 128 characters.", "red")
-            bad = True
+            invalid = True
         elif(len(text) > 16383):
             flash("Class description must be fewer than 16383 characters.", "red")
-            bad = True
+            invalid = True
         elif(len(equipment) > 1023):
             flash("Class equipment must be fewer than 1024 characters.", "red")
-            bad = True
+            invalid = True
         elif(len(multiclass_prereq) > 1023):
             flash("Multiclassing prerequisites must be fewer than 1024 characters.", "red")
-            bad = True
+            invalid = True
         elif(len(subclass_name) > 127):
             flash("Subclass title must be fewer than 128 characters.", "red")
-            bad = True
-        else:
-            for i, column in enumerate(request.form.getlist("columnname")):
-                if(bad):
+            invalid = True
+        for i, column in enumerate(request.form.getlist("columnname")):
+            if(invalid):
+                break
+            if(len(column) < 1):
+                invalid = True
+                flash("Each custom column must have a name.", "red")
+                break
+            elif(len(column) > 127):
+                invalid = True
+                flash("Custom column names must be fewer than 128 characters.", "red")
+                break
+            for value in request.form.getlist(f"column{i}value"):
+                if(len(value) > 127):
+                    invalid = True
+                    flash("Custom column values must be fewer than 128 characters.", "red")
                     break
-                if(len(column) < 1):
-                    bad = True
-                    flash("Each custom column must have a name.", "red")
-                elif(len(column) > 127):
-                    bad = True
-                    flash("Custom column names must be fewer than 128 characters.", "red")
-                for value in request.form.getlist(f"column{i}value"):
-                    if(bad):
-                        break
-                    elif(len(value) > 127):
-                        bad = True
-                        flash("Custom column values must be fewer than 128 characters.", "red")
-            for i, feature in enumerate(request.form.getlist("class_feature_name")):
-                if(bad):
+        for i, feature in enumerate(request.form.getlist("class_feature_name")):
+            if(invalid):
+                break
+            try:
+                testint = int(request.form.getlist("level")[i])
+            except:
+                invalid = True
+                flash("Feature levels must be numbers.", "red")
+                break
+            if(len(feature) < 1):
+                invalid = True
+                flash("You must specify a name for each class feature", "red")
+                break
+            elif(len(feature) > 127):
+                invalid = True
+                flash("Class feature names must be fewer than 128 characters", "red")
+                break
+            elif(len(request.form.getlist("class_feature_text")[i]) > 16383):
+                invalid = True
+                flash("Class feature text must be fewer than 128 characters", "red")
+                break
+        for i, subclass in enumerate(request.form.getlist("subclass_name")):
+            if(invalid):
+                break
+            if(len(subclass) < 1):
+                invalid = True
+                flash("You must specify a name for each subclass.", "red")
+                break
+            elif(len(subclass) > 127):
+                invalid = True
+                flash("Subclass names must be fewer than 128 characters.", "red")
+                break
+            elif(len(request.form.getlist("subclass_text")[i]) > 16383):
+                invalid = True
+                flash("Subclass descriptions must be fewer than 16383 characters.", "red")
+                break
+            elif("<" in request.form.getlist("subclass_text")[i]):
+                invalid = True
+                flash("Open angle brackets (\"<\") are not allowed.", "red")
+                break
+            elif("javascript" in request.form.getlist("subclass_text")[i]):
+                invalid = True
+                flash("Cross-site scripting attacks are not allowed.", "red")
+                break
+            for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
+                if(invalid):
                     break
                 try:
-                    testint = int(request.form.getlist("level")[i])
+                    testint = int(request.form.getlist(f"subclass_{i}_feature_level")[j])
                 except:
-                    bad = True
-                    flash("Feature levels must be numbers.", "red")
-                if(len(feature) < 1):
-                    bad = True
-                    flash("You must specify a name for each class feature", "red")
-                elif(len(feature) > 127):
-                    bad = True
-                    flash("Class feature names must be fewer than 128 characters", "red")
-                elif(len(request.form.getlist("class_feature_text")[i]) > 16383):
-                    bad = True
-                    flash("Class feature text must be fewer than 128 characters", "red")
-                elif("<" in request.form.getlist("class_feature_text")[i]):
-                    bad = True
-                    flash("Open angle brackets (\"<\") are not allowed.", "red")
-                elif("javascript" in request.form.getlist("class_feature_text")[i]):
-                    bad = True
-                    flash("Cross-site scripting attacks are not allowed.", "red")
-            for i, subclass in enumerate(request.form.getlist("subclass_name")):
-                if(bad):
+                    invalid = True
+                    flash("Subclass feature levels must be numbers.", "red")
                     break
-                if(len(subclass) < 1):
-                    bad = True
-                    flash("You must specify a name for each subclass.", "red")
-                elif(len(subclass) > 127):
-                    bad = True
-                    flash("Subclass names must be fewer than 128 characters.", "red")
-                elif(len(request.form.getlist("subclass_text")[i]) > 16383):
-                    bad = True
-                    flash("Subclass descriptions must be fewer than 16383 characters.", "red")
-                elif("<" in request.form.getlist("subclass_text")[i]):
-                    bad = True
+                if(len(feature) < 1):
+                    invalid = True
+                    flash("You must specify a name for each subclass feature.", "red")
+                    break
+                elif(len(feature) > 127):
+                    invalid = True
+                    flash("Subclass feature names must be fewer than 128 characters.", "red")
+                    break
+                elif(len(request.form.getlist(f"subclass_{i}_feature_text")[j]) > 16383):
+                    invalid = True
+                    flash("Subclass feature descriptions must be fewer than 16383 characters.", "red")
+                    break
+                elif("<" in request.form.getlist(f"subclass_{i}_feature_text")[j]):
+                    invalid = True
                     flash("Open angle brackets (\"<\") are not allowed.", "red")
-                elif("javascript" in request.form.getlist("subclass_text")[i]):
-                    bad = True
+                    break
+                elif("javascript" in request.form.getlist(f"subclass_{i}_feature_text")[j]):
+                    invalid = True
                     flash("Cross-site scripting attacks are not allowed.", "red")
+                    break
+            for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
+                if(invalid):
+                    break
+                if(len(column) < 1):
+                    invalid = True
+                    flash("You must specify a name for each subclass' custom columns.", "red")
+                    break
+                elif(len(column) > 127):
+                    invalid = True
+                    flash("Each subclass' custom column names must be fewer than 128 characters.", "red")
+                    break
+                for value in request.form.getlist(f"subclass{i}column{j}value"):
+                    if(len(value) > 127):
+                        invalid = True
+                        flash("Each subclass' custom column values must be fewer than 128 characters.", "red")
+                        break
+        if(instruction == "create"):
+            new_class = Playerclass(
+                rulesetid = cruleset.id,
+                name = name,
+                hitdie = hitdie,
+                proficiencies = proficiencies,
+                saves = saves,
+                equipment = equipment,
+                gold_nums = gold_nums,
+                gold_dice = gold_dice,
+                gold_mult = gold_mult,
+                multiclass_prereq = multiclass_prereq,
+                multiclass_profic = multiclass_profic,
+                subclass_name = subclass_name,
+                subclass_level = subclass_level,
+                levels = levels,
+                text = text,
+                skill_num = skill_num,
+                skills = skills
+            )
+            for i, column in enumerate(request.form.getlist("columnname")):
+                new_class.class_columns.append(ClassColumn(
+                    name = column,
+                    data = request.form.getlist(f"column{i}value")
+                ))
+            for i, feature in enumerate(request.form.getlist("class_feature_name")):
+                new_class.class_features.append(ClassFeature(
+                    level_obtained = request.form.getlist("level")[i],
+                    name = feature,
+                    text = request.form.getlist("class_feature_text")[i]
+                ))
+            for i, sublcass in enumerate(request.form.getlist("subclass_name")):
+                new_class.subclasses.append(Subclass(
+                    name = subclass,
+                    text = request.form.getlist("subclass_text")[i],
+                    caster_type = request.form.getlist("castertype")[i],
+                ))
                 for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
-                    if(bad):
-                        break
-                    try:
-                        testint = int(request.form.getlist(f"subclass_{i}_feature_level")[j])
-                    except:
-                        bad = True
-                        flash("Subclass feature levels must be numbers.", "red")
-                    if(len(feature) < 1):
-                        bad = True
-                        flash("You must specify a name for each subclass feature.", "red")
-                    elif(len(feature) > 127):
-                        bad = True
-                        flash("Subclass feature names must be fewer than 128 characters.", "red")
-                    elif(len(request.form.getlist(f"subclass_{i}_feature_text")[j]) > 16383):
-                        bad = True
-                        flash("Subclass feature descriptions must be fewer than 16383 characters.", "red")
-                    elif("<" in request.form.getlist(f"subclass_{i}_feature_text")[j]):
-                        bad = True
-                        flash("Open angle brackets (\"<\") are not allowed.", "red")
-                    elif("javascript" in request.form.getlist(f"subclass_{i}_feature_text")[j]):
-                        bad = True
-                        flash("Cross-site scripting attacks are not allowed.", "red")
+                    new_class.subclasses[i].subclass_features.append(SubclassFeature(
+                        level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j],
+                        name = feature,
+                        text = request.form.getlist(f"subclass_{i}_feature_text")[j]
+                    ))
                 for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
-                    if(bad):
-                        break
-                    if(len(column) < 1):
-                        bad = True
-                        flash("You must specify a name for each subclass' custom columns.", "red")
-                    elif(len(column) > 127):
-                        bad = True
-                        flash("Each subclass' custom column names must be fewer than 128 characters.", "red")
-                    for value in request.form.getlist(f"subclass{i}column{j}value"):
-                        if(len(value) > 127):
-                            bad = True
-                            flash("Each subclass' custom column values must be fewer than 128 characters.", "red")
-
-            if(not bad):
-                if(instruction == "create"):
-                    new_class = Playerclass(
-                        rulesetid = cruleset.id,
-                        name = name,
-                        hitdie = hitdie,
-                        proficiencies = proficiencies,
-                        saves = saves,
-                        equipment = equipment,
-                        gold_nums = gold_nums,
-                        gold_dice = gold_dice,
-                        gold_mult = gold_mult,
-                        multiclass_prereq = multiclass_prereq,
-                        multiclass_profic = multiclass_profic,
-                        subclass_name = subclass_name,
-                        subclass_level = subclass_level,
-                        levels = levels,
-                        text = text,
-                        skill_num = skill_num,
-                        skills = skills
-                    )
-                    db.session.add(new_class)
-                    db.session.commit()
-                    classid = Playerclass.query.filter_by(name=name, text=text, rulesetid=cruleset.id).first().id
-
-                    for i, column in enumerate(request.form.getlist("columnname")):
-                        new_column = ClassColumn(
-                            classid = classid,
-                            name = column,
-                            data = request.form.getlist(f"column{i}value")
-                        )
-                        db.session.add(new_column)
-
-                    for i, feature in enumerate(request.form.getlist("class_feature_name")):
-                        new_feature = ClassFeature(
-                            classid = classid,
-                            level_obtained = request.form.getlist("level")[i],
-                            name = feature,
-                            text = request.form.getlist("class_feature_text")[i]
-                        )
-                        db.session.add(new_feature)
-                    
-                    for i, sublcass in enumerate(request.form.getlist("subclass_name")):
-                        new_subclass = Subclass(
-                            classid = classid,
-                            name = subclass,
-                            text = request.form.getlist("subclass_text")[i],
-                            caster_type = request.form.getlist("castertype")[i],
-                        )
-                        db.session.add(new_subclass)
-                        db.session.commit()
-                        new_subclass = Subclass.query.filter_by(classid = classid, name = subclass).first()
-
-                        for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
-                            new_subclass_feature = SubclassFeature(
-                                subclassid = new_subclass.id,
-                                level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j],
-                                name = feature,
-                                text = request.form.getlist(f"subclass_{i}_feature_text")[j]
-                            )
-                            db.session.add(new_subclass_feature)
-                        for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
-                            new_subclass_column = SubclassColumn(
-                                    subclassid = new_subclass.id,
-                                    name = column,
-                                    data = request.form.getlist(f"subclass{i}column{j}value")
-                                )
-                            db.session.add(new_subclass_column)
-                        db.session.commit()
-                    flash("Class Created!", "green")
+                    new_class.subclasses[i].subclass_columns.append(SubclassColumn(
+                        name = column,
+                        data = request.form.getlist(f"subclass{i}column{j}value")
+                    ))
+            if(invalid):
+                form_data = request.form.to_dict()
+                return(render_template("create-class.html", cruleset=cruleset, adminrulesets=adminrulesets, title="Create a Class", tclass=new_class))
+            db.session.add(new_class)
+            db.session.commit()
+            flash("Class Created!", "green")
+        else:
+            if(invalid):
+                form_data = request.form.to_dict()
+                return(redirect(url_for("epchar.editClass", ruleset=cruleset.identifier, **form_data)))
+            tclass.name = name
+            tclass.hitdie = hitdie
+            tclass.proficiencies = proficiencies
+            tclass.saves = saves
+            tclass.equipment = equipment
+            tclass.gold_nums = gold_nums
+            tclass.gold_dice = gold_dice
+            tclass.gold_mult = gold_mult
+            tclass.multiclass_prereq = multiclass_prereq
+            tclass.multiclass_profic = multiclass_profic
+            tclass.subclass_name = subclass_name
+            tclass.subclass_level = subclass_level
+            tclass.levels = levels
+            tclass.text = text
+            tclass.skills = skills
+            for i, column in enumerate(tclass.class_columns):
+                if(len(request.form.getlist("columnname")) < i + 1):
+                    db.session.delete(column)
                 else:
-                    tclass.name = name
-                    tclass.hitdie = hitdie
-                    tclass.proficiencies = proficiencies
-                    tclass.saves = saves
-                    tclass.equipment = equipment
-                    tclass.gold_nums = gold_nums
-                    tclass.gold_dice = gold_dice
-                    tclass.gold_mult = gold_mult
-                    tclass.multiclass_prereq = multiclass_prereq
-                    tclass.multiclass_profic = multiclass_profic
-                    tclass.subclass_name = subclass_name
-                    tclass.subclass_level = subclass_level
-                    tclass.levels = levels
-                    tclass.text = text
-                    tclass.skills = skills
-                    for i, column in enumerate(tclass.class_columns):
-                        if(len(request.form.getlist("columnname")) < i + 1):
+                    column.name = request.form.getlist("columnname")[i]
+                    column.data = request.form.getlist(f"column{i}value")
+            for i in range(len(tclass.class_columns), len(request.form.getlist("columnname"))):
+                new_class_column = ClassColumn(
+                    classid = tclass.id,
+                    name = request.form.getlist("columnname")[i],
+                    data = request.form.getlist(f"column{i}value")
+                )
+                db.session.add(new_class_column)
+
+            for i, feature in enumerate(tclass.class_features):
+                if(len(request.form.getlist("class_feature_name")) < i + 1):
+                    db.session.delete(feature)
+                else:
+                    feature.name = request.form.getlist("class_feature_name")[i]     
+                    feature.level_obtained = request.form.getlist("level")[i]
+                    feature.text = request.form.getlist("class_feature_text")[i]
+            for i in range(len(tclass.class_features), len(request.form.getlist("class_feature_name"))):
+                new_class_feature = ClassFeature(
+                    classid = tclass.id,
+                    name = request.form.getlist("class_feature_name")[i],
+                    level_obtained = request.form.getlist("level")[i],
+                    text = request.form.getlist("class_feature_text")[i]
+                )
+                db.session.add(new_class_feature)
+            
+            for i, subclass in enumerate(tclass.subclasses):
+                if(len(request.form.getlist("subclass_name")) < i + 1):
+                    for column in subclass.columns:
+                        db.session.delete(column)
+                    for feature in subclass.subclass_features:
+                        db.session.delete(feature)
+                    db.session.delete(subclass)
+                else:
+                    subclass.name = request.form.getlist("subclass_name")[i]
+                    subclass.text = request.form.getlist("subclass_text")[i]
+                    subclass.caster_type = request.form.getlist("castertype")[i]\
+
+                    for j, column in enumerate(subclass.subclass_columns):
+                        if(len(request.form.getlist(f"subclass{i}columnname")) < j + 1):
                             db.session.delete(column)
                         else:
-                            column.name = request.form.getlist("columnname")[i]
-                            column.data = request.form.getlist(f"column{i}value")
-                    for i in range(len(tclass.class_columns), len(request.form.getlist("columnname"))):
-                        new_class_column = ClassColumn(
-                            classid = tclass.id,
-                            name = request.form.getlist("columnname")[i],
-                            data = request.form.getlist(f"column{i}value")
+                            column.name = request.form.getlist(f"subclass{i}columnname")[j]
+                            column.data = request.form.getlist(f"subclass{i}column{j}value")
+                    for j in range(len(subclass.subclass_columns), len(request.form.getlist(f"subclass{i}columnname"))):
+                        new_subclass_column = SubclassColumn(
+                            subclassid = subclass.id,
+                            name = request.form.getlist(f"subclass{i}columnname")[j],
+                            data = request.form.getlist(f"subclass{i}column{j}name")
                         )
-                        db.session.add(new_class_column)
-
-                    for i, feature in enumerate(tclass.class_features):
-                        if(len(request.form.getlist("class_feature_name")) < i + 1):
+                        db.session.add(new_subclass_column)
+                    
+                    for j, feature in enumerate(subclass.subclass_features):
+                        if(len(request.form.getlist(f"subclass_{i}_feature_name")) < j + 1):
                             db.session.delete(feature)
                         else:
-                            feature.name = request.form.getlist("class_feature_name")[i]     
-                            feature.level_obtained = request.form.getlist("level")[i]
-                            feature.text = request.form.getlist("class_feature_text")[i]
-                    for i in range(len(tclass.class_features), len(request.form.getlist("class_feature_name"))):
-                        new_class_feature = ClassFeature(
-                            classid = tclass.id,
-                            name = request.form.getlist("class_feature_name")[i],
-                            level_obtained = request.form.getlist("level")[i],
-                            text = request.form.getlist("class_feature_text")[i]
+                            feature.name = request.form.getlist(f"subclass_{i}_feature_name")[j]
+                            feature.level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j]
+                            feature.text = request.form.getlist(f"subclass_{i}_feature_text")[j]
+                    for j in range(len(subclass.subclass_features), len(request.form.getlist(f"subclass_{i}_feeature_name"))):
+                        new_subclass_feature = SubclassFeature(
+                            subclassid = subclass.id,
+                            name = request.form.getlist(f"subclass_{i}_feature_name")[j],
+                            text = request.form.getlist(f"subclass_{i}_feature_text")[j]
                         )
-                        db.session.add(new_class_feature)
-                    
-                    for i, subclass in enumerate(tclass.subclasses):
-                        if(len(request.form.getlist("subclass_name")) < i + 1):
-                            for column in subclass.columns:
-                                db.session.delete(column)
-                            for feature in subclass.subclass_features:
-                                db.session.delete(feature)
-                            db.session.delete(subclass)
-                        else:
-                            subclass.name = request.form.getlist("subclass_name")[i]
-                            subclass.text = request.form.getlist("subclass_text")[i]
-                            subclass.caster_type = request.form.getlist("castertype")[i]\
-
-                            for j, column in enumerate(subclass.subclass_columns):
-                                if(len(request.form.getlist(f"subclass{i}columnname")) < j + 1):
-                                    db.session.delete(column)
-                                else:
-                                    column.name = request.form.getlist(f"subclass{i}columnname")[j]
-                                    column.data = request.form.getlist(f"subclass{i}column{j}value")
-                            for j in range(len(subclass.subclass_columns), len(request.form.getlist(f"subclass{i}columnname"))):
-                                new_subclass_column = SubclassColumn(
-                                    subclassid = subclass.id,
-                                    name = request.form.getlist(f"subclass{i}columnname")[j],
-                                    data = request.form.getlist(f"subclass{i}column{j}name")
-                                )
-                                db.session.add(new_subclass_column)
-                            
-                            for j, feature in enumerate(subclass.subclass_features):
-                                if(len(request.form.getlist(f"subclass_{i}_feature_name")) < j + 1):
-                                    db.session.delete(feature)
-                                else:
-                                    feature.name = request.form.getlist(f"subclass_{i}_feature_name")[j]
-                                    feature.level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j]
-                                    feature.text = request.form.getlist(f"subclass_{i}_feature_text")[j]
-                            for j in range(len(subclass.subclass_features), len(request.form.getlist(f"subclass_{i}_feeature_name"))):
-                                new_subclass_feature = SubclassFeature(
-                                    subclassid = subclass.id,
-                                    name = request.form.getlist(f"subclass_{i}_feature_name")[j],
-                                    text = request.form.getlist(f"subclass_{i}_feature_text")[j]
-                                )
-                                db.session.add(new_subclass_feature)
-                    for i in range(len(tclass.subclasses), len(request.form.getlist("subclass_name"))):
-                        new_subclass = Subclass(
-                            classid = tclass.id,
-                            name = request.form.getlist("subclass_name")[i],
-                            text = request.form.getlist("subclass_text")[i],
-                            caster_type = request.form.getlist("castertype")[i]
-                        )
-                        for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
-                            new_subclass_column = SubclassColumn(
-                                subclassid = new_subclass.id,
-                                name = column,
-                                data = request.form.getlist(f"subclass{i}column{j}value")
-                            )
-                            db.session.add(new_subclass_column)
-                        for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
-                            new_subclass_feature = SubclassFeature(
-                                subclassid = new_subclass.id,
-                                name = feature,
-                                level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j],
-                                text = request.form.getlist(f"subclass_{i}_feature_text")[j]
-                            )
-                            db.session.add(new_subclass_feature)
-                        db.session.add(new_subclass)
-                    db.session.commit() 
-                    flash("Changes saved!", "green")
-            elif(instruction == "edit"):
-                return(redirect(url_for("epchar.editClass", tclass=tclass.name, ruleset=cruleset.identifier)))
-            else:
-                return(redirect(url_for("epchar.createClass", ruleset=cruleset.identifier)))
+                        db.session.add(new_subclass_feature)
+            for i in range(len(tclass.subclasses), len(request.form.getlist("subclass_name"))):
+                new_subclass = Subclass(
+                    classid = tclass.id,
+                    name = request.form.getlist("subclass_name")[i],
+                    text = request.form.getlist("subclass_text")[i],
+                    caster_type = request.form.getlist("castertype")[i]
+                )
+                for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
+                    new_subclass_column = SubclassColumn(
+                        subclassid = new_subclass.id,
+                        name = column,
+                        data = request.form.getlist(f"subclass{i}column{j}value")
+                    )
+                    db.session.add(new_subclass_column)
+                for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
+                    new_subclass_feature = SubclassFeature(
+                        subclassid = new_subclass.id,
+                        name = feature,
+                        level_obtained = request.form.getlist(f"subclass_{i}_feature_level")[j],
+                        text = request.form.getlist(f"subclass_{i}_feature_text")[j]
+                    )
+                    db.session.add(new_subclass_feature)
+                db.session.add(new_subclass)
+            db.session.commit() 
+            flash("Changes saved!", "green")
     return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
 
 def classImporter(classes, cruleset):

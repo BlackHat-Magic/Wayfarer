@@ -7,338 +7,338 @@
 {% block body %}
 <div  x-data="main">
 <div class="flex">
-	<form class="flex vertical start" method="post">
-		<h1>{{ "Edit %s"|format(tclass.name) if tclass else "Create a Class" }}</h1>
-		<h2>Base Class Info</h2>
-		<!-- Class name -->
+<form class="flex vertical start" method="post">
+<h1>{{ "Edit %s"|format(tclass.name) if tclass else "Create a Class" }}</h1>
+<h2>Base Class Info</h2>
+<!-- Class name -->
 		<input type="text" name="name" id="name" placeholder="Class Name" x-model="name" {% if tclass %} x-init="name=`{{ tclass.name }}`" {% endif %}>
 
-		<!-- Hit Dice and Gold and Additional Levels-->
-		<div class="interior flex horizontal space-between" style="width: 100%">
-			<!-- Hit Dice -->
-			<div>
-				<label for="hitdie">Hit Die: </label>
+<!-- Hit Dice and Gold and Additional Levels-->
+<div class="interior flex horizontal space-between" style="width: 100%">
+	<!-- Hit Dice -->
+	<div>
+		<label for="hitdie">Hit Die: </label>
 				<select name="hitdie" id="hitdie" style="width: auto" x-model="hitdie" {% if tclass %} x-init="hitdie={{ tclass.hitdie }}" {% endif %}>
-					<option value="0">d4</option>
-					<option value="1">d6</option>
-					<option value="2">d8</option>
-					<option value="3">d10</option>
-					<option value="4">d12</option>
-					<option value="5">d20</option>
-				</select>
-			</div>
+			<option value="0">d4</option>
+			<option value="1">d6</option>
+			<option value="2">d8</option>
+			<option value="3">d10</option>
+			<option value="4">d12</option>
+			<option value="5">d20</option>
+		</select>
+	</div>
 
-			<!-- Gold -->
-			<div>
-				<label for="gold_nums">Starting Gold: </label>
+	<!-- Gold -->
+	<div>
+		<label for="gold_nums">Starting Gold: </label>
 				<input type="number" name="gold_nums" id="gold_nums" x-model="gold_nums" placeholder="Number of Dice" style="width: calc(100% / 4); min-width: 120px" {% if tclass %} x-init="gold_nums={{ tclass.gold_nums }}" {% endif %}>
 				<select name="gold_dice" id="gold_dice" x-model="gold_dice" style="width: auto" {% if tclass %} x-init="gold_dice={{ tclass.gold_dice }}" {% endif %}>
-					<option value="0">d4</option>
-					<option value="1">d6</option>
-					<option value="2">d8</option>
-					<option value="3">d10</option>
-					<option value="4">d12</option>
-					<option value="5">d20</option>
-				</select>
-				<span>&times</span>
-				<input type="number" name="gold_mult" id="gold_mult" x-model="gold_mult" placeholder="Multiplied by..." style="width: calc(100% / 4); min-width: 120px" {% if tclass %} x-init="gold_mult={{ tclass.gold_mult }}" {% endif %}> 
-			</div>
+			<option value="0">d4</option>
+			<option value="1">d6</option>
+			<option value="2">d8</option>
+			<option value="3">d10</option>
+			<option value="4">d12</option>
+			<option value="5">d20</option>
+		</select>
+		<span>&times</span>
+				<input type="number" name="gold_mult" id="gold_mult" x-model="gold_mult" placeholder="Multiplied by..." style="width: calc(100% / 4); min-width: 120px" {% if tclass %} x-init="gold_mult={{ tclass.gold_mult }} || 0" {% endif %}> 
+	</div>
 
-			<!-- Max Level -->
-			<div>
-				<label for="levels">Max Level: </label>
+	<!-- Max Level -->
+	<div>
+		<label for="levels">Max Level: </label>
 				<input type="number" name="levels" id="levels" x-model="levels" style="width: auto" placeholder="Max Level" {% if tclass %} x-init="levels={{ tclass.levels }}" {% endif %}>
-			</div>
+	</div>
 
-			<!-- Subclass Level -->
-			<div>
-				<label for="subclasslevel">Subclass Level: </label>
-				<select name="subclasslevel" id="subclasslevel" x-model="subclasslevel" style="width: auto" {% if tclass %} x-init="subclasslevel={{ tclass.subclass_level }}" {% endif %}>
-					<template x-for="index in parseInt(levels)">
+	<!-- Subclass Level -->
+	<div>
+		<label for="subclasslevel">Subclass Level: </label>
+		<select name="subclasslevel" id="subclasslevel" x-model="subclasslevel" style="width: auto" {% if tclass %} x-init="subclasslevel={{ tclass.subclass_level }}" {% endif %}>
+			<template x-for="index in parseInt(levels)">
 						<option {% if tclass %} :selected="index == {{ tclass.subclass_level }} ? true : false" {% endif %} x-text="index"></option>
-					</template>
+			</template>
+		</select>
+	</div>
+</div>
+
+<!-- saving throws -->
+{% if not cruleset.ability_scores %}
+	<div class="mild danger">
+		<h3>Hey!</h3>
+		<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify saving throw proficiencies granted by this class. You can create ability scores <a href="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}">here</a>.</p>
+	</div>
+	<div style="height: 30px"></div>
+{% else %}
+	<div class="interior flex horizontal space-around" style="width: 100%">
+		{% for score in cruleset.ability_scores %}
+			<div>
+				<label for="save">{{ score.name }} Saves</label>
+				<input type="checkbox" @change="save.{{ score.name }} = !save.{{ score.name }}" {% if tclass and tclass.saves[loop.index - 1] %} x-init="save.{{ score.name }} = true" checked {% else %} x-init="save.{{ score.name }} = false" {% endif %}>
+				<input type="hidden" name="save" id="save" x-model="save.{{ score.name }}">
+			</div>
+		{% endfor %}
+	</div>
+{% endif %}
+
+<!-- Additional Table Columns -->
+<div class="inactive interior flex vertical start" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+	<div>
+		<label>Additional Class Table Columns: </label>
+		<a><button type="button" @click="appendColumn()">Add Table Column</button></a>
+	</div>
+	<div class="interior flex horizontal center">
+		<template x-if="columns.length > 0">
+			<template x-for="column, index in columns">
+				<div class="inactive interior flex vertical start" style="margin: 12px">
+					<input type="text" :name="`column${index}name`" :id="column${index}name" x-model="columns[index].name" style="width: auto" :placeholder="`Column ${index+1}` Name`">
+						<template x-for="level, index1 in parseInt(levels)">
+							<input type="text" :name="`column${index}value${index1}`" :id="`column${index}value${index1}`" x-model="columns[index].values[level - 1]" :placeholder="`Value at Level ${level}`" style="width: auto">
+						</template>
+					<a><button type="button" @click="deleteColumn(index)" class="mild danger">Delete Column</button></a>
+				</div>
+			</template>
+		</template>
+		{% if tclass %}
+			{% for column in tclass.class_columns %}
+				<template x-init="columns.push({name: `{{ column.name }}`, data: {{ column.data }} })"></template> <!--here here here-->
+			{% endfor %}
+		{% endif %}
+	</div>
+</div>
+
+<!-- tool/weapon proficiencies -->
+{% if not tools and not cruleset.item_tags %}
+	<div class="mild danger">
+		<h3>Hey!</h3>
+		<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify item type or tool proficiencies granted by this class. You can create item types <a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
+	</div>
+	<div style="height: 30px"></div>
+{% else %}
+	<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+		<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
+			<label for="proficiencies">Tool/Weapon Proficiencies:</label>
+			<select name="proficiencyselect" id="proficiencyselect" x-model="proficiencyselect" style="width: auto" @change="appendProficiency()">
+				<option>(Custom)</option>
+				{% for item in cruleset.items %}
+					{% if item.proficiency %}
+					<option>{{ item.name }}</option>
+					{% endif %}
+				{% endfor %}
+				{% for tag in cruleset.item_tags %}
+				<option>{{ tag.name }}</option>
+				{% endfor %}
+			</select>
+			{% if tclass %}
+				{% for proficiency in tclass.proficiencies %}
+					<template x-init="proficiencylist.push(`{{ proficiency }}`)"></template>
+				{% endfor %}
+			{% endif %}
+		</div>
+		<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+			<template x-for="proficiency, index in proficiencylist">
+				<span class="chip" @click="removeProficiency(index)"><span x-text="proficiency"></span><span class="remove">&times</span></span>
+			</template>
+			<template x-for="proficiency, index in proficiencylist">
+				<input type="hidden" name="proficiency" id="proficiency" x-model="proficiencylist[index]">
+			</template>
+		</div>
+	</div>
+{% endif %}
+
+<!-- skills -->
+{% if not cruleset.skills %}
+	<div class="mild danger">
+		<h3>Hey!</h3>
+		<p>You don't have any skills in this ruleset! Without adding any, you won't be able to specify skills granted by this class. You can create skills <a href="{{ url_for('eprefs.createSkill', ruleset=cruleset.identifier) }}">here</a>.</p>
+	</div>
+	<div style="height: 30px"></div>
+{% else %}
+			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+				<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
+			<label for="skillselect">Skill Proficiencies:</label>
+					<select name="skillselect" id="skillselect" x-model="skillselect" style="width: auto" @change="appendSkill()">
+				{% for skill in cruleset.skills %}
+				<option>{{ skill.name }}</option>
+				{% endfor %}
+			</select>
+			{% if tclass %}
+				{% for skill in tclass.skills %}
+					<template x-init="skilllist.push(`{{ skill }}`)"></template>
+				{% endfor %}
+			{% endif %}
+		</div>
+		<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+			<template x-for="skill, index in skilllist">
+				<span class="chip" @click="removeSkill(index)"><span x-text="skill"></span><span class="remove">&times</span></span>
+			</template>
+			<template x-for="skill, index in skilllist">
+				<input type="hidden" name="skill" id="skill" x-model="skilllist[index]">
+			</template>
+		</div>
+	</div>
+{% endif %}
+
+<!-- equipment -->
+<textarea x-model="equipment" placeholder="Starting Equipment" style="height: 100px" {% if tclass %} x-init="equipment=`{{ tclass.equipment }}`" {% endif %}></textarea>
+<input type="hidden" name="equipment" id="equipment" x-model="equipment">
+
+<!-- multiclass prereqs -->
+<textarea x-model="prereq" placeholder="Multiclassing Prerequisites" style="height: 100px" {% if tclass %} x-init="prereq=`{{ tclass.multiclass_prereq }}`" {% endif %}></textarea>
+<input type="hidden" name="prereq" id="prereq" x-model="prereq">
+
+<!-- multiclass proficiencies -->
+{% if not tools and not cruleset.item_tags %}
+	<div class="mild danger">
+		<h3>Hey!</h3>
+		<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tools granted by this class when multiclassing. You can create item types <a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
+	</div>
+	<div style="height: 30px"></div>
+{% else %}
+	<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+		<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
+			<label for="multiproficselect">Multiclass Proficiencies:</label>
+			<select name="multiproficselect" id="multiproficselect" x-model="multiproficselect" style="width: auto" @change="appendMultiProfic()">
+				{% for item in cruleset.items %}
+					{% if item.proficiency %}
+					<option>{{ item.name }}</option>
+					{% endif %}
+				{% endfor %}
+				{% for tag in cruleset.item_tags %}
+				<option>{{ tag.name }}</option>
+				{% endfor %}
+			</select>
+			{% if tclass %}
+				{% for proficiency in tclass.multiclass_profic %}
+					<template x-init="multiproficlist.push(`{{ proficiency }}`)"></template>
+				{% endfor %}
+			{% endif %}
+		</div>
+		<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+			<template x-for="proficiency, index in multiproficlist">
+				<span class="chip" @click="removeMultiProfic(index)"><span x-text="proficiency"></span><span class="remove">&times</span></span>
+			</template>
+			<template x-for="proficiency, index in multiproficlist">
+				<input type="hidden" name="multiprofic" id="multiprofic" x-model="multiproficlist[index]">
+			</template>
+		</div>
+	</div>
+{% endif %}
+
+<!-- subclass name -->
+<input type="text" id="subclassname" name="subclassname" x-model="subclassname" placeholder='Subclass Name (e.g. "Primal Path," "Divine Domain," etc.)' {% if tclass %} x-init="subclassname=`{{ tclass.subclass_name }}`" {% endif %}>
+
+<!-- class flavor text -->
+<textarea id="text" name="text" x-model="text" placeholder="Class Description" {% if tclass %} x-init="text=`{{ tclass.text }}`" {% endif %}></textarea>
+
+<!-- class features -->
+<h3>Class Features</h3>
+<template x-for="feature, index in features">
+	<div class="interior flex vertical start" style="width: 100%">
+		<div class="interior flex horizontal center" style="width: 100%">
+			<input type="text" name="class_feature_name" x-model="feature.name" placeholder="Class Feature Name" style="width: calc(50% - 24px); min-width: 240px"></input>
+			<input type="number" name="level" x-model="feature.level" placeholder="Level Obtained" style="width: calc(25% - 24px); min-width: 120px">
+			<a @click="deleteFeature(index)" style="width: calc(25% - 24px); min-width: 120px"><button type="button" class="mild danger">Delete Feature</button></a>
+		</div>
+		<textarea name="class_feature_text" x-model="feature.text" placeholder="Class Feature Description"></textarea>
+		<input type="hidden" name="class_feature_text" id="class_feature_text" x-model="feature.text">
+	</div>
+</template>
+{% if tclass %}
+	<template x-init="features = []"></template>
+	{% for feature in tclass.class_features %}
+		<template x-init="features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`, is_subclass: false})"></template>
+	{% endfor %}
+{% endif %}
+<a @click="features.push({name: '', level: null, text: '', is_subclass: false})"><button type="button">Add Class Feature</button></a>
+
+<!-- subclasses -->
+<h3>Subclasses</h3>
+<template x-for="subclass, index in subclasses">
+	<div class="interior flex vertical start" style="width: 100%">
+		<div class="interior flex horizontal center" style="width: 100%">
+			<input name="subclass_name" id="subclass_name" placeholder="Subclass Name" x-model="subclass.name" style="width: calc(40% - 24px); min-width: 360px">
+			<div style="width: calc(35% - 24px); min-width: 120px">
+				<label for="castertype">Caster Type: </label>
+				<select name="castertype" id="castertype" x-model="subclass.castertype" style="width: auto">
+					<option value="0">None</option>
+					<option value="1">One-Third Caster</option>
+					<option value="2">Half Caster</option>
+					<option value="3">Full Caster</option>
 				</select>
 			</div>
+			<a @click="deleteSubclass(index)" style="width: calc(25% - 24px); min-width: 120px"><button class="mild danger">Delete Subclass</button></a>
 		</div>
-
-		<!-- saving throws -->
-		{% if not cruleset.ability_scores %}
-			<div class="mild danger">
-				<h3>Hey!</h3>
-				<p>You don't have any ability scores in this ruleset! Without adding any, you won't be able to specify saving throw proficiencies granted by this class. You can create ability scores <a href="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}">here</a>.</p>
-			</div>
-			<div style="height: 30px"></div>
-		{% else %}
-			<div class="interior flex horizontal space-around" style="width: 100%">
-				{% for score in cruleset.ability_scores %}
-					<div>
-						<label for="save">{{ score.name }} Saves</label>
-						<input type="checkbox" @change="save.{{ score.name }} = !save.{{ score.name }}" {% if tclass and tclass.saves[loop.index - 1] %} x-init="save.{{ score.name }} = true" checked {% else %} x-init="save.{{ score.name }} = false" {% endif %}>
-						<input type="hidden" name="save" id="save" x-model="save.{{ score.name }}">
-					</div>
-				{% endfor %}
-			</div>
-		{% endif %}
 
 		<!-- Additional Table Columns -->
 		<div class="inactive interior flex vertical start" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 			<div>
-				<label>Additional Class Table Columns: </label>
-				<a><button type="button" @click="appendColumn()">Add Table Column</button></a>
+				<label>Columns in Class Table Added by Subclass: </label>
+				<a><button type="button" @click="appendSubclassColumn(index)">Add Table Column</button></a>
 			</div>
 			<div class="interior flex horizontal center">
-				<template x-if="columns.length > 0">
-					<template x-for="column, index in columns">
+				<template x-if="subclasses[index].columns.length > 0">
+					<template x-for="column, index1 in subclasses[index].columns">
 						<div class="inactive interior flex vertical start" style="margin: 12px">
-							<input type="text" name="columnname" id="columnanme" x-model="columns[index].name" style="width: auto" :placeholder="`Column ` + (index + 1) + ` Name`">
+							<input type="text" :name="`subclass` + index + `columnname`" :id="`subclass` + index + `columnname`" x-model="subclasses[index].columns[index1].name" style="width: auto" :placeholder="`Column ` + (index1 + 1) + ` Name`">
 							<template x-for="level in parseInt(levels)">
-								<input type="text" :name="`column` + index + `value`" :id="`column` + index + `value`" x-model="columns[index].values[level - 1]" :placeholder="`Value at Level ` + level" style="width: auto">
+								<input type="text" :name="`subclass` + index + `column` + index1 + `value`" :id="`subclass` + index + `column` + index1 + `value`" x-model="subclasses[index].columns[index1].values[level - 1]" :placeholder="`Value at Level ` + level" style="width: auto">
 							</template>
-							<a><button type="button" @click="deleteColumn(index)" class="mild danger">Delete Column</button></a>
+							<a><button type="button" @click="deleteSubclassColumn(index, index1)" class="mild danger">Delete Column</button></a>
 						</div>
 					</template>
 				</template>
-				{% if tclass %}
-					{% for column in tclass.columns %}
-						<template x-init="appendColumn()"></template>
-						<template x-init="columns[{{ loop.index - 1 }}] = {name: `{{ column.name }}`, values: {{ column.data }}}"></template> <!--here here here-->
-					{% endfor %}
-				{% endif %}
 			</div>
 		</div>
+		<textarea name="subclass_text" x-model="subclass.text" placeholder="Subclass Description"></textarea>
+		<h4 x-text="subclasses[index].name + ' Features'"></h4>
 
-		<!-- tool/weapon proficiencies -->
-		{% if not tools and not cruleset.item_tags %}
-			<div class="mild danger">
-				<h3>Hey!</h3>
-				<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify item type or tool proficiencies granted by this class. You can create item types <a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
-			</div>
-			<div style="height: 30px"></div>
-		{% else %}
-			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-				<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
-					<label for="proficiencies">Tool/Weapon Proficiencies:</label>
-					<select name="proficiencyselect" id="proficiencyselect" x-model="proficiencyselect" style="width: auto" @change="appendProficiency()">
-						{% for item in cruleset.items %}
-							{% if item.proficiency %}
-							<option>{{ item.name }}</option>
-							{% endif %}
-						{% endfor %}
-						{% for tag in cruleset.item_tags %}
-						<option>{{ tag.name }}</option>
-						{% endfor %}
-					</select>
-					{% if tclass %}
-						{% for proficiency in tclass.proficiencies %}
-							<template x-init="proficiencylist.push(`{{ proficiency }}`)"></template>
-						{% endfor %}
-					{% endif %}
+		<!-- subclass features -->
+		<template x-for="feature, index1 in subclass.features">
+			<div class="interior flex vertical start" style="width: 100%" style="width: 100%">
+				<div style="width: 100%" class="interior flex horizontal center">
+					<input type='text' :name='`subclass_${index}_feature_name`' :id='`subclass_${index}_feature_name`' x-model='subclasses[index].features[index1].name' :placeholder='subclass.name + ` Feature Name`' style='width: calc(50% - 24px); min-width: 240px'>
+					<input type='number' :name='`subclass_${index}_feature_level`' :id='`subclass_${index}_feature_level`' x-model='subclasses[index].features[index1].level' placeholder='Level Obtained' style='width: calc(25% - 24px); min-width: 120px'>
+					<a @click='deleteSubclassFeature(index, index1)' style='width: calc(25% - 24px); min-width: 120px'><button type='submit' class='mild danger'>Delete Feature</button></a>
 				</div>
-				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-					<template x-for="proficiency, index in proficiencylist">
-						<span class="chip" @click="removeProficiency(index)"><span x-text="proficiency"></span><span class="remove">&times</span></span>
-					</template>
-					<template x-for="proficiency, index in proficiencylist">
-						<input type="hidden" name="proficiency" id="proficiency" x-model="proficiencylist[index]">
-					</template>
-				</div>
-			</div>
-		{% endif %}
-
-		<!-- skills -->
-		{% if not cruleset.skills %}
-			<div class="mild danger">
-				<h3>Hey!</h3>
-				<p>You don't have any skills in this ruleset! Without adding any, you won't be able to specify skills granted by this class. You can create skills <a href="{{ url_for('eprefs.createSkill', ruleset=cruleset.identifier) }}">here</a>.</p>
-			</div>
-			<div style="height: 30px"></div>
-		{% else %}
-			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-				<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
-					<label for="skillselect">Skill Proficiencies:</label>
-					<select name="skillselect" id="skillselect" x-model="skillselect" style="width: auto" @change="appendSkill()">
-						{% for skill in cruleset.skills %}
-						<option>{{ skill.name }}</option>
-						{% endfor %}
-					</select>
-					{% if tclass %}
-						{% for skill in tclass.skills %}
-							<template x-init="skilllist.push(`{{ skill }}`)"></template>
-						{% endfor %}
-					{% endif %}
-				</div>
-				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-					<template x-for="skill, index in skilllist">
-						<span class="chip" @click="removeSkill(index)"><span x-text="skill"></span><span class="remove">&times</span></span>
-					</template>
-					<template x-for="skill, index in skilllist">
-						<input type="hidden" name="skill" id="skill" x-model="skilllist[index]">
-					</template>
-				</div>
-			</div>
-		{% endif %}
-
-		<!-- equipment -->
-		<textarea x-model="equipment" placeholder="Starting Equipment" style="height: 100px" {% if tclass %} x-init="equipment=`{{ tclass.equipment }}`" {% endif %}></textarea>
-		<input type="hidden" name="equipment" id="equipment" x-model="equipment">
-
-		<!-- multiclass prereqs -->
-		<textarea x-model="prereq" placeholder="Multiclassing Prerequisites" style="height: 100px" {% if tclass %} x-init="prereq=`{{ tclass.multiclass_prereq }}`" {% endif %}></textarea>
-		<input type="hidden" name="prereq" id="prereq" x-model="prereq">
-
-		<!-- multiclass proficiencies -->
-		{% if not tools and not cruleset.item_tags %}
-			<div class="mild danger">
-				<h3>Hey!</h3>
-				<p>You don't have any item types or tools with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tools granted by this class when multiclassing. You can create item types <a href="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}">here</a>, and tools <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
-			</div>
-			<div style="height: 30px"></div>
-		{% else %}
-			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-				<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
-					<label for="multiproficselect">Multiclass Proficiencies:</label>
-					<select name="multiproficselect" id="multiproficselect" x-model="multiproficselect" style="width: auto" @change="appendMultiProfic()">
-						{% for item in cruleset.items %}
-							{% if item.proficiency %}
-							<option>{{ item.name }}</option>
-							{% endif %}
-						{% endfor %}
-						{% for tag in cruleset.item_tags %}
-						<option>{{ tag.name }}</option>
-						{% endfor %}
-					</select>
-					{% if tclass %}
-						{% for proficiency in tclass.multiclass_profic %}
-							<template x-init="multiproficlist.push(`{{ proficiency }}`)"></template>
-						{% endfor %}
-					{% endif %}
-				</div>
-				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-					<template x-for="proficiency, index in multiproficlist">
-						<span class="chip" @click="removeMultiProfic(index)"><span x-text="proficiency"></span><span class="remove">&times</span></span>
-					</template>
-					<template x-for="proficiency, index in multiproficlist">
-						<input type="hidden" name="multiprofic" id="multiprofic" x-model="multiproficlist[index]">
-					</template>
-				</div>
-			</div>
-		{% endif %}
-
-		<!-- subclass name -->
-		<input type="text" id="subclassname" name="subclassname" x-model="subclassname" placeholder='Subclass Name (e.g. "Primal Path," "Divine Domain," etc.)' {% if tclass %} x-init="subclassname=`{{ tclass.subclass_name }}`" {% endif %}>
-
-		<!-- class flavor text -->
-		<textarea id="text" name="text" x-model="text" placeholder="Class Description" {% if tclass %} x-init="text=`{{ tclass.text }}`" {% endif %}></textarea>
-
-		<!-- class features -->
-		<h3>Class Features</h3>
-		<template x-for="feature, index in features">
-			<div class="interior flex vertical start" style="width: 100%">
-				<div class="interior flex horizontal center" style="width: 100%">
-					<input type="text" name="class_feature_name" x-model="feature.name" placeholder="Class Feature Name" style="width: calc(50% - 24px); min-width: 240px"></input>
-					<input type="number" name="level" x-model="feature.level" placeholder="Level Obtained" style="width: calc(25% - 24px); min-width: 120px">
-					<a @click="deleteFeature(index)" style="width: calc(25% - 24px); min-width: 120px"><button type="button" class="mild danger">Delete Feature</button></a>
-				</div>
-				<textarea name="class_feature_text" x-model="feature.text" placeholder="Class Feature Description"></textarea>
-				<input type="hidden" name="class_feature_text" id="class_feature_text" x-model="feature.text">
+				<textarea x-model='subclasses[index].features[index1].text' placeholder='Feature Description' style='margin: 0'></textarea>
+				<input type="hidden"  :name='`subclass_${index}_feature_text`'  :id='`subclass_${index}_feature_text`' x-model="subclasses[index].features[index1].text">
 			</div>
 		</template>
-		{% if tclass %}
-			<template x-init="features = []"></template>
-			{% for feature in tclass.class_features %}
-				<template x-init="features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`, is_subclass: false})"></template>
-			{% endfor %}
-		{% endif %}
-		<a @click="features.push({name: '', level: null, text: '', is_subclass: false})"><button type="button">Add Class Feature</button></a>
-
-		<!-- subclasses -->
-		<h3>Subclasses</h3>
-		<template x-for="subclass, index in subclasses">
-			<div class="interior flex vertical start" style="width: 100%">
-				<div class="interior flex horizontal center" style="width: 100%">
-					<input name="subclass_name" id="subclass_name" placeholder="Subclass Name" x-model="subclass.name" style="width: calc(40% - 24px); min-width: 360px">
-					<div style="width: calc(35% - 24px); min-width: 120px">
-						<label for="castertype">Caster Type: </label>
-						<select name="castertype" id="castertype" x-model="subclass.castertype" style="width: auto">
-							<option value="0">None</option>
-							<option value="1">One-Third Caster</option>
-							<option value="2">Half Caster</option>
-							<option value="3">Full Caster</option>
-						</select>
-					</div>
-					<a @click="deleteSubclass(index)" style="width: calc(25% - 24px); min-width: 120px"><button class="mild danger">Delete Subclass</button></a>
-				</div>
-
-				<!-- Additional Table Columns -->
-				<div class="inactive interior flex vertical start" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-					<div>
-						<label>Columns in Class Table Added by Subclass: </label>
-						<a><button type="button" @click="appendSubclassColumn(index)">Add Table Column</button></a>
-					</div>
-					<div class="interior flex horizontal center">
-						<template x-if="subclasses[index].columns.length > 0">
-							<template x-for="column, index1 in subclasses[index].columns">
-								<div class="inactive interior flex vertical start" style="margin: 12px">
-									<input type="text" :name="`subclass` + index + `columnname`" :id="`subclass` + index + `columnname`" x-model="subclasses[index].columns[index1].name" style="width: auto" :placeholder="`Column ` + (index1 + 1) + ` Name`">
-									<template x-for="level in parseInt(levels)">
-										<input type="text" :name="`subclass` + index + `column` + index1 + `value`" :id="`subclass` + index + `column` + index1 + `value`" x-model="subclasses[index].columns[index1].values[level - 1]" :placeholder="`Value at Level ` + level" style="width: auto">
-									</template>
-									<a><button type="button" @click="deleteSubclassColumn(index, index1)" class="mild danger">Delete Column</button></a>
-								</div>
-							</template>
-						</template>
-					</div>
-				</div>
-				<textarea name="subclass_text" x-model="subclass.text" placeholder="Subclass Description"></textarea>
-				<h4 x-text="subclasses[index].name + ' Features'"></h4>
-
-				<!-- subclass features -->
-				<template x-for="feature, index1 in subclass.features">
-					<div class="interior flex vertical start" style="width: 100%" style="width: 100%">
-						<div style="width: 100%" class="interior flex horizontal center">
-							<input type='text' :name='`subclass_${index}_feature_name`' :id='`subclass_${index}_feature_name`' x-model='subclasses[index].features[index1].name' :placeholder='subclass.name + ` Feature Name`' style='width: calc(50% - 24px); min-width: 240px'>
-							<input type='number' :name='`subclass_${index}_feature_level`' :id='`subclass_${index}_feature_level`' x-model='subclasses[index].features[index1].level' placeholder='Level Obtained' style='width: calc(25% - 24px); min-width: 120px'>
-							<a @click='deleteSubclassFeature(index, index1)' style='width: calc(25% - 24px); min-width: 120px'><button type='submit' class='mild danger'>Delete Feature</button></a>
-						</div>
-						<textarea x-model='subclasses[index].features[index1].text' placeholder='Feature Description' style='margin: 0'></textarea>
-						<input type="hidden"  :name='`subclass_${index}_feature_text`'  :id='`subclass_${index}_feature_text`' x-model="subclasses[index].features[index1].text">
-					</div>
-				</template>
-				<a><button type='button' @click='subclasses[index].features.push({name: null, level: null, text: null, is_subclass: true})'>Add Subclass Feature</button></a>
-			</div>
-		</template>
-		{% if tclass %}
-			<template x-init="subclasses=[]"></template>
-			{% for subclass in tclass.subclasses %}
-				<template x-init="subclasses.push({
-					name: `{{ subclass.name }}`,
-					text: `{{ subclass.text }}`,
-					castertype: {% if castertype %} {{ castertype }} {% else %} 0 {% endif %},
-					columns: [],
-					features: []
-				})"></template>
-				{% set bigindex = loop.index - 1 %}
-				{% for column in subclass.columns %}
-					<template x-init="subclasses[{{ bigindex }}].columns.push({
-						name: `{{ column.name }}`,
-						values: {{ column.data }}
-					})"></template>
-				{% endfor %}
-				{% for feature in subclass.subclass_features %}
-					<template x-init="subclasses[{{ bigindex }}].features.push({
-						name: `{{ feature.name }}`,
-						level: `{{ feature.level_obtained }}`,
-						text: `{{ feature.text }}`,
-						is_subclass: true
-					})"></template>
-				{% endfor %}
-			{% endfor %}
-		{% endif %}
-		<a @click="subclasses.push({name: '', text: '', castertype: '', columns: [], features: [{name: '', level: null, text: ''}]})"><button type="button">Add Subclass</button></a>
-		<a><button type="submit" x-ref="submitbutton"> Snoopy >:(</button></a>
-	</form>
+		<a><button type='button' @click='subclasses[index].features.push({name: null, level: null, text: null, is_subclass: true})'>Add Subclass Feature</button></a>
+	</div>
+</template>
+{% if tclass %}
+	<template x-init="subclasses=[]"></template>
+	{% for subclass in tclass.subclasses %}
+		<template x-init="subclasses.push({
+			name: `{{ subclass.name }}`,
+			text: `{{ subclass.text }}`,
+			castertype: {% if castertype %} {{ castertype }} {% else %} 0 {% endif %},
+			columns: [],
+			features: []
+		})"></template>
+		{% set bigindex = loop.index - 1 %}
+		{% for column in subclass.columns %}
+			<template x-init="subclasses[{{ bigindex }}].columns.push({
+				name: `{{ column.name }}`,
+				values: {{ column.data }}
+			})"></template>
+		{% endfor %}
+		{% for feature in subclass.subclass_features %}
+			<template x-init="subclasses[{{ bigindex }}].features.push({
+				name: `{{ feature.name }}`,
+				level: `{{ feature.level_obtained }}`,
+				text: `{{ feature.text }}`,
+				is_subclass: true
+			})"></template>
+		{% endfor %}
+	{% endfor %}
+{% endif %}
+<a @click="subclasses.push({name: '', text: '', castertype: '', columns: [], features: [{name: '', level: null, text: ''}]})"><button type="button">Add Subclass</button></a>
+<a><button type="submit" x-ref="submitbutton" x-show="false"> Snoopy >:(</button></a>
+</form>
 </div>
-<div class="wide flex">
+<div class="flex">
 	<div class="flex vertical start tabs">
 		<!-- info block -->
 		<div class="tab-container" style="width: 100%">
@@ -354,7 +354,7 @@
 					<h6>Proficiencies</h6>
 					<p><strong>Items: </strong><span x-text="parseList(proficiencylist)"></span></p>
 					<p><strong>Saving Throws: </strong><span x-text="parseSaves()"></span></p>
-					<p><strong>Skills: </strong>Choose two from <span x-text="parseList(skilllist)"></span></p>
+					<p><strong>Skills: </strong><span x-text="`Choose ${skill_num < 10 ? ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][skill_num] : skill_num} from ${parseList(skilllist)}`"></span></p>
 				</section>
 				<section>
 					<h6>Starting Equipment</h6>
@@ -436,10 +436,22 @@
 		</template>
 	</div>
 </div>
-<div class="narrow flex">
+<div class="flex" style="width: auto">
 	<div class="interior flex horizontal center" style="width: 100%">
 		<a @click="$refs.submitbutton.click()"><button>{{ "Submit Changes" if tclass else "Create Class!" }}</button></a>
 	</div>
+</div>
+
+<div class="modal" x-show="modal" @click="modal = !modal"></div>
+<div class="modal-alert flex vertical start" x-show="modal">
+	<h1>Add Custom Proficiency</h1>
+	<p>Add a custom item to the class' proficiency. You might use this for, for example, the bard's "three musical instruments of your choice."</p>
+	<div style="height: 30px"></div>
+	<input type="text" name="customitem" id="customitem" x-model="customitem">
+	<div style="height: 30px"></div>
+	<a><button @click="appendCustom()">Add Custom Item</button></a>
+	<div style="height: 30px"></div>
+	<a><span class="small" @click="modal = !modal">Nevermind</span></a>
 </div>
 </div>
 {% endblock %}
