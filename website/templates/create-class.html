@@ -90,7 +90,7 @@
 		<template x-if="columns.length > 0">
 			<template x-for="column, index in columns">
 				<div class="inactive interior flex vertical start" style="margin: 12px">
-					<input type="text" :name="`column${index}name`" :id="column${index}name" x-model="columns[index].name" style="width: auto" :placeholder="`Column ${index+1}` Name`">
+					<input type="text" :name="`column${index}name`" :id="column${index}name" x-model="columns[index].name" style="width: auto" :placeholder="`Column ${index+1} Name`">
 						<template x-for="level, index1 in parseInt(levels)">
 							<input type="text" :name="`column${index}value${index1}`" :id="`column${index}value${index1}`" x-model="columns[index].values[level - 1]" :placeholder="`Value at Level ${level}`" style="width: auto">
 						</template>
@@ -153,14 +153,18 @@
 	</div>
 	<div style="height: 30px"></div>
 {% else %}
-			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-				<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
+	<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+		<div class="interior flex horizontal start" style="width: 100%; background-color: inherit">
 			<label for="skillselect">Skill Proficiencies:</label>
-					<select name="skillselect" id="skillselect" x-model="skillselect" style="width: auto" @change="appendSkill()">
-				{% for skill in cruleset.skills %}
-				<option>{{ skill.name }}</option>
-				{% endfor %}
-			</select>
+			<div class="interior flex horizontal start">
+				<input type="number" name="skill_num" id="skill_num" x-model="skill_num" placeholder="Number of skills">
+				<select name="skillselect" id="skillselect" x-model="skillselect" style="width: auto" @change="appendSkill()">
+					<option>(Any)</option>
+					{% for skill in cruleset.skills %}
+					<option>{{ skill.name }}</option>
+					{% endfor %}
+				</select>
+			</div>
 			{% if tclass %}
 				{% for skill in tclass.skills %}
 					<template x-init="skilllist.push(`{{ skill }}`)"></template>
@@ -246,7 +250,7 @@
 {% if tclass %}
 	<template x-init="features = []"></template>
 	{% for feature in tclass.class_features %}
-		<template x-init="features.push({name: `{{ feature.name }}`, level: {{ feature.level_obtained }}, text: `{{ feature.text }}`, is_subclass: false})"></template>
+		<template x-init="features.push({name: `{{ feature.name }}`, level: parseInt(`{{ feature.level_obtained }}`), text: `{{ feature.text }}`, is_subclass: false})"></template>
 	{% endfor %}
 {% endif %}
 <a @click="features.push({name: '', level: null, text: '', is_subclass: false})"><button type="button">Add Class Feature</button></a>
@@ -309,7 +313,24 @@
 </template>
 {% if tclass %}
 	<template x-init="subclasses=[]"></template>
+	<template x-init="subclasses.push({
+		name: ``,
+		text: ``,
+		castertype: 0,
+		columns: [],
+		features: [
+			{
+				name: ``,
+				level: 0,
+				text: ``,
+				is_subclass: true
+			}
+		]
+	})"></template>
 	{% for subclass in tclass.subclasses %}
+		{% if loop.index0 == 0 %}
+		<template x-init="subclasses=[]"></template>
+		{% endif %}
 		<template x-init="subclasses.push({
 			name: `{{ subclass.name }}`,
 			text: `{{ subclass.text }}`,
@@ -354,7 +375,7 @@
 					<h6>Proficiencies</h6>
 					<p><strong>Items: </strong><span x-text="parseList(proficiencylist)"></span></p>
 					<p><strong>Saving Throws: </strong><span x-text="parseSaves()"></span></p>
-					<p><strong>Skills: </strong><span x-text="`Choose ${skill_num < 10 ? ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][skill_num] : skill_num} from ${parseList(skilllist)}`"></span></p>
+					<p><strong>Skills: </strong><span x-text="parseSkill()"></span></p>
 				</section>
 				<section>
 					<h6>Starting Equipment</h6>

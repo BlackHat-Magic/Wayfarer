@@ -993,110 +993,79 @@ def makeclass(request, cruleset, tclass, instruction, adminrulesets):
             flash("Subclass title must be fewer than 128 characters.", "red")
             invalid = True
         for i, column in enumerate(request.form.getlist("columnname")):
-            if(invalid):
-                break
             if(len(column) < 1):
                 invalid = True
                 flash("Each custom column must have a name.", "red")
-                break
             elif(len(column) > 127):
                 invalid = True
                 flash("Custom column names must be fewer than 128 characters.", "red")
-                break
             for value in request.form.getlist(f"column{i}value"):
                 if(len(value) > 127):
                     invalid = True
                     flash("Custom column values must be fewer than 128 characters.", "red")
-                    break
         for i, feature in enumerate(request.form.getlist("class_feature_name")):
-            if(invalid):
-                break
             try:
                 testint = int(request.form.getlist("level")[i])
             except:
                 invalid = True
                 flash("Feature levels must be numbers.", "red")
-                break
             if(len(feature) < 1):
                 invalid = True
                 flash("You must specify a name for each class feature", "red")
-                break
             elif(len(feature) > 127):
                 invalid = True
                 flash("Class feature names must be fewer than 128 characters", "red")
-                break
             elif(len(request.form.getlist("class_feature_text")[i]) > 16383):
                 invalid = True
                 flash("Class feature text must be fewer than 128 characters", "red")
-                break
         for i, subclass in enumerate(request.form.getlist("subclass_name")):
-            if(invalid):
-                break
             if(len(subclass) < 1):
                 invalid = True
                 flash("You must specify a name for each subclass.", "red")
-                break
             elif(len(subclass) > 127):
                 invalid = True
                 flash("Subclass names must be fewer than 128 characters.", "red")
-                break
             elif(len(request.form.getlist("subclass_text")[i]) > 16383):
                 invalid = True
                 flash("Subclass descriptions must be fewer than 16383 characters.", "red")
-                break
             elif("<" in request.form.getlist("subclass_text")[i]):
                 invalid = True
                 flash("Open angle brackets (\"<\") are not allowed.", "red")
-                break
             elif("javascript" in request.form.getlist("subclass_text")[i]):
                 invalid = True
                 flash("Cross-site scripting attacks are not allowed.", "red")
-                break
             for j, feature in enumerate(request.form.getlist(f"subclass_{i}_feature_name")):
-                if(invalid):
-                    break
                 try:
                     testint = int(request.form.getlist(f"subclass_{i}_feature_level")[j])
                 except:
                     invalid = True
                     flash("Subclass feature levels must be numbers.", "red")
-                    break
                 if(len(feature) < 1):
                     invalid = True
                     flash("You must specify a name for each subclass feature.", "red")
-                    break
                 elif(len(feature) > 127):
                     invalid = True
                     flash("Subclass feature names must be fewer than 128 characters.", "red")
-                    break
                 elif(len(request.form.getlist(f"subclass_{i}_feature_text")[j]) > 16383):
                     invalid = True
                     flash("Subclass feature descriptions must be fewer than 16383 characters.", "red")
-                    break
                 elif("<" in request.form.getlist(f"subclass_{i}_feature_text")[j]):
                     invalid = True
                     flash("Open angle brackets (\"<\") are not allowed.", "red")
-                    break
                 elif("javascript" in request.form.getlist(f"subclass_{i}_feature_text")[j]):
                     invalid = True
                     flash("Cross-site scripting attacks are not allowed.", "red")
-                    break
             for j, column in enumerate(request.form.getlist(f"subclass{i}columnname")):
-                if(invalid):
-                    break
                 if(len(column) < 1):
                     invalid = True
                     flash("You must specify a name for each subclass' custom columns.", "red")
-                    break
                 elif(len(column) > 127):
                     invalid = True
                     flash("Each subclass' custom column names must be fewer than 128 characters.", "red")
-                    break
                 for value in request.form.getlist(f"subclass{i}column{j}value"):
                     if(len(value) > 127):
                         invalid = True
                         flash("Each subclass' custom column values must be fewer than 128 characters.", "red")
-                        break
         if(instruction == "create"):
             new_class = Playerclass(
                 rulesetid = cruleset.id,

@@ -13,6 +13,7 @@ In no particular order...
  - [ ] make mobile site less unusable
  - [ ] make website pretty
  - [ ] add animations
+ - [ ] Payment Processing
  - [ ] Add JSON import/export functionality
      - [X] ~~Export Functionality~~
      - [X] ~~Import Functionality~~

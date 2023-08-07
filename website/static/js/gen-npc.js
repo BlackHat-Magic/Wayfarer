@@ -572,8 +572,11 @@ document.addEventListener ("alpine:init", () => {
         portrait_status: "",
         portraits: [],
         RequestPortrait() {
-            console.log("Portrait request started...")
-            let description = ""
+            this.portraits = []
+            while (document.querySelector("#images").firstChild) {
+                document.querySelector("#images").removeChild(document.querySelector("#images").firstChild)
+            }
+            description = ""
             description += ` - ${character.sex != "Neither" ? character.sex : ""} ${character.race}`
             description += `\n - Height: ${Math.floor(character.total_height / 12 + 1)}' ${character.total_height % 12}"`
             description += `\n - Weight: ${character.total_weight}`
@@ -592,6 +595,7 @@ document.addEventListener ("alpine:init", () => {
             processed = encodeURIComponent(description)
 
             this.portrait_source = new EventSource(`/Tools/NPC-Gen/Portrait?description=${description}`)
+            console.log("Portrait request started...")
             this.portrait_source.addEventListener("TEXT", (event) => {
                 this.portrait_prompt = event.data;
             })

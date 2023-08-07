@@ -128,6 +128,9 @@ document.addEventListener ("alpine:init", () => {
             }
             return(output);
         },
+        parseSkill () {
+            return(`Any ${skill_num < 10 ? ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"][this.skill_num] : skill_num} of your choice${this.skilllist.includes("(Any)") ? "." : " from " + this.parseList(this.skilllist)}`)
+        },
         parseSaves () {
             output = "";
             for (const [key, value] of Object.entries(this.save)) {
