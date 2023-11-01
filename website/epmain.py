@@ -205,7 +205,7 @@ def myAccount(ruleset):
             current_user.username = username
             current_user.email = email
             if(npasswd1 != "eternity-freezing-mama"):
-                current_user.password = generate_password_hash(npasswd1, method="sha256")
+                current_user.password = generate_password_hash(npasswd1, method="pbkdf2")
             flash("Changes saved.", "green")
             return(redirect(url_for("epmain.home", ruleset=ruleset)))
     return(

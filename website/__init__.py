@@ -48,13 +48,13 @@ def start():
     return app
 
 def create_database(app):
-    if(not path.exists("website/" + DB_NAME)):
+    if(not path.exists("instance/" + DB_NAME)):
         with app.app_context():
-            db.create_all(app=app)
+            db.create_all()
             from .models import User, Ruleset
             admin_user = User(
                 username = os.getenv("DEFAULT_USERNAME"),
-                password = generate_password_hash(os.getenv("DEFAULT_PASSWORD"), method="sha256"),
+                password = generate_password_hash(os.getenv("DEFAULT_PASSWORD"), method="pbkdf2"),
                 is_admin = True
             )
             db.session.add(admin_user)

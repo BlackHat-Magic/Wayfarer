@@ -88,10 +88,10 @@ def signUp(ruleset):
         else:
             # Create user with admin ruleset as current ruleset if admin rulesets exist
             try:
-                new_user = User(username = username, email = email, password=generate_password_hash(password1, method="sha256"), current_ruleset=Ruleset.query.filter_by(is_admin=True).first().id)
+                new_user = User(username = username, email = email, password=generate_password_hash(password1, method="pbkdf2"), current_ruleset=Ruleset.query.filter_by(is_admin=True).first().id)
             # Otherwise create user with no current ruleset
             except:
-                new_user = User(username = username, email = email, password=generate_password_hash(password1, method="sha256"))
+                new_user = User(username = username, email = email, password=generate_password_hash(password1, method="pbkdf2"))
             db.session.add(new_user)
             db.session.commit()
             login_user(User.query.filter_by(username = username).first(), remember = True)
