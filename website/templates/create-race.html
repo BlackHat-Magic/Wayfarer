@@ -8,7 +8,6 @@
 <div class="flex">
 <form class="flex vertical start" x-data="main" method="post" @keyup="localStorage.setItem('cached_race', JSON.stringify(compileRace()))">
 	<h1>{{ "Edit %s"|format(race.name) if race else "Create a Race" }}</h1>
-	<template></template>
 	{% if not race %}
 	<template x-init="loadRace()"></template>
 	{% endif %}

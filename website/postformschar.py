@@ -340,7 +340,7 @@ def makeRace(request, cruleset, race, instruction):
                             db.session.add(new_feature)
                         db.session.commit()
                 flash("Race created!", "green")
-                return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'; localStorage.removeItem('race')\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'; localStorage.removeItem('cached_race')\">{'Submit Changes' if race else 'Create Race!'}</button>")
             else:
                 race.name = name
                 race.flavor = flavor
@@ -414,7 +414,7 @@ def makeRace(request, cruleset, race, instruction):
                         db.session.delete(subrace)
                 db.session.commit()
                 flash("Changes saved!", "green")
-                return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'; localStorage.removeItem('cached_race')\">{'Submit Changes' if race else 'Create Race!'}</button>")
         return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
 
 def raceImporter(races, cruleset):
@@ -601,39 +601,39 @@ def makebackground(request, cruleset, background, instruction):
         featuretexts = request.form.getlist("featuretext")
         if(len("name") < 1 or not name):
             flash("You must specify a background name.", "red")
-            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
         elif(len("name") > 127):
             flash("Background name must be fewer than 128 characters.", "red")
-            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
         elif(len("text") > 16383):
             flash("Text must be fewer than 16384 characters.", "red")
-            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
         elif("<" in "text"):
             flash("Open angle brackets(\"<\") are not allowed.", "red")
-            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
         elif("javascript" in "text"):
             flash("Cross-site scripting attacks are not allowed.", "red")
-            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
         elif(len(goldcontainer) > 127):
             flash("Starting gold container name must be fewer than 128 characters.")
-            return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
         else:
             for index, feature in enumerate(featurenames):
                 if(len(feature) < 1):
                     flash("You must specify a feature name.", "red")
-                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
                 elif(len(feature) > 127):
                     flash("Feature name must be fewer than 128 characters.", "red")
-                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
                 elif(len(featuretexts[index]) > 16383):
                     flash("Text must be fewer than 16383 characters.", "red")
-                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
                 elif("<" in featuretexts[index]):
                     flash("Open angle brackets(\"<\") are not allowed.", "red")
-                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
                 elif("javascript" in featuretexts[index]):
                     flash("Cross-site scripting attacks are not allowed.", "red")
-                    return(redirect(url_for("epchar.createBackground", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
             if(instruction == "create"):
                 new_background = Background(
                     rulesetid = cruleset.id,
@@ -689,6 +689,7 @@ def makebackground(request, cruleset, background, instruction):
                     db.session.commit()
                 flash("Changes saved!", "green")
 
+    return(f"<button x-init=\"window.location.href='{url_for('epchar.backgrounds', ruleset=cruleset.identifier)}'; localStorage.removeItem('cached_background')\">{'Submit Changes' if background else 'Create Background!'}</button>")
     return(redirect(url_for("epchar.backgrounds", ruleset=cruleset.identifier)))
 
 def backgroundImporter(backgrounds, flavor, cruleset):

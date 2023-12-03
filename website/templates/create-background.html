@@ -6,8 +6,12 @@
 
 {% block body %}
 <div class="flex" x-data="main">
-	<form class="flex vertical start" method="post">
+	<form class="flex vertical start" method="post" @keyup="localStorage.setItem('cached_background', JSON.stringify(compileBackground())); console.log(compileBackground())">
 		<h1>{{ "Edit %s"|format(background.name) if background else "Create a Background" }}</h1>
+		{% if not background %}
+		<template x-init="loadBackground()"></template>
+		{% endif %}
+
 		<div class="interior flex vertical start" style="width: 100%">
 			<input name="name" id="name" x-model="name" placeholder="Background Name" {% if background %} x-init="name=`{{ background.name }}`" {% endif %}>
 			{% if not cruleset.skills %}
@@ -186,7 +190,21 @@
 				</div>
 			</template>
 		</div>
-		<a><button type="submit">{{ "Submit Changes" if background else "Create Background!" }}</button></a>
+		<a>
+			{% if background %}
+			<button 
+				hx-post="{{ url_for('epchar.editBackground', ruleset=cruleset.identifier) }}"
+				hx-swap="outerHTML">
+				Submit Changes
+			</button>
+			{% else %}
+			<button
+				hx-post="{{ url_for('epchar.createBackground', ruleset=cruleset.identifier) }}"
+				hx-swap="outerHTML">
+				Create Background!
+			</button>
+			{% endif %}
+		</a>
 	</form>
 
 	<div class="modal" x-show="modal" @click="modal = !modal"></div>

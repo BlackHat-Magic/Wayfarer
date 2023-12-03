@@ -201,6 +201,51 @@ document.addEventListener ("alpine:init", () => {
         converter: new showdown.Converter({tables: true}),
         convert (text) {
             return(this.converter.makeHtml(text));
+        },
+
+        compileBackground () {
+            background = {
+                name: this.name,
+                
+                skills: this.skills,
+                tools: this.tools,
+                languages: this.languages,
+                
+                items: this.items,
+                gold: this.gold,
+                goldcontainer: this.goldcontainer,
+
+                text: this.text,
+                features: this.features
+            };
+
+            return (background);
+        },
+
+        loadBackground () {
+            background = JSON.parse(localStorage.getItem("cached_background"))
+            if (background == null) {
+                return;
+            };
+
+            this.name = background.name;
+            
+            this.skills = background.skills;
+            this.tools = background.tools;
+            this.languages = background.languages;
+            this.parsedlanguage = this.parseLanguages ();
+
+            this.items = background.items;
+            this.gold = background.gold;
+            this.goldcontainer = background.goldcontainer;
+            this.parseItems = this.parseItems ();
+
+            this.text = background.text;
+            this.features = background.features;
         }
     }))
+})
+
+document.addEventListener("htmx:afterswap", (event) => {
+    Alpine.initializeWithin(event.detail.elt);
 })
