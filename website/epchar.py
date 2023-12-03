@@ -229,7 +229,7 @@ def createBackground(ruleset):
     )
 
 # background duplication endpoint
-@epchar.route("/Backgrounds/Duplicate/<string:background>", subdomain="<ruleset>")
+@epchar.route("/Backgrounds/Duplicate/<string:background>", subdomain="<ruleset>", methods=["POST"])
 @login_required
 def duplicateBackground(background, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -391,7 +391,7 @@ def createFeat(ruleset):
     )
 
 # feat duplication endpoint
-@epchar.route("/Feats/Duplicate/<string:feat>", subdomain="<ruleset>")
+@epchar.route("/Feats/Duplicate/<string:feat>", subdomain="<ruleset>", methods=["POST"])
 @login_required
 def duplicateFeat(feat, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)

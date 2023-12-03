@@ -16,7 +16,7 @@
         {% endfor %}
         {% if cruleset.userid == current_user.id %}
         <div class="interior flex horizontal center">
-            <a style="width: auto; margin: 12px" href="{{ url_for('epchar.duplicateBackground', background=background.name, ruleset=cruleset.identifier) }}"><button type="button">Duplicate {{ background.name }}</button></a>
+            <a style="width: auto; margin: 12px"><button type="button" hx-post="{{ url_for('epchar.duplicateBackground', background=background.name, ruleset=cruleset.identifier) }}" hx-swap="outerHTML">Duplicate {{ background.name }}</button></a>
             <a style="width: auto; margin: 12px" href="{{ url_for('epchar.editBackground', background=background.name, ruleset=cruleset.identifier) }}"><button type="button">Edit {{ background.name }}</button></a>
             <a style="width: auto; margin: 12px" href="{{ url_for('epchar.deleteBackground', background=background.name, ruleset=cruleset.identifier) }}"><button type="button" class="mild danger">Delete {{ background.name }}</button></a>
         </div>

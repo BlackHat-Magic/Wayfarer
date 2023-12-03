@@ -235,53 +235,53 @@ def makeRace(request, cruleset, race, instruction):
             for feature in features:
                 if(len(feature) < 1):
                     flash("Each racial feature must have a name.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                 elif(len(feature) > 127):
                     flash("Racial feature names must be fewer than 128 characters.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
             for ftext in feature_text:
                 if(len(ftext) > 16383):
                     flash("Racial feature text must be fewer than 16384 characters.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                 elif("<" in ftext):
                     flash("Open angle brackets (\"<\") are not allowed.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                 elif("javascript" in ftext):
                     flash("Cross-site scripting attacks are not allowed.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
             if(has_subraces):
                 for subrace in subraces:
                     if(len(subrace["name"]) < 1):
                         flash("You must specify a name for each subrace.", "red")
-                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     elif(len(subrace["name"]) > 127):
                         flash("Subrace names must be fewer than 128 characters.", "red")
-                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     elif(len(subrace["text"]) > 16383):
                         flash("Subrace descriptions must be fewer than 16384 characters.", "red")
-                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     elif("<" in subrace["text"]):
                         flash("Open angle brackets (\"<\") are not allowed.", "red")
-                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     elif("javascript" in subrace["text"]):
                         flash("Cross-site scripting attacks are not allowed.", "red")
-                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     for feature in subrace["features"]:
                         if(len(feature["name"]) < 1):
                             flash("You must specify a name for each subrace features.", "red")
-                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                         elif(len(feature["name"]) > 127):
                             flash("Subrace feature names must be fewer than 128 characters.", "red")
-                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                         elif(len(feature["text"]) > 16383):
                             flash("Subrace feature text must be fewer than 16384 characters.", "red")
-                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                         elif("<" in feature["text"]):
                             flash("Open angle brackets (\"<\") are not allowed.", "red")
-                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                         elif("javascript" in feature["text"]):
                             flash("Cross-site scripting attacks are not allowed.", "red")
-                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
             if(instruction == "create"):
                 new_race = Race(
                     rulesetid = cruleset.id,
@@ -415,7 +415,7 @@ def makeRace(request, cruleset, race, instruction):
                 db.session.commit()
                 flash("Changes saved!", "green")
                 return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'; localStorage.removeItem('cached_race')\">{'Submit Changes' if race else 'Create Race!'}</button>")
-        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier) if not race else url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
 
 def raceImporter(races, cruleset):
     if(cruleset.userid != current_user.id):
@@ -601,39 +601,39 @@ def makebackground(request, cruleset, background, instruction):
         featuretexts = request.form.getlist("featuretext")
         if(len("name") < 1 or not name):
             flash("You must specify a background name.", "red")
-            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
         elif(len("name") > 127):
             flash("Background name must be fewer than 128 characters.", "red")
-            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
         elif(len("text") > 16383):
             flash("Text must be fewer than 16384 characters.", "red")
-            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
         elif("<" in "text"):
             flash("Open angle brackets(\"<\") are not allowed.", "red")
-            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
         elif("javascript" in "text"):
             flash("Cross-site scripting attacks are not allowed.", "red")
-            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
         elif(len(goldcontainer) > 127):
             flash("Starting gold container name must be fewer than 128 characters.")
-            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
         else:
             for index, feature in enumerate(featurenames):
                 if(len(feature) < 1):
                     flash("You must specify a feature name.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
                 elif(len(feature) > 127):
                     flash("Feature name must be fewer than 128 characters.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
                 elif(len(featuretexts[index]) > 16383):
                     flash("Text must be fewer than 16383 characters.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
                 elif("<" in featuretexts[index]):
                     flash("Open angle brackets(\"<\") are not allowed.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
                 elif("javascript" in featuretexts[index]):
                     flash("Cross-site scripting attacks are not allowed.", "red")
-                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier)}'\">Create Background!</button>")
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createBackground', ruleset=cruleset.identifier) if not background else url_for('epchar.editBackground', background=background.name, ruleset=cruleset.name)}'\">Create Background!</button>")
             if(instruction == "create"):
                 new_background = Background(
                     rulesetid = cruleset.id,
@@ -777,7 +777,7 @@ def backgroundImporter(backgrounds, flavor, cruleset):
 
 def makefeat(request, cruleset, tfeat, instruction):
     if(current_user.id != cruleset.userid):
-        flash("You cannot create backgrounds in rulesets that are not your own.", "red")
+        flash("You cannot create feats in rulesets that are not your own.", "red")
     elif(instruction == "duplicate"):
         new_feat = Feat(
             rulesetid = cruleset.id,
@@ -794,16 +794,22 @@ def makefeat(request, cruleset, tfeat, instruction):
         prereq = request.form.get("prereq")
         if(len(name) < 1):
             flash("You must specify a feat name.", "red")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createFeat', ruleset=cruleset.identifier) if not tfeat else url_for('epchar.editFeat', feat=tfeat.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if tfeat else 'Create Feat!'}</button>")
         elif(len(name) > 127):
             flash("Feat name must be fewer than 128 characters.", "red")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createFeat', ruleset=cruleset.identifier) if not tfeat else url_for('epchar.editFeat', feat=tfeat.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if tfeat else 'Create Feat!'}</button>")
         elif(len(prereq) > 255):
             flash("Feat Prerequisite must be fewer than 256 characters.", "red")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createFeat', ruleset=cruleset.identifier) if not tfeat else url_for('epchar.editFeat', feat=tfeat.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if tfeat else 'Create Feat!'}</button>")
         elif(len(text) > 16383):
             flash("Feat description must be fewer than 16384 characters.", "red")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createFeat', ruleset=cruleset.identifier) if not tfeat else url_for('epchar.editFeat', feat=tfeat.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if tfeat else 'Create Feat!'}</button>")
         elif("<" in text):
             flash("Open angle brackets (\"<\") are not allowed.", "red")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createFeat', ruleset=cruleset.identifier) if not tfeat else url_for('epchar.editFeat', feat=tfeat.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if tfeat else 'Create Feat!'}</button>")
         elif("javascript" in text):
             flash("Cross-site scripting attacks are not allowed.", "red")
+            return(f"<button x-init=\"window.location.href='{url_for('epchar.createFeat', ruleset=cruleset.identifier) if not tfeat else url_for('epchar.editFeat', feat=tfeat.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if tfeat else 'Create Feat!'}</button>")
         else:
             if(instruction == "create"):
                 new_feat = Feat(
@@ -821,7 +827,7 @@ def makefeat(request, cruleset, tfeat, instruction):
                 tfeat.text = text
                 db.session.commit()
                 flash("Changes saved!", "green")
-    return(redirect(url_for("epchar.feats", ruleset=cruleset.identifier)))
+    return(f"<button x-init=\"window.location.href='{url_for('epchar.feats', ruleset=cruleset.identifier)}'; localStorage.removeItem('cached_feat')\">{'Submit Changes' if tfeat else 'Create Feat!'}</button>")
 
 def featImporter(feats, cruleset):
     if(current_user.id != cruleset.userid):

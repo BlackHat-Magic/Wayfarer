@@ -193,7 +193,7 @@
 		<a>
 			{% if background %}
 			<button 
-				hx-post="{{ url_for('epchar.editBackground', ruleset=cruleset.identifier) }}"
+				hx-post="{{ url_for('epchar.editBackground', background=background.name, ruleset=cruleset.identifier) }}"
 				hx-swap="outerHTML">
 				Submit Changes
 			</button>

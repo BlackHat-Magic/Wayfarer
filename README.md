@@ -30,6 +30,7 @@ In no particular order...
      - [ ] Correctly parse and reformat 5e tools markup
  - [X] ~~URL Parameters/Header URLs~~
  - [ ] Cache unsaved database entries if user input is invalid
+     - [ ] Disabled Buttons
  - [ ] GM Tools (tables, traps, etc)
      - [ ] NPC Generator
      - [ ] Monster Maker

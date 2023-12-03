@@ -5,9 +5,11 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-	<form class="flex vertical start" x-data="main" method="post">
+<div x-data="main" class="flex">
+	<form class="flex vertical start" method="post" @keyup="localStorage.setItem('cached_feat', JSON.stringify(compileFeat()))">
 		<h1>{{ "Edit %s"|format(feat.name) if feat else "Create a Feat" }}</h1>
+		<template x-init="loadFeat()"></template>
+
 		<input id="name" name="name" x-model="name" placeholder="Feat Name" {% if feat %} x-init="name = `{{ feat.name }}`" {% endif %}>
 		<input id="prereq" name="prereq" x-model="prereq" placeholder="Feat Prerequisite" {% if feat %} x-init="prereq = `{{ feat.prerequisite }}`" {% endif %}>
 		<textarea id="text" name="text" x-model="text" placeholder="Feat Description" {% if feat %} x-init="text = `{{ feat.text }}`" {% endif %}></textarea>
@@ -19,7 +21,21 @@
 			<hr>
 			<div x-html="convert(text)" style="width: 100%"></div>
 		</div>
-		<a><button type="submit">{{ "Submit Changes" if feat else "Create Feat!" }}</button></a>
+		<a>
+			{% if feat %}
+			<button 
+				hx-post="{{ url_for('epchar.editFeat', feat=feat.name, ruleset=cruleset.identifier) }}"
+				hx-swap="outerHTML">
+				Submit Changes
+			</button>
+			{% else %}
+			<button
+				hx-post="{{ url_for('epchar.createFeat', ruleset=cruleset.identifier) }}"
+				hx-swap="outerHTML">
+				Create Feat!
+			</button>
+			{% endif %}
+		</a>
 	</form>
 </div>
 {% endblock %}

@@ -205,6 +205,7 @@ document.addEventListener ("alpine:init", () => {
             if (race == null) {
                 return;
             }
+            
             this.name = race.name;
 
             this.asis = race.asis;
