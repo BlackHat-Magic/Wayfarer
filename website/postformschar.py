@@ -113,7 +113,7 @@ def abilityScoreImporter(scores, cruleset):
 def makeRace(request, cruleset, race, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create a race in a ruleset that is not yours.")
-        return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
     elif(instruction == "duplicate"):
         new_race = Race(
             rulesetid = cruleset.id,
@@ -163,7 +163,7 @@ def makeRace(request, cruleset, race, instruction):
                 db.session.add(new_subrace_feature)
         db.session.commit()
         flash("Race duplicated!", "green")
-        return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'\">Duplicate {race.name}</button>")
     else:
         name = request.form.get("name")
         asis = request.form.getlist("asi")
@@ -235,53 +235,53 @@ def makeRace(request, cruleset, race, instruction):
             for feature in features:
                 if(len(feature) < 1):
                     flash("Each racial feature must have a name.", "red")
-                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                 elif(len(feature) > 127):
                     flash("Racial feature names must be fewer than 128 characters.", "red")
-                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
             for ftext in feature_text:
                 if(len(ftext) > 16383):
                     flash("Racial feature text must be fewer than 16384 characters.", "red")
-                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                 elif("<" in ftext):
                     flash("Open angle brackets (\"<\") are not allowed.", "red")
-                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                 elif("javascript" in ftext):
                     flash("Cross-site scripting attacks are not allowed.", "red")
-                    return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                    return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
             if(has_subraces):
                 for subrace in subraces:
                     if(len(subrace["name"]) < 1):
                         flash("You must specify a name for each subrace.", "red")
-                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     elif(len(subrace["name"]) > 127):
                         flash("Subrace names must be fewer than 128 characters.", "red")
-                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     elif(len(subrace["text"]) > 16383):
                         flash("Subrace descriptions must be fewer than 16384 characters.", "red")
-                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     elif("<" in subrace["text"]):
                         flash("Open angle brackets (\"<\") are not allowed.", "red")
-                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     elif("javascript" in subrace["text"]):
                         flash("Cross-site scripting attacks are not allowed.", "red")
-                        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                     for feature in subrace["features"]:
                         if(len(feature["name"]) < 1):
                             flash("You must specify a name for each subrace features.", "red")
-                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                         elif(len(feature["name"]) > 127):
                             flash("Subrace feature names must be fewer than 128 characters.", "red")
-                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                         elif(len(feature["text"]) > 16383):
                             flash("Subrace feature text must be fewer than 16384 characters.", "red")
-                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                         elif("<" in feature["text"]):
                             flash("Open angle brackets (\"<\") are not allowed.", "red")
-                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
                         elif("javascript" in feature["text"]):
                             flash("Cross-site scripting attacks are not allowed.", "red")
-                            return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                            return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
             if(instruction == "create"):
                 new_race = Race(
                     rulesetid = cruleset.id,
@@ -340,7 +340,7 @@ def makeRace(request, cruleset, race, instruction):
                             db.session.add(new_feature)
                         db.session.commit()
                 flash("Race created!", "green")
-                return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
+                return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'; localStorage.removeItem('race')\">{'Submit Changes' if race else 'Create Race!'}</button>")
             else:
                 race.name = name
                 race.flavor = flavor
@@ -414,8 +414,8 @@ def makeRace(request, cruleset, race, instruction):
                         db.session.delete(subrace)
                 db.session.commit()
                 flash("Changes saved!", "green")
-                return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
-        return(redirect(url_for("epchar.createRace", ruleset=cruleset.identifier)))
+                return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.createRace', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
 
 def raceImporter(races, cruleset):
     if(cruleset.userid != current_user.id):
@@ -554,7 +554,7 @@ def raceImporter(races, cruleset):
                     db.session.add(new_subrace)
         db.session.commit()
         flash("Races imported!", "green")
-        return(redirect(url_for("epchar.races", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.races', ruleset=cruleset.identifier)}'\">{'Submit Changes' if race else 'Create Race!'}</button>")
     except:
         flash("Improperly formatted JSON; could not import.", "red")
         return(redirect(url_for("epchar.importRaces", ruleset=cruleset.identifier)))

@@ -6,11 +6,20 @@
 
 {% block body %}
 <div class="flex">
-<form class="flex vertical start" x-data="main" method="post">
+<form class="flex vertical start" x-data="main" method="post" @keyup="localStorage.setItem('cached_race', JSON.stringify(compileRace()))">
 	<h1>{{ "Edit %s"|format(race.name) if race else "Create a Race" }}</h1>
+	<template></template>
+	{% if not race %}
+	<template x-init="loadRace()"></template>
+	{% endif %}
 
 	<h2>Base Race Info</h2>
-	<input placeholder="Race Name" name="name" id="name" x-model="name" {% if race %} x-init="name=`{{ race.name }}`" {% endif %}>
+	<input 
+		placeholder="Race Name" 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		{% if race %} x-init="name=`{{ race.name }}`" {% endif %}>
 	<!-- Ability Score Improvement Inputs -->
 	{% if not cruleset.ability_scores %}
 	<div class="mild danger">
@@ -28,7 +37,9 @@
 			id="asi" 
 			x-model="asis.{{ score.abbr }}"
 			value="0"
-			{% if race and race.asis[loop.index - 1] != '' %} x-init="asis.{{ score.abbr }} = {{ race.asis[loop.index - 1] }}" {% endif %}
+			{% if race and race.asis[loop.index - 1] != '' %} 
+				x-init="asis.{{ score.abbr }} = {{ race.asis[loop.index - 1] }}" 
+			{% endif %}
 		>
 		{% endfor %}
 	</div>
@@ -41,13 +52,18 @@
 	<input type="hidden" name="asi_text" id="asi_text" x-model="asi_text">
 	<div class="interior flex horizontal start">
 		<label for="asi_override">Override Ability Score Improvement?</label>
-		<input style="width: auto" type="checkbox" name="asi_override" id="asi_override" x-model="asi_override" {% if race and race.asi_text %} x-init="asi_override=true" {% endif %}>
+		<input 
+			style="width: auto" 
+			type="checkbox" 
+			name="asi_override" 
+			id="asi_override" 
+			x-model="asi_override" {% if race and race.asi_text %} x-init="asi_override=true" {% endif %}>
 	</div>
 	<!-- Size Inputs -->
 	<select name="size" id="size" x-show="!size_override" style="font-size: 16px" x-model="size">
 		<option value="0" {% if race and race.size == 0 %} selected="true" {% endif %}>Tiny</option>
 		<option value="1" {% if race and race.size == 1 %} selected="true" {% endif %}>Small</option>
-		<option value="2" {% if race and race.size == 2 %} selected="true" {% endif %} selected>Medium</option>
+		<option value="2" {% if (race and race.size == 2) or not race %} selected="true" {% endif %}>Medium</option>
 		<option value="3" {% if race and race.size == 3 %} selected="true" {% endif %}>Large</option>
 		<option value="4" {% if race and race.size == 4 %} selected="true" {% endif %}>Huge</option>
 		<option value="5" {% if race and race.size == 5 %} selected="true" {% endif %}>Gargantuan</option>
@@ -62,7 +78,13 @@
 	<input type="hidden" name="size_text" id="size_text" x-model="size_text">
 	<div class="interior flex horizontal start">
 		<label for="size_override">Override Size?</label>
-		<input style="width: auto" type="checkbox" name="size_override" id="size_override" x-model="size_override" {% if race and race.size_text %} x-init="size_override=true {% endif %}">
+		<input 
+			style="width: 
+			auto" 
+			type="checkbox" 
+			name="size_override" 
+			id="size_override" 
+			x-model="size_override" {% if race and race.size_text %} x-init="size_override=true" {% endif %}>
 	</div>
 	<!-- Weight and Height -->
 	<div class="interior flex horizontal center">
@@ -110,6 +132,7 @@
 					id="base_weight" 
 					name="base_weight" 
 					x-model="base_weight"
+					placeholder="Base Weight (Pounds)"
 					{% if race and race.base_weight %} x-init="base_weight={{ race.base_weight }}" {% endif %}>
 			</div>
 			<div style="width: 50%; min-width: 180px" class="interior flex vertical start">
@@ -121,7 +144,9 @@
 						id="weight_num" 
 						name="weight_num"
 						x-model="weight_num"
-						{% if race and race.weight_num %} x-init="weight_num={{ race.weight_num }}" {% endif %}>
+						{% if race and race.weight_num %} 
+							x-init="weight_num={{ race.weight_num }}" 
+						{% endif %}>
 					<h6>d</h6>
 					<input 
 						style="width: calc(100% / 3 - 24px); min-width: 55px; font-size: 16px" 
@@ -129,7 +154,9 @@
 						id="weight_die" 
 						name="weight_die"
 						x-model="weight_die"
-						{% if race and race.weight_die %} x-init="weight_die={{ race.weight_die }}" {% endif %}>
+						{% if race and race.weight_die %} 
+							x-init="weight_die={{ race.weight_die }}" 
+						{% endif %}>
 				</div>
 			</div>
 		</div>
@@ -190,7 +217,9 @@
 					name="feature_name"
 					id="feature_name" 
 					style="width: 50%; min-width: 250px;">
-				<a @click="removeFeature(index)"><button type="button" class="mild danger">Remove Feature</button></a>
+				<a @click="removeFeature(index)">
+					<button type="button" class="mild danger">Remove Feature</button>
+				</a>
 			</div>
 			<textarea 
 				placeholder="Race feature text." 
@@ -211,15 +240,24 @@
 	<h2>Subraces</h2>
 	<div class="interior flex horizontal center">
 		<label for="has_subraces">Has subraces?</label>
-		<input type="checkbox" name="has_subraces" id="has_subraces" x-model="has_subraces" {% if race and race.subraces %} x-init="has_subraces=true" {% endif %}>
+		<input 
+			type="checkbox" 
+			name="has_subraces" 
+			id="has_subraces" 
+			x-model="has_subraces" 
+			{% if race and race.subraces %} x-init="has_subraces=true" {% endif %}>
 	</div>
 	<!-- Display Subraces -->
 	{% if race %}
 	{% for subrace in race.subraces %}
 		{% set subrace_num = loop.index - 1 %}
-		<template x-init="subraces.push({name: `{{ subrace.name }}`, text: `{{ subrace.text }}`, features: []})"></template>
+		<template 
+			x-init="subraces.push({name: `{{ subrace.name }}`, text: `{{ subrace.text }}`, features: []})">
+		</template>
 		{% for feature in subrace.subrace_features %}
-			<template x-init="subraces[{{subrace_num}}].features.push({name: `{{ feature.name }}`, text: `{{ feature.text }}`})"></template>
+			<template 
+				x-init="subraces[{{subrace_num}}].features.push({name: `{{ feature.name }}`, text: `{{ feature.text }}`})">
+			</template>
 		{% endfor %}
 	{% endfor %}
 	{% endif %}
@@ -242,8 +280,16 @@
 							name = "subrace_name"
 							id = "subrace_name"
 							style="width: calc(100% / 3 - 24px); min-width: 250px;">
-						<a @click="removeSubrace(index)" style="width: calc(100% / 3 - 24px); min-width: 250px"><button type="button" class="mild danger">Remove Subrace</button></a>
-						<a @click="addSubraceFeature(index)" style="width: calc(100% / 3 - 24px); min-width: 250px"><button type="button">Add Feature</button></a>
+						<a 
+							@click="removeSubrace(index)" 
+							style="width: calc(100% / 3 - 24px); min-width: 250px">
+							<button type="button" class="mild danger">Remove Subrace</button>
+						</a>
+						<a 
+							@click="addSubraceFeature(index)" 
+							style="width: calc(100% / 3 - 24px); min-width: 250px">
+							<button type="button">Add Feature</button>
+						</a>
 					</div>
 					<!-- Subrace Flavor Text -->
 					<textarea 
@@ -316,7 +362,13 @@
 			</template>
 		</div>
 	</template>
-	<a><button type="submit">{{ "Submit Changes" if race else "Create Race!" }}</button></a>
+	<a>
+		<button 
+			hx-post="{{ url_for('epchar.createRace', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			{{ "Submit Changes" if race else "Create Race!" }}
+		</button>
+	</a>
 </div>
 </div>
 {% endblock %}

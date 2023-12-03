@@ -160,6 +160,86 @@ document.addEventListener ("alpine:init", () => {
 
         convert (text) {
             return(this.converter.makeHtml(text))
+        },
+
+        compileRace () {
+            race = {
+                name: this.name,
+
+                asis: this.asis,
+                asi_override: this.asi_override,
+                asi_text: this.asi_text,
+
+                size: this.size,
+                size_override: this.size_override,
+                size_text: this.size_text,
+
+                base_height: this.base_height,
+                height_num: this.height_num,
+                height_die: this.height_die,
+
+                base_weight: this.base_weight,
+                weight_num: this.weight_num,
+                weight_die: this.weight_die,
+
+                walk: this.walk,
+                swim: this.swim,
+                climb: this.climb,
+                fly: this.fly,
+                burrow: this.burrow,
+
+                text: this.text,
+
+                features: this.features,
+
+                has_subraces: this.has_subraces,
+                subraces: this.subraces,
+                subrace_flavor: this.subrace_flavor
+            };
+
+            return (race);
+        },
+
+        loadRace (race) {
+            race = JSON.parse(localStorage.getItem("cached_race"))
+            if (race == null) {
+                return;
+            }
+            this.name = race.name;
+
+            this.asis = race.asis;
+            this.asi_override = race.asi_override;
+            this.asi_text = race.asi_text;
+
+            this.size = race.size;
+            this.size_override = race.size_override;
+            this.size_text = race.size_text;
+
+            this.base_height = race.base_height;
+            this.height_num = race.height_num;
+            this.height_die = race.height_die;
+
+            this.base_weight = race.base_weight;
+            this.weight_num = race.weight_num;
+            this.weight_die = race.weight_die;
+
+            this.walk = race.walk;
+            this.swim = race.swim;
+            this.climb = race.climb;
+            this.fly = race.fly;
+            this.burrow = race.burrow;
+
+            this.text = race.text;
+
+            this.features = race.features;
+
+            this.has_subraces = race.has_subraces;
+            this.subraces = race.subraces;
+            this.subrace_flavor = race.subrace_flavor;
         }
     }))
+})
+
+document.addEventListener("htmx:afterswap", (event) => {
+    Alpine.initializeWithin(event.detail.elt);
 })
