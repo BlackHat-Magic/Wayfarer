@@ -4,3 +4,4 @@ session.key
 website/database.db
 .env
 Wayfinder-Data
+**/instance/
