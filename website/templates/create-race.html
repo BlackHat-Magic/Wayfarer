@@ -363,11 +363,19 @@
 		</div>
 	</template>
 	<a>
+		{% if race %}
+		<button
+			hx-post="{{ url_for('epchar.editRace', ruleset=cruleset.identifier, race=race.name) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
 		<button 
 			hx-post="{{ url_for('epchar.createRace', ruleset=cruleset.identifier) }}"
 			hx-swap="outerHTML">
-			{{ "Submit Changes" if race else "Create Race!" }}
+			Create Race!
 		</button>
+		{% endif %}
 	</a>
 </div>
 </div>
