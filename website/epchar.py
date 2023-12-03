@@ -60,7 +60,7 @@ def createRace(ruleset):
     )
 
 # race duplication endpoint
-@epchar.route("/Races/Duplicate/<string:race>", subdomain="<ruleset>")
+@epchar.route("/Races/Duplicate/<string:race>", subdomain="<ruleset>", methods=["POST"])
 @login_required
 def duplicateRace(race, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)

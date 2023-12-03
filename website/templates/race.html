@@ -32,7 +32,7 @@
         {% if cruleset.userid == current_user.id %}
         <div class="interior flex horizontal center">
             <a style="width: auto; margin: 12px" href="{{ url_for('epchar.editRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button">Edit {{ race.name }}</button></a>
-            <a style="width: auto; margin: 12px" href="{{ url_for('epchar.duplicateRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button">Duplicate {{ race.name }}</button></a>
+            <a style="width: auto; margin: 12px"><button type="button" hx-post="{{ url_for('epchar.duplicateRace', race=race.name, ruleset=cruleset.identifier) }}" hx-swap="outerHTML">Duplicate {{ race.name }}</button></a>
             <a style="width: auto; margin: 12px" href="{{ url_for('epchar.deleteRace', race=race.name, ruleset=cruleset.identifier) }}"><button type="button" class="mild danger">Delete {{ race.name }}</button></a>
         </div>
         {% endif %}
