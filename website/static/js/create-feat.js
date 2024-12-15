@@ -18,11 +18,11 @@ document.addEventListener ("alpine:init", () => {
                 text: this.text
             };
             
-            return (feat);
+            return (JSON.stringify (feat));
         },
 
         loadFeat () {
-            feat = JSON.parse(localStorage.getItem("cached_feat"));
+            feat = JSON.parse (localStorage.getItem ("cached_feat"));
             if (feat == null) {
                 return;
             }
@@ -33,4 +33,8 @@ document.addEventListener ("alpine:init", () => {
             this.text = feat.text;
         }
     }))
+})
+
+document.addEventListener ("htmx:afterswap", (event) => {
+    alpine.initializeWithin(event.detail.elt);
 })

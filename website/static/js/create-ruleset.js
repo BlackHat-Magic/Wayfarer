@@ -19,3 +19,7 @@ document.addEventListener ("alpine:init", () => {
         }
     }))
 })
+
+document.addEventListener ("htmx:afterswap", (event) => {
+    alpine.initializeWithin(event.detail.elt);
+})

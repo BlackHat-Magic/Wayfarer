@@ -23,7 +23,7 @@ def abilityScore(request, cruleset, ability_score, instruction):
         db.session.add(new_ability_score)
         db.session.commit()
         flash("Ability Score Duplicated!")
-        return(redirect(url_for("epchar.stats", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.stats', ruleset=cruleset.identifier)}'\">Duplicate {stat.name}</button>")
     if(order):
         try:
             order = int(order)
@@ -67,11 +67,10 @@ def abilityScore(request, cruleset, ability_score, instruction):
             ability_score.text = text
             db.session.commit()
             flash("Changes saved!", "green")
-        return(redirect(url_for("epchar.stats", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.stats', ruleset=cruleset.identifier)}'\">{'Submit Changes' if stat else 'Create Ability Score!'}</button>")
     elif(instruction=="create"):
-        return(redirect(url_for("epchar.createStat", ruleset=cruleset.identifier)))
-    else:
-        return(redirect(url_for("epchar.editStat", score=ability_score.name, ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.createStat', ruleset=cruleset.identifier)}'\">Create Ability Score!</button>")
+    return(f"<button x-init=\"window.location.href='{url_for('epchar.stats', ruleset=cruleset.identifier)}'\">Submit Changes</button>")
 
 def abilityScoreImporter(scores, cruleset):
     if(cruleset.userid != current_user.id):
@@ -1074,6 +1073,8 @@ def makeclass(request, cruleset, tclass, instruction, adminrulesets):
                         invalid = True
                         flash("Each subclass' custom column values must be fewer than 128 characters.", "red")
         if(instruction == "create"):
+            if(invalid):
+                return(f"<button x-init=\"window.location.href='{url_for('epchar.createClass', ruleset=cruleset.identifier)}'\">Create Class!</button>")
             new_class = Playerclass(
                 rulesetid = cruleset.id,
                 name = name,
@@ -1121,16 +1122,12 @@ def makeclass(request, cruleset, tclass, instruction, adminrulesets):
                         name = column,
                         data = request.form.getlist(f"subclass{i}column{j}value")
                     ))
-            if(invalid):
-                form_data = request.form.to_dict()
-                return(render_template("create-class.html", cruleset=cruleset, adminrulesets=adminrulesets, title="Create a Class", tclass=new_class))
             db.session.add(new_class)
             db.session.commit()
             flash("Class Created!", "green")
         else:
             if(invalid):
-                form_data = request.form.to_dict()
-                return(redirect(url_for("epchar.editClass", ruleset=cruleset.identifier, **form_data)))
+                return(f"<button x-init=\"window.location.href='{url_for('epchar.editClass', tclass=tclass, ruleset=cruleset.identifier)}'\">Submit Changes</button>")
             tclass.name = name
             tclass.hitdie = hitdie
             tclass.proficiencies = proficiencies
@@ -1241,7 +1238,7 @@ def makeclass(request, cruleset, tclass, instruction, adminrulesets):
                 db.session.add(new_subclass)
             db.session.commit() 
             flash("Changes saved!", "green")
-    return(redirect(url_for("epchar.classes", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('epchar.classes', ruleset=cruleset.identifier)}'\">{'Submit Changes' if tclass else 'Create Class'}</button>")
 
 def classImporter(classes, cruleset):
     if(current_user.id != cruleset.userid):

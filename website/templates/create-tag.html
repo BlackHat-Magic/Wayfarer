@@ -5,17 +5,43 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-<form method="post" class="flex vertical start" x-data="main">
+<div class="flex" x-data="main">
+<form method="post" class="flex vertical start" @keyup="localStorage.setItem ('cached_tag', compileTag ())">
 	<h1>{{ "Edit %s"|format(tag.name) if tag else "Create Item Type" }}</h1>
 
-	<input name="name" id="name" x-model="name" placeholder="Item Type Name" {% if tag %} x-init="name=`{{ tag.name }}`" {% endif %}>
-	<textarea name="text" id="text" x-model="text" placeholder="Item Type Description Description" {% if tag %} x-init="text=`{{ tag.text }}`" {% endif %}></textarea>
+	<input 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		placeholder="Item Type Name" 
+		{% if tag %} x-init="name=`{{ tag.name }}`" {% endif %}>
+	<textarea 
+		name="text" 
+		id="text" 
+		x-model="text" 
+		placeholder="Item Type Description Description" 
+		{% if tag %} x-init="text=`{{ tag.text }}`" {% endif %}>
+	</textarea>
 	<h2 x-text="name"></h2>
 	<hr>
 	<div class="usercontent" x-html="convert(text)"></div>
 
-	<a><button type="submit">{{ "Submit Changes" if tag else "Create Item Type!" }}</button></a>
+	<a>
+		{% if tag %}
+		<button 
+			hx-post="{{ url_for('eprefs.editTag', tag=tag.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for('eprefs.createTag', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Tag!
+		</button>
+		{% endif %}
+	</a>
+	<template x-init="readTag ()"></template>
 </form>
 </div>
 

@@ -295,6 +295,94 @@ document.addEventListener ("alpine:init", () => {
             sorted = concatenated.sort((a, b) => (parseInt(a.level) > parseInt(b.level)) ? 1 : -1);
 
             return(sorted);
+        },
+
+        compileClass () {
+            class_ = {
+                name: this.name,
+
+                hitdie: this.hitdie,
+
+                gold_nums: this.gold_nums,
+                gold_dice: this.gold_dice,
+                gold_mult: this.gold_mult,
+
+                levels: this.levels,
+
+                subclasslevel: this.subclasslevel,
+
+                columns: this.columns,
+
+                save: this.save,
+
+                customitem: this.customitem,
+                
+                proficiencylist: this.proficiencylist,
+
+                multiproficlist: this.multiproficlist,
+
+                skill_num: this.skill_num,
+                skilllist: this.skilllist,
+
+                equipment: this.equipment,
+                prereq: this.prereq,
+                subclassname: this.subclassname,
+                text: this.text,
+
+                features: this.features,
+
+                subclasses: this.subclasses,
+                spelllist: this.spelllist,
+            };
+
+            return (JSON.stringify (class_));
+        },
+
+        readClass () {
+            class_ = JSON.parse (localStorage.getItem ("cached_class"));
+            if (class_ == null) {
+                return;
+            }
+
+            this.name = class_.name;
+            
+            this.hitdie = class_.hitdie;
+
+            this.gold_nums = class_.gold_nums;
+            this.gold_dice = class_.gold_dice;
+            this.gold_mult = class_.gold_mult;
+
+            this.levels = class_.levels;
+
+            this.subclasslevel = class_.subclasslevel;
+
+            this.columns = class_.columns;
+
+            this.save = class_.save;
+
+            this.customitem = class_.customitem;
+
+            this.proficiencylist = class_.proficiencylist;
+
+            this.multiproficlist = class_.multiproficlist;
+
+            this.skill_num = class_.skill_num;
+
+            this.skilllist = class_.skilllist;
+
+            this.equipment = class_.equipment;
+            this.prereq = class_.prereq;
+            this.subclassname = class_.subclassname;
+            this.text = class_.text;
+
+            this.features = class_.features;
+
+            this.subclasses = class_.subclasses;
+            this.spelllist = class_.spelllist;
         }
     }))
+})
+
+document.addEventListener ("htmx:afterswap", (event) => {
+    alpine.initializeWithin(event.detail.elt);
 })

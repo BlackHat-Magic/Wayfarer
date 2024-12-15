@@ -5,19 +5,55 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-<form class="flex vertical start" x-data="main" method="post">
+<div class="flex" x-data="main">
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem ('cached_stat', compileStat ())">
 	<h1>{{ "Edit %s"|format(score.name) if score else "Create Ability Score" }}</h1>
 
-	<input name="name" id="name" x-model="name" placeholder="Ability Score Name" {% if score %} x-init="name=`{{ score.name }}`" {% endif %}>
-	<input name="abbr" id="abbr" x-model="abbr" placeholder="Ability Score Abbreviation" {% if score %} x-init="abbr=`{{ score.abbr }}`" {% endif %}>
-	<input name="order" id="order" x-model="order" placeholder="Order (What Position it will appear in on the list of Ability Scores)" {% if score %} x-init="order=`{{ score.order }}`" {% endif %}>
-	<textarea name="text" id="text" x-model="text" placeholder="Ability Score Description" {% if score %} x-init="text=`{{ score.text }}`" {% endif %}></textarea>
+	<input 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		placeholder="Ability Score Name" 
+		{% if score %} x-init="name=`{{ score.name }}`" {% endif %}>
+	<input 
+		name="abbr" 
+		id="abbr" 
+		x-model="abbr" 
+		placeholder="Ability Score Abbreviation" 
+		{% if score %} x-init="abbr=`{{ score.abbr }}`" {% endif %}>
+	<input 
+		name="order" 
+		id="order" 
+		x-model="order" 
+		placeholder="Order (What Position it will appear in on the list of Ability Scores)" 
+		{% if score %} x-init="order=`{{ score.order }}`" {% endif %}>
+	<textarea 
+		name="text" 
+		id="text" 
+		x-model="text" 
+		placeholder="Ability Score Description" 
+		{% if score %} x-init="text=`{{ score.text }}`" {% endif %}>
+	</textarea>
 	<h2 x-text="name + ' (' + abbr + ')'"></h2>
 	<hr>
 	<div class="usercontent" x-html="convert(text)"></div>
 
-	<a><button type="submit">{{ "Submit Changes" if score else "Create Ability Score!" }}</button></a>
+	<a>
+		{% if not score %}
+		<button 
+			hx-post="{{ url_for('epchar.createStat', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Ability Score!
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for('epchar.editStat', score=score.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% endif %}
+	</a>
+	<template x-init="readStat ()"></template>
 </form>
 </div>
 

@@ -290,18 +290,18 @@ def createDisease(ruleset):
         )
     )
 
-@eprefs.route("/Diseases/Duplicate/<string:disease>", subdomain="<ruleset>")
+@eprefs.route("/Diseases/Duplicate/<string:condition>", subdomain="<ruleset>")
 @login_required
 def duplicateDisease(disease, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    disease = Disease.query.filter_by(rulesetid = cruleset.id, name = disease).first_or_404()
+    disease = Disease.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     return(makeDisease(None, cruleset, disease, "duplicate"))
 
-@eprefs.route("/Diseases/Edit/<string:disease>", subdomain="<ruleset>")
+@eprefs.route("/Diseases/Edit/<string:condition>", subdomain="<ruleset>")
 @login_required
-def editDisease(disease, ruleset):
+def editDisease(condition, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    disease = Disease.query.filter_by(rulesetid = cruleset.id, name = disease).first_or_404()
+    disease = Disease.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     if(request.method == "POST"):
         return(makeDisease(request, cruleset, disease, "edit"))
     return(
@@ -314,9 +314,9 @@ def editDisease(disease, ruleset):
         )
     )
 
-@eprefs.route("/Diseases/Delete/<string:disease>")
+@eprefs.route("/Diseases/Delete/<string:condition>")
 @login_required
-def deleteDisease(disease):
+def deleteDisease(condition):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
     disease = Disease.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     if(current_user.id != cruleset.userid):
@@ -346,7 +346,7 @@ def statuses(ruleset):
         )
     )
 
-@eprefs.route("/Statuses/Create", subdomain="<ruleset>")
+@eprefs.route("/Statuses/Create", subdomain="<ruleset>", methods=["GET", "POSt"])
 @login_required
 def createStatus(ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
@@ -361,18 +361,18 @@ def createStatus(ruleset):
         )
     )
 
-@eprefs.route("/Statuses/Duplicate/<string:status>", subdomain="<ruleset>")
+@eprefs.route("/Statuses/Duplicate/<string:condition>", subdomain="<ruleset>")
 @login_required
-def duplicateStatus(status, ruleset):
+def duplicateStatus(condition, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
+    status = Status.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     return(makeStatus(None, cruleset, status, "duplicate"))
 
-@eprefs.route("/Statuses/Edit/<string:status>", subdomain="<ruleset>")
+@eprefs.route("/Statuses/Edit/<string:condition>", subdomain="<ruleset>")
 @login_required
-def editStatus(status, ruleset):
+def editStatus(condition, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
+    status = Status.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     if(request.method == "POST"):
         return(makeStatus(request, cruleset, status, "edit"))
     return(
@@ -385,11 +385,11 @@ def editStatus(status, ruleset):
         )
     )
 
-@eprefs.route("/Statuses/Delete/<string:status>", subdomain="<ruleset>")
+@eprefs.route("/Statuses/Delete/<string:condition>", subdomain="<ruleset>")
 @login_required
-def deleteStatus(status):
+def deleteStatus(condition, ruleset):
     adminrulesets, cruleset = validateRuleset(current_user, ruleset)
-    status = Status.query.filter_by(rulesetid = cruleset.id, name = status).first_or_404()
+    status = Status.query.filter_by(rulesetid = cruleset.id, name = condition).first_or_404()
     if(current_user.id != cruleset.userid):
         flash("You cannot delete statuses in rulesets that are not your own.", "red")
     else:

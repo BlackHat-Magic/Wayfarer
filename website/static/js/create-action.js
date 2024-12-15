@@ -7,26 +7,29 @@ document.addEventListener ("alpine:init", () => {
         name: "",
         time: "",
         text: "",
-        writeAction (name, time, text) {
-            console.log("hello world")
-            window.localStorage.setItem(
-                "reference",
-                JSON.stringify({
-                    actions: [
-                        {
-                            name: name,
-                            time: time,
-                            text: text
-                        }
-                    ]
-                })
-            )
+
+        compileAction () {
+            action = {
+                name: this.name,
+                time: this.time,
+                text: this.text
+            };
+
+            return (JSON.stringify (action));
         },
         readAction () {
-            cachedAction = JSON.parse(window.localStorage.getItem("reference").actions[0])
-            this.name = cachedAction.name
-            this.time = cachedAction.time
-            this.text = cachedAction.text
+            action = JSON.parse(window.localStorage.getItem("cached_action"))
+            if (action == null) { 
+                return;
+            }
+
+            this.name = action.name;
+            this.time = action.time;
+            this.text = action.text;
         }
     }))
+})
+
+document.addEventListener ("htmx:afterswap", (event) => {
+    alpine.initializeWithin(event.detail.elt);
 })

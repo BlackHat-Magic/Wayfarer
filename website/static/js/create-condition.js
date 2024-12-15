@@ -6,6 +6,28 @@ document.addEventListener ("alpine:init", () => {
         },
         name: "",
         time: "",
-        text: ""
+        text: "",
+        endpoint: null,
+
+        compileCondition () {
+            action = {
+                name: this.name,
+                time: this.time,
+                text: this.text
+            }
+
+            return (JSON.stringify (action));
+        },
+
+        readCondition () {
+            action = JSON.parse (localStorage.getItem (this.endpoint));
+            if (action == null) {
+                return;
+            }
+
+            this.name = action.name;
+            this.time = action.time;
+            this.text = action.time;
+        }
     }))
 })

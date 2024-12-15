@@ -117,6 +117,60 @@ document.addEventListener ("alpine:init", () => {
         converter: new showdown.Converter({tables: true}),
         convert(text) {
             return(this.converter.makeHtml(text))
+        },
+
+        compileSpell () {
+            spell = {
+                name: this.name,
+
+                level: this.level,
+                time: this.time,
+                range: this.range,
+                duration: this.duration,
+
+                verbal: this.verbal,
+                somatic: this.somatic,
+                material: this.material,
+                consumes_material: this.consumes_material,
+                concentration: this.concentration,
+                
+                school: this.school,
+                
+                material_specific: this.material_specific,
+
+                text: this.text
+            }
+
+            return (JSON.stringify (spell));
+        },
+        readSpell () {
+            spell = JSON.parse (localStorage.getItem ("cached_spell"));
+            if (spell == null) {
+                return;
+            }
+
+            this.name = spell.name;
+
+            this.level = spell.level;
+            this.time = spell.time;
+            this.range = spell.range;
+            this.duration = spell.duration;
+
+            this.verbal = spell.verbal;
+            this.somatic = spell.somatic;
+            this.material = spell.material;
+            this.consumes_material = spell.consumes_material;
+            this.concentration = spell.concentration;
+
+            this.school = spell.school;
+
+            this.material_specific = spell.material_specific;
+
+            this.text = spell.text;
         }
     }))
+})
+
+document.addEventListener ("htmx:afterswap", (event) => {
+    alpine.initializeWithin(event.detail.elt);
 })

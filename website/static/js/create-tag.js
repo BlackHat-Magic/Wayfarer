@@ -5,6 +5,28 @@ document.addEventListener ("alpine:init", () => {
             return(this.converter.makeHtml(text));
         },
         name: "",
-        text: ""
+        text: "",
+
+        compileTag () {
+            tag = {
+                name: this.name,
+                text: this.text
+            }
+
+            return (JSON.stringify (tag));
+        },
+        readTag () {
+            tag = localStorage.getItem("cached_tag");
+            if(tag == null) {
+                return;
+            }
+
+            this.name = tag.name;
+            this.text = tag.text;
+        }
     }))
+})
+
+document.addEventListener ("htmx:afterswap", (event) => {
+    alpine.initializeWithin(event.detail.elt);
 })

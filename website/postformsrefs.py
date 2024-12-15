@@ -7,7 +7,7 @@ import sys, pickle
 def makeAction(request, cruleset, action, instruction):
     if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} actions in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.actions", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.actions', ruleset=cruleset.identifier)}'\">Create Action!</button>")
     elif(instruction == "duplicate"):
         new_action = Action(
             rulesetid = cruleset.id,
@@ -40,15 +40,15 @@ def makeAction(request, cruleset, action, instruction):
             db.session.add(new_action)
             db.session.commit()
             flash("Action created!", "green")
-            return(redirect(url_for("eprefs.actions", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('eprefs.actions', ruleset=cruleset.identifier)}'\">Create Action</button>")
         else:
             action.name = name
             action.time = time
             action.text = text
             db.session.commit()
             flash("Changes saved!", "green")
-            return(redirect(url_for("eprefs.actions", ruleset=cruleset.identifier)))
-        return(redirect(url_for("eprefs.createAction", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('eprefs.actions', ruleset=cruleset.identifier)}'\">Submit Changes</button>")
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.createAction', ruleset=cruleset.identifier)}'\">{'Create Action!' if action else 'Submit Changes'}</button>")
 
 def actionImporter(actions, cruleset):
     if(current_user.id != cruleset.userid):
@@ -89,7 +89,7 @@ def actionImporter(actions, cruleset):
 def makeCondition(request, cruleset, condition, instruction):
     if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} conditions in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.conditions', ruleset=cruleset.identifier)}'\">{f'Duplicate {condition.name}' if instruction == 'duplicate' else 'Submit Changes' if condition else 'Create Condition!'}</button>")
     elif(instruction == "duplicate"):
         new_condition = Condition(
             rulesetid = cruleset.id,
@@ -99,7 +99,7 @@ def makeCondition(request, cruleset, condition, instruction):
         db.session.add(new_condition)
         db.session.commit()
         flash("Condition duplicated!", "green")
-        return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.conditions', ruleset=cruleset.identifier)}'\">Duplicate {condition.name}</button>")
     else:
         name = request.form.get("name")
         text = request.form.get("text")
@@ -122,14 +122,14 @@ def makeCondition(request, cruleset, condition, instruction):
             db.session.add(new_condition)
             db.session.commit()
             flash("Condition created!")
-            return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('eprefs.conditions', ruleset=cruleset.identifier)}'\">Create Condition!</button>")
         else:
             condition.name = name
             condition.text = text
             db.session.commit()
             flash("Changes saved!")
-            return(redirect(url_for("eprefs.conditions", ruleset=cruleset.identifier)))
-        return(redirect(url_for("eprefs.createCondition", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('eprefs.conditions', ruleset=cruleset.identifier)}'\">Submit Changes</button>")
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.editCondition', condition=condition.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if condition else 'Create Condition!'}</button>")
 
 def conditionImporter(conditions, cruleset, subtype):
     if(current_user.id != cruleset.userid):
@@ -177,7 +177,7 @@ def conditionImporter(conditions, cruleset, subtype):
 def makeDisease(request, cruleset, disease, instruction):
     if(current_user.id != cruleset.userid):
         flash(f"You cannot {instruction} diseases in rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.diseases", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.diseases', ruleset=cruleset.identifier)}'\">{f'Duplicate {disease.name}' if instruction == 'duplicate' else 'Submit Changes' if condition else 'Create Disease!'}</button>")
     elif(instruction == "duplicate"):
         new_disease = Disease(
             rulesetid = cruleset.id,
@@ -187,7 +187,7 @@ def makeDisease(request, cruleset, disease, instruction):
         db.session.add(new_disease)
         db.session.commit()
         flash("Disease duplicated!", "green")
-        return(redirect(url_for("eprefs.diseases", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.diseases', ruleset=cruleset.identifier)}'\">Duplicate {disease.name}</button>")
     else:
         name = request.form.get("name")
         text = request.form.get("text")
@@ -210,14 +210,14 @@ def makeDisease(request, cruleset, disease, instruction):
             db.session.add(new_disease)
             db.session.commit()
             flash("Disease created!")
-            return(redirect(url_for("eprefs.diseases", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('eprefs.diseases', ruleset=cruleset.identifier)}'\">Create Disease!</button>")
         else:
             disease.name = name
             disease.text = text
             db.session.commit()
             flash("Changes saved!")
-            return(redirect(url_for("eprefs.diseases", ruleset=cruleset.identifier)))
-        return(redirect(url_for("eprefs.createdisease", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('eprefs.diseases', disease=disease.name, ruleset=cruleset.identifier)}'\">Submit Changes</button>")
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.editDisease', disease=disease.name, ruleset=cruleset.identifier)}'\">{'Submit Changes' if disease else 'Create Disease!'}</button>")
 
 def makeStatus(request, cruleset, status, instruction):
     if(current_user.id != cruleset.userid):
@@ -691,7 +691,7 @@ def itemImporter(items, cruleset):
 def makeLanguage(request, cruleset, language, instruction):
     if(current_user.id != cruleset.userid):
         flash("You cannot create languages for rulesets that are not your own.", "red")
-        return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.createLanguage', ruleset=cruleset.identifier)}'\">{'Submit Changes' if language else 'Create Language!'}</button>")
     elif(instruction == "duplicate"):
         new_language = Language(
             rulesetid=cruleset.id,
@@ -701,7 +701,7 @@ def makeLanguage(request, cruleset, language, instruction):
         db.session.add(new_language)
         db.session.commit()
         flash("Language duplicated!", "green")
-        return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.languages', ruleset=cruleset.identifier)}'\">Duplicate {language.name}</button>")
     else:
         name = request.form.get("name")
         text = request.form.get("text")
@@ -716,7 +716,7 @@ def makeLanguage(request, cruleset, language, instruction):
             language.text = text
             db.session.commit()
             flash("Changes Saved!", "green")
-            return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('eprefs.languages', ruleset=cruleset.identifier)}'\">{'Submit Changes' if language else 'Create Language!'}</button>")
         else:
             new_language = Language(
                 rulesetid = cruleset.id,
@@ -726,8 +726,8 @@ def makeLanguage(request, cruleset, language, instruction):
             db.session.add(new_language)
             db.session.commit()
             flash("Language created!", "green")
-            return(redirect(url_for("eprefs.languages", ruleset=cruleset.identifier)))
-        return(redirect(url_for("eprefs.createLanguage", ruleset=cruleset.identifier)))
+            return(f"<button x-init=\"window.location.href='{url_for('eprefs.languages', ruleset=cruleset.identifier)}'\">{'Submit Changes' if language else 'Create Language!'}</button>")
+        return(f"<button x-init=\"window.location.href='{url_for('eprefs.createLanguage', ruleset=cruleset.identifier)}'\">{'Submit Changes' if language else 'Create Language!'}</button>")
 
 def languageImporter(languages, cruleset):
     if(current_user.id != cruleset.userid):

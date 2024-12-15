@@ -6,34 +6,52 @@
 
 {% block body %}
 <div class="flex" x-data="main">
-    <div class="flex vertical start">
-        <h1>Create Rule</h1>
-        <form class="interior flex vertical start" method="post">
-            <input 
-                type="text" 
-                placeholder="Rule Name"
-                style="width: 90%"
-                name="name"
-                id="name">
-            </input>
-            <select
-                style="width: 95%"
-                name="category"
-                id="category">
-                {% for category in cruleset.categories %}
-                    <option value="{{ category.id }}">{{ category.name }}</option>
-                {% endfor %}
-            </select>
-            <textarea 
-                placeholder="Rule Text (You can use markdown syntax! A preview of what it will look like is shown below.)" 
-                x-model="text"
-                name="text"
-                id="text"
-                ></textarea>
-            <a><button type="submit">Create Rule</button></a>
-        </form>
-        <div class="interior flex vertical start" style="width: 100%" x-html="convert">
-        </div>
-    </div>
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem ('cached_rule', compileRule ())">
+    <h1>Create Rule</h1>
+    
+    <input 
+        type="text" 
+        placeholder="Rule Name"
+        name="name"
+        id="name"
+        x-model="name"
+        {% if rule %} x-init="name={{ rule.name }}" {% endif %}>
+    </input>
+    <select
+        name="category"
+        id="category"
+        x-model="category">
+        {% for category in cruleset.categories %}
+            <option 
+                value="{{ category.id }}" 
+                {% if rule and rule.rule_categoryid == category.id %} selected {% endif %}>
+                {{ category.name }}
+            </option>
+        {% endfor %}
+    </select>
+    <textarea 
+        placeholder="Rule Text (You can use markdown syntax! A preview of what it will look like is shown below.)" 
+        x-model="text"
+        name="text"
+        id="text"
+        ></textarea>
+    <a>
+        {% if rule %}
+        <button 
+            hx-post="{{ url_for('eprule.editRule', rule=ruule.name, ruleset=cruleset.identifier) }}"
+            hx-swap="outerHTML">
+            Submit Changes
+        </button>
+        {% else %}
+        <button
+            hx-pot="{{ url_for('eprule.createRule', ruleset=cruleset.identifier) }}"
+            hx-swap="outerHTML">
+            Create Rule!
+        </button>
+        {% endif %}
+    </a>
+    <div class="interior flex vertical start" style="width: 100%" x-html="convert ()"></div>
+    <template x-init="readRule ()"></template>
+</form>
 </div>
 {% endblock %}

@@ -11,13 +11,33 @@
 	<h1>{{ "Edit \"%s\" Ruleset"|format(ruleset.name) if ruleset else "Create a Ruleset" }}</h1>
 
 	<!-- ruleset name -->
-	<input type="text" placeholder="Ruleset Name" name="name" id="name" x-model="name" style="width: auto" {% if ruleset %} x-init="name=`{{ ruleset.name }}`" {% endif %}>
+	<input 
+		type="text" 
+		placeholder="Ruleset Name" 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		style="width: auto" 
+		{% if ruleset %} x-init="name=`{{ ruleset.name }}`" {% endif %}>
 
 	<!-- ruleset identifier -->
-	<input type="text" placeholder="Ruleset Identifier" name="identifier" id="identifier" x-model="identifier" style="width: auto" {% if ruleset %} x-init="identifier=`{{ ruleset.identifier }}`" {% endif %}>
+	<input 
+		type="text" 
+		placeholder="Ruleset Identifier" 
+		name="identifier" 
+		id="identifier" 
+		x-model="identifier" 
+		style="width: auto" 
+		{% if ruleset %} x-init="identifier=`{{ ruleset.identifier }}`" {% endif %}>
 
 	<!-- ruleset description -->
-	<textarea placeholder="Ruleset description" x-model="text" name="text" id="texy" {% if ruleset %} x-init="text=`{{ruleset.description}}`" {% endif %}></textarea>
+	<textarea 
+		placeholder="Ruleset description" 
+		x-model="text" 
+		name="text" 
+		id="texy" 
+		{% if ruleset %} x-init="text=`{{ruleset.description}}`" {% endif %}>
+	</textarea>
 
 	<!-- is the ruleset shareable? -->
 	<div class="interior flex horizontal center">

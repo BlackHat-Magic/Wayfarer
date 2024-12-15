@@ -5,16 +5,43 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-	<form class="flex vertical start" x-data="main" method="post">
-		<h1>{{ "Edit %s"|format(language.name) if language else "Create a Language" }}</h1>
-		<input name="name" id="name" x-model="name" placeholder="Language Name" {% if language %} x-init="name=`{{ language.name }}`" {% endif %}>
-		<textarea name="text" id="text" x-model="text" placeholder="Language Description" {% if language %} x-init="text=`{{ language.text }}`" {% endif %}></textarea>
-		<h2 x-text="name"></h2>
-		<hr>
-		<div class="usercontent" x-html="convert(text)"></div>
-		<a><button type="submit">{{ "Submit Changes" if language else "Create Language!" }}</button></a>
-	</form>
+<div class="flex" x-data="main">
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem ('cached_language', compileLanguage ())">
+	<h1>{{ "Edit %s"|format(language.name) if language else "Create a Language" }}</h1>
+
+	<input 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		placeholder="Language Name" 
+		{% if language %} x-init="name=`{{ language.name }}`" {% endif %}>
+	<textarea 
+		name="text" 
+		id="text" 
+		x-model="text" 
+		placeholder="Language Description" 
+		{% if language %} x-init="text=`{{ language.text }}`" {% endif %}>
+	</textarea>
+	<h2 x-text="name"></h2>
+	<hr>
+	<div class="usercontent" x-html="convert(text)"></div>
+	<a>
+		{% if language %}
+		<button
+			hx-post="{{ url_for('eprefs.editLanguage', language=language.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for('eprefs.createLanguage', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Language!
+		</button>
+		{% endif %}
+	</a>
+	<template x-init="readLanguage ()"></template>
+</form>
 </div>
 
 {% endblock %}

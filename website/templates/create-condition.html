@@ -5,18 +5,46 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-	<div class="flex vertical start" x-data="main">
-		<h1>{{ "Edit %s"|format(condition.name) if condition else "Create Condition" }}</h1>
-		<form class="interior flex vertical start" method="post">
-			<input name="name" id="name" x-model="name" placeholder="Condition Name" {% if condition %} x-init="name = `{{ condition.name }}`" {% endif %}>
-			<textarea name="text" id="text" x-model="text" placeholder="Condition Description" {% if condition %} x-init="text = `{{ condition.text }}`" {% endif %}></textarea>
-			<a><button type="submit">{{ "Submit Changes" if condition else "Create Condition!" }}</button></a>
-		</form>
-		<h2 x-text="name"></h2>
-		<hr>
-		<div class="usercontent" x-html="convert(text)"></div>
-	</div>
+<div class="flex" x-data="main">
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem('{{ request.endpoint }}', compileCondition ())">
+	<h1>{{ "Edit %s"|format(condition.name) if condition else "Create Condition" }}</h1>
+	<template x-init="endpoint='{{ request.endpoint }}'"></template>
+
+	<input 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		placeholder="Condition Name" 
+		{% if condition %} x-init="name = `{{ condition.name }}`" {% endif %}>
+	<textarea 
+		name="text" 
+		id="text" 
+		x-model="text" 
+		placeholder="Condition Description" 
+		{% if condition %} x-init="text = `{{ condition.text }}`" {% endif %}>
+	</textarea>
+
+	<a>
+		{% if condition %}
+		<button 
+			hx-post="{{ url_for(request.endpoint, condition=condition.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for(request.endpoint, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Condition!
+		</button>
+		{% endif %}
+	</a>
+
+	<h2 x-text="name"></h2>
+	<hr>
+	<div class="usercontent" x-html="convert(text)"></div>
+	<template x-init="readCondition ()"></template>
+</form>
 </div>
 
 {% endblock %}

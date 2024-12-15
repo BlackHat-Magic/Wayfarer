@@ -6,217 +6,215 @@
 
 {% block body %}
 <div class="flex" x-data="main">
-	<form class="flex vertical start" method="post" @keyup="localStorage.setItem('cached_background', JSON.stringify(compileBackground())); console.log(compileBackground())">
-		<h1>{{ "Edit %s"|format(background.name) if background else "Create a Background" }}</h1>
-		{% if not background %}
-		<template x-init="loadBackground()"></template>
-		{% endif %}
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem ('cached_background', compileBackground ())">
+	<h1>{{ "Edit %s"|format(background.name) if background else "Create a Background" }}</h1>
 
-		<div class="interior flex vertical start" style="width: 100%">
-			<input name="name" id="name" x-model="name" placeholder="Background Name" {% if background %} x-init="name=`{{ background.name }}`" {% endif %}>
-			{% if not cruleset.skills %}
-				<div class="mild danger">
-					<h3>Hey!</h3>
-					<p>You don't have any skills in this ruleset! Without adding any, you won't be able to specify skills granted by this background. You can create skills <a href="{{ url_for('eprefs.createSkill', ruleset=cruleset.identifier) }}">here</a>.</p>
-				</div>
-				<div style="height: 30px"></div>
-			{% else %}
-				<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-					<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
-						<label for="tools">Skill Proficiencies:</label>
-						<select name="skills" id="skills" x-model="skillselect" style="width: auto" @change="appendSkill()">
-							{% for skill in cruleset.skills %}
-							<option>{{ skill.name }}</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-						<template x-for="skill, index in skills">
-							<span class="chip" @click="removeSkill(index)"><span x-text="skill"></span><span class="remove">&times</span></span>
-						</template>
-						<template x-for="skill, index in skills">
-							<input type="hidden" id="skill" name="skill" x-model="skills[index]">
-						</template> 
-					</div>
-					{% if background %}
-						{% for skill in background.skills %}
-							<template x-init="skillselect=`{{ skill }}`; appendSkill()"></template>
-						{% endfor %}
-					{% endif %}
-				</div>
-			{% endif %}
-			{% if not tools %}
-				<div class="mild danger">
-					<h3>Hey!</h3>
-					<p>You don't have any items with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tool proficiencies granted by this background. You can create items <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
-				</div>
-				<div style="height: 30px"></div>
-			{% else %}
-				<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-					<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
-						<label for="tools">Tool Proficiencies:</label>
-						<select name="tools" id="tools" x-model="toolselect" style="width: auto" @change="appendTool()">
-							{% for tool in tools %}
-							<option>{{ tool.name }}</option>
-							{% endfor %}
-							{% for type in cruleset.item_tags %}
-							<option>{{ type.name }}</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-						<template x-for="tool, index in tools">
-							<span class="chip" @click="removeTool(index)"><span x-text="tool"></span><span class="remove">&times</span></span>
-						</template>
-						<template x-for="tool, index in tools">
-							<input type="hidden" id="tool" name="tool" x-model="tools[index]">
-						</template> 
-					</div>
-					{% if background %}
-						{% for tool in background.tools %}
-							<template x-init="toolselect=`{{ tool }}`; appendTool()"></template>
-						{% endfor %}
-					{% endif %}
-				</div>
-			{% endif %}
-			{% if not cruleset.languages %}
-				<div class="mild danger">
-					<h3>Hey!</h3>
-					<p>You don't have any languages in this ruleset! Without adding any, you won't be able to specify languages granted by this background. You can create languages <a href="{{ url_for('eprefs.createLanguage', ruleset=cruleset.identifier) }}">here</a>.</p>
-				</div>
-				<div style="height: 30px"></div>
-			{% else %}
-				<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-					<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
-						<label for="languages">Languages:</label>
-						<input style="width: auto" type="number" id="langnum" name="langnum" x-model="langnum" placeholder="Number of Languages">
-						<select name="languages" id="languages" x-model="languageselect" style="width: auto" @change="appendLanguage()">
-							<option>Any</option>
-							{% for language in cruleset.languages %}
-							<option>{{ language.name }}</option>
-							{% endfor %}
-						</select>
-					</div>
-					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-						<template x-for="language, index in languages">
-							<span class="chip" @click="removeLanguage(index)"><span x-text="language"></span><span class="remove">&times</span></span>
-							<input type="hidden" name="language" id="language" x-model="languages[index]">
-						</template>
-					</div>
-					{% if background %}
-						<template x-init="langnum={{ background.lang_num }}"></template>
-						{% for language in background.languages %}
-							<template x-init="languageselect={{ language }}; appendLanguage()"></template>
-						{% endfor %}
-					{% endif %}
-				</div>
-			{% endif %}
-			{% if not cruleset.items %}
-				<div class="mild danger">
-					<h3>Hey!</h3>
-					<p>You don't have any items in this ruleset! Without adding any, you won't be able to specify items included in starting equipment granted by this background. You can create items <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
-				</div>
-				<div style="height: 30px"></div>
-			{% else %}
-				<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
-					<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
-						<label for="items">Starting Equipment:</label>
-						<select name="items" id="items" x-model="itemselect" style="width: auto" @change="appendItem()">
-							{% for item in cruleset.items %}
-							<option>{{ item.name }}</option>
-							{% endfor %}
-							<option>(Custom)</option>
-						</select>
-					</div>
-					<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
-						<template x-for="item, index in items">
-							<span class="chip" @click="removeItem(index)"><span x-text="item"></span><span class="remove">&times</span></span>
-						</template>
-						<template x-for="item, index in items">
-							<input type="hidden" id="item" name="item" x-model="items[index]">
-						</template> 
-					</div>
-					{% if background %}
-						{% for item in background.equipment %}
-							<template x-init="itemselect=`{{ item }}`; appendItem()"></template>
-						{% endfor %}
-					{% endif %}
-				</div>
-			{% endif %}
+	<div class="interior flex vertical start" style="width: 100%">
+		<input name="name" id="name" x-model="name" placeholder="Background Name" {% if background %} x-init="name=`{{ background.name }}`" {% endif %}>
+		{% if not cruleset.skills %}
+			<div class="mild danger">
+				<h3>Hey!</h3>
+				<p>You don't have any skills in this ruleset! Without adding any, you won't be able to specify skills granted by this background. You can create skills <a href="{{ url_for('eprefs.createSkill', ruleset=cruleset.identifier) }}">here</a>.</p>
+			</div>
+			<div style="height: 30px"></div>
+		{% else %}
 			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
 				<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
-					<label for="items">Starting Gold: </label>
-					<input name="goldcontainer" id="goldcontainer" x-model="goldcontainer" placeholder='Gold Container (e.g. "Purse," "Pouch", etc )' style="width: 33%; min-width: auto" {% if background %} x-init="goldcontainer=`{{ background.gold_container }}`" {% endif %}>
-					<input type="number" name="gold" id="gold" x-model="gold" style="width: 33%; min-width: auto" {% if background %} x-init="gold={{ background.starting_gold }}" {% endif %}>
+					<label for="tools">Skill Proficiencies:</label>
+					<select name="skills" id="skills" x-model="skillselect" style="width: auto" @change="appendSkill()">
+						{% for skill in cruleset.skills %}
+						<option>{{ skill.name }}</option>
+						{% endfor %}
+					</select>
 				</div>
+				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+					<template x-for="skill, index in skills">
+						<span class="chip" @click="removeSkill(index)"><span x-text="skill"></span><span class="remove">&times</span></span>
+					</template>
+					<template x-for="skill, index in skills">
+						<input type="hidden" id="skill" name="skill" x-model="skills[index]">
+					</template> 
+				</div>
+				{% if background %}
+					{% for skill in background.skills %}
+						<template x-init="skillselect=`{{ skill }}`; appendSkill()"></template>
+					{% endfor %}
+				{% endif %}
 			</div>
-			<textarea name="text" id="text" x-model="text" placeholder="Background Description" {% if background %} x-init="text=`{{ background.text }}`" {% endif %}></textarea>
-			<h2>Background Features</h2>
-			<template x-for="feature, index, in features">
-				<div class="interior flex horizontal center space-between" style="width: 100%">
-					<input x-model="features[index].name" placeholder="Feature Name" style="width: calc(50% - 24px)" id="featurename" name="featurename">
-					<a @click="deleteFeature(index)" style="width: calc(50% - 24px); text-align: right"><button class="mild danger" type="button">Delete Feature</button></a>
-					<textarea style="height: 200px" x-model="features[index].text" placeholder="Background Feature Description" id="featuretext" name="featuretext"></textarea>
+		{% endif %}
+		{% if not tools %}
+			<div class="mild danger">
+				<h3>Hey!</h3>
+				<p>You don't have any items with which players can have proficiency in this ruleset! Without adding any, you won't be able to specify tool proficiencies granted by this background. You can create items <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
+			</div>
+			<div style="height: 30px"></div>
+		{% else %}
+			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+				<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+					<label for="tools">Tool Proficiencies:</label>
+					<select name="tools" id="tools" x-model="toolselect" style="width: auto" @change="appendTool()">
+						{% for tool in tools %}
+						<option>{{ tool.name }}</option>
+						{% endfor %}
+						{% for type in cruleset.item_tags %}
+						<option>{{ type.name }}</option>
+						{% endfor %}
+					</select>
 				</div>
-			</template>
-			{% if background %}
-				<template x-init="features = []"></template>
-				{% for feature in background.background_features %}
-					<template x-init="features.push({name: `{{ feature.name }}`, text: `{{ feature.text }}`})"></template>
-				{% endfor %}
-			{% endif %}
-			<a @click="addFeature()"><button type="button">Add a Background Feature</button></a>
-		</div>
-		<div class="usercontent">
-			<h1 x-text="name"></h1>
-			<template x-if="skills.length != 0">
-				<p x-html="parseSkills()"></p>
-			</template>
-			<template x-if="tools != ''">
-				<p x-html="parseTools()"></p>
-			</template>
-			<template x-if="langnum != 0">
-				<p x-html="'<strong>Languages: </strong>' + parseLanguages()"></p>
-			</template>
-			<template x-if="parseItems() != ''">
-				<p x-html="parseItems()"></p>
-			</template>
-			<hr>
-			<div x-html="convert(text)" style="width: 100%"></div>
-			<template x-for="feature in features">
-				<div style="width: 100%">
-					<h2 x-text="feature.name"></h2>
-					<div x-html="convert(feature.text)"></div>
+				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+					<template x-for="tool, index in tools">
+						<span class="chip" @click="removeTool(index)"><span x-text="tool"></span><span class="remove">&times</span></span>
+					</template>
+					<template x-for="tool, index in tools">
+						<input type="hidden" id="tool" name="tool" x-model="tools[index]">
+					</template> 
 				</div>
-			</template>
+				{% if background %}
+					{% for tool in background.tools %}
+						<template x-init="toolselect=`{{ tool }}`; appendTool()"></template>
+					{% endfor %}
+				{% endif %}
+			</div>
+		{% endif %}
+		{% if not cruleset.languages %}
+			<div class="mild danger">
+				<h3>Hey!</h3>
+				<p>You don't have any languages in this ruleset! Without adding any, you won't be able to specify languages granted by this background. You can create languages <a href="{{ url_for('eprefs.createLanguage', ruleset=cruleset.identifier) }}">here</a>.</p>
+			</div>
+			<div style="height: 30px"></div>
+		{% else %}
+			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+				<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+					<label for="languages">Languages:</label>
+					<input style="width: auto" type="number" id="langnum" name="langnum" x-model="langnum" placeholder="Number of Languages">
+					<select name="languages" id="languages" x-model="languageselect" style="width: auto" @change="appendLanguage()">
+						<option>Any</option>
+						{% for language in cruleset.languages %}
+						<option>{{ language.name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+					<template x-for="language, index in languages">
+						<span class="chip" @click="removeLanguage(index)"><span x-text="language"></span><span class="remove">&times</span></span>
+						<input type="hidden" name="language" id="language" x-model="languages[index]">
+					</template>
+				</div>
+				{% if background %}
+					<template x-init="langnum={{ background.lang_num }}"></template>
+					{% for language in background.languages %}
+						<template x-init="languageselect={{ language }}; appendLanguage()"></template>
+					{% endfor %}
+				{% endif %}
+			</div>
+		{% endif %}
+		{% if not cruleset.items %}
+			<div class="mild danger">
+				<h3>Hey!</h3>
+				<p>You don't have any items in this ruleset! Without adding any, you won't be able to specify items included in starting equipment granted by this background. You can create items <a href="{{ url_for('eprefs.createItem', ruleset=cruleset.identifier) }}">here</a>.</p>
+			</div>
+			<div style="height: 30px"></div>
+		{% else %}
+			<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+				<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+					<label for="items">Starting Equipment:</label>
+					<select name="items" id="items" x-model="itemselect" style="width: auto" @change="appendItem()">
+						{% for item in cruleset.items %}
+						<option>{{ item.name }}</option>
+						{% endfor %}
+						<option>(Custom)</option>
+					</select>
+				</div>
+				<div class="interior flex horizontal start" style="background-color: inherit; width: 100%">
+					<template x-for="item, index in items">
+						<span class="chip" @click="removeItem(index)"><span x-text="item"></span><span class="remove">&times</span></span>
+					</template>
+					<template x-for="item, index in items">
+						<input type="hidden" id="item" name="item" x-model="items[index]">
+					</template> 
+				</div>
+				{% if background %}
+					{% for item in background.equipment %}
+						<template x-init="itemselect=`{{ item }}`; appendItem()"></template>
+					{% endfor %}
+				{% endif %}
+			</div>
+		{% endif %}
+		<div class="interior flex horizontal center" style="width: calc(100% - 24px); padding: 12px; background-color: var(--nord-inactive); margin: 12px">
+			<div class="interior flex horizontal space-between" style="width: 100%; box-sizing: border-box; margin: 0px; background-color: inherit">
+				<label for="items">Starting Gold: </label>
+				<input name="goldcontainer" id="goldcontainer" x-model="goldcontainer" placeholder='Gold Container (e.g. "Purse," "Pouch", etc )' style="width: 33%; min-width: auto" {% if background %} x-init="goldcontainer=`{{ background.gold_container }}`" {% endif %}>
+				<input type="number" name="gold" id="gold" x-model="gold" style="width: 33%; min-width: auto" {% if background %} x-init="gold={{ background.starting_gold }}" {% endif %}>
+			</div>
 		</div>
-		<a>
-			{% if background %}
-			<button 
-				hx-post="{{ url_for('epchar.editBackground', background=background.name, ruleset=cruleset.identifier) }}"
-				hx-swap="outerHTML">
-				Submit Changes
-			</button>
-			{% else %}
-			<button
-				hx-post="{{ url_for('epchar.createBackground', ruleset=cruleset.identifier) }}"
-				hx-swap="outerHTML">
-				Create Background!
-			</button>
-			{% endif %}
-		</a>
-	</form>
-
-	<div class="modal" x-show="modal" @click="modal = !modal"></div>
-	<div class="modal-alert flex vertical start" x-show="modal">
-		<h1>Add Custom Item</h1>
-		<p>Add a custom item to the background's starting equipment. This is typically used for items not found outside of a background's starting equipment, such as the leather ball that comes with the Athlete background.</p>
-		<div style="height: 30px"></div>
-		<input type="text" name="customitem" id="customitem" x-model="customitem">
-		<div style="height: 30px"></div>
-		<a><button @click="appendCustom()">Add Custom Item</button></a>
-		<div style="height: 30px"></div>
-		<a><span class="small" @click="modal = !modal">Nevermind</span></a>
+		<textarea name="text" id="text" x-model="text" placeholder="Background Description" {% if background %} x-init="text=`{{ background.text }}`" {% endif %}></textarea>
+		<h2>Background Features</h2>
+		<template x-for="feature, index, in features">
+			<div class="interior flex horizontal center space-between" style="width: 100%">
+				<input x-model="features[index].name" placeholder="Feature Name" style="width: calc(50% - 24px)" id="featurename" name="featurename">
+				<a @click="deleteFeature(index)" style="width: calc(50% - 24px); text-align: right"><button class="mild danger" type="button">Delete Feature</button></a>
+				<textarea style="height: 200px" x-model="features[index].text" placeholder="Background Feature Description" id="featuretext" name="featuretext"></textarea>
+			</div>
+		</template>
+		{% if background %}
+			<template x-init="features = []"></template>
+			{% for feature in background.background_features %}
+				<template x-init="features.push({name: `{{ feature.name }}`, text: `{{ feature.text }}`})"></template>
+			{% endfor %}
+		{% endif %}
+		<a @click="addFeature()"><button type="button">Add a Background Feature</button></a>
 	</div>
+	<div class="usercontent">
+		<h1 x-text="name"></h1>
+		<template x-if="skills.length != 0">
+			<p x-html="parseSkills()"></p>
+		</template>
+		<template x-if="tools != ''">
+			<p x-html="parseTools()"></p>
+		</template>
+		<template x-if="langnum != 0">
+			<p x-html="'<strong>Languages: </strong>' + parseLanguages()"></p>
+		</template>
+		<template x-if="parseItems() != ''">
+			<p x-html="parseItems()"></p>
+		</template>
+		<hr>
+		<div x-html="convert(text)" style="width: 100%"></div>
+		<template x-for="feature in features">
+			<div style="width: 100%">
+				<h2 x-text="feature.name"></h2>
+				<div x-html="convert(feature.text)"></div>
+			</div>
+		</template>
+	</div>
+	<a>
+		{% if background %}
+		<button 
+			hx-post="{{ url_for('epchar.editBackground', background=background.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for('epchar.createBackground', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Background!
+		</button>
+		{% endif %}
+	</a>
+	<template x-init="loadBackground ()"></template>
+</form>
+
+<div class="modal" x-show="modal" @click="modal = !modal"></div>
+<div class="modal-alert flex vertical start" x-show="modal">
+	<h1>Add Custom Item</h1>
+	<p>Add a custom item to the background's starting equipment. This is typically used for items not found outside of a background's starting equipment, such as the leather ball that comes with the Athlete background.</p>
+	<div style="height: 30px"></div>
+	<input type="text" name="customitem" id="customitem" x-model="customitem">
+	<div style="height: 30px"></div>
+	<a><button @click="appendCustom()">Add Custom Item</button></a>
+	<div style="height: 30px"></div>
+	<a><span class="small" @click="modal = !modal">Nevermind</span></a>
+</div>
 </div>
 {% endblock %}

@@ -5,51 +5,63 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-	<form class="flex vertical start" x-data="main" method="post">
-		<h1>{{ "Edit %s"|format(action.name) if action else "Create Action" }}</h1>
+<div class="flex" x-data="main">
+<form class="flex vertical start"" method="post" @keyup="localStorage.setItem ('cached_action', compileAction ())">
+	<h1>{{ "Edit %s"|format(action.name) if action else "Create Action" }}</h1>
 
-		<input 
-			name="name" 
-			id="name" 
-			x-model="name" 
-			placeholder="Action Name" 
-			@keyup="writeAction(name, time, text)"
-			{% if action %} 
-				x-init="name = `{{ action.name }}`" 
-			{% else %}
-				x-init="readAction()"
-			{% endif %}
-		>
-		<input 
-			name="time" 
-			id="time" 
-			x-model="time" 
-			placeholder="How Long Does the Action Take?" 
-			@keyup="writeAction(name, time, text)"
-			{% if action %} 
-				x-init="time = `{{ action.time }}`" 
-			{% endif %}
-		>
+	<input 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		placeholder="Action Name" 
+		{% if action %} 
+			x-init="name = `{{ action.name }}`" 
+		{% else %}
+			x-init="readAction()"
+		{% endif %}
+	>
+	<input 
+		name="time" 
+		id="time" 
+		x-model="time" 
+		placeholder="How Long Does the Action Take?" 
+		{% if action %} 
+			x-init="time = `{{ action.time }}`" 
+		{% endif %}
+	>
 
-		<textarea 
-			name="text" 
-			id="text" 
-			x-model="text" 
-			placeholder="Action Description" 
-			@keyup="writeAction(name, time, text)"
-			{% if action %} 
-				x-init="text = `{{ action.text }}`" 
-			{% endif %}>
-		</textarea>
+	<textarea 
+		name="text" 
+		id="text" 
+		x-model="text" 
+		placeholder="Action Description" 
+		{% if action %} 
+			x-init="text = `{{ action.text }}`" 
+		{% endif %}>
+	</textarea>
 
-		<h2 x-text="name"></h2>
-		<p><strong><em>Time: </em></strong><span x-text="time"></span></p>
-		<hr>
-		<div class="usercontent" x-html="convert(text)"></div>
+	<h2 x-text="name"></h2>
+	<p><strong><em>Time: </em></strong><span x-text="time"></span></p>
+	<hr>
+	<div class="usercontent" x-html="convert(text)"></div>
 
-		<a><button type="submit">{{ "Submit Changes" if action else "Create Action!" }}</button></a>
-	</form>
+	<a>
+		{% if action %}
+		<button 
+			hx-post="{{ url_for('eprefs.editAction', action=action.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for('eprefs.createAction', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Action!
+		</button>
+		{% endif %}
+	</a>
+	<template x-init="readAction ()"></template>
+</form>
 </div>
 
 {% endblock %}

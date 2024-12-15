@@ -130,6 +130,93 @@ document.addEventListener ("alpine:init", () => {
         converter: new showdown.Converter({tables: true}),
         convert(text) {
             return(this.converter.makeHtml(text))
+        },
+
+        compileItem () {
+            item = {
+                name: this.name,
+                ismagical: this.ismagical,
+                tier: this.tier,
+                rarity: this.rarity,
+                strength: this.strength,
+                stealth: this.stealth,
+
+                versatiledisplayers: this.versatiledisplayers,
+                rangedisplayers: this.rangedisplayers,
+
+                cost: this.cost,
+                weight: this.weight,
+
+                proficiency: this.proficiency,
+                isweapon: this.isweapon,
+                isarmor: this.isarmor,
+                adddex: this.adddex,
+                armorclass: this.armorclass,
+                maxdex: this.maxdex,
+                stealthdisadvantage: this.stealthdisadvantage,
+
+                taglist: this.taglist, //
+
+                propertylist: this.propertylist, //
+                dienum: this.dienum,
+                damagedie: this.damagedie,
+                damagetype: this.damagetype,
+                longrange: this.longrange,
+                shortrange: this.shortrange,
+                versatilenum: null,
+                versatiledie: 4,
+
+                text: this.text
+            }
+
+            return (JSON.stringify (item));
+        },
+
+        readItem () {
+            item = JSON.parse (localStorage.getItem ("cached_item"));
+            if(item == null) {
+                return;
+            }
+
+            this.name = item.name;
+            this.ismagical = item.ismagical;
+            this.tier = item.tier;
+            this.rarity = item.rarity;
+            this.strength = item.strength;
+            this.stealth = item.stealth;
+
+            this.versatiledisplayers = item.versatiledisplayers;
+            this.rangedisplayers = item.rangedisplayers;
+
+            this.cost = item.cost;
+            this.weight = item.weight;
+
+            this.proficiency = item.proficiency;
+            this.isweapon = item.isweapon;
+            this.isarmor = item.isarmor;
+            this.adddex = item.adddex;
+            this.armorclass = item.armorclass;
+            this.maxdex = item.maxdex;
+            this.stealthdisadvantage = item.stealthdisadvantage;
+
+            this.taglist = item.taglist;
+            this.updateTags ();
+
+            this.propertylist = item.propertylist;
+            this.updateProperties ();
+            this.dienum = item.dienum;
+            this.damagedie = item.damagedie;
+            this.damagetype = item.damagetype;
+            this.longrange = item.longrange;
+            this.shortrannge = item.shortrange;
+            this.versatilenum = item.versatilenum;
+            this.versatiledie = item.versatiledie;
+
+            this.text = item.text;
         }
     }))
+})
+
+document.addEventListener ("htmx:afterswap", (event) => {
+    alpine.initializeWithin(event.detail.elt);
 })

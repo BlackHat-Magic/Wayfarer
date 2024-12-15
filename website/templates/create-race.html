@@ -6,9 +6,8 @@
 
 {% block body %}
 <div class="flex">
-<form class="flex vertical start" x-data="main" method="post" @keyup="localStorage.setItem('cached_race', JSON.stringify(compileRace()))">
+<form class="flex vertical start" x-data="main" method="post" @keyup="localStorage.setItem ('cached_race', compileRace ())">
 	<h1>{{ "Edit %s"|format(race.name) if race else "Create a Race" }}</h1>
-	<template x-init="loadRace()"></template>
 
 	<h2>Base Race Info</h2>
 	<input 
@@ -374,6 +373,7 @@
 		</button>
 		{% endif %}
 	</a>
+	<template x-init="loadRace ()"></template>
 </div>
 </div>
 {% endblock %}

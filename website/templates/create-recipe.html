@@ -5,19 +5,45 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-	<form class="flex vertical start" x-data="main" method="post">
-		<h1>{{ "Edit %s"|format(recipe.name) if recipe else "Create Recipe" }}</h1>
+<div class="flex" x-data="main">
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem ('cached_recipe', compileRecipe ())">
+	<h1>{{ "Edit %s"|format(recipe.name) if recipe else "Create Recipe" }}</h1>
 
-		<input name="name" id="name" x-model="name" placeholder="Recipe Name" {% if recipe %} x-init="name = `{{ recipe.name }}`" {% endif %}>
-		<textarea name="text" id="text" x-model="text" placeholder="Recipe Description" {% if recipe %} x-init="text = `{{ recipe.text }}`" {% endif %}></textarea>
+	<input 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		placeholder="Recipe Name" 
+		{% if recipe %} x-init="name = `{{ recipe.name }}`" {% endif %}>
+	<textarea 
+		name="text" 
+		id="text" 
+		x-model="text" 
+		placeholder="Recipe Description" 
+		{% if recipe %} x-init="text = `{{ recipe.text }}`" {% endif %}>
+	</textarea>
 
-		<h2 x-text="name"></h2>
-		<hr>
-		<div class="usercontent" x-html="convert(text)"></div>
+	<h2 x-text="name"></h2>
+	<hr>
+	<div class="usercontent" x-html="convert(text)"></div>
 
-		<a><button type="submit">{{"Submit Changes" if recipe else "Create Recipe!"}}</button></a>
-	</form>
+	<a>
+		{% if recipe %}
+		<button 
+			hx-post="{{ url_for('eprefs.editRecipe', recipe=recipe.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for('eprefs.createRecipe', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Recipe!
+		</button>
+		{% endif %}
+	</a>
+	<template x-init="readRecipe ()"></template>
+</form>
 </div>
 
 {% endblock %}

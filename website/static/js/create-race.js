@@ -197,7 +197,7 @@ document.addEventListener ("alpine:init", () => {
                 subrace_flavor: this.subrace_flavor
             };
 
-            return (race);
+            return (JSON.stringify (race));
         },
 
         loadRace (race) {

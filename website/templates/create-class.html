@@ -7,11 +7,11 @@
 {% block body %}
 <div  x-data="main">
 <div class="flex">
-<form class="flex vertical start" method="post">
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem('cached_class', compileClass ())">
 <h1>{{ "Edit %s"|format(tclass.name) if tclass else "Create a Class" }}</h1>
 <h2>Base Class Info</h2>
 <!-- Class name -->
-		<input type="text" name="name" id="name" placeholder="Class Name" x-model="name" {% if tclass %} x-init="name=`{{ tclass.name }}`" {% endif %}>
+<input type="text" name="name" id="name" placeholder="Class Name" x-model="name" {% if tclass %} x-init="name=`{{ tclass.name }}`" {% endif %}>
 
 <!-- Hit Dice and Gold and Additional Levels-->
 <div class="interior flex horizontal space-between" style="width: 100%">
@@ -356,7 +356,26 @@
 	{% endfor %}
 {% endif %}
 <a @click="subclasses.push({name: '', text: '', castertype: '', columns: [], features: [{name: '', level: null, text: ''}]})"><button type="button">Add Subclass</button></a>
-<a><button type="submit" x-ref="submitbutton" x-show="false"> Snoopy >:(</button></a>
+<a>
+	{% if tclass %}
+	<button 
+		x-ref="submitbutton" 
+		x-show="false"
+		hx-post="{{ url_for('epchar.editClass', class=tclass.name, ruleset=cruleset.identifier) }}"
+		hx-swap="outerHTML"> 
+		Snoopy >:(
+	</button>
+	{% else %}
+	<button
+		x-ref="submitbutton"
+		x-show="false"
+		hx-post="{{ url_for('epchar.createClass', ruleset=cruleset.identifier) }}"
+		hx-swap="outerHTML">
+		Snoopy >:(
+	</button>
+	{% endif %}
+</a>
+<template x-init="readClass ()"></template>
 </form>
 </div>
 <div class="flex">

@@ -14,7 +14,7 @@
 			{% if cruleset.userid == current_user.id %}
 				<div>
 					<a href="{{ url_for('epchar.editStat', score=score.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Edit {{ score.name }}</button></a>
-					<a href="{{ url_for('epchar.duplicateStat', score=score.name, ruleset=cruleset.identifier) }}"><button style="width: auto">Duplicate {{ score.name }}</button></a>
+					<a><button style="width: auto" hx-post="{{ url_for('epchar.duplicateStat', score=score.name, ruleset=cruleset.identifier) }}" hx-swap="outerHTML">Duplicate {{ score.name }}</button></a>
 					<a href="{{ url_for('epchar.deleteStat', score=score.name, ruleset=cruleset.identifier) }}"><button class="mild danger" style="width: auto">Delete {{ score.name }}</button></a>
 				</div>
 			{% endif %}

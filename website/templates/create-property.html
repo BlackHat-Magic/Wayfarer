@@ -5,35 +5,61 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-	<form class="flex vertical start" x-data="main" method="post">
-		<!-- title -->
-		<h1>{{ "Edit %s"|format(tproperty.name) if tproperty else "Create Weapon Property" }}</h1>
+<div class="flex" x-data="main">
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem('cached_property', compileProperty ())">
+	<!-- title -->
+	<h1>{{ "Edit %s"|format(tproperty.name) if tproperty else "Create Weapon Property" }}</h1>
 
-		<!-- name -->
-		<input name="name" id="name" x-model="name" placeholder="Weapon Property Name" {% if tproperty %} x-init="name=`{{ tproperty.name }}`" {% endif %}>
+	<!-- name -->
+	<input 
+		name="name" 
+		id="name" 
+		x-model="name" 
+		placeholder="Weapon Property Name" 
+		{% if tproperty %} x-init="name=`{{ tproperty.name }}`" {% endif %}>
 
-		<!-- boolean values -->
-		<div class="interior flex horizontal space-around" style="width: 100%">
-			<div class="interior flex horizontal center">
-				<label for="showversatile">Show Versatile?</label>
-				<input type="checkbox" name="showversatile" id="showversatile" x-model="showversatile" value="1" {% if tproperty and tproperty.displays_versatile %} x-init="showversatile = true" {% endif %}>
-			</div>
-			<div class="interior flex horizontal center">
-				<label for="showrange">Show Range?</label>
-				<input type="checkbox" name="showrange" id="showrange" x-model="showrange" value="1" {% if tproperty and tproperty.displays_range %} x-init="showrange = true" {% endif %}>
-			</div>
+	<!-- boolean values -->
+	<div class="interior flex horizontal space-around" style="width: 100%">
+		<div class="interior flex horizontal center">
+			<label for="showversatile">Show Versatile?</label>
+			<input type="checkbox" name="showversatile" id="showversatile" x-model="showversatile" value="1" {% if tproperty and tproperty.displays_versatile %} x-init="showversatile = true" {% endif %}>
 		</div>
+		<div class="interior flex horizontal center">
+			<label for="showrange">Show Range?</label>
+			<input type="checkbox" name="showrange" id="showrange" x-model="showrange" value="1" {% if tproperty and tproperty.displays_range %} x-init="showrange = true" {% endif %}>
+		</div>
+	</div>
 
-		<!-- text -->
-		<textarea name="text" id="text" x-model="text" placeholder="Weapon Property Description" {% if tproperty %} x-init="text=`{{ tproperty.text }}`" {% endif %}></textarea>
+	<!-- text -->
+	<textarea 
+		name="text" 
+		id="text" 
+		x-model="text" 
+		placeholder="Weapon Property Description" 
+		{% if tproperty %} x-init="text=`{{ tproperty.text }}`" {% endif %}>
+	</textarea>
 
-		<!-- preview -->
-		<h2 x-text="name"></h2>
-		<hr>
-		<div class="usercontent" x-html="convert(text)"></div>
-		<a><button type="submit">{{ "Submit Changes" if tproperty else "Create Weapon Property!" }}</button></a>
-	</form>
+	<!-- preview -->
+	<h2 x-text="name"></h2>
+	<hr>
+	<div class="usercontent" x-html="convert(text)"></div>
+	<a>
+		{% if tproperty %}
+		<button 
+			hx-post="{{ url_for('eprefs.editProperty', item=tproperty.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for('eprefs.createProperty', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Property!
+		</button>
+		{% endif %}
+	</a>
+	<template x-init="readProperty ()"></template>
+</form>
 </div>
 
 {% endblock %}

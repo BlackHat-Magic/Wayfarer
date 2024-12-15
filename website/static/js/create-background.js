@@ -219,7 +219,7 @@ document.addEventListener ("alpine:init", () => {
                 features: this.features
             };
 
-            return (background);
+            return (JSON.stringify (background));
         },
 
         loadBackground () {

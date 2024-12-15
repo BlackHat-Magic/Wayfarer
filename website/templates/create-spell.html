@@ -5,9 +5,10 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex">
-<form class="flex vertical start" x-data="main" method="post">
+<div class="flex" x-data="main">
+<form class="flex vertical start" method="post" @keyup="localStorage.setItem ('cached_spell', compileSpell ())">
 	<h1>{{ "Edit %s"|format(spell.name) if spell else "Create a Spell" }}</h1>
+
 	<input type="text" name="name" id="name" x-model="name" placeholder="Item Name">
 	<div class="interior flex horizontal space-around" style="width: 100%">
 		<div class="interior flex horizontal start">
@@ -77,7 +78,23 @@
 		<hr>
 		<div x-html="convert(text)"></div>
 	</div>
-	<a><button type="submit">{{ "Submit Changes" if spell else "Create Spell!" }}</button></a>
+
+	<a>
+		{% if spell %}
+		<button 
+			hx-post="{{ url_for('eprefs.editSpell', spell=spell.name, ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Submit Changes
+		</button>
+		{% else %}
+		<button
+			hx-post="{{ url_for('eprefs.createSpell', ruleset=cruleset.identifier) }}"
+			hx-swap="outerHTML">
+			Create Spell!
+		</button>
+		{% endif %}
+	</a>
+	<template x-init="readSpell ()"></template>
 </form>
 </div>
 {% endblock %}
